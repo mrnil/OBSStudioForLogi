@@ -12,7 +12,7 @@ name: OBSStudioForLogi
 displayName: OBSStudioForLogi
 
 # Short description of the plugin.
-description: Add a short description of the plugin here.
+description: Control OBS Studio via WebSocket connection
 
 # Name of the plugin library file.
 pluginFileName: OBSStudioForLogiPlugin.dll
@@ -21,10 +21,19 @@ pluginFileName: OBSStudioForLogiPlugin.dll
 version: 1.0
 
 # Author of the plugin. The author can be a company or an individual developer.
-author: 
+author: OBS Plugin Developer
 
 # Copyright information.
-copyright: Copyright © 2025 . All rights reserved.
+copyright: Copyright © 2025 OBS Plugin Developer. All rights reserved.
+
+# ==================================================================================================
+# PLUGIN SETTINGS
+# ==================================================================================================
+
+# Default OBS WebSocket connection settings
+settings:
+  defaultIpAddress: 127.0.0.1
+  defaultPort: 4455
 
 
 # ==================================================================================================
