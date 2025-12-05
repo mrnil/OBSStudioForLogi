@@ -23,6 +23,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             });
         }
 
+        public void SetCurrentScene(String sceneName)
+        {
+            this._obs?.SetCurrentProgramScene(sceneName);
+        }
+
         public void Disconnect()
         {
             this._obs?.Disconnect();

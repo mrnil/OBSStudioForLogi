@@ -2,34 +2,38 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    // This class contains the plugin-level logic of the Loupedeck plugin.
-
     public class OBSStudioForLogiPlugin : Plugin
     {
-        // Gets a value indicating whether this is an API-only plugin.
-        public override Boolean UsesApplicationApiOnly => true;
+        public static OBSStudioForLogiPlugin Instance { get; private set; }
+        private OBSWebSocketManager _obsManager;
 
-        // Gets a value indicating whether this is a Universal plugin or an Application plugin.
+        public override Boolean UsesApplicationApiOnly => true;
         public override Boolean HasNoApplication => true;
 
-        // Initializes a new instance of the plugin class.
         public OBSStudioForLogiPlugin()
         {
-            // Initialize the plugin log.
+            Instance = this;
             PluginLog.Init(this.Log);
-
-            // Initialize the plugin resources.
             PluginResources.Init(this.Assembly);
         }
 
-        // This method is called when the plugin is loaded.
         public override void Load()
         {
+            this._obsManager = new OBSWebSocketManager();
+            _ = this._obsManager.ConnectAsync("ws://localhost:4455", "");
         }
 
-        // This method is called when the plugin is unloaded.
         public override void Unload()
         {
+            this._obsManager?.Dispose();
+        }
+
+        public void SwitchScene(String sceneName)
+        {
+            if (!this._obsManager.IsConnected)
+                return;
+
+            this._obsManager.SetCurrentScene(sceneName);
         }
     }
 }
