@@ -103,6 +103,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                         this._log.Info($"Initial profile: '{profiles.CurrentProfileName}'");
                     }
 
+                    var sceneList = this._obs.GetSceneList();
+                    if (sceneList?.CurrentProgramSceneName != null)
+                    {
+                        this.Actions.SetCurrentSceneState(sceneList.CurrentProgramSceneName);
+                        this._log.Info($"Initial scene: '{sceneList.CurrentProgramSceneName}'");
+                    }
+
                     // Load initial scene list
                     this.UpdateSceneList();
                 }
