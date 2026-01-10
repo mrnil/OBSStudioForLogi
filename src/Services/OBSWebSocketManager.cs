@@ -20,16 +20,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private Boolean _shouldReconnect = false;
         private Boolean _disposed = false;
         private OutputState _streamingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
-        private OutputState _recordingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
 
         public Boolean IsConnected => this._obs?.IsConnected ?? false;
         public Boolean ShouldReconnect => this._shouldReconnect;
         public Boolean IsStreaming => this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
-        public Boolean IsRecording => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
+        public Boolean IsRecording => this.Actions.IsRecording;
         public Boolean IsStreamingChanging => this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING 
                                             || this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
-        public Boolean IsRecordingChanging => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING 
-                                            || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
+        public Boolean IsRecordingChanging => this.Actions.IsRecordingChanging;
+        public OBSActionExecutor Actions { get; }
 
         public OBSWebSocketManager() : this(new PluginLogAdapter())
         {
@@ -39,6 +38,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._log = log;
             this._obs = new OBSWebsocket();
+            this.Actions = new OBSActionExecutor(new OBSWebsocketAdapter(this._obs), log);
             this._reconnectTimer = new Timer();
             this._reconnectTimer.Elapsed += this.OnReconnectTimer;
             this._reconnectTimer.AutoReset = false;
@@ -65,41 +65,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             });
         }
 
-        public void SetCurrentScene(String sceneName)
-        {
-            Task.Run(() =>
-            {
-                if (!this.IsConnected)
-                {
-                    this._log.Warning($"Cannot set scene '{sceneName}' - not connected");
-                    return;
-                }
-                
-                this._log.Info($"Setting current scene to '{sceneName}'");
-                this._obs?.SetCurrentProgramScene(sceneName);
-            });
-        }
 
-        public void ToggleRecording()
-        {
-            Task.Run(() =>
-            {
-                if (!this.IsConnected)
-                {
-                    this._log.Warning("Cannot toggle recording - not connected");
-                    return;
-                }
-
-                if (this.IsRecordingChanging)
-                {
-                    this._log.Warning("Cannot toggle recording - state change in progress");
-                    return;
-                }
-
-                this._log.Info("Toggling recording");
-                this._obs?.ToggleRecord();
-            });
-        }
 
         public void Disconnect()
         {
@@ -127,7 +93,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._log.Warning($"WebSocket disconnected: {e.DisconnectReason}");
             
             this._streamingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
-            this._recordingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
+            this.Actions.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             
             if (this._shouldReconnect && !this._disposed)
             {
@@ -146,8 +112,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         private void OnRecordStateChanged(Object sender, RecordStateChangedEventArgs e)
         {
-            this._recordingState = e?.OutputState?.State ?? OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
-            this._log.Info($"Recording state changed to {this._recordingState}");
+            var state = e?.OutputState?.State ?? OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
+            this.Actions.SetRecordingState(state);
+            this._log.Info($"Recording state changed to {state}");
         }
 
         private void OnReconnectTimer(Object sender, ElapsedEventArgs e)
