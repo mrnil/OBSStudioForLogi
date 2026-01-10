@@ -11,6 +11,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private OutputState _recordingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
 
         public Boolean IsRecording => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
+        public Boolean IsRecordingPaused { get; private set; }
         public Boolean IsRecordingChanging => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING 
                                             || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
 
@@ -140,9 +141,50 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             });
         }
 
+        public void ToggleRecordingPause()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot toggle recording pause - not connected");
+                    return;
+                }
+
+                if (!this.IsRecording)
+                {
+                    this._log.Warning("Cannot toggle recording pause - not recording");
+                    return;
+                }
+
+                this._log.Info("Toggling recording pause");
+                if (this.IsRecordingPaused)
+                {
+                    this._obs.ResumeRecord();
+                }
+                else
+                {
+                    this._obs.PauseRecord();
+                }
+            });
+        }
+
         public void SetRecordingState(OutputState state)
         {
             this._recordingState = state;
+            
+            if (state == OutputState.OBS_WEBSOCKET_OUTPUT_PAUSED)
+            {
+                this.IsRecordingPaused = true;
+            }
+            else if (state == OutputState.OBS_WEBSOCKET_OUTPUT_RESUMED || state == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED)
+            {
+                this.IsRecordingPaused = false;
+            }
+            else if (state == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED)
+            {
+                this.IsRecordingPaused = false;
+            }
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             var isRecording = OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
-            var iconName = isRecording ? "RecordingOn.svg" : "RecordingOff.svg";
+            var iconName = isRecording ? "RecordingOff.svg" : "RecordingOn.svg";
             
             return EmbeddedResources.ReadImage($"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconName}");
         }

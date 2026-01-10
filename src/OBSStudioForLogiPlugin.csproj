@@ -44,6 +44,12 @@
     <EmbeddedResource Include="Icons\RecordingOff.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOff.svg</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Icons\RecordingPause.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingPause.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\RecordingResume.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingResume.svg</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="CopyPackage" AfterTargets="PostBuildEvent">
