@@ -55,14 +55,17 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void SetCurrentScene(String sceneName)
         {
-            if (!this.IsConnected)
+            Task.Run(() =>
             {
-                this._log.Warning($"Cannot set scene '{sceneName}' - not connected");
-                return;
-            }
-            
-            this._log.Info($"Setting current scene to '{sceneName}'");
-            this._obs?.SetCurrentProgramScene(sceneName);
+                if (!this.IsConnected)
+                {
+                    this._log.Warning($"Cannot set scene '{sceneName}' - not connected");
+                    return;
+                }
+                
+                this._log.Info($"Setting current scene to '{sceneName}'");
+                this._obs?.SetCurrentProgramScene(sceneName);
+            });
         }
 
         public void Disconnect()

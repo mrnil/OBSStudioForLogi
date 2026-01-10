@@ -57,28 +57,31 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         private async void OnApplicationStarted(Object sender, EventArgs e)
         {
-            PluginLog.Info("OBS application started");
-            
-            var settings = this._configReader.ReadConfig();
-            if (settings == null)
+            await Task.Run(async () =>
             {
-                PluginLog.Warning("No valid OBS configuration found");
-                return;
-            }
+                PluginLog.Info("OBS application started");
+                
+                var settings = this._configReader.ReadConfig();
+                if (settings == null)
+                {
+                    PluginLog.Warning("No valid OBS configuration found");
+                    return;
+                }
 
-            PluginLog.Info($"Waiting for OBS WebSocket port {settings.Port} to be ready");
-            var portReady = await this._lifecycleManager.WaitForPortAsync("127.0.0.1", settings.Port);
-            
-            if (portReady)
-            {
-                await Task.Delay(2000);
-                PluginLog.Info("Initiating connection to OBS");
-                await this._obsManager.ConnectAsync(settings.GetWebSocketUrl(), settings.Password);
-            }
-            else
-            {
-                PluginLog.Error("OBS WebSocket port did not become available");
-            }
+                PluginLog.Info($"Waiting for OBS WebSocket port {settings.Port} to be ready");
+                var portReady = await this._lifecycleManager.WaitForPortAsync("127.0.0.1", settings.Port);
+                
+                if (portReady)
+                {
+                    await Task.Delay(2000);
+                    PluginLog.Info("Initiating connection to OBS");
+                    await this._obsManager.ConnectAsync(settings.GetWebSocketUrl(), settings.Password);
+                }
+                else
+                {
+                    PluginLog.Error("OBS WebSocket port did not become available");
+                }
+            });
         }
 
         private void OnApplicationStopped(Object sender, EventArgs e)
