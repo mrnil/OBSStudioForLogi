@@ -209,6 +209,18 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._currentSceneCollection = sceneCollectionName;
         }
 
+        public String[] GetSceneList()
+        {
+            if (!this._obs.IsConnected)
+            {
+                this._log.Warning("Cannot get scene list - not connected");
+                return new String[0];
+            }
+
+            this._log.Info("Getting scene list");
+            return this._obs.GetSceneList();
+        }
+
         public void SetRecordingState(OutputState state)
         {
             this._recordingState = state;

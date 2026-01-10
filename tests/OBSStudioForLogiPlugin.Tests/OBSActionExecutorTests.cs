@@ -137,4 +137,26 @@ public class OBSActionExecutorTests
 
         Assert.False(this._executor.IsRecordingPaused);
     }
+
+    [Fact]
+    public void GetSceneList_WhenConnected_ReturnsScenes()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetSceneList()).Returns(new[] { "Scene 1", "Scene 2" });
+
+        var result = this._executor.GetSceneList();
+
+        Assert.Equal(2, result.Length);
+        Assert.Contains("Scene 1", result);
+    }
+
+    [Fact]
+    public void GetSceneList_WhenNotConnected_ReturnsEmpty()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(false);
+
+        var result = this._executor.GetSceneList();
+
+        Assert.Empty(result);
+    }
 }

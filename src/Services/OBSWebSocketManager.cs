@@ -49,6 +49,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.RecordStateChanged += this.OnRecordStateChanged;
             this._obs.CurrentProfileChanged += this.OnCurrentProfileChanged;
             this._obs.CurrentSceneCollectionChanged += this.OnCurrentSceneCollectionChanged;
+            this._obs.SceneListChanged += this.OnSceneListChanged;
             
             this._log.Info("OBSWebSocketManager initialized");
         }
@@ -176,6 +177,31 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             
             // Notify SceneCollectionSelectCommand
             OBSStudioForLogiPlugin.Instance?.OnSceneCollectionChanged(oldSceneCollection, e.SceneCollectionName);
+            
+            // Update scenes in dynamic folder
+            this.UpdateSceneList();
+        }
+
+        private void OnSceneListChanged(Object sender, EventArgs e)
+        {
+            this._log.Info("Scene list changed");
+            this.UpdateSceneList();
+        }
+
+        private void UpdateSceneList()
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    var scenes = this.Actions.GetSceneList();
+                    OBSStudioForLogiPlugin.Instance?.OnScenesChanged(scenes);
+                }
+                catch (Exception ex)
+                {
+                    this._log.Warning($"Failed to get scene list: {ex.Message}");
+                }
+            });
         }
 
         private void OnReconnectTimer(Object sender, ElapsedEventArgs e)

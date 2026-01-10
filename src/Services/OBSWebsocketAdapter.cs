@@ -1,6 +1,7 @@
 namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
+    using System.Linq;
     using OBSWebsocketDotNet;
 
     public class OBSWebsocketAdapter : IOBSWebsocket
@@ -64,6 +65,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void SetCurrentSceneCollection(String sceneCollectionName)
         {
             this._obs?.SetCurrentSceneCollection(sceneCollectionName);
+        }
+
+        public String[] GetSceneList()
+        {
+            var scenes = this._obs?.GetSceneList()?.Scenes;
+            return scenes?.Select(s => s.Name).ToArray() ?? new String[0];
         }
     }
 }

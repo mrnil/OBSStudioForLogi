@@ -83,6 +83,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     await Task.Delay(500);
                     ProfileSelectCommand.Instance?.OnConnected();
                     SceneCollectionSelectCommand.Instance?.OnConnected();
+                    this.UpdateScenes();
                 }
                 else
                 {
@@ -122,6 +123,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 await Task.Delay(500);
                 ProfileSelectCommand.Instance?.OnConnected();
                 SceneCollectionSelectCommand.Instance?.OnConnected();
+                this.UpdateScenes();
             }
             else
             {
@@ -204,6 +206,17 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnSceneCollectionChanged(String oldSceneCollection, String newSceneCollection)
         {
             SceneCollectionSelectCommand.Instance?.OnCurrentSceneCollectionChanged(oldSceneCollection, newSceneCollection);
+        }
+
+        public void OnScenesChanged(String[] scenes)
+        {
+            ScenesDynamicFolder.Instance?.UpdateScenes(scenes);
+        }
+
+        private void UpdateScenes()
+        {
+            var scenes = this._obsManager?.Actions.GetSceneList() ?? new String[0];
+            ScenesDynamicFolder.Instance?.UpdateScenes(scenes);
         }
 
         public Boolean IsRecording => this._obsManager?.IsRecording ?? false;
