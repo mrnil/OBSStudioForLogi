@@ -16,7 +16,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
-            return null;
+            return "Profile";
         }
 
         public void UpdateProfile(String profileName)
@@ -33,7 +33,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             using (var bitmapBuilder = new BitmapBuilder(imageSize))
             {
                 bitmapBuilder.Clear(BitmapColor.Black);
-                bitmapBuilder.DrawText(this._currentProfile, BitmapColor.White, imageSize == PluginImageSize.Width90 ? 12 : 9);
+                bitmapBuilder.DrawText("Profile", BitmapColor.White, 8);
+                bitmapBuilder.DrawText(this._currentProfile, BitmapColor.White, imageSize == PluginImageSize.Width90 ? 14 : 11);
                 return bitmapBuilder.ToImage();
             }
         }
