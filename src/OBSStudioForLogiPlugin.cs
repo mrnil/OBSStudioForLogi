@@ -30,17 +30,25 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsManager = new OBSWebSocketManager();
             this._lifecycleManager = new OBSLifecycleManager();
 
-            this.ClientApplication.ApplicationStarted += this.OnApplicationStarted;
-            this.ClientApplication.ApplicationStopped += this.OnApplicationStopped;
-            
-            if (this.ClientApplication.IsRunning())
+            if (!this.HasNoApplication)
             {
-                PluginLog.Info("OBS detected via ClientApplication");
-                this.OnApplicationStarted(this, EventArgs.Empty);
+                this.ClientApplication.ApplicationStarted += this.OnApplicationStarted;
+                this.ClientApplication.ApplicationStopped += this.OnApplicationStopped;
+                
+                if (this.ClientApplication.IsRunning())
+                {
+                    PluginLog.Info("OBS detected via ClientApplication");
+                    this.OnApplicationStarted(this, EventArgs.Empty);
+                }
+                else
+                {
+                    PluginLog.Info("OBS not detected, attempting direct connection");
+                    Task.Run(() => this.TryDirectConnection());
+                }
             }
             else
             {
-                PluginLog.Info("OBS not detected, attempting direct connection");
+                PluginLog.Info("Plugin in general mode, attempting direct connection");
                 Task.Run(() => this.TryDirectConnection());
             }
             
@@ -51,8 +59,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             PluginLog.Info("Plugin unloading...");
             
-            this.ClientApplication.ApplicationStarted -= this.OnApplicationStarted;
-            this.ClientApplication.ApplicationStopped -= this.OnApplicationStopped;
+            if (!this.HasNoApplication)
+            {
+                this.ClientApplication.ApplicationStarted -= this.OnApplicationStarted;
+                this.ClientApplication.ApplicationStopped -= this.OnApplicationStopped;
+            }
             
             this._obsManager?.Dispose();
             PluginLog.Info("Plugin unloaded");
