@@ -11,7 +11,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private OutputState _recordingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
 
         public Boolean IsRecording => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
-        public Boolean IsRecordingPaused { get; private set; }
         public Boolean IsRecordingChanging => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING 
                                             || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
 
@@ -117,7 +116,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
                 this._log.Info("Pausing recording");
                 this._obs.PauseRecord();
-                this.IsRecordingPaused = true;
             });
         }
 
@@ -139,18 +137,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
                 this._log.Info("Resuming recording");
                 this._obs.ResumeRecord();
-                this.IsRecordingPaused = false;
             });
         }
 
         public void SetRecordingState(OutputState state)
         {
             this._recordingState = state;
-        }
-
-        public void SetRecordingPaused(Boolean paused)
-        {
-            this.IsRecordingPaused = paused;
         }
     }
 }

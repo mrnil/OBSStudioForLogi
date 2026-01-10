@@ -94,7 +94,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             
             this._streamingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
             this.Actions.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
-            this.Actions.SetRecordingPaused(false);
             
             if (this._shouldReconnect && !this._disposed)
             {
