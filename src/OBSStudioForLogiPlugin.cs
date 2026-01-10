@@ -166,6 +166,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsManager.Actions.SetCurrentProfile(profileName);
         }
 
+        public String CurrentProfile => this._obsManager?.Actions.CurrentProfile ?? String.Empty;
+
         public Boolean IsRecording => this._obsManager?.IsRecording ?? false;
         public Boolean IsRecordingPaused => this._obsManager?.Actions.IsRecordingPaused ?? false;
     }

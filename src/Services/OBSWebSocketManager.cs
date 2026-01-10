@@ -47,6 +47,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.Connected += this.OnConnected;
             this._obs.StreamStateChanged += this.OnStreamStateChanged;
             this._obs.RecordStateChanged += this.OnRecordStateChanged;
+            this._obs.CurrentProfileChanged += this.OnCurrentProfileChanged;
             
             this._log.Info("OBSWebSocketManager initialized");
         }
@@ -86,6 +87,24 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._log.Info("WebSocket connection established");
             this._reconnectAttempts = 0;
             this._reconnectTimer?.Stop();
+            
+            // Get initial profile state
+            Task.Run(() =>
+            {
+                try
+                {
+                    var profiles = this._obs.GetProfileList();
+                    if (profiles?.CurrentProfileName != null)
+                    {
+                        this.Actions.SetCurrentProfileState(profiles.CurrentProfileName);
+                        this._log.Info($"Initial profile: '{profiles.CurrentProfileName}'");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this._log.Warning($"Failed to get initial profile: {ex.Message}");
+                }
+            });
         }
 
         private void OnDisconnected(Object sender, ObsDisconnectionInfo e)
@@ -115,6 +134,27 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var state = e?.OutputState?.State ?? OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
             this.Actions.SetRecordingState(state);
             this._log.Info($"Recording state changed to {state}");
+        }
+
+        private void OnCurrentProfileChanged(Object sender, EventArgs e)
+        {
+            // Event doesn't provide profile name, query it
+            Task.Run(() =>
+            {
+                try
+                {
+                    var profiles = this._obs.GetProfileList();
+                    if (profiles?.CurrentProfileName != null)
+                    {
+                        this.Actions.SetCurrentProfileState(profiles.CurrentProfileName);
+                        this._log.Info($"Current profile changed to '{profiles.CurrentProfileName}'");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this._log.Warning($"Failed to get current profile: {ex.Message}");
+                }
+            });
         }
 
         private void OnReconnectTimer(Object sender, ElapsedEventArgs e)

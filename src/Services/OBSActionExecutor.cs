@@ -9,6 +9,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly IOBSWebsocket _obs;
         private readonly IPluginLog _log;
         private OutputState _recordingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
+        private String _currentProfile = String.Empty;
 
         public Boolean IsRecording => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED 
                                     || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_PAUSED
@@ -16,6 +17,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Boolean IsRecordingPaused { get; private set; }
         public Boolean IsRecordingChanging => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING 
                                             || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
+        public String CurrentProfile => this._currentProfile;
 
         public OBSActionExecutor(IOBSWebsocket obs, IPluginLog log)
         {
@@ -151,9 +153,20 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
+                if (this._currentProfile == profileName)
+                {
+                    this._log.Info($"Profile '{profileName}' is already active");
+                    return;
+                }
+
                 this._log.Info($"Setting current profile to '{profileName}'");
                 this._obs.SetCurrentProfile(profileName);
             });
+        }
+
+        public void SetCurrentProfileState(String profileName)
+        {
+            this._currentProfile = profileName;
         }
 
         public void SetRecordingState(OutputState state)
