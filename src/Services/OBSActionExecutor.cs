@@ -99,48 +99,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             });
         }
 
-        public void PauseRecording()
-        {
-            Task.Run(() =>
-            {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot pause recording - not connected");
-                    return;
-                }
-
-                if (!this.IsRecording)
-                {
-                    this._log.Warning("Cannot pause recording - not recording");
-                    return;
-                }
-
-                this._log.Info("Pausing recording");
-                this._obs.PauseRecord();
-            });
-        }
-
-        public void ResumeRecording()
-        {
-            Task.Run(() =>
-            {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot resume recording - not connected");
-                    return;
-                }
-
-                if (!this.IsRecording)
-                {
-                    this._log.Warning("Cannot resume recording - not recording");
-                    return;
-                }
-
-                this._log.Info("Resuming recording");
-                this._obs.ResumeRecord();
-            });
-        }
-
         public void ToggleRecordingPause()
         {
             Task.Run(() =>
