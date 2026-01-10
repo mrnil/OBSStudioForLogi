@@ -80,6 +80,27 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             });
         }
 
+        public void ToggleRecording()
+        {
+            Task.Run(() =>
+            {
+                if (!this.IsConnected)
+                {
+                    this._log.Warning("Cannot toggle recording - not connected");
+                    return;
+                }
+
+                if (this.IsRecordingChanging)
+                {
+                    this._log.Warning("Cannot toggle recording - state change in progress");
+                    return;
+                }
+
+                this._log.Info("Toggling recording");
+                this._obs?.ToggleRecord();
+            });
+        }
+
         public void Disconnect()
         {
             this._log.Info("Disconnecting from OBS WebSocket");

@@ -102,5 +102,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             this._obsManager.SetCurrentScene(sceneName);
         }
+
+        public void ToggleRecording()
+        {
+            this._obsManager?.ToggleRecording();
+        }
+
+        public Boolean IsRecording => this._obsManager?.IsRecording ?? false;
     }
 }

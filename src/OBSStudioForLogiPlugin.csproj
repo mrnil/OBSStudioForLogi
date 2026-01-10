@@ -38,6 +38,12 @@
     <EmbeddedResource Include="package\metadata\Icon256x256.png">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.metadata.Icon256x256.png</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Icons\RecordingOn.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOn.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\RecordingOff.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOff.svg</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="CopyPackage" AfterTargets="PostBuildEvent">
