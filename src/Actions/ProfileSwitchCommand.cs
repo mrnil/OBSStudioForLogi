@@ -6,7 +6,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     public class ProfileSwitchCommand : PluginDynamicCommand
     {
         public ProfileSwitchCommand()
-            : base(displayName: "Switch Profile", description: "Switch OBS profile", groupName: "OBS")
+            : base(displayName: "Switch Profile", description: "Switch OBS profile", groupName: "Profiles")
         {
         }
 
