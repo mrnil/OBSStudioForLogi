@@ -109,14 +109,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                if (!this.IsRecording || this.IsRecordingPaused)
+                if (!this.IsRecording)
                 {
-                    this._log.Warning("Cannot pause recording - not recording or already paused");
+                    this._log.Warning("Cannot pause recording - not recording");
                     return;
                 }
 
                 this._log.Info("Pausing recording");
                 this._obs.PauseRecord();
+                this.IsRecordingPaused = true;
             });
         }
 
@@ -130,14 +131,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                if (!this.IsRecordingPaused)
+                if (!this.IsRecording)
                 {
-                    this._log.Warning("Cannot resume recording - not paused");
+                    this._log.Warning("Cannot resume recording - not recording");
                     return;
                 }
 
                 this._log.Info("Resuming recording");
                 this._obs.ResumeRecord();
+                this.IsRecordingPaused = false;
             });
         }
 
