@@ -11,6 +11,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private OutputState _recordingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
         private String _currentProfile = String.Empty;
         private String _currentSceneCollection = String.Empty;
+        private String _currentScene = String.Empty;
 
         public Boolean IsRecording => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED 
                                     || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_PAUSED
@@ -20,6 +21,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                                             || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
         public String CurrentProfile => this._currentProfile;
         public String CurrentSceneCollection => this._currentSceneCollection;
+        public String CurrentScene => this._currentScene;
 
         public OBSActionExecutor(IOBSWebsocket obs, IPluginLog log)
         {
@@ -207,6 +209,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void SetCurrentSceneCollectionState(String sceneCollectionName)
         {
             this._currentSceneCollection = sceneCollectionName;
+        }
+
+        public void SetCurrentSceneState(String sceneName)
+        {
+            this._currentScene = sceneName;
         }
 
         public String[] GetSceneList()

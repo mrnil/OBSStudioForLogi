@@ -50,6 +50,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.CurrentProfileChanged += this.OnCurrentProfileChanged;
             this._obs.CurrentSceneCollectionChanged += this.OnCurrentSceneCollectionChanged;
             this._obs.SceneListChanged += this.OnSceneListChanged;
+            this._obs.CurrentProgramSceneChanged += this.OnCurrentSceneChanged;
             
             this._log.Info("OBSWebSocketManager initialized");
         }
@@ -203,6 +204,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._log.Warning($"Failed to get scene list: {ex.Message}");
                 }
             });
+        }
+
+        private void OnCurrentSceneChanged(Object sender, ProgramSceneChangedEventArgs e)
+        {
+            if (e?.SceneName == null)
+                return;
+
+            this.Actions.SetCurrentSceneState(e.SceneName);
+            this._log.Info($"Current scene changed to '{e.SceneName}'");
+            OBSStudioForLogiPlugin.Instance?.OnCurrentSceneChanged(e.SceneName);
         }
 
         private void OnReconnectTimer(Object sender, ElapsedEventArgs e)

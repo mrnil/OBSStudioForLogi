@@ -159,4 +159,12 @@ public class OBSActionExecutorTests
 
         Assert.Empty(result);
     }
+
+    [Fact]
+    public void SetCurrentSceneState_UpdatesCurrentScene()
+    {
+        this._executor.SetCurrentSceneState("Scene 1");
+
+        Assert.Equal("Scene 1", this._executor.CurrentScene);
+    }
 }

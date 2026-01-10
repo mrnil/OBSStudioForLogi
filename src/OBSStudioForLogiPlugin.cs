@@ -208,7 +208,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnScenesChanged(String[] scenes)
         {
-            ScenesDynamicFolder.Instance?.UpdateScenes(scenes);
+            var currentScene = this._obsManager?.Actions.CurrentScene ?? String.Empty;
+            ScenesDynamicFolder.Instance?.UpdateScenes(scenes, currentScene);
+        }
+
+        public void OnCurrentSceneChanged(String sceneName)
+        {
+            ScenesDynamicFolder.Instance?.OnCurrentSceneChanged(sceneName);
         }
 
         public Boolean IsRecording => this._obsManager?.IsRecording ?? false;
