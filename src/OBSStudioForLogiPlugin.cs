@@ -10,8 +10,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private OBSConfigReader _configReader;
         private OBSLifecycleManager _lifecycleManager;
 
-        public override Boolean UsesApplicationApiOnly => true;
-        public override Boolean HasNoApplication => false;
+        public override Boolean UsesApplicationApiOnly => false;
+        public override Boolean HasNoApplication => true;
 
         public OBSStudioForLogiPlugin()
         {
