@@ -54,5 +54,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._obs?.SetCurrentProfile(profileName);
         }
+
+        public String[] GetSceneCollectionList()
+        {
+            var collections = this._obs?.GetSceneCollectionList();
+            return collections?.ToArray() ?? new String[0];
+        }
+
+        public void SetCurrentSceneCollection(String sceneCollectionName)
+        {
+            this._obs?.SetCurrentSceneCollection(sceneCollectionName);
+        }
     }
 }

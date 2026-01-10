@@ -10,6 +10,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly IPluginLog _log;
         private OutputState _recordingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
         private String _currentProfile = String.Empty;
+        private String _currentSceneCollection = String.Empty;
 
         public Boolean IsRecording => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED 
                                     || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_PAUSED
@@ -18,6 +19,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Boolean IsRecordingChanging => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING 
                                             || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
         public String CurrentProfile => this._currentProfile;
+        public String CurrentSceneCollection => this._currentSceneCollection;
 
         public OBSActionExecutor(IOBSWebsocket obs, IPluginLog log)
         {
@@ -167,6 +169,44 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void SetCurrentProfileState(String profileName)
         {
             this._currentProfile = profileName;
+        }
+
+        public String[] GetSceneCollectionList()
+        {
+            if (!this._obs.IsConnected)
+            {
+                this._log.Warning("Cannot get scene collection list - not connected");
+                return new String[0];
+            }
+
+            this._log.Info("Getting scene collection list");
+            return this._obs.GetSceneCollectionList();
+        }
+
+        public void SetCurrentSceneCollection(String sceneCollectionName)
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning($"Cannot set scene collection '{sceneCollectionName}' - not connected");
+                    return;
+                }
+
+                if (this._currentSceneCollection == sceneCollectionName)
+                {
+                    this._log.Info($"Scene collection '{sceneCollectionName}' is already active");
+                    return;
+                }
+
+                this._log.Info($"Setting current scene collection to '{sceneCollectionName}'");
+                this._obs.SetCurrentSceneCollection(sceneCollectionName);
+            });
+        }
+
+        public void SetCurrentSceneCollectionState(String sceneCollectionName)
+        {
+            this._currentSceneCollection = sceneCollectionName;
         }
 
         public void SetRecordingState(OutputState state)

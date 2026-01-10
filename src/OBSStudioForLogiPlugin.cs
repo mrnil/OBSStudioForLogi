@@ -82,6 +82,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     
                     await Task.Delay(500);
                     ProfileSelectCommand.Instance?.OnConnected();
+                    SceneCollectionSelectCommand.Instance?.OnConnected();
                 }
                 else
                 {
@@ -94,6 +95,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             PluginLog.Info("OBS application stopped");
             ProfileSelectCommand.Instance?.OnDisconnected();
+            SceneCollectionSelectCommand.Instance?.OnDisconnected();
             this._obsManager?.Disconnect();
         }
 
@@ -119,6 +121,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 
                 await Task.Delay(500);
                 ProfileSelectCommand.Instance?.OnConnected();
+                SceneCollectionSelectCommand.Instance?.OnConnected();
             }
             else
             {
@@ -178,6 +181,29 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnProfileChanged(String oldProfile, String newProfile)
         {
             ProfileSelectCommand.Instance?.OnCurrentProfileChanged(oldProfile, newProfile);
+        }
+
+        public String[] GetSceneCollectionList()
+        {
+            return this._obsManager?.Actions.GetSceneCollectionList() ?? new String[0];
+        }
+
+        public void SwitchSceneCollection(String sceneCollectionName)
+        {
+            if (!this._obsManager.IsConnected)
+            {
+                PluginLog.Warning($"Cannot switch to scene collection '{sceneCollectionName}' - not connected to OBS");
+                return;
+            }
+
+            this._obsManager.Actions.SetCurrentSceneCollection(sceneCollectionName);
+        }
+
+        public String CurrentSceneCollection => this._obsManager?.Actions.CurrentSceneCollection ?? String.Empty;
+
+        public void OnSceneCollectionChanged(String oldSceneCollection, String newSceneCollection)
+        {
+            SceneCollectionSelectCommand.Instance?.OnCurrentSceneCollectionChanged(oldSceneCollection, newSceneCollection);
         }
 
         public Boolean IsRecording => this._obsManager?.IsRecording ?? false;

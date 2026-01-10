@@ -13,5 +13,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         void ResumeRecord();
         String[] GetProfileList();
         void SetCurrentProfile(String profileName);
+        String[] GetSceneCollectionList();
+        void SetCurrentSceneCollection(String sceneCollectionName);
     }
 }

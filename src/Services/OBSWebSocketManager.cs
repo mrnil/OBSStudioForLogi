@@ -48,6 +48,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.StreamStateChanged += this.OnStreamStateChanged;
             this._obs.RecordStateChanged += this.OnRecordStateChanged;
             this._obs.CurrentProfileChanged += this.OnCurrentProfileChanged;
+            this._obs.CurrentSceneCollectionChanged += this.OnCurrentSceneCollectionChanged;
             
             this._log.Info("OBSWebSocketManager initialized");
         }
@@ -99,10 +100,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                         this.Actions.SetCurrentProfileState(profiles.CurrentProfileName);
                         this._log.Info($"Initial profile: '{profiles.CurrentProfileName}'");
                     }
+
+                    // Scene collection current state comes from event
+                    this._log.Info("Waiting for scene collection state from event");
                 }
                 catch (Exception ex)
                 {
-                    this._log.Warning($"Failed to get initial profile: {ex.Message}");
+                    this._log.Warning($"Failed to get initial state: {ex.Message}");
                 }
             });
         }
@@ -159,6 +163,19 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._log.Warning($"Failed to get current profile: {ex.Message}");
                 }
             });
+        }
+
+        private void OnCurrentSceneCollectionChanged(Object sender, CurrentSceneCollectionChangedEventArgs e)
+        {
+            if (e?.SceneCollectionName == null)
+                return;
+
+            var oldSceneCollection = this.Actions.CurrentSceneCollection;
+            this.Actions.SetCurrentSceneCollectionState(e.SceneCollectionName);
+            this._log.Info($"Current scene collection changed to '{e.SceneCollectionName}'");
+            
+            // Notify SceneCollectionSelectCommand
+            OBSStudioForLogiPlugin.Instance?.OnSceneCollectionChanged(oldSceneCollection, e.SceneCollectionName);
         }
 
         private void OnReconnectTimer(Object sender, ElapsedEventArgs e)
