@@ -96,6 +96,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             PluginLog.Info("OBS application stopped");
             ProfileSelectCommand.Instance?.OnDisconnected();
             SceneCollectionSelectCommand.Instance?.OnDisconnected();
+            CurrentProfileDisplay.Instance?.UpdateProfile(null);
+            CurrentSceneCollectionDisplay.Instance?.UpdateSceneCollection(null);
+            CurrentSceneDisplay.Instance?.UpdateScene(null);
             this._obsManager?.Disconnect();
         }
 
@@ -181,6 +184,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnProfileChanged(String oldProfile, String newProfile)
         {
             ProfileSelectCommand.Instance?.OnCurrentProfileChanged(oldProfile, newProfile);
+            CurrentProfileDisplay.Instance?.UpdateProfile(newProfile);
         }
 
         public String[] GetSceneCollectionList()
@@ -204,6 +208,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnSceneCollectionChanged(String oldSceneCollection, String newSceneCollection)
         {
             SceneCollectionSelectCommand.Instance?.OnCurrentSceneCollectionChanged(oldSceneCollection, newSceneCollection);
+            CurrentSceneCollectionDisplay.Instance?.UpdateSceneCollection(newSceneCollection);
         }
 
         public void OnScenesChanged(String[] scenes)
@@ -215,6 +220,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnCurrentSceneChanged(String sceneName)
         {
             ScenesDynamicFolder.Instance?.OnCurrentSceneChanged(sceneName);
+            CurrentSceneDisplay.Instance?.UpdateScene(sceneName);
         }
 
         public Boolean IsRecording => this._obsManager?.IsRecording ?? false;
