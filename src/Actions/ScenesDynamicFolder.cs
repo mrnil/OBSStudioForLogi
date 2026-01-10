@@ -30,6 +30,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void UpdateScenes(String[] scenes)
         {
             this._scenes = scenes ?? new String[0];
+            PluginLog.Info($"ScenesDynamicFolder updated with {this._scenes.Length} scenes");
             this.ButtonActionNamesChanged();
         }
 

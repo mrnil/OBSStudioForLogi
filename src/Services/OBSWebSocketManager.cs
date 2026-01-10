@@ -90,7 +90,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._reconnectAttempts = 0;
             this._reconnectTimer?.Stop();
             
-            // Get initial profile state
+            // Get initial state
             Task.Run(() =>
             {
                 try
@@ -102,8 +102,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                         this._log.Info($"Initial profile: '{profiles.CurrentProfileName}'");
                     }
 
-                    // Scene collection current state comes from event
-                    this._log.Info("Waiting for scene collection state from event");
+                    // Load initial scene list
+                    this.UpdateSceneList();
                 }
                 catch (Exception ex)
                 {
@@ -195,6 +195,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 try
                 {
                     var scenes = this.Actions.GetSceneList();
+                    this._log.Info($"Loaded {scenes.Length} scenes");
                     OBSStudioForLogiPlugin.Instance?.OnScenesChanged(scenes);
                 }
                 catch (Exception ex)
