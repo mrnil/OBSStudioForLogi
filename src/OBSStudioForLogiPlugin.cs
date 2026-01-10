@@ -83,7 +83,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     await Task.Delay(500);
                     ProfileSelectCommand.Instance?.OnConnected();
                     SceneCollectionSelectCommand.Instance?.OnConnected();
-                    this.UpdateScenes();
                 }
                 else
                 {
@@ -123,7 +122,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 await Task.Delay(500);
                 ProfileSelectCommand.Instance?.OnConnected();
                 SceneCollectionSelectCommand.Instance?.OnConnected();
-                this.UpdateScenes();
             }
             else
             {
@@ -210,12 +208,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnScenesChanged(String[] scenes)
         {
-            ScenesDynamicFolder.Instance?.UpdateScenes(scenes);
-        }
-
-        private void UpdateScenes()
-        {
-            var scenes = this._obsManager?.Actions.GetSceneList() ?? new String[0];
             ScenesDynamicFolder.Instance?.UpdateScenes(scenes);
         }
 
