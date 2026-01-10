@@ -108,6 +108,26 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsManager?.Actions.ToggleRecording();
         }
 
+        public void StartRecording()
+        {
+            this._obsManager?.Actions.StartRecording();
+        }
+
+        public void StopRecording()
+        {
+            this._obsManager?.Actions.StopRecording();
+        }
+
+        public void PauseRecording()
+        {
+            this._obsManager?.Actions.PauseRecording();
+        }
+
+        public void ResumeRecording()
+        {
+            this._obsManager?.Actions.ResumeRecording();
+        }
+
         public Boolean IsRecording => this._obsManager?.IsRecording ?? false;
     }
 }

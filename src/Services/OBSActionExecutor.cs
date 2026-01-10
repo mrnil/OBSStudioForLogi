@@ -11,6 +11,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private OutputState _recordingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
 
         public Boolean IsRecording => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
+        public Boolean IsRecordingPaused { get; private set; }
         public Boolean IsRecordingChanging => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING 
                                             || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
 
@@ -56,9 +57,98 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             });
         }
 
+        public void StartRecording()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot start recording - not connected");
+                    return;
+                }
+
+                if (this.IsRecording)
+                {
+                    this._log.Warning("Cannot start recording - already recording");
+                    return;
+                }
+
+                this._log.Info("Starting recording");
+                this._obs.StartRecord();
+            });
+        }
+
+        public void StopRecording()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot stop recording - not connected");
+                    return;
+                }
+
+                if (!this.IsRecording)
+                {
+                    this._log.Warning("Cannot stop recording - not recording");
+                    return;
+                }
+
+                this._log.Info("Stopping recording");
+                this._obs.StopRecord();
+            });
+        }
+
+        public void PauseRecording()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot pause recording - not connected");
+                    return;
+                }
+
+                if (!this.IsRecording || this.IsRecordingPaused)
+                {
+                    this._log.Warning("Cannot pause recording - not recording or already paused");
+                    return;
+                }
+
+                this._log.Info("Pausing recording");
+                this._obs.PauseRecord();
+            });
+        }
+
+        public void ResumeRecording()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot resume recording - not connected");
+                    return;
+                }
+
+                if (!this.IsRecordingPaused)
+                {
+                    this._log.Warning("Cannot resume recording - not paused");
+                    return;
+                }
+
+                this._log.Info("Resuming recording");
+                this._obs.ResumeRecord();
+            });
+        }
+
         public void SetRecordingState(OutputState state)
         {
             this._recordingState = state;
+        }
+
+        public void SetRecordingPaused(Boolean paused)
+        {
+            this.IsRecordingPaused = paused;
         }
     }
 }

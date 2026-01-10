@@ -23,5 +23,25 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._obs?.ToggleRecord();
         }
+
+        public void StartRecord()
+        {
+            this._obs?.StartRecord();
+        }
+
+        public void StopRecord()
+        {
+            this._obs?.StopRecord();
+        }
+
+        public void PauseRecord()
+        {
+            this._obs?.PauseRecord();
+        }
+
+        public void ResumeRecord()
+        {
+            this._obs?.ResumeRecord();
+        }
     }
 }
