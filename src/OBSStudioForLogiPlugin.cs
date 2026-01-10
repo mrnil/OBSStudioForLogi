@@ -10,8 +10,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private OBSConfigReader _configReader;
         private OBSLifecycleManager _lifecycleManager;
 
-        public override Boolean UsesApplicationApiOnly => false;
-        public override Boolean HasNoApplication => true;
+        public override Boolean UsesApplicationApiOnly => true;
+        public override Boolean HasNoApplication => false;
 
         public OBSStudioForLogiPlugin()
         {
@@ -30,25 +30,17 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsManager = new OBSWebSocketManager();
             this._lifecycleManager = new OBSLifecycleManager();
 
-            if (!this.HasNoApplication)
+            this.ClientApplication.ApplicationStarted += this.OnApplicationStarted;
+            this.ClientApplication.ApplicationStopped += this.OnApplicationStopped;
+            
+            if (this.ClientApplication.IsRunning())
             {
-                this.ClientApplication.ApplicationStarted += this.OnApplicationStarted;
-                this.ClientApplication.ApplicationStopped += this.OnApplicationStopped;
-                
-                if (this.ClientApplication.IsRunning())
-                {
-                    PluginLog.Info("OBS detected via ClientApplication");
-                    this.OnApplicationStarted(this, EventArgs.Empty);
-                }
-                else
-                {
-                    PluginLog.Info("OBS not detected, attempting direct connection");
-                    Task.Run(() => this.TryDirectConnection());
-                }
+                PluginLog.Info("OBS detected via ClientApplication");
+                this.OnApplicationStarted(this, EventArgs.Empty);
             }
             else
             {
-                PluginLog.Info("Plugin in general mode, attempting direct connection");
+                PluginLog.Info("OBS not detected, attempting direct connection");
                 Task.Run(() => this.TryDirectConnection());
             }
             
@@ -59,11 +51,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             PluginLog.Info("Plugin unloading...");
             
-            if (!this.HasNoApplication)
-            {
-                this.ClientApplication.ApplicationStarted -= this.OnApplicationStarted;
-                this.ClientApplication.ApplicationStopped -= this.OnApplicationStopped;
-            }
+            this.ClientApplication.ApplicationStarted -= this.OnApplicationStarted;
+            this.ClientApplication.ApplicationStopped -= this.OnApplicationStopped;
             
             this._obsManager?.Dispose();
             PluginLog.Info("Plugin unloaded");
