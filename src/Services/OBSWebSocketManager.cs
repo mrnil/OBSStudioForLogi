@@ -146,8 +146,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     var profiles = this._obs.GetProfileList();
                     if (profiles?.CurrentProfileName != null)
                     {
+                        var oldProfile = this.Actions.CurrentProfile;
                         this.Actions.SetCurrentProfileState(profiles.CurrentProfileName);
                         this._log.Info($"Current profile changed to '{profiles.CurrentProfileName}'");
+                        
+                        // Notify ProfileSelectCommand
+                        OBSStudioForLogiPlugin.Instance?.OnProfileChanged(oldProfile, profiles.CurrentProfileName);
                     }
                 }
                 catch (Exception ex)

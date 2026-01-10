@@ -79,6 +79,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     await Task.Delay(2000);
                     PluginLog.Info("Initiating connection to OBS");
                     await this._obsManager.ConnectAsync(settings.GetWebSocketUrl(), settings.Password);
+                    
+                    await Task.Delay(500);
+                    ProfileSelectCommand.Instance?.OnConnected();
                 }
                 else
                 {
@@ -90,6 +93,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private void OnApplicationStopped(Object sender, EventArgs e)
         {
             PluginLog.Info("OBS application stopped");
+            ProfileSelectCommand.Instance?.OnDisconnected();
             this._obsManager?.Disconnect();
         }
 
@@ -112,6 +116,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 await Task.Delay(2000);
                 PluginLog.Info("Initiating direct connection to OBS");
                 await this._obsManager.ConnectAsync(settings.GetWebSocketUrl(), settings.Password);
+                
+                await Task.Delay(500);
+                ProfileSelectCommand.Instance?.OnConnected();
             }
             else
             {
@@ -167,6 +174,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         }
 
         public String CurrentProfile => this._obsManager?.Actions.CurrentProfile ?? String.Empty;
+
+        public void OnProfileChanged(String oldProfile, String newProfile)
+        {
+            ProfileSelectCommand.Instance?.OnCurrentProfileChanged(oldProfile, newProfile);
+        }
 
         public Boolean IsRecording => this._obsManager?.IsRecording ?? false;
         public Boolean IsRecordingPaused => this._obsManager?.Actions.IsRecordingPaused ?? false;
