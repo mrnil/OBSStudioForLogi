@@ -24,6 +24,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             PluginLog.Info("Plugin loading...");
             
+            this.Info.Icon256x256 = EmbeddedResources.ReadImage("Loupedeck.OBSStudioForLogiPlugin.metadata.Icon256x256.png");
+            
             this._configReader = new OBSConfigReader();
             this._obsManager = new OBSWebSocketManager();
             this._lifecycleManager = new OBSLifecycleManager();
