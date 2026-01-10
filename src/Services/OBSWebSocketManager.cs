@@ -5,6 +5,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Timers;
     using OBSWebsocketDotNet;
     using OBSWebsocketDotNet.Communication;
+    using OBSWebsocketDotNet.Types;
+    using OBSWebsocketDotNet.Types.Events;
 
     public class OBSWebSocketManager : IDisposable
     {
@@ -17,9 +19,17 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private String _lastPassword;
         private Boolean _shouldReconnect = false;
         private Boolean _disposed = false;
+        private OutputState _streamingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
+        private OutputState _recordingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
 
         public Boolean IsConnected => this._obs?.IsConnected ?? false;
         public Boolean ShouldReconnect => this._shouldReconnect;
+        public Boolean IsStreaming => this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
+        public Boolean IsRecording => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
+        public Boolean IsStreamingChanging => this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING 
+                                            || this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
+        public Boolean IsRecordingChanging => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING 
+                                            || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
 
         public OBSWebSocketManager() : this(new PluginLogAdapter())
         {
@@ -35,6 +45,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             this._obs.Disconnected += this.OnDisconnected;
             this._obs.Connected += this.OnConnected;
+            this._obs.StreamStateChanged += this.OnStreamStateChanged;
+            this._obs.RecordStateChanged += this.OnRecordStateChanged;
             
             this._log.Info("OBSWebSocketManager initialized");
         }
@@ -93,6 +105,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._log.Warning($"WebSocket disconnected: {e.DisconnectReason}");
             
+            this._streamingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
+            this._recordingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
+            
             if (this._shouldReconnect && !this._disposed)
             {
                 var delay = this.GetReconnectDelay(this._reconnectAttempts);
@@ -100,6 +115,18 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 this._reconnectTimer.Interval = delay;
                 this._reconnectTimer.Start();
             }
+        }
+
+        private void OnStreamStateChanged(Object sender, StreamStateChangedEventArgs e)
+        {
+            this._streamingState = e?.OutputState?.State ?? OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
+            this._log.Info($"Streaming state changed to {this._streamingState}");
+        }
+
+        private void OnRecordStateChanged(Object sender, RecordStateChangedEventArgs e)
+        {
+            this._recordingState = e?.OutputState?.State ?? OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
+            this._log.Info($"Recording state changed to {this._recordingState}");
         }
 
         private void OnReconnectTimer(Object sender, ElapsedEventArgs e)
