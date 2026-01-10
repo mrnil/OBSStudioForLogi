@@ -13,5 +13,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             OBSStudioForLogiPlugin.Instance?.StopRecording();
         }
+
+        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+        {
+            var isRecording = OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
+            var iconName = isRecording ? "RecordingStop.svg" : "RecordingStopDisabled.svg";
+            
+            return EmbeddedResources.ReadImage($"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconName}");
+        }
     }
 }
