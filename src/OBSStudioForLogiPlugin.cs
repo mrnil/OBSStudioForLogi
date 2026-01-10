@@ -83,6 +83,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     await Task.Delay(500);
                     ProfileSelectCommand.Instance?.OnConnected();
                     SceneCollectionSelectCommand.Instance?.OnConnected();
+                    this.UpdateStatusDisplays();
                 }
                 else
                 {
@@ -122,6 +123,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 await Task.Delay(500);
                 ProfileSelectCommand.Instance?.OnConnected();
                 SceneCollectionSelectCommand.Instance?.OnConnected();
+                this.UpdateStatusDisplays();
             }
             else
             {
@@ -181,7 +183,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnProfileChanged(String oldProfile, String newProfile)
         {
             ProfileSelectCommand.Instance?.OnCurrentProfileChanged(oldProfile, newProfile);
-            CurrentProfileDisplay.Instance?.UpdateProfile(newProfile);
+            CurrentProfileDisplay.Instance?.UpdateProfile(this._obsManager?.Actions.CurrentProfile);
         }
 
         public String[] GetSceneCollectionList()
@@ -205,7 +207,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnSceneCollectionChanged(String oldSceneCollection, String newSceneCollection)
         {
             SceneCollectionSelectCommand.Instance?.OnCurrentSceneCollectionChanged(oldSceneCollection, newSceneCollection);
-            CurrentSceneCollectionDisplay.Instance?.UpdateSceneCollection(newSceneCollection);
+            CurrentSceneCollectionDisplay.Instance?.UpdateSceneCollection(this._obsManager?.Actions.CurrentSceneCollection);
         }
 
         public void OnScenesChanged(String[] scenes)
@@ -217,7 +219,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnCurrentSceneChanged(String sceneName)
         {
             ScenesDynamicFolder.Instance?.OnCurrentSceneChanged(sceneName);
-            CurrentSceneDisplay.Instance?.UpdateScene(sceneName);
+            CurrentSceneDisplay.Instance?.UpdateScene(this._obsManager?.Actions.CurrentScene);
+        }
+
+        private void UpdateStatusDisplays()
+        {
+            CurrentProfileDisplay.Instance?.UpdateProfile(this._obsManager?.Actions.CurrentProfile);
+            CurrentSceneCollectionDisplay.Instance?.UpdateSceneCollection(this._obsManager?.Actions.CurrentSceneCollection);
+            CurrentSceneDisplay.Instance?.UpdateScene(this._obsManager?.Actions.CurrentScene);
         }
 
         public Boolean IsRecording => this._obsManager?.IsRecording ?? false;
