@@ -43,5 +43,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._obs?.ResumeRecord();
         }
+
+        public String[] GetProfileList()
+        {
+            var profiles = this._obs?.GetProfileList()?.Profiles;
+            return profiles?.ToArray() ?? new String[0];
+        }
+
+        public void SetCurrentProfile(String profileName)
+        {
+            this._obs?.SetCurrentProfile(profileName);
+        }
     }
 }

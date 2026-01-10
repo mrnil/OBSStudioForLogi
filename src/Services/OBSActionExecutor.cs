@@ -129,6 +129,33 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             });
         }
 
+        public String[] GetProfileList()
+        {
+            if (!this._obs.IsConnected)
+            {
+                this._log.Warning("Cannot get profile list - not connected");
+                return new String[0];
+            }
+
+            this._log.Info("Getting profile list");
+            return this._obs.GetProfileList();
+        }
+
+        public void SetCurrentProfile(String profileName)
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning($"Cannot set profile '{profileName}' - not connected");
+                    return;
+                }
+
+                this._log.Info($"Setting current profile to '{profileName}'");
+                this._obs.SetCurrentProfile(profileName);
+            });
+        }
+
         public void SetRecordingState(OutputState state)
         {
             this._recordingState = state;

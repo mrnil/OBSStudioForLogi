@@ -150,6 +150,22 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsManager?.Actions.ToggleRecordingPause();
         }
 
+        public String[] GetProfileList()
+        {
+            return this._obsManager?.Actions.GetProfileList() ?? new String[0];
+        }
+
+        public void SwitchProfile(String profileName)
+        {
+            if (!this._obsManager.IsConnected)
+            {
+                PluginLog.Warning($"Cannot switch to profile '{profileName}' - not connected to OBS");
+                return;
+            }
+
+            this._obsManager.Actions.SetCurrentProfile(profileName);
+        }
+
         public Boolean IsRecording => this._obsManager?.IsRecording ?? false;
         public Boolean IsRecordingPaused => this._obsManager?.Actions.IsRecordingPaused ?? false;
     }
