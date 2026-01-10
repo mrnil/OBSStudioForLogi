@@ -35,12 +35,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             
             if (this.ClientApplication.IsRunning())
             {
-                PluginLog.Info("OBS is already running");
+                PluginLog.Info("OBS detected via ClientApplication");
                 this.OnApplicationStarted(this, EventArgs.Empty);
             }
             else
             {
-                PluginLog.Info("OBS is not running, waiting for start");
+                PluginLog.Info("OBS not detected, attempting direct connection");
+                Task.Run(() => this.TryDirectConnection());
             }
             
             PluginLog.Info("Plugin loaded");
@@ -90,6 +91,32 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             PluginLog.Info("OBS application stopped");
             this._obsManager?.Disconnect();
+        }
+
+        private async void TryDirectConnection()
+        {
+            PluginLog.Info("Attempting direct connection to OBS");
+            
+            var settings = this._configReader.ReadConfig();
+            if (settings == null)
+            {
+                PluginLog.Warning("No valid OBS configuration found for direct connection");
+                return;
+            }
+
+            PluginLog.Info($"Waiting for OBS WebSocket port {settings.Port} to be ready");
+            var portReady = await this._lifecycleManager.WaitForPortAsync("127.0.0.1", settings.Port);
+            
+            if (portReady)
+            {
+                await Task.Delay(2000);
+                PluginLog.Info("Initiating direct connection to OBS");
+                await this._obsManager.ConnectAsync(settings.GetWebSocketUrl(), settings.Password);
+            }
+            else
+            {
+                PluginLog.Error("OBS WebSocket port did not become available for direct connection");
+            }
         }
 
         public void SwitchScene(String sceneName)
