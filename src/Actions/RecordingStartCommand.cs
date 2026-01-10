@@ -5,7 +5,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     public class RecordingStartCommand : PluginDynamicCommand
     {
         public RecordingStartCommand()
-            : base(displayName: "Start Recording", description: "Start OBS recording", groupName: "OBS")
+            : base(displayName: "Start Recording", description: "Start OBS recording", groupName: "Recording")
         {
         }
 
