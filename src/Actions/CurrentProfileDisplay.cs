@@ -6,7 +6,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     {
         public static CurrentProfileDisplay Instance { get; private set; }
 
-        private String _currentProfile = "Not Connected";
+        private String _currentProfile = String.Empty;
 
         public CurrentProfileDisplay()
             : base("Current Profile", "Shows current OBS profile", "OBS")
@@ -16,7 +16,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void UpdateProfile(String profileName)
         {
-            this._currentProfile = String.IsNullOrEmpty(profileName) ? "Not Connected" : profileName;
+            if (String.IsNullOrEmpty(profileName))
+                return;
+
+            this._currentProfile = profileName;
             this.ActionImageChanged();
         }
 

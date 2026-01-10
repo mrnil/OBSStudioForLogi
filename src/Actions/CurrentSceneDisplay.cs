@@ -6,7 +6,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     {
         public static CurrentSceneDisplay Instance { get; private set; }
 
-        private String _currentScene = "Not Connected";
+        private String _currentScene = String.Empty;
 
         public CurrentSceneDisplay()
             : base("Current Scene", "Shows current OBS scene", "OBS")
@@ -16,7 +16,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void UpdateScene(String sceneName)
         {
-            this._currentScene = String.IsNullOrEmpty(sceneName) ? "Not Connected" : sceneName;
+            if (String.IsNullOrEmpty(sceneName))
+                return;
+
+            this._currentScene = sceneName;
             this.ActionImageChanged();
         }
 

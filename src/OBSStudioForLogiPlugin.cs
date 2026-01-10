@@ -96,9 +96,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             PluginLog.Info("OBS application stopped");
             ProfileSelectCommand.Instance?.OnDisconnected();
             SceneCollectionSelectCommand.Instance?.OnDisconnected();
-            CurrentProfileDisplay.Instance?.UpdateProfile(null);
-            CurrentSceneCollectionDisplay.Instance?.UpdateSceneCollection(null);
-            CurrentSceneDisplay.Instance?.UpdateScene(null);
             this._obsManager?.Disconnect();
         }
 
