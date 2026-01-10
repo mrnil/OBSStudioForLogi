@@ -25,8 +25,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             using (var bitmapBuilder = new BitmapBuilder(imageSize))
             {
                 bitmapBuilder.Clear(BitmapColor.Black);
-                bitmapBuilder.DrawText("Scene:");
-                bitmapBuilder.DrawText(this._currentScene, BitmapColor.White, imageSize == PluginImageSize.Width90 ? 11 : 9);
+                bitmapBuilder.DrawText(this._currentScene, BitmapColor.White, imageSize == PluginImageSize.Width90 ? 12 : 9);
                 return bitmapBuilder.ToImage();
             }
         }
