@@ -34,13 +34,19 @@
     <PackageReference Include="obs-websocket-dotnet" Version="5.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="package\metadata\Icon256x256.png">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.metadata.Icon256x256.png</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
   <Target Name="CopyPackage" AfterTargets="PostBuildEvent">
     <Message Text="📦 Copying package files..." Importance="High" />
     <ItemGroup>
       <PackageFiles Include="package\**\*" />
     </ItemGroup>
     <Copy SourceFiles="@(PackageFiles)" DestinationFolder="$(OutputPath)..\%(RecursiveDir)" />
-    <Message Text="✅ Package files copied to $(OutputPath)..\" Importance="High" />
+    <Message Text="✅ Package files copied to $(OutputPath).." Importance="High" />
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
@@ -60,7 +66,7 @@
     <Delete Condition="$(OS) == 'Windows_NT'" Files="$(PluginDir)$(ProjectName).link" />
     <Exec Condition="$(OS) != 'Windows_NT'" Command="rm -f $(PluginDir)$(ProjectName).link" />
 
-    <RemoveDir Directories="$(OutputPath)..\" />
+    <RemoveDir Directories="$(OutputPath).." />
 
     <Message Text="🧼 Plugin link file and output directories have been cleaned!" Importance="High" />
   </Target>
