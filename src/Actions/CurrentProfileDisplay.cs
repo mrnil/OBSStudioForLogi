@@ -9,9 +9,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private String _currentProfile = String.Empty;
 
         public CurrentProfileDisplay()
-            : base(displayName: "", description: "Shows current OBS profile", groupName: "OBS")
+            : base(displayName: "Current Profile", description: "Shows current OBS profile", groupName: "OBS")
         {
             Instance = this;
+        }
+
+        protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
+        {
+            return null;
         }
 
         public void UpdateProfile(String profileName)
