@@ -9,7 +9,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private String _currentScene = String.Empty;
 
         public CurrentSceneDisplay()
-            : base("Current Scene", "Shows current OBS scene", "OBS")
+            : base(displayName: "", description: "Shows current OBS scene", groupName: "OBS")
         {
             Instance = this;
         }
