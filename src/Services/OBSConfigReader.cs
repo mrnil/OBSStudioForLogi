@@ -23,8 +23,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public OBSConnectionSettings ReadConfig()
         {
+            PluginLog.Info($"Reading OBS config from {this.ConfigPath}");
+            
             if (!this.ConfigExists)
+            {
+                PluginLog.Warning("OBS config file not found");
                 return null;
+            }
 
             try
             {
@@ -34,11 +39,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
                 var serverEnabled = root.GetProperty("server_enabled").GetBoolean();
                 if (!serverEnabled)
+                {
+                    PluginLog.Warning("OBS WebSocket server is disabled in config");
                     return null;
+                }
 
                 var port = root.GetProperty("server_port").GetInt32();
                 var password = root.GetProperty("server_password").GetString();
 
+                PluginLog.Info($"OBS config loaded: port={port}");
+                
                 return new OBSConnectionSettings
                 {
                     IpAddress = "127.0.0.1",
@@ -46,8 +56,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     Password = password ?? ""
                 };
             }
-            catch
+            catch (Exception ex)
             {
+                PluginLog.Error($"Failed to read OBS config: {ex.Message}");
                 return null;
             }
         }

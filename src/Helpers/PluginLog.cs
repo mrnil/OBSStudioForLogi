@@ -2,8 +2,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    // A helper class that enables logging from the plugin code.
-
     internal static class PluginLog
     {
         private static PluginLogFile _pluginLogFile;
@@ -29,5 +27,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public static void Error(String text) => PluginLog._pluginLogFile?.Error(text);
 
         public static void Error(Exception ex, String text) => PluginLog._pluginLogFile?.Error(ex, text);
+    }
+
+    public class PluginLogAdapter : IPluginLog
+    {
+        public void Info(String message) => PluginLog.Info(message);
+        public void Warning(String message) => PluginLog.Warning(message);
+        public void Error(String message) => PluginLog.Error(message);
     }
 }
