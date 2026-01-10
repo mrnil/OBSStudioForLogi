@@ -44,7 +44,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var isActive = currentProfile == actionParameter;
 
             // Return different visual state based on whether this profile is active
-            // For now, return null to use default icon
             return null;
         }
     }
