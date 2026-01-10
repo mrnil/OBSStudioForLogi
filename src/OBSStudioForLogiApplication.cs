@@ -2,21 +2,19 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    // This class can be used to connect the Loupedeck plugin to an application.
-
     public class OBSStudioForLogiApplication : ClientApplication
     {
         public OBSStudioForLogiApplication()
         {
         }
 
-        // This method can be used to link the plugin to a Windows application.
-        protected override String GetProcessName() => "";
+        protected override String GetProcessName() => "obs64.exe";
 
-        // This method can be used to link the plugin to a macOS application.
-        protected override String GetBundleName() => "";
+        protected override String GetBundleName() => "com.obsproject.obs-studio";
 
-        // This method can be used to check whether the application is installed or not.
-        public override ClientApplicationStatus GetApplicationStatus() => ClientApplicationStatus.Unknown;
+        public override ClientApplicationStatus GetApplicationStatus()
+        {
+            return ClientApplicationStatus.Unknown;
+        }
     }
 }
