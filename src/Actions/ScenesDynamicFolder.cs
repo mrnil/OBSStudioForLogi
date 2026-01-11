@@ -53,9 +53,24 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             var isSelected = actionParameter == this._currentScene;
+            var iconName = isSelected ? "ScenesSelected.svg" : "ScenesUnselected.svg";
+            var imagePath = $"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconName}";
+            
+            var bitmapImage = PluginResources.ReadImage(imagePath);
+            if (bitmapImage == null)
+            {
+                // Fallback to text if icon not found
+                using (var bitmapBuilder = new BitmapBuilder(imageSize))
+                {
+                    bitmapBuilder.Clear(isSelected ? BitmapColor.White : BitmapColor.Black);
+                    bitmapBuilder.DrawText(actionParameter, BitmapColor.Black, imageSize == PluginImageSize.Width90 ? 12 : 9);
+                    return bitmapBuilder.ToImage();
+                }
+            }
+            
             using (var bitmapBuilder = new BitmapBuilder(imageSize))
             {
-                bitmapBuilder.Clear(isSelected ? BitmapColor.White : BitmapColor.Black);
+                bitmapBuilder.DrawImage(bitmapImage);
                 bitmapBuilder.DrawText(actionParameter, BitmapColor.Black, imageSize == PluginImageSize.Width90 ? 12 : 9);
                 return bitmapBuilder.ToImage();
             }

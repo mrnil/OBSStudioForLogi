@@ -62,6 +62,12 @@
     <EmbeddedResource Include="Icons\RecordingStopDisabled.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingStopDisabled.svg</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Icons\ScenesSelected.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ScenesSelected.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\ScenesUnselected.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ScenesUnselected.svg</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="CopyPackage" AfterTargets="PostBuildEvent">
