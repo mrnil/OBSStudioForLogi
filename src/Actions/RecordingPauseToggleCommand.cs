@@ -5,7 +5,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     public class RecordingPauseToggleCommand : PluginDynamicCommand
     {
         public RecordingPauseToggleCommand()
-            : base(displayName: "Recording Pause", description: "Pause/resume OBS recording", groupName: "Recording")
+            : base(displayName: "Recording Pause", description: "Pause/resume OBS recording", groupName: "3. Recording")
         {
         }
 

@@ -9,7 +9,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private String _currentProfile = String.Empty;
 
         public CurrentProfileDisplay()
-            : base(displayName: "Current Profile", description: "Shows current OBS profile", groupName: "OBS")
+            : base(displayName: "Current Profile", description: "Shows current OBS profile", groupName: "1. OBS")
         {
             Instance = this;
         }

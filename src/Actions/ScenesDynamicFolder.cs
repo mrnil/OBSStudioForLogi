@@ -18,7 +18,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             Instance = this;
             this.DisplayName = "OBS Scenes";
-            this.GroupName = "OBS";
+            this.GroupName = "5. Scenes";
         }
 
         public override PluginDynamicFolderNavigation GetNavigationArea(DeviceType _)
