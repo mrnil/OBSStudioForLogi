@@ -49,9 +49,20 @@
 - [ ] Create developer guide for extending the plugin
 - [ ] Add architecture diagrams
 
-## Known Issues
+## Completed
 
-- None currently tracked
+- [x] Add streaming controls (start/stop/toggle streaming)
+- [x] Simplify display commands to use text-based buttons
+- [x] Ensure display buttons get initial state on connection
+- [x] Add description to scenes dynamic folder
+- [x] Implement recording controls (start/stop/toggle/pause)
+- [x] Implement scene management with dynamic folder
+- [x] Implement profile and scene collection selection
+- [x] Add screenshot capture functionality
+- [x] Implement automatic OBS configuration discovery
+- [x] Add connection resilience with exponential backoff
+- [x] Implement comprehensive logging
+- [x] Add test coverage for all core functionality (65 tests)
 
 ## Future Considerations
 
