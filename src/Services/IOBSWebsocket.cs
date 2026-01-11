@@ -16,5 +16,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         String[] GetSceneCollectionList();
         void SetCurrentSceneCollection(String sceneCollectionName);
         String[] GetSceneList();
+        void SaveSourceScreenshot();
     }
 }

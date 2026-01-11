@@ -228,6 +228,21 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._obs.GetSceneList();
         }
 
+        public void SaveScreenshot()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot save screenshot - not connected");
+                    return;
+                }
+
+                this._log.Info("Saving screenshot");
+                this._obs.SaveSourceScreenshot();
+            });
+        }
+
         public void SetRecordingState(OutputState state)
         {
             this._recordingState = state;

@@ -72,5 +72,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var scenes = this._obs?.GetSceneList()?.Scenes;
             return scenes?.Select(s => s.Name).ToArray() ?? new String[0];
         }
+
+        public void SaveSourceScreenshot()
+        {
+            // OBS WebSocket v5 doesn't have a simple screenshot command
+            // This would need specific source name and file path parameters
+            // For now, this is a placeholder that does nothing
+            // Users should configure screenshot hotkey in OBS
+        }
     }
 }

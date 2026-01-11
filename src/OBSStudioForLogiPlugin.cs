@@ -142,6 +142,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsManager.Actions.SetCurrentScene(sceneName);
         }
 
+        public void SaveScreenshot()
+        {
+            this._obsManager?.Actions.SaveScreenshot();
+        }
+
         public void ToggleRecording()
         {
             this._obsManager?.Actions.ToggleRecording();

@@ -68,6 +68,9 @@
     <EmbeddedResource Include="Icons\ScenesUnselected.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ScenesUnselected.svg</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Icons\Screenshot.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.Screenshot.svg</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="CopyPackage" AfterTargets="PostBuildEvent">
