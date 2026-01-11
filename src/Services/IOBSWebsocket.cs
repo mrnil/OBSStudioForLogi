@@ -11,6 +11,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         void ToggleRecord();
         void PauseRecord();
         void ResumeRecord();
+        void StartStream();
+        void StopStream();
+        void ToggleStream();
         String[] GetProfileList();
         void SetCurrentProfile(String profileName);
         String[] GetSceneCollectionList();

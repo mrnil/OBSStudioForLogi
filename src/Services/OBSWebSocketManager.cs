@@ -139,6 +139,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private void OnStreamStateChanged(Object sender, StreamStateChangedEventArgs e)
         {
             this._streamingState = e?.OutputState?.State ?? OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
+            this.Actions.SetStreamingState(this._streamingState);
             this._log.Info($"Streaming state changed to {this._streamingState}");
         }
 

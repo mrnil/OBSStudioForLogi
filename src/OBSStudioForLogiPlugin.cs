@@ -185,6 +185,21 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsManager?.Actions.ToggleRecordingPause();
         }
 
+        public void ToggleStreaming()
+        {
+            this._obsManager?.Actions.ToggleStreaming();
+        }
+
+        public void StartStreaming()
+        {
+            this._obsManager?.Actions.StartStreaming();
+        }
+
+        public void StopStreaming()
+        {
+            this._obsManager?.Actions.StopStreaming();
+        }
+
         public String[] GetProfileList()
         {
             return this._obsManager?.Actions.GetProfileList() ?? new String[0];
@@ -254,5 +269,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public Boolean IsRecording => this._obsManager?.IsRecording ?? false;
         public Boolean IsRecordingPaused => this._obsManager?.Actions.IsRecordingPaused ?? false;
+        public Boolean IsStreaming => this._obsManager?.IsStreaming ?? false;
     }
 }

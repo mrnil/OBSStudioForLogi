@@ -71,6 +71,12 @@
     <EmbeddedResource Include="Icons\Screenshot.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.Screenshot.svg</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Icons\StreamingToggleOn.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StreamingToggleOn.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\StreamingToggleOff.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StreamingToggleOff.svg</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="CopyPackage" AfterTargets="PostBuildEvent">

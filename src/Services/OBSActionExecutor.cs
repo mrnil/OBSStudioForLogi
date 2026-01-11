@@ -9,6 +9,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly IOBSWebsocket _obs;
         private readonly IPluginLog _log;
         private OutputState _recordingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
+        private OutputState _streamingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
         private String _currentProfile = String.Empty;
         private String _currentSceneCollection = String.Empty;
         private String _currentScene = String.Empty;
@@ -19,6 +20,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Boolean IsRecordingPaused { get; private set; }
         public Boolean IsRecordingChanging => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING 
                                             || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
+        public Boolean IsStreaming => this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
+        public Boolean IsStreamingChanging => this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING 
+                                            || this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
         public String CurrentProfile => this._currentProfile;
         public String CurrentSceneCollection => this._currentSceneCollection;
         public String CurrentScene => this._currentScene;
@@ -272,6 +276,74 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             {
                 this.IsRecordingPaused = false;
             }
+        }
+
+        public void ToggleStreaming()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot toggle streaming - not connected");
+                    return;
+                }
+
+                if (this.IsStreamingChanging)
+                {
+                    this._log.Warning("Cannot toggle streaming - state change in progress");
+                    return;
+                }
+
+                this._log.Info("Toggling streaming");
+                this._obs.ToggleStream();
+            });
+        }
+
+        public void StartStreaming()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot start streaming - not connected");
+                    return;
+                }
+
+                if (this.IsStreaming)
+                {
+                    this._log.Warning("Cannot start streaming - already streaming");
+                    return;
+                }
+
+                this._log.Info("Starting streaming");
+                this._obs.StartStream();
+            });
+        }
+
+        public void StopStreaming()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot stop streaming - not connected");
+                    return;
+                }
+
+                if (!this.IsStreaming)
+                {
+                    this._log.Warning("Cannot stop streaming - not streaming");
+                    return;
+                }
+
+                this._log.Info("Stopping streaming");
+                this._obs.StopStream();
+            });
+        }
+
+        public void SetStreamingState(OutputState state)
+        {
+            this._streamingState = state;
         }
     }
 }

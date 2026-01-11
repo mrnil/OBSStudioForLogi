@@ -2,7 +2,7 @@
 
 ## High Priority
 
-- [ ] Add streaming controls (start/stop/toggle streaming)
+- [x] Add streaming controls (start/stop/toggle streaming)
 - [ ] Add source visibility toggle commands
 - [ ] Add audio mixer controls (mute/unmute sources)
 - [ ] Implement replay buffer controls (start/stop/save)

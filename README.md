@@ -32,6 +32,11 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 
 ## Available Controls
 
+### Streaming (Group 2)
+- **Streaming Toggle**: Toggle streaming on/off
+- **Streaming Start**: Start streaming
+- **Streaming Stop**: Stop streaming
+
 ### Recording (Group 3)
 - **Recording Toggle**: Toggle recording on/off
 - **Recording Start**: Start recording
