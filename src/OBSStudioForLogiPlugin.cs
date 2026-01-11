@@ -9,6 +9,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private OBSWebSocketManager _obsManager;
         private OBSConfigReader _configReader;
         private OBSLifecycleManager _lifecycleManager;
+        public static String ScreenshotPath { get; private set; }
 
         public override Boolean UsesApplicationApiOnly => true;
         public override Boolean HasNoApplication => false;
@@ -18,6 +19,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Instance = this;
             PluginLog.Init(this.Log);
             PluginResources.Init(this.Assembly);
+            DiscoverScreenshotPath();
+        }
+
+        private static void DiscoverScreenshotPath()
+        {
+            var folders = new[] { Environment.SpecialFolder.MyPictures, Environment.SpecialFolder.MyDocuments, Environment.SpecialFolder.Desktop };
+            foreach (var folder in folders)
+            {
+                var path = Environment.GetFolderPath(folder);
+                if (System.IO.Directory.Exists(path))
+                {
+                    ScreenshotPath = path;
+                    PluginLog.Info($"Screenshot path set to: {path}");
+                    return;
+                }
+            }
+            PluginLog.Warning("No valid screenshot path found");
         }
 
         public override void Load()
@@ -144,7 +162,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void SaveScreenshot()
         {
-            this._obsManager?.Actions.SaveScreenshot();
+            this._obsManager?.Actions.SaveScreenshot(ScreenshotPath);
         }
 
         public void ToggleRecording()

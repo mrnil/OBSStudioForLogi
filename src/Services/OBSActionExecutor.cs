@@ -228,7 +228,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._obs.GetSceneList();
         }
 
-        public void SaveScreenshot()
+        public void SaveScreenshot(String screenshotPath)
         {
             Task.Run(() =>
             {
@@ -238,8 +238,21 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                this._log.Info("Saving screenshot");
-                this._obs.SaveSourceScreenshot();
+                if (String.IsNullOrEmpty(this._currentScene))
+                {
+                    this._log.Warning("Cannot save screenshot - no current scene");
+                    return;
+                }
+
+                if (String.IsNullOrEmpty(screenshotPath))
+                {
+                    this._log.Warning("Cannot save screenshot - no valid path");
+                    return;
+                }
+
+                var filename = System.IO.Path.Combine(screenshotPath, $"Screenshot-{DateTime.Now:yyyyMMddHHmmssfff}.png");
+                this._log.Info($"Saving screenshot to {filename}");
+                this._obs.SaveSourceScreenshot(this._currentScene, "png", filename, -1, -1);
             });
         }
 
