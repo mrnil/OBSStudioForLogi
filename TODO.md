@@ -1,0 +1,62 @@
+# TODO
+
+## High Priority
+
+- [ ] Add streaming controls (start/stop/toggle streaming)
+- [ ] Add source visibility toggle commands
+- [ ] Add audio mixer controls (mute/unmute sources)
+- [ ] Implement replay buffer controls (start/stop/save)
+- [ ] Add virtual camera controls (start/stop)
+
+## Medium Priority
+
+- [ ] Add transition selection and duration controls
+- [ ] Implement studio mode toggle
+- [ ] Add filter enable/disable controls
+- [ ] Create custom scene transition triggers
+- [ ] Add hotkey trigger commands
+- [ ] Implement media source controls (play/pause/restart)
+
+## Low Priority
+
+- [ ] Add statistics display (FPS, CPU usage, dropped frames)
+- [ ] Implement custom image overlays for scene buttons
+- [ ] Add scene item transform controls (position, scale, rotation)
+- [ ] Create preset configurations for common streaming setups
+- [ ] Add multi-language support for UI text
+
+## Technical Improvements
+
+- [ ] Add configuration UI for manual WebSocket settings override
+- [ ] Implement connection status indicator command
+- [ ] Add retry limit configuration for reconnection attempts
+- [ ] Create diagnostic logging toggle command
+- [ ] Add WebSocket protocol version detection and compatibility warnings
+- [ ] Implement graceful degradation for unsupported OBS versions
+
+## Testing
+
+- [ ] Add integration tests with actual OBS instance
+- [ ] Create performance benchmarks for connection handling
+- [ ] Add UI automation tests for command state updates
+- [ ] Implement stress tests for rapid command execution
+
+## Documentation
+
+- [ ] Create video tutorial for setup and usage
+- [ ] Add troubleshooting guide with common issues
+- [ ] Document all available OBS WebSocket events
+- [ ] Create developer guide for extending the plugin
+- [ ] Add architecture diagrams
+
+## Known Issues
+
+- None currently tracked
+
+## Future Considerations
+
+- [ ] Support for multiple OBS instances
+- [ ] Cloud sync for plugin configurations
+- [ ] Custom scripting support for advanced automation
+- [ ] Integration with other streaming tools (Streamlabs, StreamElements)
+- [ ] Mobile companion app for remote control
