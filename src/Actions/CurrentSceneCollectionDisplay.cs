@@ -6,7 +6,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     {
         public static CurrentSceneCollectionDisplay Instance { get; private set; }
 
-        private String _currentSceneCollection = String.Empty;
+        private String _currentSceneCollection = "Collection";
 
         public CurrentSceneCollectionDisplay()
             : base(displayName: "Current Scene Collection", description: "Shows current OBS scene collection", groupName: "1. OBS")
@@ -16,27 +16,25 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
-            return "Collection";
+            return this._currentSceneCollection;
         }
 
         public void UpdateSceneCollection(String sceneCollectionName)
         {
             if (String.IsNullOrEmpty(sceneCollectionName))
+            {
+                PluginLog.Warning("Cannot update scene collection display - name is empty");
                 return;
+            }
 
+            PluginLog.Info($"Updating scene collection display to '{sceneCollectionName}'");
             this._currentSceneCollection = sceneCollectionName;
             this.ActionImageChanged();
         }
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            using (var bitmapBuilder = new BitmapBuilder(imageSize))
-            {
-                bitmapBuilder.Clear(BitmapColor.Black);
-                bitmapBuilder.DrawText("Collection", BitmapColor.White, 8);
-                bitmapBuilder.DrawText(this._currentSceneCollection, BitmapColor.White, imageSize == PluginImageSize.Width90 ? 14 : 11);
-                return bitmapBuilder.ToImage();
-            }
+            return null;
         }
 
         protected override void RunCommand(String actionParameter)

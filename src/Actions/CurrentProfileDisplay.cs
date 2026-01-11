@@ -6,7 +6,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     {
         public static CurrentProfileDisplay Instance { get; private set; }
 
-        private String _currentProfile = String.Empty;
+        private String _currentProfile = "Profile";
 
         public CurrentProfileDisplay()
             : base(displayName: "Current Profile", description: "Shows current OBS profile", groupName: "1. OBS")
@@ -16,27 +16,25 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
-            return "Profile";
+            return this._currentProfile;
         }
 
         public void UpdateProfile(String profileName)
         {
             if (String.IsNullOrEmpty(profileName))
+            {
+                PluginLog.Warning("Cannot update profile display - profile name is empty");
                 return;
+            }
 
+            PluginLog.Info($"Updating profile display to '{profileName}'");
             this._currentProfile = profileName;
             this.ActionImageChanged();
         }
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            using (var bitmapBuilder = new BitmapBuilder(imageSize))
-            {
-                bitmapBuilder.Clear(BitmapColor.Black);
-                bitmapBuilder.DrawText("Profile", BitmapColor.White, 8);
-                bitmapBuilder.DrawText(this._currentProfile, BitmapColor.White, imageSize == PluginImageSize.Width90 ? 14 : 11);
-                return bitmapBuilder.ToImage();
-            }
+            return null;
         }
 
         protected override void RunCommand(String actionParameter)
