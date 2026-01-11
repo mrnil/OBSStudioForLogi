@@ -101,6 +101,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     {
                         this.Actions.SetCurrentProfileState(profiles.CurrentProfileName);
                         this._log.Info($"Initial profile: '{profiles.CurrentProfileName}'");
+                        OBSStudioForLogiPlugin.Instance?.OnProfileChanged(String.Empty, profiles.CurrentProfileName);
+                    }
+
+                    var currentCollection = this._obs.GetCurrentSceneCollection();
+                    if (!String.IsNullOrEmpty(currentCollection))
+                    {
+                        this.Actions.SetCurrentSceneCollectionState(currentCollection);
+                        this._log.Info($"Initial scene collection: '{currentCollection}'");
+                        OBSStudioForLogiPlugin.Instance?.OnSceneCollectionChanged(String.Empty, currentCollection);
                     }
 
                     var sceneList = this._obs.GetSceneList();
@@ -108,6 +117,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     {
                         this.Actions.SetCurrentSceneState(sceneList.CurrentProgramSceneName);
                         this._log.Info($"Initial scene: '{sceneList.CurrentProgramSceneName}'");
+                        OBSStudioForLogiPlugin.Instance?.OnCurrentSceneChanged(sceneList.CurrentProgramSceneName);
                     }
 
                     // Load initial scene list

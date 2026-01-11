@@ -98,10 +98,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     PluginLog.Info("Initiating connection to OBS");
                     await this._obsManager.ConnectAsync(settings.GetWebSocketUrl(), settings.Password);
                     
-                    await Task.Delay(500);
+                    await Task.Delay(1000);
                     ProfileSelectCommand.Instance?.OnConnected();
                     SceneCollectionSelectCommand.Instance?.OnConnected();
-                    this.UpdateStatusDisplays();
                 }
                 else
                 {
@@ -138,10 +137,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 PluginLog.Info("Initiating direct connection to OBS");
                 await this._obsManager.ConnectAsync(settings.GetWebSocketUrl(), settings.Password);
                 
-                await Task.Delay(500);
+                await Task.Delay(1000);
                 ProfileSelectCommand.Instance?.OnConnected();
                 SceneCollectionSelectCommand.Instance?.OnConnected();
-                this.UpdateStatusDisplays();
             }
             else
             {
@@ -220,8 +218,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnProfileChanged(String oldProfile, String newProfile)
         {
+            PluginLog.Info($"Plugin notified of profile change: '{oldProfile}' -> '{newProfile}'");
             ProfileSelectCommand.Instance?.OnCurrentProfileChanged(oldProfile, newProfile);
-            CurrentProfileDisplay.Instance?.UpdateProfile(this._obsManager?.Actions.CurrentProfile);
+            CurrentProfileDisplay.Instance?.UpdateProfile(newProfile);
         }
 
         public String[] GetSceneCollectionList()
@@ -244,8 +243,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnSceneCollectionChanged(String oldSceneCollection, String newSceneCollection)
         {
+            PluginLog.Info($"Plugin notified of scene collection change: '{oldSceneCollection}' -> '{newSceneCollection}'");
             SceneCollectionSelectCommand.Instance?.OnCurrentSceneCollectionChanged(oldSceneCollection, newSceneCollection);
-            CurrentSceneCollectionDisplay.Instance?.UpdateSceneCollection(this._obsManager?.Actions.CurrentSceneCollection);
+            CurrentSceneCollectionDisplay.Instance?.UpdateSceneCollection(newSceneCollection);
         }
 
         public void OnScenesChanged(String[] scenes)
@@ -256,15 +256,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnCurrentSceneChanged(String sceneName)
         {
+            PluginLog.Info($"Plugin notified of scene change: '{sceneName}'");
             ScenesDynamicFolder.Instance?.OnCurrentSceneChanged(sceneName);
-            CurrentSceneDisplay.Instance?.UpdateScene(this._obsManager?.Actions.CurrentScene);
-        }
-
-        private void UpdateStatusDisplays()
-        {
-            CurrentProfileDisplay.Instance?.UpdateProfile(this._obsManager?.Actions.CurrentProfile);
-            CurrentSceneCollectionDisplay.Instance?.UpdateSceneCollection(this._obsManager?.Actions.CurrentSceneCollection);
-            CurrentSceneDisplay.Instance?.UpdateScene(this._obsManager?.Actions.CurrentScene);
+            CurrentSceneDisplay.Instance?.UpdateScene(sceneName);
         }
 
         public Boolean IsRecording => this._obsManager?.IsRecording ?? false;
