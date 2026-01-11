@@ -167,4 +167,105 @@ public class OBSActionExecutorTests
 
         Assert.Equal("Scene 1", this._executor.CurrentScene);
     }
+
+    [Fact]
+    public void ToggleStreaming_WhenConnected_CallsObs()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+
+        this._executor.ToggleStreaming();
+
+        System.Threading.Thread.Sleep(100);
+        this._mockObs.Verify(x => x.ToggleStream(), Times.Once);
+    }
+
+    [Fact]
+    public void ToggleStreaming_WhenNotConnected_DoesNotCallObs()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(false);
+
+        this._executor.ToggleStreaming();
+
+        System.Threading.Thread.Sleep(100);
+        this._mockObs.Verify(x => x.ToggleStream(), Times.Never);
+    }
+
+    [Fact]
+    public void StartStreaming_WhenConnected_CallsObs()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+
+        this._executor.StartStreaming();
+
+        System.Threading.Thread.Sleep(100);
+        this._mockObs.Verify(x => x.StartStream(), Times.Once);
+    }
+
+    [Fact]
+    public void StartStreaming_WhenAlreadyStreaming_DoesNotCallObs()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._executor.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
+
+        this._executor.StartStreaming();
+
+        System.Threading.Thread.Sleep(100);
+        this._mockObs.Verify(x => x.StartStream(), Times.Never);
+    }
+
+    [Fact]
+    public void StopStreaming_WhenStreaming_CallsObs()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._executor.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
+
+        this._executor.StopStreaming();
+
+        System.Threading.Thread.Sleep(100);
+        this._mockObs.Verify(x => x.StopStream(), Times.Once);
+    }
+
+    [Fact]
+    public void StopStreaming_WhenNotStreaming_DoesNotCallObs()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._executor.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
+
+        this._executor.StopStreaming();
+
+        System.Threading.Thread.Sleep(100);
+        this._mockObs.Verify(x => x.StopStream(), Times.Never);
+    }
+
+    [Fact]
+    public void IsStreaming_WhenStarted_ReturnsTrue()
+    {
+        this._executor.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
+
+        Assert.True(this._executor.IsStreaming);
+    }
+
+    [Fact]
+    public void IsStreaming_WhenStopped_ReturnsFalse()
+    {
+        this._executor.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
+
+        Assert.False(this._executor.IsStreaming);
+    }
+
+    [Fact]
+    public void IsStreamingChanging_WhenStarting_ReturnsTrue()
+    {
+        this._executor.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTING);
+
+        Assert.True(this._executor.IsStreamingChanging);
+    }
+
+    [Fact]
+    public void IsStreamingChanging_WhenStopping_ReturnsTrue()
+    {
+        this._executor.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING);
+
+        Assert.True(this._executor.IsStreamingChanging);
+    }
 }
