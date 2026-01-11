@@ -23,7 +23,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public OBSConnectionSettings ReadConfig()
         {
-            PluginLog.Info($"Reading OBS config from {this.ConfigPath}");
+            PluginLog.Info("Reading OBS config from AppData");
             
             if (!this.ConfigExists)
             {
@@ -45,6 +45,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 }
 
                 var port = root.GetProperty("server_port").GetInt32();
+                
+                if (port < 1 || port > 65535)
+                {
+                    PluginLog.Warning($"Invalid port number: {port}");
+                    return null;
+                }
+                
                 var password = root.GetProperty("server_password").GetString();
 
                 PluginLog.Info($"OBS config loaded: port={port}");

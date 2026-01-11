@@ -74,4 +74,44 @@ public class OBSConfigReaderTests
         
         Assert.Null(settings);
     }
+
+    [Fact]
+    public void ReadConfig_WhenPortInvalid_ReturnsNull()
+    {
+        var tempFile = Path.GetTempFileName();
+        File.WriteAllText(tempFile, @"{
+            ""server_enabled"": true,
+            ""auth_required"": true,
+            ""server_port"": 99999,
+            ""server_password"": ""test123""
+        }");
+
+        var reader = new OBSConfigReader();
+        reader.ConfigPath = tempFile;
+        var settings = reader.ReadConfig();
+
+        Assert.Null(settings);
+
+        File.Delete(tempFile);
+    }
+
+    [Fact]
+    public void ReadConfig_WhenPortZero_ReturnsNull()
+    {
+        var tempFile = Path.GetTempFileName();
+        File.WriteAllText(tempFile, @"{
+            ""server_enabled"": true,
+            ""auth_required"": true,
+            ""server_port"": 0,
+            ""server_password"": ""test123""
+        }");
+
+        var reader = new OBSConfigReader();
+        reader.ConfigPath = tempFile;
+        var settings = reader.ReadConfig();
+
+        Assert.Null(settings);
+
+        File.Delete(tempFile);
+    }
 }
