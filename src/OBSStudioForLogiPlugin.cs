@@ -259,6 +259,29 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             PluginLog.Info($"Plugin notified of scene change: '{sceneName}'");
             ScenesDynamicFolder.Instance?.OnCurrentSceneChanged(sceneName);
             CurrentSceneDisplay.Instance?.UpdateScene(sceneName);
+            this.UpdateSourcesForScene(sceneName);
+        }
+
+        private void UpdateSourcesForScene(String sceneName)
+        {
+            if (String.IsNullOrEmpty(sceneName))
+            {
+                PluginLog.Warning("Cannot update sources - scene name is empty");
+                return;
+            }
+
+            var sources = this._obsManager?.Actions.GetSceneItemList(sceneName) ?? new String[0];
+            SourcesDynamicFolder.Instance?.UpdateSources(sceneName, sources);
+        }
+
+        public Boolean GetSourceVisibility(String sceneName, String sourceName)
+        {
+            return this._obsManager?.Actions.GetSceneItemEnabled(sceneName, sourceName) ?? false;
+        }
+
+        public void ToggleSourceVisibility(String sceneName, String sourceName)
+        {
+            this._obsManager?.Actions.ToggleSourceVisibility(sceneName, sourceName);
         }
 
         public Boolean IsRecording => this._obsManager?.IsRecording ?? false;

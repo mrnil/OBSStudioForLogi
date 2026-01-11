@@ -20,5 +20,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         void SetCurrentSceneCollection(String sceneCollectionName);
         String[] GetSceneList();
         void SaveSourceScreenshot(String sourceName, String imageFormat, String imageFilePath, Int32 imageWidth, Int32 imageHeight);
+        String[] GetSceneItemList(String sceneName);
+        Boolean GetSceneItemEnabled(String sceneName, String sourceName);
+        void SetSceneItemEnabled(String sceneName, String sourceName, Boolean enabled);
     }
 }

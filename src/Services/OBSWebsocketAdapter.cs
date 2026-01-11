@@ -92,5 +92,28 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._obs?.SaveSourceScreenshot(sourceName, imageFormat, imageFilePath, imageWidth, imageHeight);
         }
+
+        public String[] GetSceneItemList(String sceneName)
+        {
+            var sceneItems = this._obs?.GetSceneItemList(sceneName);
+            return sceneItems?.Select(item => item.SourceName).ToArray() ?? new String[0];
+        }
+
+        public Boolean GetSceneItemEnabled(String sceneName, String sourceName)
+        {
+            var sceneItems = this._obs?.GetSceneItemList(sceneName);
+            var item = sceneItems?.FirstOrDefault(i => i.SourceName == sourceName);
+            return item != null;
+        }
+
+        public void SetSceneItemEnabled(String sceneName, String sourceName, Boolean enabled)
+        {
+            var sceneItems = this._obs?.GetSceneItemList(sceneName);
+            var item = sceneItems?.FirstOrDefault(i => i.SourceName == sourceName);
+            if (item != null)
+            {
+                this._obs?.SetSceneItemEnabled(sceneName, item.ItemId, enabled);
+            }
+        }
     }
 }

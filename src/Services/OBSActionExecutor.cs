@@ -345,5 +345,56 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._streamingState = state;
         }
+
+        public String[] GetSceneItemList(String sceneName)
+        {
+            if (!this._obs.IsConnected)
+            {
+                this._log.Warning($"Cannot get scene item list for '{sceneName}' - not connected");
+                return new String[0];
+            }
+
+            if (String.IsNullOrEmpty(sceneName))
+            {
+                this._log.Warning("Cannot get scene item list - scene name is empty");
+                return new String[0];
+            }
+
+            this._log.Info($"Getting scene item list for '{sceneName}'");
+            return this._obs.GetSceneItemList(sceneName);
+        }
+
+        public Boolean GetSceneItemEnabled(String sceneName, String sourceName)
+        {
+            if (!this._obs.IsConnected)
+            {
+                this._log.Warning($"Cannot get scene item enabled state for '{sourceName}' - not connected");
+                return false;
+            }
+
+            return this._obs.GetSceneItemEnabled(sceneName, sourceName);
+        }
+
+        public void ToggleSourceVisibility(String sceneName, String sourceName)
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning($"Cannot toggle source visibility for '{sourceName}' - not connected");
+                    return;
+                }
+
+                if (String.IsNullOrEmpty(sceneName) || String.IsNullOrEmpty(sourceName))
+                {
+                    this._log.Warning("Cannot toggle source visibility - scene or source name is empty");
+                    return;
+                }
+
+                var currentState = this._obs.GetSceneItemEnabled(sceneName, sourceName);
+                this._log.Info($"Toggling source '{sourceName}' visibility from {currentState} to {!currentState}");
+                this._obs.SetSceneItemEnabled(sceneName, sourceName, !currentState);
+            });
+        }
     }
 }
