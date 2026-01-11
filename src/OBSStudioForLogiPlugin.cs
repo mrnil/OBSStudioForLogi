@@ -276,6 +276,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsManager?.Actions.ToggleSourceVisibility(sceneName, sourceName);
         }
 
+        public void ManualReconnect()
+        {
+            PluginLog.Info("Manual reconnect requested");
+            Task.Run(() => this.TryDirectConnection());
+        }
+
         public Boolean IsRecording => this._obsManager?.IsRecording ?? false;
         public Boolean IsRecordingPaused => this._obsManager?.Actions.IsRecordingPaused ?? false;
         public Boolean IsStreaming => this._obsManager?.IsStreaming ?? false;
