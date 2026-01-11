@@ -97,10 +97,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     await Task.Delay(2000);
                     PluginLog.Info("Initiating connection to OBS");
                     await this._obsManager.ConnectAsync(settings.GetWebSocketUrl(), settings.Password);
-                    
-                    await Task.Delay(1000);
-                    ProfileSelectCommand.Instance?.OnConnected();
-                    SceneCollectionSelectCommand.Instance?.OnConnected();
                 }
                 else
                 {
@@ -136,10 +132,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 await Task.Delay(2000);
                 PluginLog.Info("Initiating direct connection to OBS");
                 await this._obsManager.ConnectAsync(settings.GetWebSocketUrl(), settings.Password);
-                
-                await Task.Delay(1000);
-                ProfileSelectCommand.Instance?.OnConnected();
-                SceneCollectionSelectCommand.Instance?.OnConnected();
             }
             else
             {

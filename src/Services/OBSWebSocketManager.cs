@@ -120,8 +120,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                         OBSStudioForLogiPlugin.Instance?.OnCurrentSceneChanged(sceneList.CurrentProgramSceneName);
                     }
 
-                    // Load initial scene list
+                    // Load initial scene list and notify commands
                     this.UpdateSceneList();
+                    ProfileSelectCommand.Instance?.OnConnected();
+                    SceneCollectionSelectCommand.Instance?.OnConnected();
                 }
                 catch (Exception ex)
                 {
