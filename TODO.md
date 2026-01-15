@@ -4,9 +4,9 @@
 
 - [x] Add streaming controls (start/stop/toggle streaming)
 - [x] Add source visibility toggle commands
+- [x] Add virtual camera controls (start/stop)
 - [ ] Add audio mixer controls (mute/unmute sources)
 - [ ] Implement replay buffer controls (start/stop/save)
-- [ ] Add virtual camera controls (start/stop)
 
 ## Medium Priority
 
@@ -56,6 +56,7 @@
 
 - [x] Add streaming controls (start/stop/toggle streaming)
 - [x] Add source visibility toggle commands
+- [x] Add virtual camera controls (start/stop/toggle)
 - [x] Implement comprehensive disposal pattern with thread safety
 - [x] Add exponential backoff with jitter for reconnection
 - [x] Implement continuous reconnection with auto-restart
@@ -70,7 +71,7 @@
 - [x] Implement automatic OBS configuration discovery
 - [x] Add connection resilience with exponential backoff
 - [x] Implement comprehensive logging
-- [x] Add test coverage for all core functionality (74 tests)
+- [x] Add test coverage for all core functionality (80 tests)
 
 ## Future Considerations
 
