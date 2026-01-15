@@ -34,6 +34,6 @@ public class OBSWebSocketManagerLoggingTests
         
         manager.Dispose();
         
-        mockLog.Verify(x => x.Info(It.Is<String>(s => s.Contains("Dispos") || s.Contains("dispos"))), Times.Once);
+        mockLog.Verify(x => x.Info(It.Is<String>(s => s.Contains("Dispos") || s.Contains("dispos"))), Times.AtLeastOnce);
     }
 }

@@ -14,6 +14,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly Timer _reconnectTimer;
         private readonly IPluginLog _log;
         private readonly Int32[] _backoffDelays = { 1000, 2000, 4000, 8000, 15000, 30000 };
+        private readonly Object _disposeLock = new Object();
         private Int32 _reconnectAttempts = 0;
         private String _lastUrl;
         private String _lastPassword;
@@ -267,15 +268,46 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void Dispose()
         {
-            if (this._disposed)
-                return;
+            lock (this._disposeLock)
+            {
+                if (this._disposed)
+                    return;
 
-            this._log.Info("Disposing OBSWebSocketManager");
-            this._disposed = true;
-            this._shouldReconnect = false;
-            this._reconnectTimer?.Stop();
-            this._reconnectTimer?.Dispose();
-            this._obs?.Disconnect();
+                this._log.Info("Disposing OBSWebSocketManager");
+                this._disposed = true;
+                this._shouldReconnect = false;
+
+                // Stop and dispose timer
+                if (this._reconnectTimer != null)
+                {
+                    this._reconnectTimer.Stop();
+                    this._reconnectTimer.Elapsed -= this.OnReconnectTimer;
+                    this._reconnectTimer.Dispose();
+                }
+
+                // Unsubscribe from all events
+                if (this._obs != null)
+                {
+                    this._obs.Disconnected -= this.OnDisconnected;
+                    this._obs.Connected -= this.OnConnected;
+                    this._obs.StreamStateChanged -= this.OnStreamStateChanged;
+                    this._obs.RecordStateChanged -= this.OnRecordStateChanged;
+                    this._obs.CurrentProfileChanged -= this.OnCurrentProfileChanged;
+                    this._obs.CurrentSceneCollectionChanged -= this.OnCurrentSceneCollectionChanged;
+                    this._obs.SceneListChanged -= this.OnSceneListChanged;
+                    this._obs.CurrentProgramSceneChanged -= this.OnCurrentSceneChanged;
+                    
+                    this._obs.Disconnect();
+                    
+                    // Dispose if OBSWebsocket implements IDisposable
+                    if (this._obs is IDisposable disposable)
+                    {
+                        disposable.Dispose();
+                    }
+                }
+
+                this._log.Info("OBSWebSocketManager disposed");
+            }
         }
     }
 }
