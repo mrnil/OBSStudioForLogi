@@ -3,7 +3,7 @@
 ## High Priority
 
 - [x] Add streaming controls (start/stop/toggle streaming)
-- [ ] Add source visibility toggle commands
+- [x] Add source visibility toggle commands
 - [ ] Add audio mixer controls (mute/unmute sources)
 - [ ] Implement replay buffer controls (start/stop/save)
 - [ ] Add virtual camera controls (start/stop)
@@ -27,6 +27,9 @@
 
 ## Technical Improvements
 
+- [x] Implement comprehensive disposal pattern with thread safety
+- [x] Add exponential backoff with jitter for reconnection
+- [x] Implement continuous reconnection with auto-restart
 - [ ] Add configuration UI for manual WebSocket settings override
 - [ ] Implement connection status indicator command
 - [ ] Add retry limit configuration for reconnection attempts
@@ -52,6 +55,11 @@
 ## Completed
 
 - [x] Add streaming controls (start/stop/toggle streaming)
+- [x] Add source visibility toggle commands
+- [x] Implement comprehensive disposal pattern with thread safety
+- [x] Add exponential backoff with jitter for reconnection
+- [x] Implement continuous reconnection with auto-restart
+- [x] Add manual reconnect command
 - [x] Simplify display commands to use text-based buttons
 - [x] Ensure display buttons get initial state on connection
 - [x] Add description to scenes dynamic folder
@@ -62,7 +70,7 @@
 - [x] Implement automatic OBS configuration discovery
 - [x] Add connection resilience with exponential backoff
 - [x] Implement comprehensive logging
-- [x] Add test coverage for all core functionality (65 tests)
+- [x] Add test coverage for all core functionality (74 tests)
 
 ## Future Considerations
 
