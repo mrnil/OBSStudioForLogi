@@ -10,7 +10,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             Instance = this;
             this.Description = "Start virtual camera in OBS Studio";
-            this.GroupName = "4. Virtual Camera";
+            this.GroupName = "1. OBS";
         }
 
         protected override Boolean OnLoad()
