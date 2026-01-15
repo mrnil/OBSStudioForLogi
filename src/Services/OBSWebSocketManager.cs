@@ -243,7 +243,24 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             this._reconnectAttempts++;
             this._log.Info($"Reconnection attempt {this._reconnectAttempts} to {this._lastUrl}");
-            this._obs.ConnectAsync(this._lastUrl, this._lastPassword);
+            
+            try
+            {
+                this._obs.ConnectAsync(this._lastUrl, this._lastPassword);
+            }
+            catch (Exception ex)
+            {
+                this._log.Warning($"Connection attempt failed: {ex.Message}");
+            }
+            
+            // Schedule next attempt if still not connected
+            if (!this.IsConnected && this._shouldReconnect && !this._disposed)
+            {
+                var delay = this.GetReconnectDelay(this._reconnectAttempts);
+                this._log.Info($"Scheduling next reconnection attempt in {delay}ms");
+                this._reconnectTimer.Interval = delay;
+                this._reconnectTimer.Start();
+            }
         }
 
         public void Dispose()
