@@ -82,7 +82,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Int32 GetReconnectDelay(Int32 attempt)
         {
             var index = Math.Min(attempt, this._backoffDelays.Length - 1);
-            return this._backoffDelays[index];
+            var baseDelay = this._backoffDelays[index];
+            var jitter = Random.Shared.NextDouble() * 0.3 + 0.85; // 0.85-1.15x
+            return (Int32)(baseDelay * jitter);
         }
 
         private void OnConnected(Object sender, EventArgs e)
