@@ -60,6 +60,21 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs?.StopStream();
         }
 
+        public void ToggleVirtualCam()
+        {
+            this._obs?.ToggleVirtualCam();
+        }
+
+        public void StartVirtualCam()
+        {
+            this._obs?.StartVirtualCam();
+        }
+
+        public void StopVirtualCam()
+        {
+            this._obs?.StopVirtualCam();
+        }
+
         public String[] GetProfileList()
         {
             var profiles = this._obs?.GetProfileList()?.Profiles;

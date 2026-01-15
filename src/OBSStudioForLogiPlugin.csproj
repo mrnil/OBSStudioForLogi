@@ -83,6 +83,24 @@
     <EmbeddedResource Include="Icons\StreamingToggleOff.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StreamingToggleOff.svg</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Icons\VirtualCameraOn.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.VirtualCameraOn.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\VirtualCameraOff.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.VirtualCameraOff.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\VirtualCameraStart.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.VirtualCameraStart.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\VirtualCameraStartDisabled.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.VirtualCameraStartDisabled.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\VirtualCameraStop.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.VirtualCameraStop.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\VirtualCameraStopDisabled.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.VirtualCameraStopDisabled.svg</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="CopyPackage" AfterTargets="PostBuildEvent">

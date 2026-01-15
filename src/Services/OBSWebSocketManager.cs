@@ -48,6 +48,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.Connected += this.OnConnected;
             this._obs.StreamStateChanged += this.OnStreamStateChanged;
             this._obs.RecordStateChanged += this.OnRecordStateChanged;
+            this._obs.VirtualcamStateChanged += this.OnVirtualCameraStateChanged;
             this._obs.CurrentProfileChanged += this.OnCurrentProfileChanged;
             this._obs.CurrentSceneCollectionChanged += this.OnCurrentSceneCollectionChanged;
             this._obs.SceneListChanged += this.OnSceneListChanged;
@@ -127,6 +128,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this.UpdateSceneList();
                     ProfileSelectCommand.Instance?.OnConnected();
                     SceneCollectionSelectCommand.Instance?.OnConnected();
+                    VirtualCameraToggleCommand.Instance?.OnConnected();
+                    VirtualCameraStartCommand.Instance?.OnConnected();
+                    VirtualCameraStopCommand.Instance?.OnConnected();
                 }
                 catch (Exception ex)
                 {
@@ -141,6 +145,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             
             this._streamingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
             this.Actions.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
+            this.Actions.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             
             if (this._shouldReconnect && !this._disposed)
             {
@@ -163,6 +168,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var state = e?.OutputState?.State ?? OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
             this.Actions.SetRecordingState(state);
             this._log.Info($"Recording state changed to {state}");
+        }
+
+        private void OnVirtualCameraStateChanged(Object sender, VirtualcamStateChangedEventArgs e)
+        {
+            var state = e?.OutputState?.State ?? OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
+            this.Actions.SetVirtualCameraState(state);
+            this._log.Info($"Virtual camera state changed to {state}");
+            OBSStudioForLogiPlugin.Instance?.OnVirtualCameraStateChanged();
         }
 
         private void OnCurrentProfileChanged(Object sender, EventArgs e)
@@ -292,6 +305,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._obs.Connected -= this.OnConnected;
                     this._obs.StreamStateChanged -= this.OnStreamStateChanged;
                     this._obs.RecordStateChanged -= this.OnRecordStateChanged;
+                    this._obs.VirtualcamStateChanged -= this.OnVirtualCameraStateChanged;
                     this._obs.CurrentProfileChanged -= this.OnCurrentProfileChanged;
                     this._obs.CurrentSceneCollectionChanged -= this.OnCurrentSceneCollectionChanged;
                     this._obs.SceneListChanged -= this.OnSceneListChanged;

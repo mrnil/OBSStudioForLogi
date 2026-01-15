@@ -10,6 +10,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly IPluginLog _log;
         private OutputState _recordingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
         private OutputState _streamingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
+        private OutputState _virtualCameraState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
         private String _currentProfile = String.Empty;
         private String _currentSceneCollection = String.Empty;
         private String _currentScene = String.Empty;
@@ -23,6 +24,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Boolean IsStreaming => this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
         public Boolean IsStreamingChanging => this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING 
                                             || this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
+        public Boolean IsVirtualCameraActive => this._virtualCameraState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
         public String CurrentProfile => this._currentProfile;
         public String CurrentSceneCollection => this._currentSceneCollection;
         public String CurrentScene => this._currentScene;
@@ -344,6 +346,75 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void SetStreamingState(OutputState state)
         {
             this._streamingState = state;
+        }
+
+        public void ToggleVirtualCamera()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot toggle virtual camera - not connected");
+                    return;
+                }
+
+                this._log.Info("Toggling virtual camera");
+                if (this.IsVirtualCameraActive)
+                {
+                    this._obs.StopVirtualCam();
+                }
+                else
+                {
+                    this._obs.StartVirtualCam();
+                }
+            });
+        }
+
+        public void StartVirtualCamera()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot start virtual camera - not connected");
+                    return;
+                }
+
+                if (this.IsVirtualCameraActive)
+                {
+                    this._log.Warning("Cannot start virtual camera - already active");
+                    return;
+                }
+
+                this._log.Info("Starting virtual camera");
+                this._obs.StartVirtualCam();
+            });
+        }
+
+        public void StopVirtualCamera()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot stop virtual camera - not connected");
+                    return;
+                }
+
+                if (!this.IsVirtualCameraActive)
+                {
+                    this._log.Warning("Cannot stop virtual camera - not active");
+                    return;
+                }
+
+                this._log.Info("Stopping virtual camera");
+                this._obs.StopVirtualCam();
+            });
+        }
+
+        public void SetVirtualCameraState(OutputState state)
+        {
+            this._virtualCameraState = state;
         }
 
         public String[] GetSceneItemList(String sceneName)

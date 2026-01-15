@@ -14,6 +14,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         void StartStream();
         void StopStream();
         void ToggleStream();
+        void StartVirtualCam();
+        void StopVirtualCam();
+        void ToggleVirtualCam();
         String[] GetProfileList();
         void SetCurrentProfile(String profileName);
         String[] GetSceneCollectionList();
