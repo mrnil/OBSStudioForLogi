@@ -6,7 +6,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     {
         public static CurrentSceneCollectionDisplay Instance { get; private set; }
 
-        private String _currentSceneCollection = "Collection";
+        private String _currentSceneCollection = "Not Connected";
 
         public CurrentSceneCollectionDisplay()
             : base(displayName: "Current Scene Collection", description: "Shows current OBS scene collection", groupName: "1. OBS")
@@ -16,6 +16,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
+            if (!OBSStudioForLogiPlugin.Instance?.IsConnected ?? true)
+            {
+                return "Not Connected";
+            }
             return this._currentSceneCollection;
         }
 
@@ -29,6 +33,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             PluginLog.Info($"Updating scene collection display to '{sceneCollectionName}'");
             this._currentSceneCollection = sceneCollectionName;
+            this.ActionImageChanged();
+        }
+
+        public void UpdateDisplay()
+        {
             this.ActionImageChanged();
         }
 

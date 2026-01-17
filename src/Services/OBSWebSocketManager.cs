@@ -131,6 +131,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     VirtualCameraToggleCommand.Instance?.OnConnected();
                     VirtualCameraStartCommand.Instance?.OnConnected();
                     VirtualCameraStopCommand.Instance?.OnConnected();
+                    ConnectionStatusDisplay.Instance?.UpdateStatus();
                 }
                 catch (Exception ex)
                 {
@@ -146,6 +147,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._streamingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
             this.Actions.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             this.Actions.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
+            
+            ScenesDynamicFolder.Instance?.OnDisconnected();
+            SourcesDynamicFolder.Instance?.OnDisconnected();
+            CurrentProfileDisplay.Instance?.UpdateDisplay();
+            CurrentSceneDisplay.Instance?.UpdateDisplay();
+            CurrentSceneCollectionDisplay.Instance?.UpdateDisplay();
+            ConnectionStatusDisplay.Instance?.UpdateStatus();
             
             if (this._shouldReconnect && !this._disposed)
             {

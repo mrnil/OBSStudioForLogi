@@ -110,9 +110,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             PluginLog.Info("OBS application stopped");
             ProfileSelectCommand.Instance?.OnDisconnected();
             SceneCollectionSelectCommand.Instance?.OnDisconnected();
+            ScenesDynamicFolder.Instance?.OnDisconnected();
+            SourcesDynamicFolder.Instance?.OnDisconnected();
             VirtualCameraToggleCommand.Instance?.OnDisconnected();
             VirtualCameraStartCommand.Instance?.OnDisconnected();
             VirtualCameraStopCommand.Instance?.OnDisconnected();
+            CurrentProfileDisplay.Instance?.UpdateDisplay();
+            CurrentSceneDisplay.Instance?.UpdateDisplay();
+            CurrentSceneCollectionDisplay.Instance?.UpdateDisplay();
             this._obsManager?.Disconnect();
         }
 
@@ -289,6 +294,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Boolean IsRecordingPaused => this._obsManager?.Actions.IsRecordingPaused ?? false;
         public Boolean IsStreaming => this._obsManager?.IsStreaming ?? false;
         public Boolean IsVirtualCameraActive => this._obsManager?.Actions.IsVirtualCameraActive ?? false;
+        public Boolean IsConnected => this._obsManager?.IsConnected ?? false;
 
         public void ToggleVirtualCamera()
         {

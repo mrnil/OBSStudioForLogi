@@ -46,6 +46,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.ButtonActionNamesChanged();
         }
 
+        public void OnDisconnected()
+        {
+            this._scenes = new String[0];
+            this._currentScene = String.Empty;
+            this.ButtonActionNamesChanged();
+        }
+
         public override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
             return actionParameter;

@@ -6,7 +6,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     {
         public static CurrentProfileDisplay Instance { get; private set; }
 
-        private String _currentProfile = "Profile";
+        private String _currentProfile = "Not Connected";
 
         public CurrentProfileDisplay()
             : base(displayName: "Current Profile", description: "Shows current OBS profile", groupName: "1. OBS")
@@ -16,6 +16,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
+            if (!OBSStudioForLogiPlugin.Instance?.IsConnected ?? true)
+            {
+                return "Not Connected";
+            }
             return this._currentProfile;
         }
 
@@ -29,6 +33,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             PluginLog.Info($"Updating profile display to '{profileName}'");
             this._currentProfile = profileName;
+            this.ActionImageChanged();
+        }
+
+        public void UpdateDisplay()
+        {
             this.ActionImageChanged();
         }
 
