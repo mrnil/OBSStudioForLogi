@@ -32,15 +32,12 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 ## 🚀 Installation
 
 ### Quick Install
-1. Download `OBSStudioForLogiPlugin-v0.8.0.zip` from releases
-2. Extract the ZIP file
-3. Copy contents to your Logi Plugin Service plugins directory:
-   - **Windows**: `%LocalAppData%\Logi\LogiPluginService\Plugins\OBSStudioForLogiPlugin\`
-   - **macOS**: `~/Library/Application Support/Logi/LogiPluginService/Plugins/OBSStudioForLogiPlugin/`
-4. Restart Logi Plugin Service
-5. Launch OBS Studio - plugin connects automatically
+1. Download `OBSStudioForLogiPlugin-v0.8.0.lplug4` from releases
+2. Run: `LogiPluginTool.exe install OBSStudioForLogiPlugin-v0.8.0.lplug4`
+3. Restart Logi Plugin Service
+4. Launch OBS Studio - plugin connects automatically
 
-See [INSTALL.md](INSTALL.md) for detailed instructions.
+See [INSTALL.md](INSTALL.md) for manual installation instructions.
 
 ## 🎮 Available Controls
 

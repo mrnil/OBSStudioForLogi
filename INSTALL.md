@@ -2,10 +2,17 @@
 
 ## Quick Install
 
+### Using LogiPluginTool (Recommended)
+```bash
+LogiPluginTool.exe install OBSStudioForLogiPlugin-v0.8.0.lplug4
+```
+
+### Manual Installation
+
 ### Windows
-1. Download `OBSStudioForLogiPlugin-v0.8.0.zip`
-2. Extract the ZIP file
-3. Copy the extracted folder contents to:
+1. Download `OBSStudioForLogiPlugin-v0.8.0.lplug4`
+2. Run: `LogiPluginTool.exe install OBSStudioForLogiPlugin-v0.8.0.lplug4`
+3. Or manually extract to:
    ```
    %LocalAppData%\Logi\LogiPluginService\Plugins\OBSStudioForLogiPlugin\
    ```
@@ -13,9 +20,9 @@
 5. Launch OBS Studio - plugin connects automatically
 
 ### macOS
-1. Download `OBSStudioForLogiPlugin-v0.8.0.zip`
-2. Extract the ZIP file
-3. Copy the extracted folder contents to:
+1. Download `OBSStudioForLogiPlugin-v0.8.0.lplug4`
+2. Run: `LogiPluginTool install OBSStudioForLogiPlugin-v0.8.0.lplug4`
+3. Or manually extract to:
    ```
    ~/Library/Application Support/Logi/LogiPluginService/Plugins/OBSStudioForLogiPlugin/
    ```
