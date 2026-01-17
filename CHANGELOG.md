@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Planned
+- Audio mixer controls (mute/unmute sources)
+- Replay buffer controls (start/stop/save)
+- Studio mode toggle
+- Filter enable/disable controls
+
+## [0.8.0] - 2026-01-17
+
 ### Added
 - Virtual camera controls (toggle, start, stop)
 - Source visibility toggle for sources in current scene
@@ -14,8 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Connection status display showing real-time connection state
 - Manual reconnect button for user-initiated retry
 - Streaming controls (toggle, start, stop)
-- Continuous reconnection with exponential backoff and jitter
+- Continuous reconnection with exponential backoff (1s to 30s) and jitter (0.85-1.15x)
 - Comprehensive disposal pattern with thread safety
+- 80 unit tests with full coverage of core functionality
 
 ### Changed
 - Display commands now use BitmapBuilder for anti-aliased text rendering
@@ -28,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Display commands now properly initialize on connection
 - Dynamic folders now clear when OBS disconnects
 
-## [0.1.0] - Initial Release
+## [0.1.0] - Initial Development
 
 ### Added
 - Recording controls (toggle, start, stop, pause/resume)
