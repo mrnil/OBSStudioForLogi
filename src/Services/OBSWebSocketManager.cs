@@ -129,9 +129,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this.UpdateProfileList();
                     ProfileSelectCommand.Instance?.OnConnected();
                     SceneCollectionSelectCommand.Instance?.OnConnected();
-                    VirtualCameraToggleCommand.Instance?.OnConnected();
-                    VirtualCameraStartCommand.Instance?.OnConnected();
-                    VirtualCameraStopCommand.Instance?.OnConnected();
                     ConnectionStatusDisplay.Instance?.UpdateStatus();
                 }
                 catch (Exception ex)

@@ -113,9 +113,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             SceneCollectionSelectCommand.Instance?.OnDisconnected();
             ScenesDynamicFolder.Instance?.OnDisconnected();
             SourcesDynamicFolder.Instance?.OnDisconnected();
-            VirtualCameraToggleCommand.Instance?.OnDisconnected();
-            VirtualCameraStartCommand.Instance?.OnDisconnected();
-            VirtualCameraStopCommand.Instance?.OnDisconnected();
             CurrentProfileDisplay.Instance?.UpdateDisplay();
             CurrentSceneDisplay.Instance?.UpdateDisplay();
             CurrentSceneCollectionDisplay.Instance?.UpdateDisplay();

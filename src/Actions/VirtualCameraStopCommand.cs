@@ -7,16 +7,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public static VirtualCameraStopCommand Instance { get; private set; }
 
         public VirtualCameraStopCommand()
+            : base(displayName: "Stop Virtual Camera", description: "Stop OBS virtual camera", groupName: "1. OBS")
         {
             Instance = this;
-            this.Description = "Stop virtual camera in OBS Studio";
-            this.GroupName = "1. OBS";
-        }
-
-        protected override Boolean OnLoad()
-        {
-            this.IsEnabled = false;
-            return true;
         }
 
         protected override void RunCommand(String actionParameter)
@@ -28,19 +21,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             var isActive = OBSStudioForLogiPlugin.Instance?.IsVirtualCameraActive ?? false;
             var iconName = isActive ? "VirtualCameraStop.svg" : "VirtualCameraStopDisabled.svg";
-            return PluginResources.ReadImage(iconName);
-        }
-
-        public void OnConnected()
-        {
-            this.IsEnabled = true;
-            this.ActionImageChanged();
-        }
-
-        public void OnDisconnected()
-        {
-            this.IsEnabled = false;
-            this.ActionImageChanged();
+            return EmbeddedResources.ReadImage($"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconName}");
         }
 
         public void OnVirtualCameraStateChanged()
