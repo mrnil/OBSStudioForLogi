@@ -11,21 +11,32 @@ OBSStudioForLogiPlugin is a Loupedeck/Logi Plugin Service integration that enabl
 
 ## Key Features
 
+### Streaming Control
+- Start/stop streaming with dedicated commands
+- Toggle streaming on/off
+- Visual indicators for streaming state (on/off)
+
 ### Recording Control
 - Start/stop recording with dedicated commands
 - Toggle recording on/off
 - Pause and resume recording during active sessions
 - Visual indicators for recording state (on/off/paused)
 
+### Virtual Camera
+- Start/stop virtual camera output
+- Toggle virtual camera on/off
+- Visual indicators for virtual camera state
+
 ### Scene Management
-- Switch between OBS scenes dynamically
+- Switch between OBS scenes dynamically via dynamic folder
 - Display current active scene on device
 - Visual feedback showing selected vs unselected scenes
 - Dynamic scene list updates when OBS configuration changes
+- Toggle visibility of sources in current scene
 
 ### Profile & Scene Collection Management
-- Switch between OBS profiles
-- Switch between scene collections
+- Switch between OBS profiles via multi-state buttons or dynamic folder
+- Switch between scene collections via multi-state buttons
 - Display current profile and scene collection
 - Automatic synchronization when profiles/collections change in OBS
 
@@ -37,7 +48,9 @@ OBSStudioForLogiPlugin is a Loupedeck/Logi Plugin Service integration that enabl
 - Automatic connection to OBS WebSocket on application start
 - Direct connection fallback when OBS process detection fails
 - Port availability monitoring before connection attempts
-- Graceful reconnection handling
+- Continuous reconnection with exponential backoff (1s to 30s) and jitter (0.85-1.15x)
+- Manual reconnect button for user-initiated retry
+- Connection status display showing real-time connection state
 
 ## Target Users
 
@@ -47,11 +60,13 @@ OBSStudioForLogiPlugin is a Loupedeck/Logi Plugin Service integration that enabl
 - **Podcast Hosts**: Creators managing multiple scenes and sources during live recordings
 
 ### Use Cases
-1. **Live Streaming**: Quick scene transitions, recording control, and status monitoring during live broadcasts
+1. **Live Streaming**: Quick scene transitions, streaming/recording control, and status monitoring during live broadcasts
 2. **Content Recording**: Start/stop recording sessions with physical buttons instead of software controls
 3. **Multi-Scene Productions**: Rapid switching between different camera angles, screen captures, and overlay configurations
-4. **Profile Management**: Switching between different OBS configurations for various show formats or streaming platforms
-5. **Professional Broadcasting**: Hardware-based control for more reliable and tactile operation during critical live events
+4. **Source Management**: Toggle visibility of sources (cameras, overlays, alerts) during live production
+5. **Profile Management**: Switching between different OBS configurations for various show formats or streaming platforms
+6. **Virtual Camera**: Control virtual camera output for video conferencing or external applications
+7. **Professional Broadcasting**: Hardware-based control for more reliable and tactile operation during critical live events
 
 ## Technical Integration
 - Integrates with OBS Studio via obs-websocket protocol (v5.0+)

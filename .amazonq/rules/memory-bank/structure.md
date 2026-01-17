@@ -27,29 +27,39 @@ OBSStudioForLogiPlugin/
 Command classes that handle user interactions from Loupedeck hardware:
 
 **Display Commands** (read-only status indicators):
+- `ConnectionStatusDisplay.cs`: Shows connection status (Connected/Disconnected)
 - `CurrentProfileDisplay.cs`: Shows active OBS profile name
 - `CurrentSceneCollectionDisplay.cs`: Shows active scene collection name
 - `CurrentSceneDisplay.cs`: Shows current active scene
 
 **Interactive Commands** (user-triggered actions):
 - `ProfileSelectCommand.cs`: Multi-state command for switching OBS profiles
+- `ProfilesDynamicFolder.cs`: Dynamic folder containing all available profiles
 - `SceneCollectionSelectCommand.cs`: Multi-state command for switching scene collections
 - `ScenesDynamicFolder.cs`: Dynamic folder containing all available scenes as buttons
+- `SourcesDynamicFolder.cs`: Dynamic folder showing sources in current scene with visibility toggle
 - `RecordingToggleCommand.cs`: Toggle recording on/off
 - `RecordingStartCommand.cs`: Start recording
 - `RecordingStopCommand.cs`: Stop recording
 - `RecordingPauseToggleCommand.cs`: Pause/resume recording
+- `StreamingToggleCommand.cs`: Toggle streaming on/off
+- `StreamingStartCommand.cs`: Start streaming
+- `StreamingStopCommand.cs`: Stop streaming
+- `VirtualCameraToggleCommand.cs`: Toggle virtual camera on/off
+- `VirtualCameraStartCommand.cs`: Start virtual camera
+- `VirtualCameraStopCommand.cs`: Stop virtual camera
+- `ReconnectCommand.cs`: Manually retry connection to OBS
 - `ScreenshotCommand.cs`: Capture screenshot via OBS
 
 ### Services Layer (`src/Services/`)
 Core business logic and OBS integration:
 
-- **OBSWebSocketManager.cs**: Primary WebSocket connection manager, handles connect/disconnect/reconnect, event routing
-- **OBSActionExecutor.cs**: Executes OBS commands (scene switching, recording control, profile management)
+- **OBSWebSocketManager.cs**: Primary WebSocket connection manager, handles connect/disconnect/reconnect with exponential backoff and jitter, event routing, timer-based continuous reconnection
+- **OBSActionExecutor.cs**: Executes OBS commands (scene switching, recording control, streaming control, virtual camera, profile management, source visibility)
 - **IOBSWebsocket.cs**: Interface abstraction for OBS WebSocket operations (enables testing/mocking)
 - **OBSWebsocketAdapter.cs**: Adapter wrapping obs-websocket-dotnet library
 - **OBSConfigReader.cs**: Reads OBS configuration files to discover WebSocket settings (port, password)
-- **OBSLifecycleManager.cs**: Manages connection lifecycle, port availability checking, retry logic
+- **OBSLifecycleManager.cs**: Manages connection lifecycle, port availability checking
 
 ### Helpers Layer (`src/Helpers/`)
 - **PluginLog.cs**: Centralized logging wrapper (implements IPluginLog)
@@ -100,11 +110,13 @@ OBSStudioForLogiPlugin (main)
     ├── OBSConfigReader (configuration)
     ├── OBSLifecycleManager (connection lifecycle)
     └── Commands (Actions/)
-        ├── ProfileSelectCommand
-        ├── SceneCollectionSelectCommand
-        ├── ScenesDynamicFolder
-        ├── Recording Commands
-        └── Display Commands
+        ├── Display Commands (ConnectionStatus, CurrentProfile, CurrentScene, CurrentSceneCollection)
+        ├── Profile Commands (ProfileSelect, ProfilesDynamicFolder)
+        ├── Scene Commands (SceneCollectionSelect, ScenesDynamicFolder, SourcesDynamicFolder)
+        ├── Recording Commands (Toggle, Start, Stop, Pause)
+        ├── Streaming Commands (Toggle, Start, Stop)
+        ├── Virtual Camera Commands (Toggle, Start, Stop)
+        └── Utility Commands (Screenshot, Reconnect)
 ```
 
 ### Data Flow
