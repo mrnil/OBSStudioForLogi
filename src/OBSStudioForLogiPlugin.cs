@@ -109,6 +109,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             PluginLog.Info("OBS application stopped");
             ProfileSelectCommand.Instance?.OnDisconnected();
+            ProfilesDynamicFolder.Instance?.OnDisconnected();
             SceneCollectionSelectCommand.Instance?.OnDisconnected();
             ScenesDynamicFolder.Instance?.OnDisconnected();
             SourcesDynamicFolder.Instance?.OnDisconnected();
@@ -220,6 +221,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             PluginLog.Info($"Plugin notified of profile change: '{oldProfile}' -> '{newProfile}'");
             ProfileSelectCommand.Instance?.OnCurrentProfileChanged(oldProfile, newProfile);
+            ProfilesDynamicFolder.Instance?.OnCurrentProfileChanged(newProfile);
             CurrentProfileDisplay.Instance?.UpdateProfile(newProfile);
         }
 
@@ -252,6 +254,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             var currentScene = this._obsManager?.Actions.CurrentScene ?? String.Empty;
             ScenesDynamicFolder.Instance?.UpdateScenes(scenes, currentScene);
+        }
+
+        public void OnProfilesChanged(String[] profiles, String currentProfile)
+        {
+            ProfilesDynamicFolder.Instance?.UpdateProfiles(profiles, currentProfile);
         }
 
         public void OnCurrentSceneChanged(String sceneName)

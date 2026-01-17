@@ -126,6 +126,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
                     // Load initial scene list and notify commands
                     this.UpdateSceneList();
+                    this.UpdateProfileList();
                     ProfileSelectCommand.Instance?.OnConnected();
                     SceneCollectionSelectCommand.Instance?.OnConnected();
                     VirtualCameraToggleCommand.Instance?.OnConnected();
@@ -150,6 +151,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             
             ScenesDynamicFolder.Instance?.OnDisconnected();
             SourcesDynamicFolder.Instance?.OnDisconnected();
+            ProfilesDynamicFolder.Instance?.OnDisconnected();
             CurrentProfileDisplay.Instance?.UpdateDisplay();
             CurrentSceneDisplay.Instance?.UpdateDisplay();
             CurrentSceneCollectionDisplay.Instance?.UpdateDisplay();
@@ -202,6 +204,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                         
                         // Notify ProfileSelectCommand
                         OBSStudioForLogiPlugin.Instance?.OnProfileChanged(oldProfile, profiles.CurrentProfileName);
+                        this.UpdateProfileList();
                     }
                 }
                 catch (Exception ex)
@@ -246,6 +249,24 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 catch (Exception ex)
                 {
                     this._log.Warning($"Failed to get scene list: {ex.Message}");
+                }
+            });
+        }
+
+        private void UpdateProfileList()
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    var profiles = this.Actions.GetProfileList();
+                    var currentProfile = this.Actions.CurrentProfile;
+                    this._log.Info($"Loaded {profiles.Length} profiles");
+                    OBSStudioForLogiPlugin.Instance?.OnProfilesChanged(profiles, currentProfile);
+                }
+                catch (Exception ex)
+                {
+                    this._log.Warning($"Failed to get profile list: {ex.Message}");
                 }
             });
         }
