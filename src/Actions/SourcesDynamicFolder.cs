@@ -46,7 +46,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
-            return actionParameter;
+            return null;
         }
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)

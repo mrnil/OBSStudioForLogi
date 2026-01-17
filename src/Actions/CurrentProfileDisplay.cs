@@ -16,11 +16,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
-            if (!OBSStudioForLogiPlugin.Instance?.IsConnected ?? true)
-            {
-                return "Not Connected";
-            }
-            return this._currentProfile;
+            return null;
         }
 
         public void UpdateProfile(String profileName)
@@ -43,13 +39,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            using (var bitmapBuilder = new BitmapBuilder(imageSize))
+            if (!OBSStudioForLogiPlugin.Instance?.IsConnected ?? true)
             {
-                bitmapBuilder.Clear(BitmapColor.Black);
-                var displayText = !OBSStudioForLogiPlugin.Instance?.IsConnected ?? true ? "Not Connected" : this._currentProfile;
-                bitmapBuilder.DrawText(displayText, BitmapColor.White, imageSize == PluginImageSize.Width90 ? 13 : 11);
-                return bitmapBuilder.ToImage();
+                return ButtonTextRenderer.RenderNotConnected(imageSize);
             }
+            return ButtonTextRenderer.RenderText(this._currentProfile, imageSize);
         }
 
         protected override void RunCommand(String actionParameter)
