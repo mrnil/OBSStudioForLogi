@@ -43,7 +43,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            return null;
+            using (var bitmapBuilder = new BitmapBuilder(imageSize))
+            {
+                bitmapBuilder.Clear(BitmapColor.Black);
+                var displayText = !OBSStudioForLogiPlugin.Instance?.IsConnected ?? true ? "Not Connected" : this._currentSceneCollection;
+                bitmapBuilder.DrawText(displayText, BitmapColor.White, imageSize == PluginImageSize.Width90 ? 13 : 11);
+                return bitmapBuilder.ToImage();
+            }
         }
 
         protected override void RunCommand(String actionParameter)
