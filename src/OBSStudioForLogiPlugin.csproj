@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <PackageReference Include="obs-websocket-dotnet" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
   </ItemGroup>
 
   <ItemGroup>
