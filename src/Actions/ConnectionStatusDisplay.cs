@@ -10,6 +10,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             : base(displayName: "Connection Status", description: "Shows OBS connection status", groupName: "1. OBS")
         {
             Instance = this;
+            this.AddParameter("", "Connection Status", groupName: "1. OBS");
         }
 
         protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
@@ -30,7 +31,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void UpdateStatus()
         {
-            this.ActionImageChanged();
+            this.ActionImageChanged("");
         }
     }
 }

@@ -12,6 +12,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             : base(displayName: "Current Scene Collection", description: "Shows current OBS scene collection", groupName: "1. OBS")
         {
             Instance = this;
+            this.AddParameter("", "Current Scene Collection", groupName: "1. OBS");
         }
 
         protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
@@ -29,12 +30,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             PluginLog.Info($"Updating scene collection display to '{sceneCollectionName}'");
             this._currentSceneCollection = sceneCollectionName;
-            this.ActionImageChanged();
+            this.ActionImageChanged("");
         }
 
         public void UpdateDisplay()
         {
-            this.ActionImageChanged();
+            this.ActionImageChanged("");
         }
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
