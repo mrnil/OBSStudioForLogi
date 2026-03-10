@@ -13,6 +13,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Studio mode toggle
 - Filter enable/disable controls
 
+## [0.8.1] - 2026-01-17
+
+### Fixed
+- Eliminated jaggy text rendering on all buttons by preventing double text rendering
+- Display commands now return null from GetCommandDisplayName() to avoid native text overlay
+- Dynamic folders (Scenes, Sources) now render only anti-aliased text via BitmapBuilder
+
+### Added
+- ButtonTextRenderer helper class for consistent, reusable text rendering across all display commands
+- RenderText(), RenderConnectionStatus(), RenderNotConnected() methods with proper font sizing
+
+### Changed
+- Simplified .gitignore to essential patterns, added *.lplug4 to ignored files
+
 ## [0.8.0] - 2026-01-17
 
 ### Added
