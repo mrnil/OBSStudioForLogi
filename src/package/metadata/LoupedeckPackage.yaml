@@ -46,7 +46,7 @@ pluginFolderWin: bin
 
 # Location of plugin files on macOS (relative to the plugin base directory).
 # This parameter is required to support Mac.
-#pluginFolderMac: bin
+pluginFolderMac: bin
 
 # List of devices the plugin is optimized for.
 supportedDevices:
