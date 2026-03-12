@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Studio mode toggle
 - Filter enable/disable controls
 
+## [0.8.3] - 2026-03-10
+
+### Fixed
+- macOS plugin load failure by enabling pluginFolderMac in package metadata
+- Plugin now loads successfully on macOS devices
+
 ## [0.8.2] - 2026-01-17
 
 ### Fixed
