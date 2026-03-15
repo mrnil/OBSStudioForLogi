@@ -268,4 +268,258 @@ public class OBSActionExecutorTests
 
         Assert.True(this._executor.IsStreamingChanging);
     }
+
+    // --- Error logging tests ---
+
+    [Fact]
+    public void SetCurrentScene_WhenOBSThrows_LogsError()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.SetCurrentProgramScene(It.IsAny<String>())).Throws(new Exception("OBS error"));
+
+        this._executor.SetCurrentScene("Scene1");
+        System.Threading.Thread.Sleep(100);
+
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Scene1") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void ToggleRecording_WhenOBSThrows_LogsError()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.ToggleRecord()).Throws(new Exception("OBS error"));
+        this._executor.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
+
+        this._executor.ToggleRecording();
+        System.Threading.Thread.Sleep(100);
+
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("toggle recording") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void StartRecording_WhenOBSThrows_LogsError()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.StartRecord()).Throws(new Exception("OBS error"));
+        this._executor.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
+
+        this._executor.StartRecording();
+        System.Threading.Thread.Sleep(100);
+
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("start recording") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void StopRecording_WhenOBSThrows_LogsError()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.StopRecord()).Throws(new Exception("OBS error"));
+        this._executor.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
+
+        this._executor.StopRecording();
+        System.Threading.Thread.Sleep(100);
+
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("stop recording") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void ToggleRecordingPause_WhenOBSThrows_LogsError()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.PauseRecord()).Throws(new Exception("OBS error"));
+        this._executor.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
+
+        this._executor.ToggleRecordingPause();
+        System.Threading.Thread.Sleep(100);
+
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("toggle recording pause") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void GetProfileList_WhenOBSThrows_LogsErrorAndReturnsEmpty()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetProfileList()).Throws(new Exception("OBS error"));
+
+        var result = this._executor.GetProfileList();
+
+        Assert.Empty(result);
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("profile list") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void SetCurrentProfile_WhenOBSThrows_LogsError()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.SetCurrentProfile(It.IsAny<String>())).Throws(new Exception("OBS error"));
+
+        this._executor.SetCurrentProfile("TestProfile");
+        System.Threading.Thread.Sleep(100);
+
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("TestProfile") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void GetSceneCollectionList_WhenOBSThrows_LogsErrorAndReturnsEmpty()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetSceneCollectionList()).Throws(new Exception("OBS error"));
+
+        var result = this._executor.GetSceneCollectionList();
+
+        Assert.Empty(result);
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("scene collection list") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void SetCurrentSceneCollection_WhenOBSThrows_LogsError()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.SetCurrentSceneCollection(It.IsAny<String>())).Throws(new Exception("OBS error"));
+
+        this._executor.SetCurrentSceneCollection("TestCollection");
+        System.Threading.Thread.Sleep(100);
+
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("TestCollection") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void GetSceneList_WhenOBSThrows_LogsErrorAndReturnsEmpty()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetSceneList()).Throws(new Exception("OBS error"));
+
+        var result = this._executor.GetSceneList();
+
+        Assert.Empty(result);
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("scene list") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void SaveScreenshot_WhenOBSThrows_LogsError()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.SaveSourceScreenshot(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<String>(), It.IsAny<Int32>(), It.IsAny<Int32>()))
+                     .Throws(new Exception("OBS error"));
+        this._executor.SetCurrentSceneState("Scene1");
+
+        this._executor.SaveScreenshot("C:\\Screenshots");
+        System.Threading.Thread.Sleep(100);
+
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("screenshot") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void ToggleStreaming_WhenOBSThrows_LogsError()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.ToggleStream()).Throws(new Exception("OBS error"));
+        this._executor.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
+
+        this._executor.ToggleStreaming();
+        System.Threading.Thread.Sleep(100);
+
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("toggle streaming") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void StartStreaming_WhenOBSThrows_LogsError()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.StartStream()).Throws(new Exception("OBS error"));
+        this._executor.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
+
+        this._executor.StartStreaming();
+        System.Threading.Thread.Sleep(100);
+
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("start streaming") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void StopStreaming_WhenOBSThrows_LogsError()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.StopStream()).Throws(new Exception("OBS error"));
+        this._executor.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
+
+        this._executor.StopStreaming();
+        System.Threading.Thread.Sleep(100);
+
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("stop streaming") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void ToggleVirtualCamera_WhenOBSThrows_LogsError()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.StartVirtualCam()).Throws(new Exception("OBS error"));
+        this._executor.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
+
+        this._executor.ToggleVirtualCamera();
+        System.Threading.Thread.Sleep(100);
+
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("toggle virtual camera") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void StartVirtualCamera_WhenOBSThrows_LogsError()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.StartVirtualCam()).Throws(new Exception("OBS error"));
+        this._executor.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
+
+        this._executor.StartVirtualCamera();
+        System.Threading.Thread.Sleep(100);
+
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("start virtual camera") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void StopVirtualCamera_WhenOBSThrows_LogsError()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.StopVirtualCam()).Throws(new Exception("OBS error"));
+        this._executor.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
+
+        this._executor.StopVirtualCamera();
+        System.Threading.Thread.Sleep(100);
+
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("stop virtual camera") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void GetSceneItemList_WhenOBSThrows_LogsErrorAndReturnsEmpty()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetSceneItemList(It.IsAny<String>())).Throws(new Exception("OBS error"));
+
+        var result = this._executor.GetSceneItemList("Scene1");
+
+        Assert.Empty(result);
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Scene1") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void GetSceneItemEnabled_WhenOBSThrows_LogsErrorAndReturnsFalse()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetSceneItemEnabled(It.IsAny<String>(), It.IsAny<String>())).Throws(new Exception("OBS error"));
+
+        var result = this._executor.GetSceneItemEnabled("Scene1", "Source1");
+
+        Assert.False(result);
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Source1") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void ToggleSourceVisibility_WhenOBSThrows_LogsError()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetSceneItemEnabled(It.IsAny<String>(), It.IsAny<String>())).Throws(new Exception("OBS error"));
+
+        this._executor.ToggleSourceVisibility("Scene1", "Source1");
+        System.Threading.Thread.Sleep(100);
+
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Source1") && s.Contains("OBS error"))), Times.Once);
+    }
 }

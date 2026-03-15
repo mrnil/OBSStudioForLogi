@@ -44,9 +44,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._log.Warning($"Cannot set scene '{sceneName}' - not connected");
                     return;
                 }
-                
-                this._log.Info($"Setting current scene to '{sceneName}'");
-                this._obs.SetCurrentProgramScene(sceneName);
+
+                try
+                {
+                    this._log.Info($"Setting current scene to '{sceneName}'");
+                    this._obs.SetCurrentProgramScene(sceneName);
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to set scene '{sceneName}': {ex.Message}");
+                }
             });
         }
 
@@ -66,8 +73,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                this._log.Info("Toggling recording");
-                this._obs.ToggleRecord();
+                try
+                {
+                    this._log.Info("Toggling recording");
+                    this._obs.ToggleRecord();
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to toggle recording: {ex.Message}");
+                }
             });
         }
 
@@ -87,8 +101,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                this._log.Info("Starting recording");
-                this._obs.StartRecord();
+                try
+                {
+                    this._log.Info("Starting recording");
+                    this._obs.StartRecord();
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to start recording: {ex.Message}");
+                }
             });
         }
 
@@ -108,8 +129,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                this._log.Info("Stopping recording");
-                this._obs.StopRecord();
+                try
+                {
+                    this._log.Info("Stopping recording");
+                    this._obs.StopRecord();
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to stop recording: {ex.Message}");
+                }
             });
         }
 
@@ -129,14 +157,21 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                this._log.Info("Toggling recording pause");
-                if (this.IsRecordingPaused)
+                try
                 {
-                    this._obs.ResumeRecord();
+                    this._log.Info("Toggling recording pause");
+                    if (this.IsRecordingPaused)
+                    {
+                        this._obs.ResumeRecord();
+                    }
+                    else
+                    {
+                        this._obs.PauseRecord();
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    this._obs.PauseRecord();
+                    this._log.Error($"Failed to toggle recording pause: {ex.Message}");
                 }
             });
         }
@@ -149,8 +184,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return new String[0];
             }
 
-            this._log.Info("Getting profile list");
-            return this._obs.GetProfileList();
+            try
+            {
+                this._log.Info("Getting profile list");
+                return this._obs.GetProfileList();
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get profile list: {ex.Message}");
+                return new String[0];
+            }
         }
 
         public void SetCurrentProfile(String profileName)
@@ -169,8 +212,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                this._log.Info($"Setting current profile to '{profileName}'");
-                this._obs.SetCurrentProfile(profileName);
+                try
+                {
+                    this._log.Info($"Setting current profile to '{profileName}'");
+                    this._obs.SetCurrentProfile(profileName);
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to set profile '{profileName}': {ex.Message}");
+                }
             });
         }
 
@@ -187,8 +237,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return new String[0];
             }
 
-            this._log.Info("Getting scene collection list");
-            return this._obs.GetSceneCollectionList();
+            try
+            {
+                this._log.Info("Getting scene collection list");
+                return this._obs.GetSceneCollectionList();
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get scene collection list: {ex.Message}");
+                return new String[0];
+            }
         }
 
         public void SetCurrentSceneCollection(String sceneCollectionName)
@@ -207,8 +265,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                this._log.Info($"Setting current scene collection to '{sceneCollectionName}'");
-                this._obs.SetCurrentSceneCollection(sceneCollectionName);
+                try
+                {
+                    this._log.Info($"Setting current scene collection to '{sceneCollectionName}'");
+                    this._obs.SetCurrentSceneCollection(sceneCollectionName);
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to set scene collection '{sceneCollectionName}': {ex.Message}");
+                }
             });
         }
 
@@ -230,8 +295,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return new String[0];
             }
 
-            this._log.Info("Getting scene list");
-            return this._obs.GetSceneList();
+            try
+            {
+                this._log.Info("Getting scene list");
+                return this._obs.GetSceneList();
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get scene list: {ex.Message}");
+                return new String[0];
+            }
         }
 
         public void SaveScreenshot(String screenshotPath)
@@ -256,9 +329,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                var filename = System.IO.Path.Combine(screenshotPath, $"Screenshot-{DateTime.Now:yyyyMMddHHmmssfff}.png");
-                this._log.Info($"Saving screenshot to {filename}");
-                this._obs.SaveSourceScreenshot(this._currentScene, "png", filename, -1, -1);
+                try
+                {
+                    var filename = System.IO.Path.Combine(screenshotPath, $"Screenshot-{DateTime.Now:yyyyMMddHHmmssfff}.png");
+                    this._log.Info($"Saving screenshot to {filename}");
+                    this._obs.SaveSourceScreenshot(this._currentScene, "png", filename, -1, -1);
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to save screenshot: {ex.Message}");
+                }
             });
         }
 
@@ -296,8 +376,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                this._log.Info("Toggling streaming");
-                this._obs.ToggleStream();
+                try
+                {
+                    this._log.Info("Toggling streaming");
+                    this._obs.ToggleStream();
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to toggle streaming: {ex.Message}");
+                }
             });
         }
 
@@ -317,8 +404,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                this._log.Info("Starting streaming");
-                this._obs.StartStream();
+                try
+                {
+                    this._log.Info("Starting streaming");
+                    this._obs.StartStream();
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to start streaming: {ex.Message}");
+                }
             });
         }
 
@@ -338,8 +432,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                this._log.Info("Stopping streaming");
-                this._obs.StopStream();
+                try
+                {
+                    this._log.Info("Stopping streaming");
+                    this._obs.StopStream();
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to stop streaming: {ex.Message}");
+                }
             });
         }
 
@@ -358,14 +459,21 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                this._log.Info("Toggling virtual camera");
-                if (this.IsVirtualCameraActive)
+                try
                 {
-                    this._obs.StopVirtualCam();
+                    this._log.Info("Toggling virtual camera");
+                    if (this.IsVirtualCameraActive)
+                    {
+                        this._obs.StopVirtualCam();
+                    }
+                    else
+                    {
+                        this._obs.StartVirtualCam();
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    this._obs.StartVirtualCam();
+                    this._log.Error($"Failed to toggle virtual camera: {ex.Message}");
                 }
             });
         }
@@ -386,8 +494,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                this._log.Info("Starting virtual camera");
-                this._obs.StartVirtualCam();
+                try
+                {
+                    this._log.Info("Starting virtual camera");
+                    this._obs.StartVirtualCam();
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to start virtual camera: {ex.Message}");
+                }
             });
         }
 
@@ -407,8 +522,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                this._log.Info("Stopping virtual camera");
-                this._obs.StopVirtualCam();
+                try
+                {
+                    this._log.Info("Stopping virtual camera");
+                    this._obs.StopVirtualCam();
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to stop virtual camera: {ex.Message}");
+                }
             });
         }
 
@@ -431,8 +553,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return new String[0];
             }
 
-            this._log.Info($"Getting scene item list for '{sceneName}'");
-            return this._obs.GetSceneItemList(sceneName);
+            try
+            {
+                this._log.Info($"Getting scene item list for '{sceneName}'");
+                return this._obs.GetSceneItemList(sceneName);
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get scene item list for '{sceneName}': {ex.Message}");
+                return new String[0];
+            }
         }
 
         public Boolean GetSceneItemEnabled(String sceneName, String sourceName)
@@ -443,7 +573,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return false;
             }
 
-            return this._obs.GetSceneItemEnabled(sceneName, sourceName);
+            try
+            {
+                return this._obs.GetSceneItemEnabled(sceneName, sourceName);
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get scene item enabled state for '{sourceName}': {ex.Message}");
+                return false;
+            }
         }
 
         public void ToggleSourceVisibility(String sceneName, String sourceName)
@@ -462,9 +600,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                var currentState = this._obs.GetSceneItemEnabled(sceneName, sourceName);
-                this._log.Info($"Toggling source '{sourceName}' visibility from {currentState} to {!currentState}");
-                this._obs.SetSceneItemEnabled(sceneName, sourceName, !currentState);
+                try
+                {
+                    var currentState = this._obs.GetSceneItemEnabled(sceneName, sourceName);
+                    this._log.Info($"Toggling source '{sourceName}' visibility from {currentState} to {!currentState}");
+                    this._obs.SetSceneItemEnabled(sceneName, sourceName, !currentState);
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to toggle source visibility for '{sourceName}': {ex.Message}");
+                }
             });
         }
     }
