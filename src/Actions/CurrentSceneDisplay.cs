@@ -9,15 +9,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private String _currentScene = "Not Connected";
 
         public CurrentSceneDisplay()
-            : base(displayName: "Current Scene", description: "Shows current OBS scene", groupName: "1. OBS")
+            : base(displayName: "Current Scene", description: "Shows current OBS scene", groupName: "5. Scenes")
         {
             Instance = this;
-            this.AddParameter("", "Current Scene", groupName: "1. OBS");
+            this.AddParameter("", "", groupName: "5. Scenes");
         }
 
         protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
-            return null;
+            return String.Empty;
         }
 
         public void UpdateScene(String sceneName)
@@ -42,9 +42,17 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             if (!OBSStudioForLogiPlugin.Instance?.IsConnected ?? true)
             {
-                return ButtonTextRenderer.RenderNotConnected(imageSize);
+                return ButtonTextRenderer.RenderText(
+                    "Not Connected",
+                    imageSize,
+                    BitmapColor.Black,
+                    new BitmapColor(128, 128, 128));
             }
-            return ButtonTextRenderer.RenderText(this._currentScene, imageSize);
+            return ButtonTextRenderer.RenderText(
+                this._currentScene,
+                imageSize,
+                new BitmapColor(57, 180, 120),
+                BitmapColor.White);
         }
 
         protected override void RunCommand(String actionParameter)

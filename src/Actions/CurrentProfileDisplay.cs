@@ -9,15 +9,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private String _currentProfile = "Not Connected";
 
         public CurrentProfileDisplay()
-            : base(displayName: "Current Profile", description: "Shows current OBS profile", groupName: "1. OBS")
+            : base(displayName: "Current Profile", description: "Shows current OBS profile", groupName: "4. Profiles")
         {
             Instance = this;
-            this.AddParameter("", "Current Profile", groupName: "1. OBS");
+            this.AddParameter("", "", groupName: "4. Profiles");
         }
 
         protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
-            return null;
+            PluginLog.Info($"CurrentProfileDisplay.GetCommandDisplayName called - actionParameter: '{actionParameter}', imageSize: {imageSize}");
+            return String.Empty;
         }
 
         public void UpdateProfile(String profileName)
@@ -35,16 +36,30 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void UpdateDisplay()
         {
+            PluginLog.Info("CurrentProfileDisplay.UpdateDisplay called");
             this.ActionImageChanged("");
         }
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
+            PluginLog.Info($"CurrentProfileDisplay.GetCommandImage called - actionParameter: '{actionParameter}', imageSize: {imageSize}, _currentProfile: '{this._currentProfile}'");
+            
             if (!OBSStudioForLogiPlugin.Instance?.IsConnected ?? true)
             {
-                return ButtonTextRenderer.RenderNotConnected(imageSize);
+                PluginLog.Info("Rendering 'Not Connected' state");
+                return ButtonTextRenderer.RenderText(
+                    "Not Connected",
+                    imageSize,
+                    BitmapColor.Black,
+                    new BitmapColor(128, 128, 128));
             }
-            return ButtonTextRenderer.RenderText(this._currentProfile, imageSize);
+            
+            PluginLog.Info($"Rendering profile: '{this._currentProfile}'");
+            return ButtonTextRenderer.RenderText(
+                this._currentProfile,
+                imageSize,
+                new BitmapColor(57, 108, 246),
+                BitmapColor.White);
         }
 
         protected override void RunCommand(String actionParameter)

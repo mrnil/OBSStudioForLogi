@@ -8,13 +8,49 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             var bgColor = backgroundColor ?? BitmapColor.Black;
             var fgColor = textColor ?? BitmapColor.White;
-            var fontSize = GetFontSize(imageSize);
+            var fontSize = GetLargeFontSize(imageSize);
             
             using (var builder = new BitmapBuilder(imageSize))
             {
                 builder.Clear(bgColor);
                 builder.DrawText(text, fgColor, fontSize);
                 return builder.ToImage();
+            }
+        }
+
+        public static BitmapImage RenderIconWithText(String iconResourceName, String text, PluginImageSize imageSize, BitmapColor? textColor = null)
+        {
+            var fgColor = textColor ?? BitmapColor.White;
+            var fontSize = GetLargeFontSize(imageSize);
+            
+            PluginLog.Info($"ButtonTextRenderer.RenderIconWithText - iconResourceName: '{iconResourceName}', text: '{text}', imageSize: {imageSize}, fontSize: {fontSize}");
+            
+            var iconImage = PluginResources.ReadImage(iconResourceName);
+            
+            if (iconImage != null)
+            {
+                PluginLog.Info($"Icon loaded successfully: {iconImage.Width}x{iconImage.Height}");
+            }
+            else
+            {
+                PluginLog.Warning($"Failed to load icon: '{iconResourceName}'");
+            }
+            
+            using (var builder = new BitmapBuilder(imageSize))
+            {
+                if (iconImage != null)
+                {
+                    builder.DrawImage(iconImage);
+                }
+                else
+                {
+                    builder.Clear(BitmapColor.Black);
+                }
+                
+                builder.DrawText(text, fgColor, fontSize);
+                var result = builder.ToImage();
+                PluginLog.Info($"Rendered image: {result.Width}x{result.Height}");
+                return result;
             }
         }
 
@@ -33,6 +69,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private static Int32 GetFontSize(PluginImageSize imageSize)
         {
             return imageSize == PluginImageSize.Width90 ? 13 : 11;
+        }
+
+        private static Int32 GetLargeFontSize(PluginImageSize imageSize)
+        {
+            return imageSize == PluginImageSize.Width90 ? 18 : 16;
         }
     }
 }

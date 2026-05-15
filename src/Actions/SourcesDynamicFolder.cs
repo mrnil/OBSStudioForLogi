@@ -46,7 +46,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
-            return null;
+            return actionParameter;
         }
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
@@ -55,23 +55,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var iconName = isVisible ? "SourceVisibilityOn.svg" : "SourceVisibilityOff.svg";
             var imagePath = $"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconName}";
             
-            var bitmapImage = PluginResources.ReadImage(imagePath);
-            if (bitmapImage == null)
-            {
-                using (var bitmapBuilder = new BitmapBuilder(imageSize))
-                {
-                    bitmapBuilder.Clear(isVisible ? BitmapColor.White : BitmapColor.Black);
-                    bitmapBuilder.DrawText(actionParameter, isVisible ? BitmapColor.Black : BitmapColor.White, imageSize == PluginImageSize.Width90 ? 12 : 9);
-                    return bitmapBuilder.ToImage();
-                }
-            }
-            
-            using (var bitmapBuilder = new BitmapBuilder(imageSize))
-            {
-                bitmapBuilder.DrawImage(bitmapImage);
-                bitmapBuilder.DrawText(actionParameter, BitmapColor.Black, imageSize == PluginImageSize.Width90 ? 12 : 9);
-                return bitmapBuilder.ToImage();
-            }
+            return PluginResources.ReadImage(imagePath);
         }
 
         public override void RunCommand(String actionParameter)

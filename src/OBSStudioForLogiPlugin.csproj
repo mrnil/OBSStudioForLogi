@@ -105,6 +105,21 @@
     <EmbeddedResource Include="Icons\VirtualCameraStopDisabled.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.VirtualCameraStopDisabled.svg</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Icons\ProfileSelected.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ProfileSelected.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\ProfileUnselected.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ProfileUnselected.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\CurrentProfile.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.CurrentProfile.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\CurrentSceneCollection.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.CurrentSceneCollection.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\CurrentScene.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.CurrentScene.svg</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="CopyPackage" AfterTargets="PostBuildEvent">
