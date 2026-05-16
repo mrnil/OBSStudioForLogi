@@ -22,16 +22,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             var fgColor = textColor ?? BitmapColor.White;
             var fontSize = GetLargeFontSize(imageSize);
-            
-            PluginLog.Info($"ButtonTextRenderer.RenderIconWithText - iconResourceName: '{iconResourceName}', text: '{text}', imageSize: {imageSize}, fontSize: {fontSize}");
-            
             var iconImage = PluginResources.ReadImage(iconResourceName);
             
-            if (iconImage != null)
-            {
-                PluginLog.Info($"Icon loaded successfully: {iconImage.Width}x{iconImage.Height}");
-            }
-            else
+            if (iconImage == null)
             {
                 PluginLog.Warning($"Failed to load icon: '{iconResourceName}'");
             }
@@ -48,9 +41,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 }
                 
                 builder.DrawText(text, fgColor, fontSize);
-                var result = builder.ToImage();
-                PluginLog.Info($"Rendered image: {result.Width}x{result.Height}");
-                return result;
+                return builder.ToImage();
             }
         }
 

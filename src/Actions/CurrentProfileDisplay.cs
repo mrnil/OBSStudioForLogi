@@ -35,17 +35,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void UpdateDisplay()
         {
-            PluginLog.Info("CurrentProfileDisplay.UpdateDisplay called");
             this.ActionImageChanged("");
         }
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            PluginLog.Info($"CurrentProfileDisplay.GetCommandImage called - actionParameter: '{actionParameter}', imageSize: {imageSize}, _currentProfile: '{this._currentProfile}'");
-            
             if (!OBSStudioForLogiPlugin.Instance?.IsConnected ?? true)
             {
-                PluginLog.Info("Rendering 'Not Connected' state");
                 return ButtonTextRenderer.RenderText(
                     "Not Connected",
                     imageSize,
@@ -53,7 +49,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     new BitmapColor(128, 128, 128));
             }
             
-            PluginLog.Info($"Rendering profile: '{this._currentProfile}'");
             return ButtonTextRenderer.RenderText(
                 this._currentProfile,
                 imageSize,
