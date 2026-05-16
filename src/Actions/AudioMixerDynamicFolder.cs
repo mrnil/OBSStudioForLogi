@@ -4,11 +4,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Collections.Generic;
     using System.Linq;
 
-    public class AudioMixerDynamicFolder : PluginDynamicFolder
+    public class AudioMixerDynamicFolder : AudioInputDynamicFolderBase
     {
         public static AudioMixerDynamicFolder Instance { get; private set; }
 
-        private String[] _inputs = new String[0];
         private Dictionary<String, String[]> _inputScenes = new Dictionary<String, String[]>();
 
         public AudioMixerDynamicFolder()
@@ -19,24 +18,19 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.Description = "Folder of audio inputs with mute/unmute controls";
         }
 
-        public override PluginDynamicFolderNavigation GetNavigationArea(DeviceType _)
-        {
-            return PluginDynamicFolderNavigation.ButtonArea;
-        }
-
         public override IEnumerable<String> GetButtonPressActionNames(DeviceType deviceType)
         {
-            return this._inputs.Select(input => this.CreateCommandName(input));
+            return this.AudioInputs.Select(input => this.CreateCommandName(input));
         }
 
         public void UpdateInputs(String[] inputs)
         {
-            this._inputs = inputs ?? new String[0];
+            this.AudioInputs = inputs ?? new String[0];
             this._inputScenes.Clear();
             
-            PluginLog.Info($"=== AudioMixerDynamicFolder updated with {this._inputs.Length} inputs ===");
+            PluginLog.Info($"=== AudioMixerDynamicFolder updated with {this.AudioInputs.Length} inputs ===");
             
-            foreach (var input in this._inputs)
+            foreach (var input in this.AudioInputs)
             {
                 var kind = OBSStudioForLogiPlugin.Instance?.GetInputKind(input) ?? String.Empty;
                 var scenes = OBSStudioForLogiPlugin.Instance?.GetScenesForInput(input) ?? new String[0];
@@ -57,39 +51,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnDisconnected()
         {
-            this._inputs = new String[0];
+            this.AudioInputs = new String[0];
             this.ButtonActionNamesChanged();
-        }
-
-        public override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
-        {
-            return actionParameter;
-        }
-
-        public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
-        {
-            var isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(actionParameter) ?? false;
-            var iconName = isMuted ? "AudioMixerMuted.svg" : "AudioMixerUnmuted.svg";
-            var imagePath = $"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconName}";
-            var textColor = isMuted ? BitmapColor.Red : BitmapColor.Green;
-            
-            return ButtonTextRenderer.RenderIconWithText(imagePath, actionParameter, imageSize, textColor);
-        }
-
-        public override void RunCommand(String actionParameter)
-        {
-            if (String.IsNullOrEmpty(actionParameter))
-                return;
-
-            OBSStudioForLogiPlugin.Instance?.ToggleInputMute(actionParameter);
-        }
-
-        public void OnInputMuteChanged(String inputName)
-        {
-            if (this._inputs.Contains(inputName))
-            {
-                this.CommandImageChanged(this.CreateCommandName(inputName));
-            }
         }
     }
 }
