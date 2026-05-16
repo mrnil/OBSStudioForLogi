@@ -9,6 +9,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public static AudioMixerDynamicFolder Instance { get; private set; }
 
         private String[] _inputs = new String[0];
+        private Dictionary<String, String[]> _inputScenes = new Dictionary<String, String[]>();
 
         public AudioMixerDynamicFolder()
         {
@@ -31,7 +32,20 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void UpdateInputs(String[] inputs)
         {
             this._inputs = inputs ?? new String[0];
-            PluginLog.Info($"AudioMixerDynamicFolder updated with {this._inputs.Length} inputs");
+            this._inputScenes.Clear();
+            
+            PluginLog.Info($"=== AudioMixerDynamicFolder updated with {this._inputs.Length} inputs ===");
+            
+            foreach (var input in this._inputs)
+            {
+                var kind = OBSStudioForLogiPlugin.Instance?.GetInputKind(input) ?? String.Empty;
+                var scenes = OBSStudioForLogiPlugin.Instance?.GetScenesForInput(input) ?? new String[0];
+                this._inputScenes[input] = scenes;
+                
+                var scenesText = scenes.Length > 0 ? String.Join(", ", scenes) : "(no scenes)";
+                PluginLog.Info($"  Input: '{input}' - Kind: '{kind}' - Scenes: {scenesText}");
+            }
+            
             this.ButtonActionNamesChanged();
         }
 

@@ -279,8 +279,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var sources = this._obsManager?.Actions.GetSceneItemList(sceneName) ?? new String[0];
             SourcesDynamicFolder.Instance?.UpdateSources(sceneName, sources);
             
-            var audioSources = this._obsManager?.Actions.GetAudioSourcesInScene(sceneName) ?? new String[0];
-            SceneAudioSourcesDynamicFolder.Instance?.UpdateAudioSources(sceneName, audioSources);
+            var audioSourcesInScene = this._obsManager?.Actions.GetAudioSourcesInScene(sceneName) ?? new String[0];
+            var audioInputsNotInAnyScene = this._obsManager?.Actions.GetAudioInputsNotInAnyScene() ?? new String[0];
+            var allSceneAudioSources = audioSourcesInScene.Concat(audioInputsNotInAnyScene).ToArray();
+            
+            SceneAudioSourcesDynamicFolder.Instance?.UpdateAudioSources(sceneName, allSceneAudioSources);
         }
 
         public Boolean GetSourceVisibility(String sceneName, String sourceName)
@@ -330,6 +333,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public String[] GetInputList()
         {
             return this._obsManager?.Actions.GetInputList() ?? new String[0];
+        }
+
+        public String GetInputKind(String inputName)
+        {
+            return this._obsManager?.Actions.GetInputKind(inputName) ?? String.Empty;
+        }
+
+        public String[] GetScenesForInput(String inputName)
+        {
+            return this._obsManager?.Actions.GetScenesForInput(inputName) ?? new String[0];
         }
 
         public Boolean GetInputMute(String inputName)

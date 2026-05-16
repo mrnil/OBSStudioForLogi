@@ -633,6 +633,25 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
+        public String GetInputKind(String inputName)
+        {
+            if (!this._obs.IsConnected)
+            {
+                this._log.Warning($"Cannot get input kind for '{inputName}' - not connected");
+                return String.Empty;
+            }
+
+            try
+            {
+                return this._obs.GetInputKind(inputName);
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get input kind for '{inputName}': {ex.Message}");
+                return String.Empty;
+            }
+        }
+
         public Boolean GetInputMute(String inputName)
         {
             if (!this._obs.IsConnected)
@@ -702,6 +721,50 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             catch (Exception ex)
             {
                 this._log.Error($"Failed to get audio sources for scene '{sceneName}': {ex.Message}");
+                return new String[0];
+            }
+        }
+
+        public String[] GetAudioInputsNotInAnyScene()
+        {
+            if (!this._obs.IsConnected)
+            {
+                this._log.Warning("Cannot get audio inputs not in any scene - not connected");
+                return new String[0];
+            }
+
+            try
+            {
+                return this._obs.GetAudioInputsNotInAnyScene();
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get audio inputs not in any scene: {ex.Message}");
+                return new String[0];
+            }
+        }
+
+        public String[] GetScenesForInput(String inputName)
+        {
+            if (!this._obs.IsConnected)
+            {
+                this._log.Warning($"Cannot get scenes for input '{inputName}' - not connected");
+                return new String[0];
+            }
+
+            if (String.IsNullOrEmpty(inputName))
+            {
+                this._log.Warning("Cannot get scenes for input - input name is empty");
+                return new String[0];
+            }
+
+            try
+            {
+                return this._obs.GetScenesForInput(inputName);
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get scenes for input '{inputName}': {ex.Message}");
                 return new String[0];
             }
         }

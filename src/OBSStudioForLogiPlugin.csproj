@@ -120,6 +120,12 @@
     <EmbeddedResource Include="Icons\CurrentScene.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.CurrentScene.svg</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Icons\AudioMixerMuted.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.AudioMixerMuted.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\AudioMixerUnmuted.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.AudioMixerUnmuted.svg</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="CopyPackage" AfterTargets="PostBuildEvent">
