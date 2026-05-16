@@ -679,5 +679,31 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 }
             });
         }
+
+        public String[] GetAudioSourcesInScene(String sceneName)
+        {
+            if (!this._obs.IsConnected)
+            {
+                this._log.Warning($"Cannot get audio sources for scene '{sceneName}' - not connected");
+                return new String[0];
+            }
+
+            if (String.IsNullOrEmpty(sceneName))
+            {
+                this._log.Warning("Cannot get audio sources - scene name is empty");
+                return new String[0];
+            }
+
+            try
+            {
+                this._log.Info($"Getting audio sources for scene '{sceneName}'");
+                return this._obs.GetAudioSourcesInScene(sceneName);
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get audio sources for scene '{sceneName}': {ex.Message}");
+                return new String[0];
+            }
+        }
     }
 }

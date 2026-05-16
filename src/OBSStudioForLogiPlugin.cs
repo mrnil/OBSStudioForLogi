@@ -114,6 +114,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             ScenesDynamicFolder.Instance?.OnDisconnected();
             SourcesDynamicFolder.Instance?.OnDisconnected();
             AudioMixerDynamicFolder.Instance?.OnDisconnected();
+            SceneAudioSourcesDynamicFolder.Instance?.OnDisconnected();
             CurrentProfileDisplay.Instance?.UpdateDisplay();
             CurrentSceneDisplay.Instance?.UpdateDisplay();
             CurrentSceneCollectionDisplay.Instance?.UpdateDisplay();
@@ -277,6 +278,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             var sources = this._obsManager?.Actions.GetSceneItemList(sceneName) ?? new String[0];
             SourcesDynamicFolder.Instance?.UpdateSources(sceneName, sources);
+            
+            var audioSources = this._obsManager?.Actions.GetAudioSourcesInScene(sceneName) ?? new String[0];
+            SceneAudioSourcesDynamicFolder.Instance?.UpdateAudioSources(sceneName, audioSources);
         }
 
         public Boolean GetSourceVisibility(String sceneName, String sourceName)
@@ -346,6 +350,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnInputMuteChanged(String inputName)
         {
             AudioMixerDynamicFolder.Instance?.OnInputMuteChanged(inputName);
+            SceneAudioSourcesDynamicFolder.Instance?.OnInputMuteChanged(inputName);
         }
     }
 }

@@ -71,6 +71,10 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 - **Audio Mixer Folder**: Dynamic folder with all audio inputs (mute/unmute toggle)
   - Visual feedback: Green icon = unmuted, Red icon = muted
   - Real-time updates when mute state changes in OBS
+- **Scene Audio Folder**: Dynamic folder with audio sources in the current scene
+  - Shows only audio inputs present in the active scene
+  - Same mute/unmute controls and visual feedback as Audio Mixer
+  - Updates automatically when switching scenes
 
 ## Configuration
 
@@ -97,7 +101,7 @@ dotnet clean OBSStudioForLogiPlugin.sln
 
 ## Architecture
 
-- **TDD Approach**: Comprehensive test coverage with 111 unit tests
+- **TDD Approach**: Comprehensive test coverage with 115 unit tests
 - **Dependency Injection**: Interface-based design for testability
 - **Async Operations**: All OBS operations wrapped in Task.Run to prevent UI freezing
 - **Event-Driven**: Real-time updates via OBS WebSocket events

@@ -4,18 +4,19 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Collections.Generic;
     using System.Linq;
 
-    public class AudioMixerDynamicFolder : PluginDynamicFolder
+    public class SceneAudioSourcesDynamicFolder : PluginDynamicFolder
     {
-        public static AudioMixerDynamicFolder Instance { get; private set; }
+        public static SceneAudioSourcesDynamicFolder Instance { get; private set; }
 
-        private String[] _inputs = new String[0];
+        private String[] _audioSources = new String[0];
+        private String _currentScene = String.Empty;
 
-        public AudioMixerDynamicFolder()
+        public SceneAudioSourcesDynamicFolder()
         {
             Instance = this;
-            this.DisplayName = "Audio Mixer - All";
+            this.DisplayName = "Scene Audio";
             this.GroupName = "6. Audio";
-            this.Description = "Folder of audio inputs with mute/unmute controls";
+            this.Description = "Audio sources in the current scene";
         }
 
         public override PluginDynamicFolderNavigation GetNavigationArea(DeviceType _)
@@ -25,25 +26,21 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override IEnumerable<String> GetButtonPressActionNames(DeviceType deviceType)
         {
-            return this._inputs.Select(input => this.CreateCommandName(input));
+            return this._audioSources.Select(source => this.CreateCommandName(source));
         }
 
-        public void UpdateInputs(String[] inputs)
+        public void UpdateAudioSources(String sceneName, String[] audioSources)
         {
-            this._inputs = inputs ?? new String[0];
-            PluginLog.Info($"AudioMixerDynamicFolder updated with {this._inputs.Length} inputs");
+            this._currentScene = sceneName ?? String.Empty;
+            this._audioSources = audioSources ?? new String[0];
+            PluginLog.Info($"SceneAudioSourcesDynamicFolder updated with {this._audioSources.Length} audio sources for scene '{this._currentScene}'");
             this.ButtonActionNamesChanged();
-        }
-
-        public void OnConnected()
-        {
-            var inputs = OBSStudioForLogiPlugin.Instance?.GetInputList() ?? new String[0];
-            this.UpdateInputs(inputs);
         }
 
         public void OnDisconnected()
         {
-            this._inputs = new String[0];
+            this._audioSources = new String[0];
+            this._currentScene = String.Empty;
             this.ButtonActionNamesChanged();
         }
 
@@ -72,7 +69,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnInputMuteChanged(String inputName)
         {
-            if (this._inputs.Contains(inputName))
+            if (this._audioSources.Contains(inputName))
             {
                 this.CommandImageChanged(this.CreateCommandName(inputName));
             }

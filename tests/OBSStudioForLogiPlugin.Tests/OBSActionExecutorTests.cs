@@ -626,4 +626,50 @@ public class OBSActionExecutorTests
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Microphone") && s.Contains("OBS error"))), Times.Once);
     }
+
+    [Fact]
+    public void GetAudioSourcesInScene_WhenConnected_ReturnsAudioSources()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetAudioSourcesInScene("Scene1")).Returns(new[] { "Microphone", "Desktop Audio" });
+
+        var result = this._executor.GetAudioSourcesInScene("Scene1");
+
+        Assert.Equal(2, result.Length);
+        Assert.Contains("Microphone", result);
+        Assert.Contains("Desktop Audio", result);
+    }
+
+    [Fact]
+    public void GetAudioSourcesInScene_WhenNotConnected_ReturnsEmpty()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(false);
+
+        var result = this._executor.GetAudioSourcesInScene("Scene1");
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void GetAudioSourcesInScene_WhenSceneNameEmpty_ReturnsEmpty()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+
+        var result = this._executor.GetAudioSourcesInScene("");
+
+        Assert.Empty(result);
+        this._mockLog.Verify(x => x.Warning(It.Is<String>(s => s.Contains("scene name is empty"))), Times.Once);
+    }
+
+    [Fact]
+    public void GetAudioSourcesInScene_WhenOBSThrows_LogsErrorAndReturnsEmpty()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetAudioSourcesInScene(It.IsAny<String>())).Throws(new Exception("OBS error"));
+
+        var result = this._executor.GetAudioSourcesInScene("Scene1");
+
+        Assert.Empty(result);
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Scene1") && s.Contains("OBS error"))), Times.Once);
+    }
 }

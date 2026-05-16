@@ -151,6 +151,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             SourcesDynamicFolder.Instance?.OnDisconnected();
             ProfilesDynamicFolder.Instance?.OnDisconnected();
             AudioMixerDynamicFolder.Instance?.OnDisconnected();
+            SceneAudioSourcesDynamicFolder.Instance?.OnDisconnected();
             CurrentProfileDisplay.Instance?.UpdateDisplay();
             CurrentSceneDisplay.Instance?.UpdateDisplay();
             CurrentSceneCollectionDisplay.Instance?.UpdateDisplay();
