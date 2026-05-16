@@ -12,13 +12,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             : base(displayName: "Current Profile", description: "Shows current OBS profile", groupName: "4. Profiles")
         {
             Instance = this;
-            this.AddParameter("", "", groupName: "4. Profiles");
+            this.AddParameter("", " ", groupName: "4. Profiles");
         }
 
         protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
-            PluginLog.Info($"CurrentProfileDisplay.GetCommandDisplayName called - actionParameter: '{actionParameter}', imageSize: {imageSize}");
-            return String.Empty;
+            return null;
         }
 
         public void UpdateProfile(String profileName)

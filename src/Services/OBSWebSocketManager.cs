@@ -20,14 +20,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private String _lastPassword;
         private Boolean _shouldReconnect = false;
         private Boolean _disposed = false;
-        private OutputState _streamingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
 
         public Boolean IsConnected => this._obs?.IsConnected ?? false;
         public Boolean ShouldReconnect => this._shouldReconnect;
-        public Boolean IsStreaming => this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
+        public Boolean IsStreaming => this.Actions.IsStreaming;
         public Boolean IsRecording => this.Actions.IsRecording;
-        public Boolean IsStreamingChanging => this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING 
-                                            || this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
+        public Boolean IsStreamingChanging => this.Actions.IsStreamingChanging;
         public Boolean IsRecordingChanging => this.Actions.IsRecordingChanging;
         public OBSActionExecutor Actions { get; }
 
@@ -142,7 +140,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._log.Warning($"WebSocket disconnected: {e.DisconnectReason}");
             
-            this._streamingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
+            this.Actions.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             this.Actions.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             this.Actions.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             
@@ -165,9 +163,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         private void OnStreamStateChanged(Object sender, StreamStateChangedEventArgs e)
         {
-            this._streamingState = e?.OutputState?.State ?? OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
-            this.Actions.SetStreamingState(this._streamingState);
-            this._log.Info($"Streaming state changed to {this._streamingState}");
+            var state = e?.OutputState?.State ?? OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
+            this.Actions.SetStreamingState(state);
+            this._log.Info($"Streaming state changed to {state}");
         }
 
         private void OnRecordStateChanged(Object sender, RecordStateChangedEventArgs e)
