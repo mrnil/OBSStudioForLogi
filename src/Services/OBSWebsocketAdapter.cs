@@ -153,14 +153,31 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (sceneItems == null)
                 return new String[0];
 
-            // Get all audio inputs from OBS
+            // Get all inputs from OBS
             var allInputs = this._obs?.GetInputList(null);
             if (allInputs == null)
                 return new String[0];
 
-            var audioInputNames = allInputs.Select(input => input.InputName).ToHashSet();
+            // Filter for audio input kinds
+            var audioInputKinds = new[] 
+            {
+                "wasapi_input_capture",
+                "wasapi_output_capture",
+                "coreaudio_input_capture",
+                "coreaudio_output_capture",
+                "pulse_input_capture",
+                "pulse_output_capture",
+                "alsa_input_capture",
+                "jack_output_capture",
+                "ffmpeg_source" // Media sources can have audio
+            };
 
-            // Return scene items that are also in the audio inputs list
+            var audioInputNames = allInputs
+                .Where(input => audioInputKinds.Contains(input.InputKind))
+                .Select(input => input.InputName)
+                .ToHashSet();
+
+            // Return scene items that are audio inputs
             return sceneItems
                 .Where(item => audioInputNames.Contains(item.SourceName))
                 .Select(item => item.SourceName)
