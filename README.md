@@ -10,6 +10,7 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 - **Virtual Camera**: Start, stop, toggle virtual camera output
 - **Scene Management**: Switch scenes with dynamic folder and visual feedback
 - **Source Visibility**: Toggle visibility of sources in current scene
+- **Audio Mixer**: Mute/unmute audio inputs with visual feedback (red=muted, green=unmuted)
 - **Profile Management**: Switch between OBS profiles with selection indicators and dynamic folder
 - **Scene Collections**: Switch between scene collections with selection indicators
 - **Screenshot Capture**: Take screenshots with automatic path detection
@@ -66,6 +67,11 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 - **Current Scene Display**: Shows active scene name
 - **Current Scene Collection Display**: Shows active scene collection name
 
+### Audio (Group 6)
+- **Audio Mixer Folder**: Dynamic folder with all audio inputs (mute/unmute toggle)
+  - Visual feedback: Green icon = unmuted, Red icon = muted
+  - Real-time updates when mute state changes in OBS
+
 ## Configuration
 
 No manual configuration required. The plugin automatically reads OBS WebSocket settings from:
@@ -91,7 +97,7 @@ dotnet clean OBSStudioForLogiPlugin.sln
 
 ## Architecture
 
-- **TDD Approach**: Comprehensive test coverage with 80 unit tests
+- **TDD Approach**: Comprehensive test coverage with 111 unit tests
 - **Dependency Injection**: Interface-based design for testability
 - **Async Operations**: All OBS operations wrapped in Task.Run to prevent UI freezing
 - **Event-Driven**: Real-time updates via OBS WebSocket events

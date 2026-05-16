@@ -522,4 +522,108 @@ public class OBSActionExecutorTests
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Source1") && s.Contains("OBS error"))), Times.Once);
     }
+
+    // --- Audio Mixer tests ---
+
+    [Fact]
+    public void GetInputList_WhenConnected_ReturnsInputs()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetInputList()).Returns(new[] { "Microphone", "Desktop Audio" });
+
+        var result = this._executor.GetInputList();
+
+        Assert.Equal(2, result.Length);
+        Assert.Contains("Microphone", result);
+        Assert.Contains("Desktop Audio", result);
+    }
+
+    [Fact]
+    public void GetInputList_WhenNotConnected_ReturnsEmpty()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(false);
+
+        var result = this._executor.GetInputList();
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void GetInputList_WhenOBSThrows_LogsErrorAndReturnsEmpty()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetInputList()).Throws(new Exception("OBS error"));
+
+        var result = this._executor.GetInputList();
+
+        Assert.Empty(result);
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("input list") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void GetInputMute_WhenConnected_ReturnsMuteState()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetInputMute("Microphone")).Returns(true);
+
+        var result = this._executor.GetInputMute("Microphone");
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void GetInputMute_WhenNotConnected_ReturnsFalse()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(false);
+
+        var result = this._executor.GetInputMute("Microphone");
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void GetInputMute_WhenOBSThrows_LogsErrorAndReturnsFalse()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetInputMute(It.IsAny<String>())).Throws(new Exception("OBS error"));
+
+        var result = this._executor.GetInputMute("Microphone");
+
+        Assert.False(result);
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Microphone") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    [Fact]
+    public void ToggleInputMute_WhenConnected_CallsObs()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+
+        this._executor.ToggleInputMute("Microphone");
+
+        System.Threading.Thread.Sleep(100);
+        this._mockObs.Verify(x => x.ToggleInputMute("Microphone"), Times.Once);
+    }
+
+    [Fact]
+    public void ToggleInputMute_WhenNotConnected_DoesNotCallObs()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(false);
+
+        this._executor.ToggleInputMute("Microphone");
+
+        System.Threading.Thread.Sleep(100);
+        this._mockObs.Verify(x => x.ToggleInputMute(It.IsAny<String>()), Times.Never);
+    }
+
+    [Fact]
+    public void ToggleInputMute_WhenOBSThrows_LogsError()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.ToggleInputMute(It.IsAny<String>())).Throws(new Exception("OBS error"));
+
+        this._executor.ToggleInputMute("Microphone");
+        System.Threading.Thread.Sleep(100);
+
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Microphone") && s.Contains("OBS error"))), Times.Once);
+    }
 }

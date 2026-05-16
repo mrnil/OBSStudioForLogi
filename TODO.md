@@ -2,7 +2,6 @@
 
 ## High Priority
 
-- [ ] Add audio mixer controls (mute/unmute sources)
 - [ ] Implement replay buffer controls (start/stop/save)
 - [ ] Add filter enable/disable controls for sources
 
@@ -54,6 +53,7 @@
 - [x] Add source visibility toggle commands
 - [x] Add virtual camera controls (start/stop/toggle)
 - [x] Add manual reconnect command
+- [x] Add audio mixer controls (mute/unmute audio inputs)
 - [x] Implement recording controls (start/stop/toggle/pause)
 - [x] Implement scene management with dynamic folder
 - [x] Implement profile and scene collection selection

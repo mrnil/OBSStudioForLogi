@@ -612,5 +612,72 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 }
             });
         }
+
+        public String[] GetInputList()
+        {
+            if (!this._obs.IsConnected)
+            {
+                this._log.Warning("Cannot get input list - not connected");
+                return new String[0];
+            }
+
+            try
+            {
+                this._log.Info("Getting input list");
+                return this._obs.GetInputList();
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get input list: {ex.Message}");
+                return new String[0];
+            }
+        }
+
+        public Boolean GetInputMute(String inputName)
+        {
+            if (!this._obs.IsConnected)
+            {
+                this._log.Warning($"Cannot get input mute state for '{inputName}' - not connected");
+                return false;
+            }
+
+            try
+            {
+                return this._obs.GetInputMute(inputName);
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get input mute state for '{inputName}': {ex.Message}");
+                return false;
+            }
+        }
+
+        public void ToggleInputMute(String inputName)
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning($"Cannot toggle input mute for '{inputName}' - not connected");
+                    return;
+                }
+
+                if (String.IsNullOrEmpty(inputName))
+                {
+                    this._log.Warning("Cannot toggle input mute - input name is empty");
+                    return;
+                }
+
+                try
+                {
+                    this._log.Info($"Toggling input mute for '{inputName}'");
+                    this._obs.ToggleInputMute(inputName);
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to toggle input mute for '{inputName}': {ex.Message}");
+                }
+            });
+        }
     }
 }

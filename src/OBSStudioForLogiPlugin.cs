@@ -113,6 +113,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             SceneCollectionSelectCommand.Instance?.OnDisconnected();
             ScenesDynamicFolder.Instance?.OnDisconnected();
             SourcesDynamicFolder.Instance?.OnDisconnected();
+            AudioMixerDynamicFolder.Instance?.OnDisconnected();
             CurrentProfileDisplay.Instance?.UpdateDisplay();
             CurrentSceneDisplay.Instance?.UpdateDisplay();
             CurrentSceneCollectionDisplay.Instance?.UpdateDisplay();
@@ -320,6 +321,31 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             VirtualCameraToggleCommand.Instance?.OnVirtualCameraStateChanged();
             VirtualCameraStartCommand.Instance?.OnVirtualCameraStateChanged();
             VirtualCameraStopCommand.Instance?.OnVirtualCameraStateChanged();
+        }
+
+        public String[] GetInputList()
+        {
+            return this._obsManager?.Actions.GetInputList() ?? new String[0];
+        }
+
+        public Boolean GetInputMute(String inputName)
+        {
+            return this._obsManager?.Actions.GetInputMute(inputName) ?? false;
+        }
+
+        public void ToggleInputMute(String inputName)
+        {
+            this._obsManager?.Actions.ToggleInputMute(inputName);
+        }
+
+        public void OnInputsChanged(String[] inputs)
+        {
+            AudioMixerDynamicFolder.Instance?.UpdateInputs(inputs);
+        }
+
+        public void OnInputMuteChanged(String inputName)
+        {
+            AudioMixerDynamicFolder.Instance?.OnInputMuteChanged(inputName);
         }
     }
 }

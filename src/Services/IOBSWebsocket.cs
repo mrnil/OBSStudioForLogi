@@ -26,5 +26,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         String[] GetSceneItemList(String sceneName);
         Boolean GetSceneItemEnabled(String sceneName, String sourceName);
         void SetSceneItemEnabled(String sceneName, String sourceName, Boolean enabled);
+        String[] GetInputList();
+        Boolean GetInputMute(String inputName);
+        void ToggleInputMute(String inputName);
     }
 }

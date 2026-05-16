@@ -51,6 +51,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.CurrentSceneCollectionChanged += this.OnCurrentSceneCollectionChanged;
             this._obs.SceneListChanged += this.OnSceneListChanged;
             this._obs.CurrentProgramSceneChanged += this.OnCurrentSceneChanged;
+            this._obs.InputMuteStateChanged += this.OnInputMuteStateChanged;
             
             this._log.Info("OBSWebSocketManager initialized");
         }
@@ -125,8 +126,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     // Load initial scene list and notify commands
                     this.UpdateSceneList();
                     this.UpdateProfileList();
+                    this.UpdateInputList();
                     ProfileSelectCommand.Instance?.OnConnected();
                     SceneCollectionSelectCommand.Instance?.OnConnected();
+                    AudioMixerDynamicFolder.Instance?.OnConnected();
                     ConnectionStatusDisplay.Instance?.UpdateStatus();
                 }
                 catch (Exception ex)
@@ -147,6 +150,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             ScenesDynamicFolder.Instance?.OnDisconnected();
             SourcesDynamicFolder.Instance?.OnDisconnected();
             ProfilesDynamicFolder.Instance?.OnDisconnected();
+            AudioMixerDynamicFolder.Instance?.OnDisconnected();
             CurrentProfileDisplay.Instance?.UpdateDisplay();
             CurrentSceneDisplay.Instance?.UpdateDisplay();
             CurrentSceneCollectionDisplay.Instance?.UpdateDisplay();
@@ -276,6 +280,32 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.OnCurrentSceneChanged(e.SceneName);
         }
 
+        private void UpdateInputList()
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    var inputs = this.Actions.GetInputList();
+                    this._log.Info($"Loaded {inputs.Length} inputs");
+                    OBSStudioForLogiPlugin.Instance?.OnInputsChanged(inputs);
+                }
+                catch (Exception ex)
+                {
+                    this._log.Warning($"Failed to get input list: {ex.Message}");
+                }
+            });
+        }
+
+        private void OnInputMuteStateChanged(Object sender, OBSWebsocketDotNet.Types.Events.InputMuteStateChangedEventArgs e)
+        {
+            if (e?.InputName == null)
+                return;
+
+            this._log.Info($"Input '{e.InputName}' mute state changed to {e.InputMuted}");
+            OBSStudioForLogiPlugin.Instance?.OnInputMuteChanged(e.InputName);
+        }
+
         private void OnReconnectTimer(Object sender, ElapsedEventArgs e)
         {
             if (this._disposed || !this._shouldReconnect)
@@ -334,6 +364,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._obs.CurrentSceneCollectionChanged -= this.OnCurrentSceneCollectionChanged;
                     this._obs.SceneListChanged -= this.OnSceneListChanged;
                     this._obs.CurrentProgramSceneChanged -= this.OnCurrentSceneChanged;
+                    this._obs.InputMuteStateChanged -= this.OnInputMuteStateChanged;
                     
                     this._obs.Disconnect();
                     

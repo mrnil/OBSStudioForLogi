@@ -130,5 +130,21 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 this._obs?.SetSceneItemEnabled(sceneName, item.ItemId, enabled);
             }
         }
+
+        public String[] GetInputList()
+        {
+            var inputs = this._obs?.GetInputList(null);
+            return inputs?.Select(input => input.InputName).ToArray() ?? new String[0];
+        }
+
+        public Boolean GetInputMute(String inputName)
+        {
+            return this._obs?.GetInputMute(inputName) ?? false;
+        }
+
+        public void ToggleInputMute(String inputName)
+        {
+            this._obs?.ToggleInputMute(inputName);
+        }
     }
 }
