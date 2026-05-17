@@ -20,24 +20,28 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public static BitmapImage RenderIconWithText(String iconResourceName, String text, PluginImageSize imageSize, BitmapColor? textColor = null)
         {
-            var fgColor = textColor ?? BitmapColor.White;
-            var fontSize = GetLargeFontSize(imageSize);
-            var iconImage = PluginResources.ReadImage(iconResourceName);
-            
-            if (iconImage == null)
-            {
-                PluginLog.Warning($"Failed to load icon: '{iconResourceName}'");
-            }
+            BitmapColor fgColor = textColor ?? BitmapColor.White;
+            Int32 fontSize = GetLargeFontSize(imageSize);
+            BitmapImage iconImage = PluginResources.ReadImage(iconResourceName);
             
             using (var builder = new BitmapBuilder(imageSize))
             {
+                builder.Clear(BitmapColor.Black);
+                
                 if (iconImage != null)
                 {
-                    builder.DrawImage(iconImage);
+                    try
+                    {
+                        builder.DrawImage(iconImage);
+                    }
+                    catch (Exception ex)
+                    {
+                        PluginLog.Warning($"Failed to draw icon '{iconResourceName}': {ex.Message}");
+                    }
                 }
                 else
                 {
-                    builder.Clear(BitmapColor.Black);
+                    PluginLog.Warning($"Failed to load icon: '{iconResourceName}'");
                 }
                 
                 builder.DrawText(text, fgColor, fontSize);
