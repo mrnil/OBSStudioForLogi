@@ -36,23 +36,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             lock (this.locker)
             {
-                BitmapImage icon = this.GetIcon(data.IconPath);
                 BitmapColor textColor = data.IsMuted ? BitmapColor.Red : BitmapColor.Green;
                 Int32 volumePercent = (Int32)(data.VolumeLevel * 100);
                 String displayText = $"{data.InputName}\n{volumePercent}%";
 
-                using (var builder = new BitmapBuilder(imageSize))
-                {
-                    builder.Clear(BitmapColor.Black);
-                    
-                    if (icon != null)
-                    {
-                        builder.DrawImage(icon);
-                    }
-                    
-                    builder.DrawText(displayText, textColor);
-                    return builder.ToImage();
-                }
+                return ButtonTextRenderer.RenderIconWithText(data.IconPath, displayText, imageSize, textColor);
             }
         }
     }
