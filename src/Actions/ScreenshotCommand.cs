@@ -4,6 +4,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
     public class ScreenshotCommand : PluginDynamicCommand
     {
+        private readonly ActionImageStore<SimpleIconImageData> imageStore;
+
         public ScreenshotCommand()
             : base(displayName: "Screenshot", 
                    description: String.IsNullOrEmpty(OBSStudioForLogiPlugin.ScreenshotPath) 
@@ -11,6 +13,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                        : $"Takes a screenshot of currently active scene and saves it to {OBSStudioForLogiPlugin.ScreenshotPath}", 
                    groupName: "1. OBS")
         {
+            this.imageStore = new ActionImageStore<SimpleIconImageData>(new SimpleIconImageFactory());
         }
 
         protected override Boolean OnLoad()
@@ -21,8 +24,20 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            var imagePath = "Loupedeck.OBSStudioForLogiPlugin.Icons.Screenshot.svg";
-            return PluginResources.ReadImage(imagePath);
+            SimpleIconImageData imageData = new SimpleIconImageData
+            {
+                Id = "screenshot",
+                IconPath = "Loupedeck.OBSStudioForLogiPlugin.Icons.Screenshot.svg"
+            };
+
+            this.imageStore.UpdateImage(imageData.Id, imageData);
+
+            if (this.imageStore.TryGetImage(imageData.Id, imageSize, out BitmapImage image))
+            {
+                return image;
+            }
+
+            return EmbeddedResources.ReadImage(imageData.IconPath);
         }
 
         protected override void RunCommand(String actionParameter)

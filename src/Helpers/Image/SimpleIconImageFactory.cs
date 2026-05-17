@@ -3,20 +3,20 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System;
     using System.Collections.Concurrent;
 
-    internal class StateImageFactory : IActionImageFactory<StateImageData>
+    internal class SimpleIconImageFactory : IActionImageFactory<SimpleIconImageData>
     {
         private readonly Object locker;
         private readonly ConcurrentDictionary<String, BitmapImage> iconCache;
 
-        public StateImageFactory()
+        public SimpleIconImageFactory()
         {
             this.locker = new Object();
             this.iconCache = new ConcurrentDictionary<String, BitmapImage>();
         }
 
-        public IActionImageFactory<StateImageData> Create()
+        public IActionImageFactory<SimpleIconImageData> Create()
         {
-            return new StateImageFactory();
+            return new SimpleIconImageFactory();
         }
 
         private BitmapImage GetIcon(String iconPath)
@@ -32,13 +32,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             });
         }
 
-        public BitmapImage DrawBitmapImage(StateImageData data, PluginImageSize imageSize)
+        public BitmapImage DrawBitmapImage(SimpleIconImageData data, PluginImageSize imageSize)
         {
             lock (this.locker)
             {
-                String iconPath = data.IsActive ? data.ActiveIconPath : data.InactiveIconPath;
-                BitmapImage icon = this.GetIcon(iconPath);
-                
+                BitmapImage icon = this.GetIcon(data.IconPath);
                 if (icon == null)
                 {
                     using (var builder = new BitmapBuilder(imageSize))
