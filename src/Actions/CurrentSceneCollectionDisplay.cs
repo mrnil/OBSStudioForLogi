@@ -7,11 +7,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public static CurrentSceneCollectionDisplay Instance { get; private set; }
 
         private String _currentSceneCollection = "Not Connected";
+        private readonly ActionImageStore<TextImageData> imageStore;
 
         public CurrentSceneCollectionDisplay()
             : base(displayName: "Current Scene Collection", description: "Shows current OBS scene collection", groupName: "5. Scenes")
         {
             Instance = this;
+            this.imageStore = new ActionImageStore<TextImageData>(new TextImageFactory());
             this.AddParameter("", "", groupName: "5. Scenes");
         }
 
@@ -40,19 +42,27 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            if (!OBSStudioForLogiPlugin.Instance?.IsConnected ?? true)
+            Boolean isConnected = OBSStudioForLogiPlugin.Instance?.IsConnected ?? false;
+            String displayText = isConnected ? this._currentSceneCollection : "Not Connected";
+            BitmapColor backgroundColor = isConnected ? new BitmapColor(128, 57, 246) : BitmapColor.Black;
+            BitmapColor textColor = isConnected ? BitmapColor.White : new BitmapColor(128, 128, 128);
+            
+            var imageData = new TextImageData
             {
-                return ButtonTextRenderer.RenderText(
-                    "Not Connected",
-                    imageSize,
-                    BitmapColor.Black,
-                    new BitmapColor(128, 128, 128));
+                Id = "scene_collection_display",
+                DisplayText = displayText,
+                BackgroundColor = backgroundColor,
+                TextColor = textColor
+            };
+            
+            this.imageStore.UpdateImage(imageData.Id, imageData);
+            
+            if (this.imageStore.TryGetImage(imageData.Id, imageSize, out var image))
+            {
+                return image;
             }
-            return ButtonTextRenderer.RenderText(
-                this._currentSceneCollection,
-                imageSize,
-                new BitmapColor(128, 57, 246),
-                BitmapColor.White);
+            
+            return ButtonTextRenderer.RenderText(displayText, imageSize, backgroundColor, textColor);
         }
 
         protected override void RunCommand(String actionParameter)
