@@ -14,10 +14,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.iconCache = new ConcurrentDictionary<String, BitmapImage>();
         }
 
-        public IActionImageFactory<AudioInputImageData> Create()
-        {
-            return new AudioInputImageFactory();
-        }
+        public IActionImageFactory<AudioInputImageData> Create() => new AudioInputImageFactory();
 
         private BitmapImage GetIcon(String iconPath)
         {
