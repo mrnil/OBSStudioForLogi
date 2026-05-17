@@ -184,6 +184,17 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs?.ToggleInputMute(inputName);
         }
 
+        public Single GetInputVolume(String inputName)
+        {
+            var volume = this._obs?.GetInputVolume(inputName);
+            return volume?.VolumeMul ?? 1.0f;
+        }
+
+        public void SetInputVolume(String inputName, Single volumeMul)
+        {
+            this._obs?.SetInputVolume(inputName, volumeMul);
+        }
+
         public String[] GetAudioSourcesInScene(String sceneName)
         {
             PluginLog.Info($"=== GetAudioSourcesInScene for '{sceneName}' ===");

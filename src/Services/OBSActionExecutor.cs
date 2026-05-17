@@ -699,6 +699,25 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             });
         }
 
+        public Single GetInputVolume(String inputName)
+        {
+            if (!this._obs.IsConnected)
+            {
+                this._log.Warning($"Cannot get input volume for '{inputName}' - not connected");
+                return 1.0f;
+            }
+
+            try
+            {
+                return this._obs.GetInputVolume(inputName);
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get input volume for '{inputName}': {ex.Message}");
+                return 1.0f;
+            }
+        }
+
         public String[] GetAudioSourcesInScene(String sceneName)
         {
             if (!this._obs.IsConnected)

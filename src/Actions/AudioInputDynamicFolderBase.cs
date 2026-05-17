@@ -6,6 +6,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     public abstract class AudioInputDynamicFolderBase : PluginDynamicFolder
     {
         protected String[] AudioInputs = new String[0];
+        private readonly ActionImageStore<AudioInputImageData> imageStore;
+
+        protected AudioInputDynamicFolderBase()
+        {
+            this.imageStore = new ActionImageStore<AudioInputImageData>(new AudioInputImageFactory());
+        }
 
         public override PluginDynamicFolderNavigation GetNavigationArea(DeviceType _)
         {
@@ -19,12 +25,29 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            var isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(actionParameter) ?? false;
-            var iconName = isMuted ? "AudioMixerMuted.svg" : "AudioMixerUnmuted.svg";
-            var imagePath = $"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconName}";
-            var textColor = isMuted ? BitmapColor.Red : BitmapColor.Green;
+            Boolean isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(actionParameter) ?? false;
+            Single volumeLevel = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
+            String iconName = isMuted ? "AudioMixerMuted.svg" : "AudioMixerUnmuted.svg";
+            String iconPath = $"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconName}";
             
-            return ButtonTextRenderer.RenderIconWithText(imagePath, actionParameter, imageSize, textColor);
+            var imageData = new AudioInputImageData
+            {
+                Id = actionParameter,
+                InputName = actionParameter,
+                IsMuted = isMuted,
+                VolumeLevel = volumeLevel,
+                IconPath = iconPath
+            };
+            
+            this.imageStore.UpdateImage(imageData.Id, imageData);
+            
+            if (this.imageStore.TryGetImage(imageData.Id, imageSize, out var image))
+            {
+                return image;
+            }
+            
+            BitmapColor textColor = isMuted ? BitmapColor.Red : BitmapColor.Green;
+            return ButtonTextRenderer.RenderIconWithText(iconPath, actionParameter, imageSize, textColor);
         }
 
         public override void RunCommand(String actionParameter)
@@ -36,6 +59,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         }
 
         public void OnInputMuteChanged(String inputName)
+        {
+            if (this.AudioInputs.Contains(inputName))
+            {
+                this.CommandImageChanged(this.CreateCommandName(inputName));
+            }
+        }
+
+        public void OnInputVolumeChanged(String inputName)
         {
             if (this.AudioInputs.Contains(inputName))
             {
