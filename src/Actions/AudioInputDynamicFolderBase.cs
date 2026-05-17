@@ -53,23 +53,31 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public override void RunCommand(String actionParameter)
         {
             if (String.IsNullOrEmpty(actionParameter))
+            {
+                PluginLog.Warning("RunCommand called with empty actionParameter");
                 return;
+            }
 
+            PluginLog.Info($"Audio button pressed: '{actionParameter}'");
             OBSStudioForLogiPlugin.Instance?.ToggleInputMute(actionParameter);
         }
 
         public void OnInputMuteChanged(String inputName)
         {
+            PluginLog.Info($"OnInputMuteChanged called for: '{inputName}', AudioInputs contains: {this.AudioInputs.Contains(inputName)}");
             if (this.AudioInputs.Contains(inputName))
             {
+                PluginLog.Info($"Triggering CommandImageChanged for: '{inputName}'");
                 this.CommandImageChanged(this.CreateCommandName(inputName));
             }
         }
 
         public void OnInputVolumeChanged(String inputName)
         {
+            PluginLog.Info($"OnInputVolumeChanged called for: '{inputName}', AudioInputs contains: {this.AudioInputs.Contains(inputName)}");
             if (this.AudioInputs.Contains(inputName))
             {
+                PluginLog.Info($"Triggering CommandImageChanged for: '{inputName}'");
                 this.CommandImageChanged(this.CreateCommandName(inputName));
             }
         }

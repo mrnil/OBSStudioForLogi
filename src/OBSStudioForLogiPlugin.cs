@@ -352,6 +352,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void ToggleInputMute(String inputName)
         {
+            PluginLog.Info($"ToggleInputMute called for: '{inputName}'");
             this._obsManager?.Actions.ToggleInputMute(inputName);
         }
 
@@ -367,12 +368,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnInputMuteChanged(String inputName)
         {
+            PluginLog.Info($"Plugin.OnInputMuteChanged called for: '{inputName}'");
             AudioMixerDynamicFolder.Instance?.OnInputMuteChanged(inputName);
             SceneAudioSourcesDynamicFolder.Instance?.OnInputMuteChanged(inputName);
         }
 
         public void OnInputVolumeChanged(String inputName)
         {
+            PluginLog.Info($"Plugin.OnInputVolumeChanged called for: '{inputName}'");
             AudioMixerDynamicFolder.Instance?.OnInputVolumeChanged(inputName);
             SceneAudioSourcesDynamicFolder.Instance?.OnInputVolumeChanged(inputName);
         }
