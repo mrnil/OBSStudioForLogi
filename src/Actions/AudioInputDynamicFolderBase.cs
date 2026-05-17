@@ -73,8 +73,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             PluginLog.Info($"OnInputMuteChanged called for: '{inputName}', AudioInputs contains: {this.AudioInputs.Contains(inputName)}");
             if (this.AudioInputs.Contains(inputName))
             {
-                PluginLog.Info($"Triggering CommandImageChanged for: '{inputName}'");
-                this.CommandImageChanged(this.CreateCommandName(inputName));
+                PluginLog.Info($"Triggering ButtonActionNamesChanged to refresh all buttons");
+                this.ButtonActionNamesChanged();
             }
         }
 
@@ -83,8 +83,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             PluginLog.Info($"OnInputVolumeChanged called for: '{inputName}', AudioInputs contains: {this.AudioInputs.Contains(inputName)}");
             if (this.AudioInputs.Contains(inputName))
             {
-                PluginLog.Info($"Triggering CommandImageChanged for: '{inputName}'");
-                this.CommandImageChanged(this.CreateCommandName(inputName));
+                PluginLog.Info($"Triggering ButtonActionNamesChanged to refresh all buttons");
+                this.ButtonActionNamesChanged();
             }
         }
     }
