@@ -25,10 +25,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
+            PluginLog.Info($"GetCommandImage called for: '{actionParameter}', imageSize: {imageSize}");
+            
             Boolean isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(actionParameter) ?? false;
             Single volumeLevel = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
             String iconName = isMuted ? "AudioMixerMuted.svg" : "AudioMixerUnmuted.svg";
             String iconPath = $"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconName}";
+            
+            PluginLog.Info($"  isMuted: {isMuted}, volumeLevel: {volumeLevel:F2}, iconPath: {iconPath}");
             
             var imageData = new AudioInputImageData
             {
@@ -43,9 +47,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             
             if (this.imageStore.TryGetImage(imageData.Id, imageSize, out var image))
             {
+                PluginLog.Info($"  Returning cached image from store");
                 return image;
             }
             
+            PluginLog.Info($"  Generating new image with ButtonTextRenderer");
             BitmapColor textColor = isMuted ? BitmapColor.Red : BitmapColor.Green;
             return ButtonTextRenderer.RenderIconWithText(iconPath, actionParameter, imageSize, textColor);
         }

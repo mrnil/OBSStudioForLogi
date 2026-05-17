@@ -57,8 +57,18 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Boolean UpdateImage(String id, T newActionData)
         {
             Boolean exist = this.actionImageData.TryGetValue(id, out T lastActionData);
+            PluginLog.Info($"ActionImageStore.UpdateImage: id='{id}', exist={exist}");
+            
+            if (exist && lastActionData != null)
+            {
+                PluginLog.Info($"  Last data: {lastActionData}");
+                PluginLog.Info($"  New data: {newActionData}");
+                PluginLog.Info($"  Equals: {newActionData.Equals(lastActionData)}");
+            }
+            
             if (!exist || !newActionData.Equals(lastActionData))
             {
+                PluginLog.Info($"  Regenerating images for '{id}'");
                 IActionImageFactory<T> factory = this.actionImageFactories.GetOrAdd(id, this.actionImageFactory.Create());
                 this.actionImageData.AddOrUpdate(id, newActionData, (key, oldValue) => newActionData);
 
@@ -70,6 +80,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
                 return true;
             }
+            PluginLog.Info($"  Skipping regeneration - data unchanged");
             return false;
         }
 
