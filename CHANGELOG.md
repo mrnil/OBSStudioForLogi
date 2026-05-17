@@ -7,8 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Scene audio sources folder showing audio inputs in the current scene
+- ActionImageStore pattern for efficient image caching (Phase 1 complete)
+- TextImageFactory, StateImageFactory, SimpleIconImageFactory for cross-platform rendering
+- TextImageData, StateImageData, SimpleIconImageData models
+
+### Changed
+- Migrated 16 commands to use ActionImageStore pattern for efficient caching
+- Display commands now use TextImageFactory with ActionImageStore
+- All image factories now use Loupedeck SDK's cross-platform BitmapBuilder/BitmapImage APIs
+- Eliminated all Windows-only System.Drawing dependencies
+
+### Removed
+- BitmapHelper.cs (Windows-only System.Drawing code)
+- IconWithTextImageFactory.cs and IconWithTextImageData.cs (unused)
+
+### Fixed
+- All 78 CA1416 platform-specific warnings eliminated
+- Plugin now fully compatible with macOS (no Windows-only dependencies)
+- BitmapColor usage corrected in TextWithBackgroundImageFactory
+
 ### Planned
-- Audio mixer controls (mute/unmute sources)
+- Phase 2: Audio image rendering optimization (AudioInputImageData + AudioInputImageFactory)
 - Replay buffer controls (start/stop/save)
 - Studio mode toggle
 - Filter enable/disable controls

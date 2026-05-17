@@ -9,7 +9,6 @@
 
 - [ ] Add transition selection and duration controls
 - [ ] Implement studio mode toggle
-- [ ] Add filter enable/disable controls
 - [ ] Create custom scene transition triggers
 - [ ] Add hotkey trigger commands
 - [ ] Implement media source controls (play/pause/restart)
@@ -30,6 +29,7 @@
 - [ ] Add WebSocket protocol version detection and compatibility warnings
 - [ ] Implement graceful degradation for unsupported OBS versions
 - [ ] Add error recovery for transient WebSocket failures
+- [ ] Implement Phase 2: Audio image rendering optimization (AudioInputImageData + AudioInputImageFactory)
 
 ## Testing
 
@@ -54,12 +54,16 @@
 - [x] Add virtual camera controls (start/stop/toggle)
 - [x] Add manual reconnect command
 - [x] Add audio mixer controls (mute/unmute audio inputs)
+- [x] Add scene audio sources folder (audio inputs in current scene)
 - [x] Implement recording controls (start/stop/toggle/pause)
 - [x] Implement scene management with dynamic folder
 - [x] Implement profile and scene collection selection
 - [x] Add profiles dynamic folder
 - [x] Add screenshot capture functionality
 - [x] Add connection status display
+- [x] Add current profile display
+- [x] Add current scene display
+- [x] Add current scene collection display
 
 ### Technical
 - [x] Implement comprehensive disposal pattern with thread safety
@@ -67,13 +71,17 @@
 - [x] Implement continuous reconnection with auto-restart
 - [x] Implement automatic OBS configuration discovery
 - [x] Implement comprehensive logging
-- [x] Add test coverage for all core functionality (80 tests passing)
+- [x] Add test coverage for all core functionality (115+ tests passing)
+- [x] Migrate to Factory + Store + Data pattern for image rendering (Phase 1 complete)
+- [x] Eliminate Windows-only System.Drawing dependencies for macOS compatibility
+- [x] Achieve full cross-platform compatibility (Windows + macOS)
 
 ### UI/UX
 - [x] Simplify display commands to use BitmapBuilder for text rendering
 - [x] Ensure display buttons get initial state on connection
 - [x] Add description to scenes dynamic folder
 - [x] Fix display commands to show "Not Connected" when disconnected
+- [x] Implement efficient image caching for all state-based and display commands
 
 ## Future Considerations
 
