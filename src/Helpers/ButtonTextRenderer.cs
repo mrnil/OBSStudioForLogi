@@ -22,7 +22,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             BitmapColor fgColor = textColor ?? BitmapColor.White;
             Int32 fontSize = GetLargeFontSize(imageSize);
-            BitmapImage iconImage = PluginResources.ReadImage(iconResourceName);
+            BitmapImage iconImage = EmbeddedResources.ReadImage(iconResourceName);
             
             using (var builder = new BitmapBuilder(imageSize))
             {
