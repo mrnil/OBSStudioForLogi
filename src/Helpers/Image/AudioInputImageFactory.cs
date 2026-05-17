@@ -35,7 +35,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             {
                 BitmapColor textColor = data.IsMuted ? BitmapColor.Red : BitmapColor.Green;
                 Int32 volumePercent = (Int32)(data.VolumeLevel * 100);
-                String displayText = $"{data.InputName}\n{volumePercent}%";
+                String displayText = $"{data.InputName}\n\n{volumePercent}%";
 
                 return ButtonTextRenderer.RenderIconWithText(data.IconPath, displayText, imageSize, textColor);
             }
