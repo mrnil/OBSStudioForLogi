@@ -6,11 +6,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     public abstract class AudioInputDynamicFolderBase : PluginDynamicFolder
     {
         protected String[] AudioInputs = new String[0];
-        private readonly ActionImageStore<AudioInputImageData> imageStore;
 
         protected AudioInputDynamicFolderBase()
         {
-            this.imageStore = new ActionImageStore<AudioInputImageData>(new AudioInputImageFactory());
         }
 
         public override PluginDynamicFolderNavigation GetNavigationArea(DeviceType _)
@@ -29,31 +27,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             
             Boolean isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(actionParameter) ?? false;
             Single volumeLevel = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
-            String iconName = isMuted ? "AudioMixerMuted.svg" : "AudioMixerUnmuted.svg";
-            String iconPath = $"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconName}";
             
-            PluginLog.Info($"  isMuted: {isMuted}, volumeLevel: {volumeLevel:F2}, iconPath: {iconPath}");
+            PluginLog.Info($"  isMuted: {isMuted}, volumeLevel: {volumeLevel:F2}");
             
-            var imageData = new AudioInputImageData
-            {
-                Id = actionParameter,
-                InputName = actionParameter,
-                IsMuted = isMuted,
-                VolumeLevel = volumeLevel,
-                IconPath = iconPath
-            };
-            
-            this.imageStore.UpdateImage(imageData.Id, imageData);
-            
-            if (this.imageStore.TryGetImage(imageData.Id, imageSize, out var image))
-            {
-                PluginLog.Info($"  Returning cached image from store");
-                return image;
-            }
-            
-            PluginLog.Info($"  Generating new image with ButtonTextRenderer");
             BitmapColor textColor = isMuted ? BitmapColor.Red : BitmapColor.Green;
-            return ButtonTextRenderer.RenderIconWithText(iconPath, actionParameter, imageSize, textColor);
+            Int32 volumePercent = (Int32)(volumeLevel * 100);
+            String displayText = $"{actionParameter}\n\n{volumePercent}%";
+            
+            PluginLog.Info($"  Generating image with text: '{displayText}', color: {textColor}");
+            return ButtonTextRenderer.RenderIconWithText(String.Empty, displayText, imageSize, textColor);
         }
 
         public override void RunCommand(String actionParameter)
