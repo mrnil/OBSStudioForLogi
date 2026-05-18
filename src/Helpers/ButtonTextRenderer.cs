@@ -8,7 +8,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             var bgColor = backgroundColor ?? BitmapColor.Black;
             var fgColor = textColor ?? BitmapColor.White;
-            var fontSize = GetLargeFontSize(imageSize);
+            var fontSize = GetDynamicFontSize(text, imageSize);
             
             using (var builder = new BitmapBuilder(imageSize))
             {
@@ -51,6 +51,50 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private static Int32 GetLargeFontSize(PluginImageSize imageSize)
         {
             return imageSize == PluginImageSize.Width90 ? 18 : 16;
+        }
+
+        private static Int32 GetDynamicFontSize(String text, PluginImageSize imageSize)
+        {
+            if (String.IsNullOrEmpty(text))
+            {
+                return GetLargeFontSize(imageSize);
+            }
+
+            Int32 textLength = text.Length;
+            Int32 baseSize = imageSize == PluginImageSize.Width90 ? 90 : 60;
+            
+            // Count newlines to handle multi-line text
+            Int32 lineCount = text.Split('\n').Length;
+            
+            // For single line text, scale based on length
+            if (lineCount == 1)
+            {
+                if (textLength <= 8)
+                {
+                    return imageSize == PluginImageSize.Width90 ? 18 : 16;
+                }
+                else if (textLength <= 12)
+                {
+                    return imageSize == PluginImageSize.Width90 ? 15 : 13;
+                }
+                else if (textLength <= 16)
+                {
+                    return imageSize == PluginImageSize.Width90 ? 13 : 11;
+                }
+                else if (textLength <= 20)
+                {
+                    return imageSize == PluginImageSize.Width90 ? 11 : 9;
+                }
+                else
+                {
+                    return imageSize == PluginImageSize.Width90 ? 9 : 8;
+                }
+            }
+            else
+            {
+                // Multi-line text - use smaller font
+                return imageSize == PluginImageSize.Width90 ? 13 : 11;
+            }
         }
     }
 }
