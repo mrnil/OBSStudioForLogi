@@ -10,7 +10,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly ActionImageStore<TextImageData> imageStore;
 
         public CurrentProfileDisplay()
-            : base(displayName: "Current Profile", description: "Shows current OBS profile", groupName: "4. Profiles")
+            : base(displayName: "", description: "Shows current OBS profile", groupName: "4. Profiles")
         {
             Instance = this;
             this.imageStore = new ActionImageStore<TextImageData>(new TextImageFactory());
@@ -19,7 +19,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
-            return null;
+            return String.Empty;
         }
 
         public void UpdateProfile(String profileName)

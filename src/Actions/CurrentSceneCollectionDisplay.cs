@@ -10,7 +10,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly ActionImageStore<TextImageData> imageStore;
 
         public CurrentSceneCollectionDisplay()
-            : base(displayName: "Current Scene Collection", description: "Shows current OBS scene collection", groupName: "5. Scenes")
+            : base(displayName: "", description: "Shows current OBS scene collection", groupName: "5. Scenes")
         {
             Instance = this;
             this.imageStore = new ActionImageStore<TextImageData>(new TextImageFactory());
