@@ -586,7 +586,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void ToggleSourceVisibility(String sceneName, String sourceName)
         {
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -605,6 +605,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     var currentState = this._obs.GetSceneItemEnabled(sceneName, sourceName);
                     this._log.Info($"Toggling source '{sourceName}' visibility from {currentState} to {!currentState}");
                     this._obs.SetSceneItemEnabled(sceneName, sourceName, !currentState);
+                    
+                    await Task.Delay(100);
+                    OBSStudioForLogiPlugin.Instance?.OnSourceVisibilityChanged(sceneName, sourceName);
                 }
                 catch (Exception ex)
                 {

@@ -376,5 +376,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             AudioMixerDynamicFolder.Instance?.OnInputVolumeChanged(inputName);
             SceneAudioSourcesDynamicFolder.Instance?.OnInputVolumeChanged(inputName);
         }
+
+        public void OnSourceVisibilityChanged(String sceneName, String sourceName)
+        {
+            SourcesDynamicFolder.Instance?.OnSourceVisibilityChanged(sceneName, sourceName);
+        }
     }
 }

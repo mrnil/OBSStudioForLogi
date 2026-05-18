@@ -64,7 +64,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return;
 
             OBSStudioForLogiPlugin.Instance?.ToggleSourceVisibility(this._currentScene, actionParameter);
-            this.CommandImageChanged(actionParameter);
+        }
+
+        public void OnSourceVisibilityChanged(String sceneName, String sourceName)
+        {
+            if (sceneName != this._currentScene)
+                return;
+
+            this.CommandImageChanged(sourceName);
         }
     }
 }
