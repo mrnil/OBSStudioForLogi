@@ -127,6 +127,9 @@
     <EmbeddedResource Include="Icons\AudioMixerUnmuted.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.AudioMixerUnmuted.svg</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Icons\Reconnect.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.Reconnect.svg</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="CopyPackage" AfterTargets="PostBuildEvent">

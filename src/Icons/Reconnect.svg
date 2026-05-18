@@ -1,0 +1,10 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- Plug prongs -->
+<path fill-rule="evenodd" clip-rule="evenodd" d="M11 5C11 4.44772 11.4477 4 12 4C12.5523 4 13 4.44772 13 5V10H11V5Z" fill="#396CF6"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M19 5C19 4.44772 19.4477 4 20 4C20.5523 4 21 4.44772 21 5V10H19V5Z" fill="#396CF6"/>
+<!-- Plug body -->
+<path fill-rule="evenodd" clip-rule="evenodd" d="M9 10C9 9.44772 9.44772 9 10 9H22C22.5523 9 23 9.44772 23 10V15C23 16.3261 22.4732 17.5979 21.5355 18.5355C20.5979 19.4732 19.3261 20 18 20H16V25C16 25.5523 15.5523 26 15 26C14.4477 26 14 25.5523 14 25V20H14C12.6739 20 11.4021 19.4732 10.4645 18.5355C9.52678 17.5979 9 16.3261 9 15V10ZM11 11V15C11 15.7956 11.3161 16.5587 11.8787 17.1213C12.4413 17.6839 13.2044 18 14 18H18C18.7956 18 19.5587 17.6839 20.1213 17.1213C20.6839 16.5587 21 15.7956 21 15V11H11Z" fill="#396CF6"/>
+<!-- Connection indicator dots -->
+<circle cx="13" cy="14" r="1" fill="#396CF6"/>
+<circle cx="19" cy="14" r="1" fill="#396CF6"/>
+</svg>

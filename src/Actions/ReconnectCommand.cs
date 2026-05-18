@@ -22,7 +22,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             SimpleIconImageData imageData = new SimpleIconImageData
             {
                 Id = "reconnect",
-                IconPath = "Loupedeck.OBSStudioForLogiPlugin.Icons.StreamingToggleOn.svg"
+                IconPath = "Loupedeck.OBSStudioForLogiPlugin.Icons.Reconnect.svg"
             };
 
             this.imageStore.UpdateImage(imageData.Id, imageData);
@@ -32,7 +32,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return image;
             }
 
-            return EmbeddedResources.ReadImage(imageData.IconPath);
+            return PluginResources.ReadImage(imageData.IconPath);
         }
     }
 }
