@@ -68,13 +68,15 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 - **Current Scene Collection Display**: Shows active scene collection name
 
 ### Audio (Group 6)
-- **Audio Mixer Folder**: Dynamic folder with all audio inputs (mute/unmute toggle)
-  - Visual feedback: Green icon = unmuted, Red icon = muted
-  - Real-time updates when mute state changes in OBS
+- **Audio Mixer Folder**: Dynamic folder with all audio inputs (mute/unmute toggle, volume display)
+  - Visual feedback: Green text = unmuted, Red text = muted
+  - Displays input name and current volume percentage (0-100%)
+  - Real-time updates when mute state or volume changes in OBS
+  - Toggle mute by pressing the button
 - **Scene Audio Folder**: Dynamic folder with audio sources in the current scene
   - Shows only audio inputs present in the active scene
-  - Same mute/unmute controls and visual feedback as Audio Mixer
-  - Updates automatically when switching scenes
+  - Same mute/unmute controls, volume display, and visual feedback as Audio Mixer
+  - Updates automatically when switching scenes or changing volume
 
 ## Configuration
 

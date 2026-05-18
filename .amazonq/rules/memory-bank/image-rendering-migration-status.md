@@ -27,12 +27,14 @@ Migration from direct ButtonTextRenderer calls to Factory + Store + Data pattern
 15. **CurrentSceneDisplay** - ✅ Migrated
 16. **CurrentSceneCollectionDisplay** - ✅ Migrated
 
-## ✅ Phase 2 Complete! (3 audio classes migrated)
+## ✅ Phase 2 Complete! (3 audio classes - no caching for real-time state)
 
-### Audio Dynamic Folders (using AudioInputImageData + AudioInputImageFactory)
-1. **AudioInputDynamicFolderBase** - ✅ Migrated with volume display
+### Audio Dynamic Folders (generate fresh images on every call)
+1. **AudioInputDynamicFolderBase** - ✅ Implemented with volume display, no caching for real-time updates
 2. **AudioMixerDynamicFolder** - ✅ Inherits from AudioInputDynamicFolderBase
 3. **SceneAudioSourcesDynamicFolder** - ✅ Inherits from AudioInputDynamicFolderBase
+
+**Note**: Audio buttons do NOT use ActionImageStore caching because GetCommandImage reads current state from OBS on every call. Caching would prevent detecting state changes since the store would always have "current" data.
 
 ## ✅ Already Optimal (5 classes)
 
@@ -65,13 +67,13 @@ Migration from direct ButtonTextRenderer calls to Factory + Store + Data pattern
 - ✅ All display commands now cache images efficiently
 
 ### Phase 2 ✅
-- ✅ Audio buttons now show volume level (0-100%)
-- ✅ Audio buttons use efficient image caching with ActionImageStore
+- ✅ Audio buttons show volume level (0-100%)
+- ✅ Audio buttons generate fresh images on every call for real-time state updates
 - ✅ Volume display updates automatically when changed in OBS
-- ✅ Consistent visual design with icon + name + volume percentage
-- ✅ 90%+ reduction in image generation for audio buttons
-- ✅ Icon caching prevents repeated file I/O
-- ✅ Equality checking prevents unnecessary regeneration
+- ✅ Mute state updates automatically when changed in OBS or via button press
+- ✅ Text-only display (no icons) with colored text (red=muted, green=unmuted)
+- ✅ Display name overlay hidden for cleaner appearance
+- ✅ Uses ButtonActionNamesChanged() to trigger updates (matches ScenesDynamicFolder pattern)
 
 ## Features Implemented
 
@@ -82,10 +84,12 @@ Migration from direct ButtonTextRenderer calls to Factory + Store + Data pattern
 - **Volume Display** - Shows percentage (0-100%) on audio buttons
 
 ### Audio Button Display
-- Icon: AudioMixerMuted.svg (red) or AudioMixerUnmuted.svg (green)
-- Text: Input name + volume percentage
+- Text: Input name + volume percentage (with extra line break for spacing)
 - Color: Red text when muted, green text when unmuted
-- Updates: Real-time updates for mute and volume changes
+- Font Size: 18pt (Width90) / 16pt (Width60)
+- Display Name: Hidden (returns empty string)
+- Updates: Real-time updates for mute and volume changes via ButtonActionNamesChanged()
+- No Icons: SVG icons removed due to BitmapBuilder compatibility issues
 
 ## Migration Complete!
 
