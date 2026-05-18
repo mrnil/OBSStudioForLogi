@@ -42,8 +42,18 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnCurrentSceneChanged(String sceneName)
         {
+            var oldScene = this._currentScene;
             this._currentScene = sceneName ?? String.Empty;
-            this.ButtonActionNamesChanged();
+            
+            if (!String.IsNullOrEmpty(oldScene) && oldScene != this._currentScene)
+            {
+                this.CommandImageChanged(oldScene);
+            }
+            
+            if (!String.IsNullOrEmpty(this._currentScene))
+            {
+                this.CommandImageChanged(this._currentScene);
+            }
         }
 
         public void OnDisconnected()
