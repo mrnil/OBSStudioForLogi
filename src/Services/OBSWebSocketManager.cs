@@ -52,6 +52,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.SceneListChanged += this.OnSceneListChanged;
             this._obs.CurrentProgramSceneChanged += this.OnCurrentSceneChanged;
             this._obs.InputMuteStateChanged += this.OnInputMuteStateChanged;
+            this._obs.InputVolumeChanged += this.OnInputVolumeChanged;
             
             this._log.Info("OBSWebSocketManager initialized");
         }
@@ -307,6 +308,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.OnInputMuteChanged(e.InputName);
         }
 
+        private void OnInputVolumeChanged(Object sender, OBSWebsocketDotNet.Types.Events.InputVolumeChangedEventArgs e)
+        {
+            if (e?.Volume?.InputName == null)
+                return;
+
+            this._log.Info($"Input '{e.Volume.InputName}' volume changed to {e.Volume.InputVolumeMul}");
+            OBSStudioForLogiPlugin.Instance?.OnInputVolumeChanged(e.Volume.InputName);
+        }
+
         private void OnReconnectTimer(Object sender, ElapsedEventArgs e)
         {
             if (this._disposed || !this._shouldReconnect)
@@ -366,6 +376,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._obs.SceneListChanged -= this.OnSceneListChanged;
                     this._obs.CurrentProgramSceneChanged -= this.OnCurrentSceneChanged;
                     this._obs.InputMuteStateChanged -= this.OnInputMuteStateChanged;
+                    this._obs.InputVolumeChanged -= this.OnInputVolumeChanged;
                     
                     this._obs.Disconnect();
                     
