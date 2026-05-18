@@ -53,7 +53,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.CurrentProgramSceneChanged += this.OnCurrentSceneChanged;
             this._obs.InputMuteStateChanged += this.OnInputMuteStateChanged;
             this._obs.InputVolumeChanged += this.OnInputVolumeChanged;
-            this._obs.SceneItemEnableStateChanged += this.OnSceneItemEnableStateChanged;
             
             this._log.Info("OBSWebSocketManager initialized");
         }
@@ -317,14 +316,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.OnInputVolumeChanged(e.Volume.InputName);
         }
 
-        private void OnSceneItemEnableStateChanged(Object sender, SceneItemEnableStateChangedEventArgs e)
-        {
-            if (String.IsNullOrEmpty(e?.SceneName))
-                return;
-
-            OBSStudioForLogiPlugin.Instance?.OnSceneItemEnableStateChanged(e.SceneName, e.SceneItemId);
-        }
-
         private void OnReconnectTimer(Object sender, ElapsedEventArgs e)
         {
             if (this._disposed || !this._shouldReconnect)
@@ -385,8 +376,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._obs.CurrentProgramSceneChanged -= this.OnCurrentSceneChanged;
                     this._obs.InputMuteStateChanged -= this.OnInputMuteStateChanged;
                     this._obs.InputVolumeChanged -= this.OnInputVolumeChanged;
-                    this._obs.SceneItemEnableStateChanged -= this.OnSceneItemEnableStateChanged;
-                    this._obs.SceneItemEnableStateChanged -= this.OnSceneItemEnableStateChanged;
                     
                     this._obs.Disconnect();
                     
@@ -399,15 +388,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
                 this._log.Info("OBSWebSocketManager disposed");
             }
-        }
-
-        public (Int32 ItemId, String SourceName)[] GetSceneItemListWithIds(String sceneName)
-        {
-            var sceneItems = this._obs?.GetSceneItemList(sceneName);
-            if (sceneItems == null)
-                return new (Int32, String)[0];
-
-            return sceneItems.Select(item => (item.ItemId, item.SourceName)).ToArray();
         }
     }
 }
