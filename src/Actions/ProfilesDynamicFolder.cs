@@ -42,8 +42,18 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnCurrentProfileChanged(String profileName)
         {
+            var oldProfile = this._currentProfile;
             this._currentProfile = profileName ?? String.Empty;
-            this.ButtonActionNamesChanged();
+            
+            if (!String.IsNullOrEmpty(oldProfile) && oldProfile != this._currentProfile)
+            {
+                this.CommandImageChanged(oldProfile);
+            }
+            
+            if (!String.IsNullOrEmpty(this._currentProfile))
+            {
+                this.CommandImageChanged(this._currentProfile);
+            }
         }
 
         public void OnDisconnected()
