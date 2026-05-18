@@ -48,6 +48,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (this.AudioInputs.Contains(inputName))
             {
                 PluginLog.Info($"[AUDIO MUTE EVENT] '{inputName}' - Refreshing button");
+                // Force refresh by rebuilding button list
+                var temp = this.AudioInputs;
+                this.AudioInputs = new String[0];
+                this.ButtonActionNamesChanged();
+                this.AudioInputs = temp;
                 this.ButtonActionNamesChanged();
             }
         }
@@ -57,6 +62,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (this.AudioInputs.Contains(inputName))
             {
                 PluginLog.Info($"[AUDIO VOLUME EVENT] '{inputName}' - Refreshing button");
+                // Force refresh by rebuilding button list
+                var temp = this.AudioInputs;
+                this.AudioInputs = new String[0];
+                this.ButtonActionNamesChanged();
+                this.AudioInputs = temp;
                 this.ButtonActionNamesChanged();
             }
         }
