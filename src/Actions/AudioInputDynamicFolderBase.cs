@@ -23,49 +23,40 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            PluginLog.Info($"GetCommandImage called for: '{actionParameter}', imageSize: {imageSize}");
-            
             Boolean isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(actionParameter) ?? false;
             Single volumeLevel = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
             
-            PluginLog.Info($"  isMuted: {isMuted}, volumeLevel: {volumeLevel:F2}");
-            
-            BitmapColor textColor = isMuted ? new BitmapColor(255, 0, 0) : new BitmapColor(0, 255, 0);
+            BitmapColor textColor = isMuted ? BitmapColor.Red : BitmapColor.Green;
             Int32 volumePercent = (Int32)(volumeLevel * 100);
             String displayText = $"{actionParameter}\n\n{volumePercent}%";
             
-            PluginLog.Info($"  Generating image with text: '{displayText}', color: {(isMuted ? "Red" : "Green")}");
+            PluginLog.Info($"[AUDIO IMAGE] '{actionParameter}' - Muted:{isMuted} Vol:{volumePercent}% Color:{(isMuted ? "RED" : "GREEN")}");
             return ButtonTextRenderer.RenderIconWithText(String.Empty, displayText, imageSize, textColor);
         }
 
         public override void RunCommand(String actionParameter)
         {
             if (String.IsNullOrEmpty(actionParameter))
-            {
-                PluginLog.Warning("RunCommand called with empty actionParameter");
                 return;
-            }
 
-            PluginLog.Info($"Audio button pressed: '{actionParameter}'");
+            PluginLog.Info($"[AUDIO PRESS] '{actionParameter}'");
             OBSStudioForLogiPlugin.Instance?.ToggleInputMute(actionParameter);
         }
 
         public void OnInputMuteChanged(String inputName)
         {
-            PluginLog.Info($"OnInputMuteChanged called for: '{inputName}', AudioInputs contains: {this.AudioInputs.Contains(inputName)}");
             if (this.AudioInputs.Contains(inputName))
             {
-                PluginLog.Info($"Triggering ButtonActionNamesChanged to refresh all buttons");
+                PluginLog.Info($"[AUDIO MUTE EVENT] '{inputName}' - Refreshing button");
                 this.ButtonActionNamesChanged();
             }
         }
 
         public void OnInputVolumeChanged(String inputName)
         {
-            PluginLog.Info($"OnInputVolumeChanged called for: '{inputName}', AudioInputs contains: {this.AudioInputs.Contains(inputName)}");
             if (this.AudioInputs.Contains(inputName))
             {
-                PluginLog.Info($"Triggering ButtonActionNamesChanged to refresh all buttons");
+                PluginLog.Info($"[AUDIO VOLUME EVENT] '{inputName}' - Refreshing button");
                 this.ButtonActionNamesChanged();
             }
         }

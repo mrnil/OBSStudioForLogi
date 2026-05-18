@@ -368,7 +368,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnInputMuteChanged(String inputName)
         {
-            PluginLog.Info($"Plugin.OnInputMuteChanged called for: '{inputName}'");
+            var currentState = this._obsManager?.Actions.GetInputMute(inputName) ?? false;
+            PluginLog.Info($"[OBS MUTE EVENT] '{inputName}' NewState:{currentState}");
             AudioMixerDynamicFolder.Instance?.OnInputMuteChanged(inputName);
             SceneAudioSourcesDynamicFolder.Instance?.OnInputMuteChanged(inputName);
         }
