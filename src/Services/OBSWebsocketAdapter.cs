@@ -116,7 +116,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public String[] GetSceneList()
         {
             var scenes = this._obs?.GetSceneList()?.Scenes;
-            return scenes?.Select(s => s.Name).ToArray() ?? new String[0];
+            var sceneNames = scenes?.Select(s => s.Name).ToArray() ?? new String[0];
+            Array.Reverse(sceneNames);
+            return sceneNames;
         }
 
         public void SaveSourceScreenshot(String sourceName, String imageFormat, String imageFilePath, Int32 imageWidth, Int32 imageHeight)
@@ -127,7 +129,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public String[] GetSceneItemList(String sceneName)
         {
             var sceneItems = this._obs?.GetSceneItemList(sceneName);
-            return sceneItems?.Select(item => item.SourceName).ToArray() ?? new String[0];
+            var sourceNames = sceneItems?.Select(item => item.SourceName).ToArray() ?? new String[0];
+            Array.Reverse(sourceNames);
+            return sourceNames;
         }
 
         public Boolean GetSceneItemEnabled(String sceneName, String sourceName)
