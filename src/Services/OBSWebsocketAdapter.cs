@@ -134,7 +134,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             var sceneItems = this._obs?.GetSceneItemList(sceneName);
             var item = sceneItems?.FirstOrDefault(i => i.SourceName == sourceName);
-            return item != null;
+            if (item == null)
+                return false;
+            
+            var sceneItemEnabled = this._obs?.GetSceneItemEnabled(sceneName, item.ItemId);
+            return sceneItemEnabled ?? false;
         }
 
         public void SetSceneItemEnabled(String sceneName, String sourceName, Boolean enabled)
