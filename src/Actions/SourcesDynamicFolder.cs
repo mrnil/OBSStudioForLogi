@@ -64,6 +64,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return;
 
             OBSStudioForLogiPlugin.Instance?.ToggleSourceVisibility(this._currentScene, actionParameter);
+            this.CommandImageChanged(actionParameter);
         }
     }
 }
