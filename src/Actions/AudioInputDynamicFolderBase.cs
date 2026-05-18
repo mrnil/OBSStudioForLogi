@@ -30,11 +30,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             
             PluginLog.Info($"  isMuted: {isMuted}, volumeLevel: {volumeLevel:F2}");
             
-            BitmapColor textColor = isMuted ? BitmapColor.Red : BitmapColor.Green;
+            BitmapColor textColor = isMuted ? new BitmapColor(255, 0, 0) : new BitmapColor(0, 255, 0);
             Int32 volumePercent = (Int32)(volumeLevel * 100);
             String displayText = $"{actionParameter}\n\n{volumePercent}%";
             
-            PluginLog.Info($"  Generating image with text: '{displayText}', color: {textColor}");
+            PluginLog.Info($"  Generating image with text: '{displayText}', color: {(isMuted ? "Red" : "Green")}");
             return ButtonTextRenderer.RenderIconWithText(String.Empty, displayText, imageSize, textColor);
         }
 
