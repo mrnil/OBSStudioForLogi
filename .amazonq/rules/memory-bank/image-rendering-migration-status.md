@@ -39,9 +39,9 @@ Migration from direct ButtonTextRenderer calls to Factory + Store + Data pattern
 ## ✅ Already Optimal (5 classes)
 
 ### Dynamic Folders (using PluginResources.ReadImage directly - no caching needed)
-1. **ProfilesDynamicFolder** - ✅ Returns static SVG icons directly (ProfileSelected/ProfileUnselected)
-2. **ScenesDynamicFolder** - ✅ Returns static SVG icons directly (ScenesSelected/ScenesUnselected)
-3. **SourcesDynamicFolder** - ✅ Returns static SVG icons directly (SourceVisibilityOn/SourceVisibilityOff)
+1. **ProfilesDynamicFolder** - ✅ Returns static SVG icons directly (ProfileSelected/ProfileUnselected), uses CommandImageChanged for icon updates
+2. **ScenesDynamicFolder** - ✅ Returns static SVG icons directly (ScenesSelected/ScenesUnselected), uses CommandImageChanged for icon updates
+3. **SourcesDynamicFolder** - ✅ Returns static SVG icons directly (SourceVisibilityOn/SourceVisibilityOff), uses CommandImageChanged with delayed callback for icon updates
 
 ### Multi-State Commands (return null for default icons)
 4. **ProfileSelectCommand** - ✅ Returns null (uses Loupedeck default multi-state rendering)
@@ -86,10 +86,28 @@ Migration from direct ButtonTextRenderer calls to Factory + Store + Data pattern
 ### Audio Button Display
 - Text: Input name + volume percentage (with extra line break for spacing)
 - Color: Red text when muted, green text when unmuted
-- Font Size: 18pt (Width90) / 16pt (Width60)
+- Font Size: 16pt (Width90) / 14pt (Width60)
 - Display Name: Hidden (returns empty string)
-- Updates: Real-time updates for mute and volume changes via ButtonActionNamesChanged()
+- Updates: Real-time updates for mute and volume changes via CommandImageChanged()
 - No Icons: SVG icons removed due to BitmapBuilder compatibility issues
+
+### Source Visibility Control
+- **GetSceneItemEnabled(sceneName, sourceName)** - Returns actual visibility state from OBS
+- **SetSceneItemEnabled(sceneName, sourceName, enabled)** - Sets visibility state
+- **ToggleSourceVisibility(sceneName, sourceName)** - Toggles visibility with 100ms delay and callback
+- **OnSourceVisibilityChanged(sceneName, sourceName)** - Event handler for visibility changes
+- Icon Display: SourceVisibilityOn (visible) / SourceVisibilityOff (hidden)
+- Updates: Delayed icon refresh after OBS processes toggle via CommandImageChanged()
+
+### Scene Selection Control
+- **OnCurrentSceneChanged(sceneName)** - Event handler for scene changes (CurrentProgramSceneChanged)
+- Icon Display: ScenesSelected (current scene) / ScenesUnselected (other scenes)
+- Updates: Individual icon refresh for old and new scenes via CommandImageChanged()
+
+### Profile Selection Control
+- **OnCurrentProfileChanged(profileName)** - Event handler for profile changes (CurrentProfileChanged)
+- Icon Display: ProfileSelected (current profile) / ProfileUnselected (other profiles)
+- Updates: Individual icon refresh for old and new profiles via CommandImageChanged()
 
 ## Migration Complete!
 
