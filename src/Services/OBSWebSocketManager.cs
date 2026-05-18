@@ -304,7 +304,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (e?.InputName == null)
                 return;
 
-            this._log.Info($"[WEBSOCKET EVENT] Mute '{e.InputName}' -> {e.InputMuted}");
             OBSStudioForLogiPlugin.Instance?.OnInputMuteChanged(e.InputName);
         }
 

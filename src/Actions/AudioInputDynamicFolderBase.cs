@@ -30,7 +30,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Int32 volumePercent = (Int32)(volumeLevel * 100);
             String displayText = $"{actionParameter}\n\n{volumePercent}%";
             
-            PluginLog.Info($"[AUDIO IMAGE] '{actionParameter}' - Muted:{isMuted} Vol:{volumePercent}% Color:{(isMuted ? "RED" : "GREEN")}");
             return ButtonTextRenderer.RenderIconWithText(String.Empty, displayText, imageSize, textColor);
         }
 
@@ -39,7 +38,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (String.IsNullOrEmpty(actionParameter))
                 return;
 
-            PluginLog.Info($"[AUDIO PRESS] '{actionParameter}'");
             OBSStudioForLogiPlugin.Instance?.ToggleInputMute(actionParameter);
         }
 
@@ -47,7 +45,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             if (this.AudioInputs.Contains(inputName))
             {
-                PluginLog.Info($"[AUDIO MUTE EVENT] '{inputName}' - Refreshing button");
                 this.CommandImageChanged(inputName);
             }
         }
@@ -56,7 +53,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             if (this.AudioInputs.Contains(inputName))
             {
-                PluginLog.Info($"[AUDIO VOLUME EVENT] '{inputName}' - Refreshing button");
                 this.CommandImageChanged(inputName);
             }
         }

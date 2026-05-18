@@ -153,17 +153,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (inputs == null)
                 return new String[0];
 
-            // Filter for audio inputs only
             var audioInputs = inputs.Where(input => AudioInputKinds.Contains(input.InputKind)).ToArray();
-
-            // Debug logging to show all audio inputs with their kinds
-            PluginLog.Info("=== Audio Mixer Inputs ===");
-            foreach (var input in audioInputs)
-            {
-                PluginLog.Info($"Input: '{input.InputName}', Kind: '{input.InputKind}'");
-            }
-            PluginLog.Info($"Total audio inputs: {audioInputs.Length}");
-
             return audioInputs.Select(input => input.InputName).ToArray();
         }
 
@@ -197,58 +187,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public String[] GetAudioSourcesInScene(String sceneName)
         {
-            PluginLog.Info($"=== GetAudioSourcesInScene for '{sceneName}' ===");
-            
             var sceneItems = this._obs?.GetSceneItemList(sceneName);
             if (sceneItems == null)
-            {
-                PluginLog.Info("Scene items is null");
                 return new String[0];
-            }
 
-            PluginLog.Info($"Scene has {sceneItems.Count} items:");
-            foreach (var item in sceneItems)
-            {
-                PluginLog.Info($"  - '{item.SourceName}' (Kind: '{item.SourceKind}', Type: {item.SourceType})");
-            }
-
-            // Get all inputs from OBS
             var allInputs = this._obs?.GetInputList(null);
             if (allInputs == null)
-            {
-                PluginLog.Info("All inputs is null");
                 return new String[0];
-            }
 
-            PluginLog.Info($"Total inputs in OBS: {allInputs.Count}");
-            foreach (var input in allInputs)
-            {
-                PluginLog.Info($"  - '{input.InputName}' (Kind: '{input.InputKind}')");
-            }
-
-            // Filter for audio input kinds using shared constant
             var audioInputNames = allInputs
                 .Where(input => AudioInputKinds.Contains(input.InputKind))
                 .Select(input => input.InputName)
                 .ToHashSet();
 
-            PluginLog.Info($"Filtered audio inputs: {audioInputNames.Count}");
-            foreach (var name in audioInputNames)
-            {
-                PluginLog.Info($"  - '{name}'");
-            }
-
-            // Return scene items that are audio inputs
             var result = sceneItems
                 .Where(item => audioInputNames.Contains(item.SourceName))
                 .Select(item => item.SourceName)
                 .ToArray();
-
-            PluginLog.Info($"Matched audio sources in scene: {result.Length}");
-            foreach (var name in result)
-            {
-                PluginLog.Info($"  - '{name}'");
-            }
 
             return result;
         }
