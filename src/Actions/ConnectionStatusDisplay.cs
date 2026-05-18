@@ -8,7 +8,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly ActionImageStore<TextImageData> imageStore;
 
         public ConnectionStatusDisplay()
-            : base(displayName: "Connection Status", description: "Shows OBS connection status", groupName: "1. OBS")
+            : base(displayName: "", description: "Shows OBS connection status", groupName: "1. OBS")
         {
             Instance = this;
             this.imageStore = new ActionImageStore<TextImageData>(new TextWithBackgroundImageFactory());
@@ -17,7 +17,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
-            return null;
+            return String.Empty;
         }
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
