@@ -2,11 +2,18 @@
 
 ## High Priority
 
+- [ ] Implement volume adjustment controls (faders/encoders or +/- buttons)
 - [ ] Implement replay buffer controls (start/stop/save)
+- [ ] Add audio monitoring toggle (None/Monitor Only/Monitor & Output)
 - [ ] Add filter enable/disable controls for sources
 
 ## Medium Priority
 
+- [ ] Add audio level meters (real-time VU meters with color coding)
+- [ ] Add audio sync offset controls (display and adjust)
+- [ ] Add audio track assignment controls (toggle tracks 1-6)
+- [ ] Add stereo balance controls for audio inputs
+- [ ] Add audio filter controls (list and toggle filters)
 - [ ] Add transition selection and duration controls
 - [ ] Implement studio mode toggle
 - [ ] Create custom scene transition triggers
@@ -15,6 +22,7 @@
 
 ## Low Priority
 
+- [ ] Add audio quick presets (Mute All, Reset All Volumes, custom macros)
 - [ ] Add statistics display (FPS, CPU usage, dropped frames)
 - [ ] Implement custom image overlays for scene buttons
 - [ ] Add scene item transform controls (position, scale, rotation)
@@ -29,7 +37,6 @@
 - [ ] Add WebSocket protocol version detection and compatibility warnings
 - [ ] Implement graceful degradation for unsupported OBS versions
 - [ ] Add error recovery for transient WebSocket failures
-- [ ] Implement Phase 2: Audio image rendering optimization (AudioInputImageData + AudioInputImageFactory)
 
 ## Testing
 
@@ -54,6 +61,7 @@
 - [x] Add virtual camera controls (start/stop/toggle)
 - [x] Add manual reconnect command
 - [x] Add audio mixer controls (mute/unmute audio inputs)
+- [x] Add audio volume display (0-100% on buttons)
 - [x] Add scene audio sources folder (audio inputs in current scene)
 - [x] Implement recording controls (start/stop/toggle/pause)
 - [x] Implement scene management with dynamic folder
@@ -76,12 +84,24 @@
 - [x] Eliminate Windows-only System.Drawing dependencies for macOS compatibility
 - [x] Achieve full cross-platform compatibility (Windows + macOS)
 
+### Documentation
+- [x] Create comprehensive memory bank documentation
+- [x] Document icon update patterns and best practices
+- [x] Document image rendering migration status
+- [x] Document OBS audio API capabilities and implementation status
+
 ### UI/UX
 - [x] Simplify display commands to use BitmapBuilder for text rendering
 - [x] Ensure display buttons get initial state on connection
 - [x] Add description to scenes dynamic folder
 - [x] Fix display commands to show "Not Connected" when disconnected
 - [x] Implement efficient image caching for all state-based and display commands
+- [x] Fix source visibility toggle to work bidirectionally
+- [x] Fix source visibility icon updates with delayed callback pattern
+- [x] Fix scene icon updates to use CommandImageChanged (not ButtonActionNamesChanged)
+- [x] Fix profile icon updates to use CommandImageChanged (not ButtonActionNamesChanged)
+- [x] Fix audio button color updates to use CommandImageChanged for individual buttons
+- [x] Correct audio button font sizes (16pt Width90, 14pt Width60)
 
 ## Future Considerations
 
