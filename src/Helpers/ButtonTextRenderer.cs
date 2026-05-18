@@ -50,7 +50,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         private static Int32 GetLargeFontSize(PluginImageSize imageSize)
         {
-            return imageSize == PluginImageSize.Width90 ? 18 : 16;
+            return imageSize == PluginImageSize.Width90 ? 16 : 14;
         }
 
         private static Int32 GetDynamicFontSize(String text, PluginImageSize imageSize)
