@@ -139,6 +139,12 @@
     <EmbeddedResource Include="Icons\ReplayBufferSave.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ReplayBufferSave.svg</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Icons\StudioModeToggleOn.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StudioModeToggleOn.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\StudioModeToggleOff.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StudioModeToggleOff.svg</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="CopyPackage" AfterTargets="PostBuildEvent">

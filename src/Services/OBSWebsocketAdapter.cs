@@ -278,5 +278,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             return scenesWithInput;
         }
+
+        public Boolean GetStudioModeEnabled()
+        {
+            return this._obs?.GetStudioModeEnabled() ?? false;
+        }
+
+        public void SetStudioModeEnabled(Boolean enabled)
+        {
+            this._obs?.SetStudioModeEnabled(enabled);
+        }
     }
 }

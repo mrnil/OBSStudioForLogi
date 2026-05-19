@@ -39,5 +39,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         String[] GetAudioSourcesInScene(String sceneName);
         String[] GetAudioInputsNotInAnyScene();
         String[] GetScenesForInput(String inputName);
+        Boolean GetStudioModeEnabled();
+        void SetStudioModeEnabled(Boolean enabled);
     }
 }

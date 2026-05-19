@@ -54,6 +54,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.CurrentProgramSceneChanged += this.OnCurrentSceneChanged;
             this._obs.InputMuteStateChanged += this.OnInputMuteStateChanged;
             this._obs.InputVolumeChanged += this.OnInputVolumeChanged;
+            this._obs.StudioModeStateChanged += this.OnStudioModeStateChanged;
             
             this._log.Info("OBSWebSocketManager initialized");
         }
@@ -129,6 +130,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this.UpdateSceneList();
                     this.UpdateProfileList();
                     this.UpdateInputList();
+                    this.UpdateStudioModeState();
                     ProfileSelectCommand.Instance?.OnConnected();
                     SceneCollectionSelectCommand.Instance?.OnConnected();
                     AudioMixerDynamicFolder.Instance?.OnConnected();
@@ -149,6 +151,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.Actions.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             this.Actions.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             this.Actions.SetReplayBufferState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
+            this.Actions.SetStudioModeState(false);
             
             ScenesDynamicFolder.Instance?.OnDisconnected();
             SourcesDynamicFolder.Instance?.OnDisconnected();
@@ -326,6 +329,31 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.OnInputVolumeChanged(e.Volume.InputName);
         }
 
+        private void UpdateStudioModeState()
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    var enabled = this.Actions.GetStudioModeEnabled();
+                    this.Actions.SetStudioModeState(enabled);
+                    this._log.Info($"Initial studio mode state: {enabled}");
+                    OBSStudioForLogiPlugin.Instance?.OnStudioModeStateChanged();
+                }
+                catch (Exception ex)
+                {
+                    this._log.Warning($"Failed to get studio mode state: {ex.Message}");
+                }
+            });
+        }
+
+        private void OnStudioModeStateChanged(Object sender, StudioModeStateChangedEventArgs e)
+        {
+            this.Actions.SetStudioModeState(e.StudioModeEnabled);
+            this._log.Info($"Studio mode state changed to {e.StudioModeEnabled}");
+            OBSStudioForLogiPlugin.Instance?.OnStudioModeStateChanged();
+        }
+
         private void OnReconnectTimer(Object sender, ElapsedEventArgs e)
         {
             if (this._disposed || !this._shouldReconnect)
@@ -387,6 +415,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._obs.CurrentProgramSceneChanged -= this.OnCurrentSceneChanged;
                     this._obs.InputMuteStateChanged -= this.OnInputMuteStateChanged;
                     this._obs.InputVolumeChanged -= this.OnInputVolumeChanged;
+                    this._obs.StudioModeStateChanged -= this.OnStudioModeStateChanged;
                     
                     this._obs.Disconnect();
                     

@@ -39,6 +39,7 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 ### OBS (Group 1)
 - **Screenshot**: Capture screenshot to Pictures/Documents/Desktop folder
 - **Reconnect**: Manually retry connection to OBS
+- **Studio Mode Toggle**: Enable/disable OBS studio mode for preview/program workflow
 - **Virtual Camera Toggle**: Toggle virtual camera on/off
 - **Virtual Camera Start**: Start virtual camera
 - **Virtual Camera Stop**: Stop virtual camera
@@ -55,19 +56,23 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 - **Recording Stop**: Stop recording
 - **Recording Pause/Resume**: Pause or resume active recording
 
-### Profiles (Group 4)
+### Replay Buffer (Group 4)
+- **Replay Buffer Toggle**: Start/stop replay buffer
+- **Save Replay Buffer**: Save the current replay buffer to disk
+
+### Profiles (Group 5)
 - **Profile Select**: Switch between OBS profiles (multi-state buttons)
 - **Profiles Folder**: Dynamic folder with all available profiles
 - **Current Profile Display**: Shows active profile name
 
-### Scenes (Group 5)
+### Scenes (Group 6)
 - **Scene Collection Select**: Switch between scene collections (multi-state buttons)
 - **Scenes Folder**: Dynamic folder with all available scenes
 - **Sources Folder**: Dynamic folder with sources in current scene (toggle visibility)
 - **Current Scene Display**: Shows active scene name
 - **Current Scene Collection Display**: Shows active scene collection name
 
-### Audio (Group 6)
+### Audio (Group 7)
 - **Audio Mixer Folder**: Dynamic folder with all audio inputs (mute/unmute toggle, volume display)
   - Visual feedback: Green text = unmuted, Red text = muted
   - Displays input name and current volume percentage (0-100%)
@@ -103,7 +108,7 @@ dotnet clean OBSStudioForLogiPlugin.sln
 
 ## Architecture
 
-- **TDD Approach**: Comprehensive test coverage with 115 unit tests
+- **TDD Approach**: Comprehensive test coverage with 123 unit tests
 - **Dependency Injection**: Interface-based design for testability
 - **Async Operations**: All OBS operations wrapped in Task.Run to prevent UI freezing
 - **Event-Driven**: Real-time updates via OBS WebSocket events

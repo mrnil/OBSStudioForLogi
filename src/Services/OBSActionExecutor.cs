@@ -15,6 +15,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private String _currentProfile = String.Empty;
         private String _currentSceneCollection = String.Empty;
         private String _currentScene = String.Empty;
+        private Boolean _studioModeEnabled = false;
 
         public Boolean IsRecording => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED 
                                     || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_PAUSED
@@ -27,6 +28,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                                             || this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
         public Boolean IsVirtualCameraActive => this._virtualCameraState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
         public Boolean IsReplayBufferActive => this._replayBufferState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
+        public Boolean IsStudioModeEnabled => this._studioModeEnabled;
         public String CurrentProfile => this._currentProfile;
         public String CurrentSceneCollection => this._currentSceneCollection;
         public String CurrentScene => this._currentScene;
@@ -902,6 +904,52 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 this._log.Error($"Failed to get scenes for input '{inputName}': {ex.Message}");
                 return new String[0];
             }
+        }
+
+        public Boolean GetStudioModeEnabled()
+        {
+            if (!this._obs.IsConnected)
+            {
+                this._log.Warning("Cannot get studio mode state - not connected");
+                return false;
+            }
+
+            try
+            {
+                return this._obs.GetStudioModeEnabled();
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get studio mode state: {ex.Message}");
+                return false;
+            }
+        }
+
+        public void ToggleStudioMode()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot toggle studio mode - not connected");
+                    return;
+                }
+
+                try
+                {
+                    this._log.Info($"Toggling studio mode from {this._studioModeEnabled} to {!this._studioModeEnabled}");
+                    this._obs.SetStudioModeEnabled(!this._studioModeEnabled);
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to toggle studio mode: {ex.Message}");
+                }
+            });
+        }
+
+        public void SetStudioModeState(Boolean enabled)
+        {
+            this._studioModeEnabled = enabled;
         }
     }
 }

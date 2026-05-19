@@ -307,6 +307,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Boolean IsStreaming => this._obsManager?.IsStreaming ?? false;
         public Boolean IsVirtualCameraActive => this._obsManager?.Actions.IsVirtualCameraActive ?? false;
         public Boolean IsReplayBufferActive => this._obsManager?.Actions.IsReplayBufferActive ?? false;
+        public Boolean IsStudioModeEnabled => this._obsManager?.Actions.IsStudioModeEnabled ?? false;
         public Boolean IsConnected => this._obsManager?.IsConnected ?? false;
 
         public void ToggleVirtualCamera()
@@ -406,6 +407,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnSourceVisibilityChanged(String sceneName, String sourceName)
         {
             SourcesDynamicFolder.Instance?.OnSourceVisibilityChanged(sceneName, sourceName);
+        }
+
+        public void ToggleStudioMode()
+        {
+            this._obsManager?.Actions.ToggleStudioMode();
+        }
+
+        public void OnStudioModeStateChanged()
+        {
+            StudioModeToggleCommand.Instance?.OnStudioModeStateChanged();
         }
     }
 }
