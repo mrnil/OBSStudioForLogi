@@ -7,13 +7,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public static CurrentSceneDisplay Instance { get; private set; }
 
         private String _currentScene = "Not Connected";
-        private readonly ActionImageStore<TextImageData> imageStore;
 
         public CurrentSceneDisplay()
             : base(displayName: "", description: "Shows current OBS scene", groupName: "5. Scenes")
         {
             Instance = this;
-            this.imageStore = new ActionImageStore<TextImageData>(new TextImageFactory());
             this.AddParameter("", "", groupName: "5. Scenes");
         }
 
@@ -47,22 +45,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             BitmapColor backgroundColor = isConnected ? new BitmapColor(57, 180, 120) : BitmapColor.Black;
             BitmapColor textColor = isConnected ? BitmapColor.White : new BitmapColor(128, 128, 128);
             
-            var imageData = new TextImageData
-            {
-                Id = "scene_display",
-                DisplayText = displayText,
-                BackgroundColor = backgroundColor,
-                TextColor = textColor
-            };
-            
-            this.imageStore.UpdateImage(imageData.Id, imageData);
-            
-            if (this.imageStore.TryGetImage(imageData.Id, imageSize, out var image))
-            {
-                return image;
-            }
-            
-            return ButtonTextRenderer.RenderText(displayText, imageSize, backgroundColor, textColor);
+            return ButtonImageHelper.Text(displayText, imageSize, backgroundColor, textColor);
         }
 
         protected override void RunCommand(String actionParameter)

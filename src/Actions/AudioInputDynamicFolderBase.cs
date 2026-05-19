@@ -26,11 +26,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Boolean isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(actionParameter) ?? false;
             Single volumeLevel = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
             
-            BitmapColor textColor = isMuted ? BitmapColor.Red : BitmapColor.Green;
             Int32 volumePercent = (Int32)(volumeLevel * 100);
-            String displayText = $"{actionParameter}\n\n{volumePercent}%";
+            String text = $"{actionParameter}\n\n{volumePercent}%";
             
-            return ButtonTextRenderer.RenderIconWithText(String.Empty, displayText, imageSize, textColor);
+            return ButtonImageHelper.StateText(text, imageSize, !isMuted, BitmapColor.Green, BitmapColor.Red);
         }
 
         public override void RunCommand(String actionParameter)

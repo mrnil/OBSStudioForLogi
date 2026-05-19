@@ -514,3 +514,34 @@ public void OnCurrentSceneCollectionChanged(String oldSceneCollection, String ne
 13. **Clean up event subscriptions** in Unload/Dispose
 14. **Use string interpolation** for log messages
 15. **Check connection state** before OBS operations
+16. **Use ButtonImageHelper** for all button image rendering
+
+## Button Image Rendering
+
+### Use ButtonImageHelper for All Images
+All button images should use the static `ButtonImageHelper` class:
+
+```csharp
+// Simple icon
+return ButtonImageHelper.Icon("Screenshot.svg");
+
+// State-based icon (on/off, active/inactive)
+Boolean isActive = GetState();
+return ButtonImageHelper.StateIcon(isActive, "ActiveIcon.svg", "InactiveIcon.svg");
+
+// Text display
+return ButtonImageHelper.Text("Display Text", imageSize, backgroundColor, textColor);
+
+// State-based text (colored by state)
+Boolean isActive = GetState();
+return ButtonImageHelper.StateText(text, imageSize, isActive, activeColor, inactiveColor);
+```
+
+### Icon Resource Names
+- Use short names: `"RecordingOn.svg"` not `"Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOn.svg"`
+- ButtonImageHelper automatically resolves full resource path
+
+### No Manual Caching Needed
+- Loupedeck framework handles image caching internally
+- Just return the image from `GetCommandImage()`
+- Call `CommandImageChanged()` or `ActionImageChanged()` to trigger refresh

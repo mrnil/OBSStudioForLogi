@@ -5,13 +5,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     public class ConnectionStatusDisplay : PluginDynamicCommand
     {
         public static ConnectionStatusDisplay Instance { get; private set; }
-        private readonly ActionImageStore<TextImageData> imageStore;
 
         public ConnectionStatusDisplay()
             : base(displayName: "", description: "Shows OBS connection status", groupName: "1. OBS")
         {
             Instance = this;
-            this.imageStore = new ActionImageStore<TextImageData>(new TextWithBackgroundImageFactory());
             this.AddParameter("", "Connection Status", groupName: "1. OBS");
         }
 
@@ -23,23 +21,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             Boolean isConnected = OBSStudioForLogiPlugin.Instance?.IsConnected ?? false;
-
-            TextImageData imageData = new TextImageData
-            {
-                Id = "connection-status",
-                DisplayText = isConnected ? "Connected" : "Disconnected",
-                BackgroundColor = isConnected ? new BitmapColor(0, 128, 0) : new BitmapColor(128, 0, 0),
-                TextColor = BitmapColor.White
-            };
-
-            this.imageStore.UpdateImage(imageData.Id, imageData);
-
-            if (this.imageStore.TryGetImage(imageData.Id, imageSize, out BitmapImage image))
-            {
-                return image;
-            }
-
-            return ButtonTextRenderer.RenderConnectionStatus(isConnected, imageSize);
+            String text = isConnected ? "Connected" : "Disconnected";
+            BitmapColor bgColor = isConnected ? new BitmapColor(0, 128, 0) : new BitmapColor(128, 0, 0);
+            return ButtonImageHelper.Text(text, imageSize, bgColor, BitmapColor.White);
         }
 
         protected override void RunCommand(String actionParameter)

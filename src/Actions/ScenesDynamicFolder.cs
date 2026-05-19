@@ -70,11 +70,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            var isSelected = actionParameter == this._currentScene;
-            var iconName = isSelected ? "ScenesSelected.svg" : "ScenesUnselected.svg";
-            var imagePath = $"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconName}";
-            
-            return PluginResources.ReadImage(imagePath);
+            Boolean isSelected = actionParameter == this._currentScene;
+            return ButtonImageHelper.StateIcon(isSelected, "ScenesSelected.svg", "ScenesUnselected.svg");
         }
 
         public override void RunCommand(String actionParameter)
