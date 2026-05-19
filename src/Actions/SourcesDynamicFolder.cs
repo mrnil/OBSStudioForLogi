@@ -15,7 +15,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             Instance = this;
             this.DisplayName = "Scene Sources";
-            this.GroupName = "6. Scenes";
+            this.GroupName = "7. Scenes";
             this.Description = "Folder of sources in the current scene";
         }
 

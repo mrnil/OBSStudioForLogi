@@ -7,7 +7,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public static VirtualCameraToggleCommand Instance { get; private set; }
 
         public VirtualCameraToggleCommand()
-            : base(displayName: "Toggle Virtual Camera", description: "Start/stop OBS virtual camera", groupName: "1. OBS")
+            : base(displayName: "Toggle Virtual Camera", description: "Start/stop OBS virtual camera", groupName: "5. Virtual Camera")
         {
             Instance = this;
         }

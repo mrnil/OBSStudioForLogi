@@ -41,9 +41,6 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 - **Reconnect**: Manually retry connection to OBS
 - **Studio Mode Toggle**: Enable/disable OBS studio mode for preview/program workflow
 - **Studio Mode Transition**: Transition preview scene to program (only works when studio mode is enabled)
-- **Virtual Camera Toggle**: Toggle virtual camera on/off
-- **Virtual Camera Start**: Start virtual camera
-- **Virtual Camera Stop**: Stop virtual camera
 - **Connection Status Display**: Shows "Connected" (green) or "Disconnected" (red)
 
 ### Streaming (Group 2)
@@ -61,12 +58,17 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 - **Replay Buffer Toggle**: Start/stop replay buffer
 - **Save Replay Buffer**: Save the current replay buffer to disk
 
-### Profiles (Group 5)
+### Virtual Camera (Group 5)
+- **Virtual Camera Toggle**: Toggle virtual camera on/off
+- **Virtual Camera Start**: Start virtual camera
+- **Virtual Camera Stop**: Stop virtual camera
+
+### Profiles (Group 6)
 - **Profile Select**: Switch between OBS profiles (multi-state buttons)
 - **Profiles Folder**: Dynamic folder with all available profiles
 - **Current Profile Display**: Shows active profile name
 
-### Scenes (Group 6)
+### Scenes (Group 7)
 - **Scene Collection Select**: Switch between scene collections (multi-state buttons)
 - **Scenes Folder**: Dynamic folder with all available scenes
   - When studio mode is disabled: Switches scene to program (live)
@@ -75,7 +77,7 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 - **Current Scene Display**: Shows active scene name
 - **Current Scene Collection Display**: Shows active scene collection name
 
-### Audio (Group 7)
+### Audio (Group 8)
 - **Audio Mixer Folder**: Dynamic folder with all audio inputs (mute/unmute toggle, volume display)
   - Visual feedback: Green text = unmuted, Red text = muted
   - Displays input name and current volume percentage (0-100%)

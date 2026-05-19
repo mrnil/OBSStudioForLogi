@@ -7,7 +7,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public static VirtualCameraStartCommand Instance { get; private set; }
 
         public VirtualCameraStartCommand()
-            : base(displayName: "Start Virtual Camera", description: "Start OBS virtual camera", groupName: "1. OBS")
+            : base(displayName: "Start Virtual Camera", description: "Start OBS virtual camera", groupName: "5. Virtual Camera")
         {
             Instance = this;
         }

@@ -7,7 +7,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public static VirtualCameraStopCommand Instance { get; private set; }
 
         public VirtualCameraStopCommand()
-            : base(displayName: "Stop Virtual Camera", description: "Stop OBS virtual camera", groupName: "1. OBS")
+            : base(displayName: "Stop Virtual Camera", description: "Stop OBS virtual camera", groupName: "5. Virtual Camera")
         {
             Instance = this;
         }
