@@ -12,35 +12,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GetInputVolume() and SetInputVolume() API methods for volume control
 - OnInputVolumeChanged() event handler for real-time volume updates
 - Scene audio sources folder showing audio inputs in the current scene
-- ActionImageStore pattern for efficient image caching (Phase 1 complete)
-- TextImageFactory, StateImageFactory, SimpleIconImageFactory for cross-platform rendering
-- TextImageData, StateImageData, SimpleIconImageData models
-- Comprehensive debug logging for audio button state changes
+- ButtonImageHelper static class for simplified image rendering
 
 ### Changed
+- Simplified image rendering system with ButtonImageHelper (4 simple methods)
+- All 19 commands migrated to use ButtonImageHelper API
 - Audio buttons now display input name and volume percentage with colored text
-- Audio buttons use ButtonActionNamesChanged() for updates (matches ScenesDynamicFolder pattern)
-- Audio buttons generate fresh images on every call for real-time state updates (no caching)
+- Audio buttons generate fresh images on every call for real-time state updates
 - Audio button display name hidden for cleaner appearance
-- Audio button text spacing improved with extra line break between name and volume
-- Migrated 16 commands to use ActionImageStore pattern for efficient caching
-- Display commands now use TextImageFactory with ActionImageStore
-- All image factories now use Loupedeck SDK's cross-platform BitmapBuilder/BitmapImage APIs
-- Eliminated all Windows-only System.Drawing dependencies
+- Reduced image rendering code by ~80% while maintaining same functionality
 
 ### Removed
+- ActionImageStore, IActionImageFactory, IActionImageData (replaced with ButtonImageHelper)
+- StateImageFactory, TextImageFactory, SimpleIconImageFactory (no longer needed)
+- StateImageData, TextImageData, SimpleIconImageData models (no longer needed)
+- AudioInputImageFactory and AudioInputImageData (deferred implementation)
 - BitmapHelper.cs (Windows-only System.Drawing code)
 - IconWithTextImageFactory.cs and IconWithTextImageData.cs (unused)
-- AudioInputImageFactory.cs and AudioInputImageData.cs (replaced with direct rendering)
-- Icon rendering from audio buttons (BitmapBuilder cannot handle SVG format)
 
 ### Fixed
 - All 78 CA1416 platform-specific warnings eliminated
 - Plugin now fully compatible with macOS (no Windows-only dependencies)
-- BitmapColor usage corrected in TextWithBackgroundImageFactory
 - Audio buttons now update correctly when mute state or volume changes
-- ButtonTextRenderer now uses PluginResources.ReadImage instead of non-existent EmbeddedResources
-- Audio button image caching removed to allow real-time state reflection
 
 ## [0.8.3] - 2026-03-10
 
