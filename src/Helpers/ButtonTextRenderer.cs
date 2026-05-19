@@ -23,15 +23,26 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             BitmapColor fgColor = textColor ?? BitmapColor.White;
             Int32 fontSize = GetDynamicFontSize(text, imageSize);
             
-            BitmapImage iconImage = PluginResources.ReadImage($"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconResourceName}");
-            
             using (var builder = new BitmapBuilder(imageSize))
             {
                 builder.Clear(BitmapColor.Black);
                 
-                if (iconImage != null)
+                if (!String.IsNullOrEmpty(iconResourceName))
                 {
-                    builder.DrawImage(iconImage);
+                    try
+                    {
+                        BitmapImage iconImage = PluginResources.ReadImage($"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconResourceName}");
+                        
+                        if (iconImage != null)
+                        {
+                            builder.DrawImage(iconImage.ToArray());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Icon failed to load, continue with text-only rendering
+                        PluginLog.Warning($"Failed to load icon '{iconResourceName}': {ex.Message}");
+                    }
                 }
                 
                 builder.DrawText(text, fgColor, fontSize);
