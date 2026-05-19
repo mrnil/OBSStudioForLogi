@@ -40,6 +40,44 @@ String text = $"{inputName}\n\n{volume}%";
 return ButtonImageHelper.StateText(text, imageSize, !isMuted, BitmapColor.Green, BitmapColor.Red);
 ```
 
+#### TextWithIcon(text, imageSize, iconResourceName, textColor)
+Renders text with a background icon.
+
+```csharp
+String text = $"{inputName}\n\n{volume}%";
+return ButtonImageHelper.TextWithIcon(text, imageSize, "AudioMixerUnmuted.svg", BitmapColor.Green);
+```
+
+#### StateTextWithIcon(text, imageSize, isActive, activeIcon, inactiveIcon, activeColor, inactiveColor)
+Renders text with state-based background icon and color.
+
+```csharp
+Boolean isMuted = GetMuteState();
+String text = $"{inputName}\n\n{volume}%";
+return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted, 
+    "AudioMixerUnmuted.svg", "AudioMixerMuted.svg",
+    BitmapColor.Green, BitmapColor.Red);
+```
+
+#### TextWithIcon(text, imageSize, iconResourceName, textColor)
+Renders text with a background icon.
+
+```csharp
+String text = $"{inputName}\n\n{volume}%";
+return ButtonImageHelper.TextWithIcon(text, imageSize, "AudioMixerUnmuted.svg", BitmapColor.Green);
+```
+
+#### StateTextWithIcon(text, imageSize, isActive, activeIcon, inactiveIcon, activeColor, inactiveColor)
+Renders text with state-based background icon and color.
+
+```csharp
+Boolean isMuted = GetMuteState();
+String text = $"{inputName}\n\n{volume}%";
+return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted, 
+    "AudioMixerUnmuted.svg", "AudioMixerMuted.svg",
+    BitmapColor.Green, BitmapColor.Red);
+```
+
 ## Usage Examples
 
 ### Simple Icon Button
@@ -95,7 +133,9 @@ public class AudioInputDynamicFolderBase : PluginDynamicFolder
         Int32 volumePercent = (Int32)(volumeLevel * 100);
         String text = $"{actionParameter}\n\n{volumePercent}%";
         
-        return ButtonImageHelper.StateText(text, imageSize, !isMuted, BitmapColor.Green, BitmapColor.Red);
+        return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted, 
+            "AudioMixerUnmuted.svg", "AudioMixerMuted.svg",
+            BitmapColor.Green, BitmapColor.Red);
     }
 }
 ```
@@ -116,11 +156,12 @@ public class ScenesDynamicFolder : PluginDynamicFolder
 
 ## Benefits
 
-1. **Simple** - One helper class, four methods
+1. **Simple** - One helper class, six methods
 2. **Consistent** - All buttons use same API
 3. **Clear** - Method names describe what they do
 4. **Minimal** - No boilerplate code needed
 5. **Efficient** - Loupedeck framework handles caching
+6. **Flexible** - Supports text-only, icon-only, and text-with-icon combinations
 
 ## Icon Resource Naming
 

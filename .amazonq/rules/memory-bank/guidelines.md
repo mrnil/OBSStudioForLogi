@@ -535,6 +535,14 @@ return ButtonImageHelper.Text("Display Text", imageSize, backgroundColor, textCo
 // State-based text (colored by state)
 Boolean isActive = GetState();
 return ButtonImageHelper.StateText(text, imageSize, isActive, activeColor, inactiveColor);
+
+// Text with background icon
+return ButtonImageHelper.TextWithIcon(text, imageSize, "BackgroundIcon.svg", textColor);
+
+// State-based text with background icon
+Boolean isActive = GetState();
+return ButtonImageHelper.StateTextWithIcon(text, imageSize, isActive, 
+    "ActiveIcon.svg", "InactiveIcon.svg", activeColor, inactiveColor);
 ```
 
 ### Icon Resource Names

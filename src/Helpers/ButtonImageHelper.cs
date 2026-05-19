@@ -29,5 +29,22 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             return Text(text, imageSize, BitmapColor.Black, isActive ? activeColor : inactiveColor);
         }
+        
+        // For text with background icon
+        public static BitmapImage TextWithIcon(String text, PluginImageSize imageSize, 
+            String iconResourceName, BitmapColor? textColor = null)
+        {
+            return ButtonTextRenderer.RenderTextWithIcon(text, imageSize, iconResourceName, textColor);
+        }
+        
+        // For text with state-based background icon
+        public static BitmapImage StateTextWithIcon(String text, PluginImageSize imageSize, 
+            Boolean isActive, String activeIcon, String inactiveIcon, 
+            BitmapColor activeColor, BitmapColor inactiveColor)
+        {
+            String icon = isActive ? activeIcon : inactiveIcon;
+            BitmapColor color = isActive ? activeColor : inactiveColor;
+            return ButtonTextRenderer.RenderTextWithIcon(text, imageSize, icon, color);
+        }
     }
 }

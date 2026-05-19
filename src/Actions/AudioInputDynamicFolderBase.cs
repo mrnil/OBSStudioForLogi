@@ -29,7 +29,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Int32 volumePercent = (Int32)(volumeLevel * 100);
             String text = $"{actionParameter}\n\n{volumePercent}%";
             
-            return ButtonImageHelper.StateText(text, imageSize, !isMuted, BitmapColor.Green, BitmapColor.Red);
+            return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted, 
+                "AudioMixerUnmuted.svg", "AudioMixerMuted.svg",
+                BitmapColor.Green, BitmapColor.Red);
         }
 
         public override void RunCommand(String actionParameter)

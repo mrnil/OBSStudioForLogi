@@ -18,14 +18,22 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
-        public static BitmapImage RenderIconWithText(String iconResourceName, String text, PluginImageSize imageSize, BitmapColor? textColor = null)
+        public static BitmapImage RenderTextWithIcon(String text, PluginImageSize imageSize, String iconResourceName, BitmapColor? textColor = null)
         {
             BitmapColor fgColor = textColor ?? BitmapColor.White;
-            Int32 fontSize = GetLargeFontSize(imageSize);
+            Int32 fontSize = GetDynamicFontSize(text, imageSize);
+            
+            BitmapImage iconImage = PluginResources.ReadImage($"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconResourceName}");
             
             using (var builder = new BitmapBuilder(imageSize))
             {
                 builder.Clear(BitmapColor.Black);
+                
+                if (iconImage != null)
+                {
+                    builder.DrawImage(iconImage);
+                }
+                
                 builder.DrawText(text, fgColor, fontSize);
                 return builder.ToImage();
             }
