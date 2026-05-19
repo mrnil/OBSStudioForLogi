@@ -130,6 +130,15 @@
     <EmbeddedResource Include="Icons\Reconnect.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.Reconnect.svg</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Icons\ReplayBufferToggleStart.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ReplayBufferToggleStart.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\ReplayBufferToggleStop.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ReplayBufferToggleStop.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\ReplayBufferSave.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ReplayBufferSave.svg</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="CopyPackage" AfterTargets="PostBuildEvent">
