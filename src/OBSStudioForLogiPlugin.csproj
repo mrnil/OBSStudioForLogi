@@ -22,7 +22,7 @@
     <PluginDir Condition="$(OS) != 'Windows_NT'">~/Library/Application\ Support/Logi/LogiPluginService/Plugins/</PluginDir>
 
     <BaseOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\bin\'))</BaseOutputPath>
-    <OutputPath>$(BaseOutputPath)$(Configuration)\bin\</OutputPath>
+    <OutputPath>$(BaseOutputPath)$(Configuration)\</OutputPath>
 
     <PluginShortName>OBSStudioForLogi</PluginShortName>
   </PropertyGroup>
@@ -137,8 +137,8 @@
     <ItemGroup>
       <PackageFiles Include="package\**\*" />
     </ItemGroup>
-    <Copy SourceFiles="@(PackageFiles)" DestinationFolder="$(OutputPath)..\%(RecursiveDir)" />
-    <Message Text="✅ Package files copied to $(OutputPath).." Importance="High" />
+    <Copy SourceFiles="@(PackageFiles)" DestinationFolder="$(OutputPath)%(RecursiveDir)" />
+    <Message Text="✅ Package files copied to $(OutputPath)" Importance="High" />
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
