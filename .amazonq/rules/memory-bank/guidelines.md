@@ -122,8 +122,23 @@ public void SetCurrentScene(String sceneName)
             return;
         }
         
-        this._log.Info($"Setting current scene to '{sceneName}'");
-        this._obs.SetCurrentProgramScene(sceneName);
+        try
+        {
+            if (this._studioModeEnabled)
+            {
+                this._log.Info($"Setting current preview scene to '{sceneName}' (studio mode enabled)");
+                this._obs.SetCurrentPreviewScene(sceneName);
+            }
+            else
+            {
+                this._log.Info($"Setting current program scene to '{sceneName}'");
+                this._obs.SetCurrentProgramScene(sceneName);
+            }
+        }
+        catch (Exception ex)
+        {
+            this._log.Error($"Failed to set scene '{sceneName}': {ex.Message}");
+        }
     });
 }
 ```
@@ -131,6 +146,7 @@ public void SetCurrentScene(String sceneName)
 - Always check connection state before OBS operations
 - Log warnings for failed preconditions
 - Log info for successful operations
+- **Studio Mode Behavior**: When studio mode is enabled, scene switching sets the preview scene instead of program scene
 
 ### Async/Await Pattern
 For operations requiring sequential async steps:

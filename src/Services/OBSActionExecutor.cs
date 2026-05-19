@@ -51,8 +51,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
                 try
                 {
-                    this._log.Info($"Setting current scene to '{sceneName}'");
-                    this._obs.SetCurrentProgramScene(sceneName);
+                    if (this._studioModeEnabled)
+                    {
+                        this._log.Info($"Setting current preview scene to '{sceneName}' (studio mode enabled)");
+                        this._obs.SetCurrentPreviewScene(sceneName);
+                    }
+                    else
+                    {
+                        this._log.Info($"Setting current program scene to '{sceneName}'");
+                        this._obs.SetCurrentProgramScene(sceneName);
+                    }
                 }
                 catch (Exception ex)
                 {

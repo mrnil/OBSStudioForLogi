@@ -36,6 +36,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs?.SetCurrentProgramScene(sceneName);
         }
 
+        public void SetCurrentPreviewScene(String sceneName)
+        {
+            this._obs?.SetCurrentPreviewScene(sceneName);
+        }
+
         public void ToggleRecord()
         {
             this._obs?.ToggleRecord();

@@ -69,6 +69,8 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 ### Scenes (Group 6)
 - **Scene Collection Select**: Switch between scene collections (multi-state buttons)
 - **Scenes Folder**: Dynamic folder with all available scenes
+  - When studio mode is disabled: Switches scene to program (live)
+  - When studio mode is enabled: Switches scene to preview (not live yet)
 - **Sources Folder**: Dynamic folder with sources in current scene (toggle visibility)
 - **Current Scene Display**: Shows active scene name
 - **Current Scene Collection Display**: Shows active scene collection name
@@ -109,7 +111,7 @@ dotnet clean OBSStudioForLogiPlugin.sln
 
 ## Architecture
 
-- **TDD Approach**: Comprehensive test coverage with 129 unit tests
+- **TDD Approach**: Comprehensive test coverage with 134 unit tests
 - **Dependency Injection**: Interface-based design for testability
 - **Async Operations**: All OBS operations wrapped in Task.Run to prevent UI freezing
 - **Event-Driven**: Real-time updates via OBS WebSocket events

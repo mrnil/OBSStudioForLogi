@@ -6,6 +6,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     {
         Boolean IsConnected { get; }
         void SetCurrentProgramScene(String sceneName);
+        void SetCurrentPreviewScene(String sceneName);
         void StartRecord();
         void StopRecord();
         void ToggleRecord();
