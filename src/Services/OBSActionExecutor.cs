@@ -11,6 +11,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private OutputState _recordingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
         private OutputState _streamingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
         private OutputState _virtualCameraState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
+        private OutputState _replayBufferState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
         private String _currentProfile = String.Empty;
         private String _currentSceneCollection = String.Empty;
         private String _currentScene = String.Empty;
@@ -25,6 +26,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Boolean IsStreamingChanging => this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING 
                                             || this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
         public Boolean IsVirtualCameraActive => this._virtualCameraState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
+        public Boolean IsReplayBufferActive => this._replayBufferState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
         public String CurrentProfile => this._currentProfile;
         public String CurrentSceneCollection => this._currentSceneCollection;
         public String CurrentScene => this._currentScene;
@@ -537,6 +539,117 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void SetVirtualCameraState(OutputState state)
         {
             this._virtualCameraState = state;
+        }
+
+        public void ToggleReplayBuffer()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot toggle replay buffer - not connected");
+                    return;
+                }
+
+                try
+                {
+                    this._log.Info("Toggling replay buffer");
+                    this._obs.ToggleReplayBuffer();
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to toggle replay buffer: {ex.Message}");
+                }
+            });
+        }
+
+        public void StartReplayBuffer()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot start replay buffer - not connected");
+                    return;
+                }
+
+                if (this.IsReplayBufferActive)
+                {
+                    this._log.Warning("Cannot start replay buffer - already active");
+                    return;
+                }
+
+                try
+                {
+                    this._log.Info("Starting replay buffer");
+                    this._obs.StartReplayBuffer();
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to start replay buffer: {ex.Message}");
+                }
+            });
+        }
+
+        public void StopReplayBuffer()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot stop replay buffer - not connected");
+                    return;
+                }
+
+                if (!this.IsReplayBufferActive)
+                {
+                    this._log.Warning("Cannot stop replay buffer - not active");
+                    return;
+                }
+
+                try
+                {
+                    this._log.Info("Stopping replay buffer");
+                    this._obs.StopReplayBuffer();
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to stop replay buffer: {ex.Message}");
+                }
+            });
+        }
+
+        public void SaveReplayBuffer()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot save replay buffer - not connected");
+                    return;
+                }
+
+                if (!this.IsReplayBufferActive)
+                {
+                    this._log.Warning("Cannot save replay buffer - not active");
+                    return;
+                }
+
+                try
+                {
+                    this._log.Info("Saving replay buffer");
+                    this._obs.SaveReplayBuffer();
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to save replay buffer: {ex.Message}");
+                }
+            });
+        }
+
+        public void SetReplayBufferState(OutputState state)
+        {
+            this._replayBufferState = state;
         }
 
         public String[] GetSceneItemList(String sceneName)

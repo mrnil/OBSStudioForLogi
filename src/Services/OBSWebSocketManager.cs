@@ -47,6 +47,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.StreamStateChanged += this.OnStreamStateChanged;
             this._obs.RecordStateChanged += this.OnRecordStateChanged;
             this._obs.VirtualcamStateChanged += this.OnVirtualCameraStateChanged;
+            this._obs.ReplayBufferStateChanged += this.OnReplayBufferStateChanged;
             this._obs.CurrentProfileChanged += this.OnCurrentProfileChanged;
             this._obs.CurrentSceneCollectionChanged += this.OnCurrentSceneCollectionChanged;
             this._obs.SceneListChanged += this.OnSceneListChanged;
@@ -147,6 +148,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.Actions.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             this.Actions.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             this.Actions.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
+            this.Actions.SetReplayBufferState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             
             ScenesDynamicFolder.Instance?.OnDisconnected();
             SourcesDynamicFolder.Instance?.OnDisconnected();
@@ -187,6 +189,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.Actions.SetVirtualCameraState(state);
             this._log.Info($"Virtual camera state changed to {state}");
             OBSStudioForLogiPlugin.Instance?.OnVirtualCameraStateChanged();
+        }
+
+        private void OnReplayBufferStateChanged(Object sender, ReplayBufferStateChangedEventArgs e)
+        {
+            var state = e?.OutputState?.State ?? OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
+            this.Actions.SetReplayBufferState(state);
+            this._log.Info($"Replay buffer state changed to {state}");
+            OBSStudioForLogiPlugin.Instance?.OnReplayBufferStateChanged();
         }
 
         private void OnCurrentProfileChanged(Object sender, EventArgs e)
@@ -370,6 +380,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._obs.StreamStateChanged -= this.OnStreamStateChanged;
                     this._obs.RecordStateChanged -= this.OnRecordStateChanged;
                     this._obs.VirtualcamStateChanged -= this.OnVirtualCameraStateChanged;
+                    this._obs.ReplayBufferStateChanged -= this.OnReplayBufferStateChanged;
                     this._obs.CurrentProfileChanged -= this.OnCurrentProfileChanged;
                     this._obs.CurrentSceneCollectionChanged -= this.OnCurrentSceneCollectionChanged;
                     this._obs.SceneListChanged -= this.OnSceneListChanged;

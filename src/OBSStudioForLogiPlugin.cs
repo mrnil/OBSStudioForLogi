@@ -306,6 +306,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Boolean IsRecordingPaused => this._obsManager?.Actions.IsRecordingPaused ?? false;
         public Boolean IsStreaming => this._obsManager?.IsStreaming ?? false;
         public Boolean IsVirtualCameraActive => this._obsManager?.Actions.IsVirtualCameraActive ?? false;
+        public Boolean IsReplayBufferActive => this._obsManager?.Actions.IsReplayBufferActive ?? false;
         public Boolean IsConnected => this._obsManager?.IsConnected ?? false;
 
         public void ToggleVirtualCamera()
@@ -328,6 +329,31 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             VirtualCameraToggleCommand.Instance?.OnVirtualCameraStateChanged();
             VirtualCameraStartCommand.Instance?.OnVirtualCameraStateChanged();
             VirtualCameraStopCommand.Instance?.OnVirtualCameraStateChanged();
+        }
+
+        public void ToggleReplayBuffer()
+        {
+            this._obsManager?.Actions.ToggleReplayBuffer();
+        }
+
+        public void StartReplayBuffer()
+        {
+            this._obsManager?.Actions.StartReplayBuffer();
+        }
+
+        public void StopReplayBuffer()
+        {
+            this._obsManager?.Actions.StopReplayBuffer();
+        }
+
+        public void SaveReplayBuffer()
+        {
+            this._obsManager?.Actions.SaveReplayBuffer();
+        }
+
+        public void OnReplayBufferStateChanged()
+        {
+            ReplayBufferToggleCommand.Instance?.OnReplayBufferStateChanged();
         }
 
         public String[] GetInputList()

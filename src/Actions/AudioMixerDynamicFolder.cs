@@ -14,7 +14,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             Instance = this;
             this.DisplayName = "Audio Mixer";
-            this.GroupName = "6. Audio";
+            this.GroupName = "7. Audio";
             this.Description = "Folder of audio inputs with mute/unmute controls";
         }
 

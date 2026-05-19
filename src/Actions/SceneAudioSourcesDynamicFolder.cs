@@ -14,7 +14,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             Instance = this;
             this.DisplayName = "Scene Audio";
-            this.GroupName = "6. Audio";
+            this.GroupName = "7. Audio";
             this.Description = "Audio sources in the current scene";
         }
 

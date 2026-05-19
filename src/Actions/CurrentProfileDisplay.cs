@@ -9,10 +9,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private String _currentProfile = "Not Connected";
 
         public CurrentProfileDisplay()
-            : base(displayName: "", description: "Shows current OBS profile", groupName: "4. Profiles")
+            : base(displayName: "", description: "Shows current OBS profile", groupName: "5. Profiles")
         {
             Instance = this;
-            this.AddParameter("", " ", groupName: "4. Profiles");
+            this.AddParameter("", " ", groupName: "5. Profiles");
         }
 
         protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
