@@ -41,5 +41,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         String[] GetScenesForInput(String inputName);
         Boolean GetStudioModeEnabled();
         void SetStudioModeEnabled(Boolean enabled);
+        void TriggerStudioModeTransition();
     }
 }

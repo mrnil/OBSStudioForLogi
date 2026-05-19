@@ -418,5 +418,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             StudioModeToggleCommand.Instance?.OnStudioModeStateChanged();
         }
+
+        public void TriggerStudioModeTransition()
+        {
+            this._obsManager?.Actions.TriggerStudioModeTransition();
+        }
     }
 }

@@ -145,6 +145,9 @@
     <EmbeddedResource Include="Icons\StudioModeToggleOff.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StudioModeToggleOff.svg</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Icons\StudioModeTransition.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StudioModeTransition.svg</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="CopyPackage" AfterTargets="PostBuildEvent">

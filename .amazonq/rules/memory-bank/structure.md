@@ -51,6 +51,7 @@ Command classes that handle user interactions from Loupedeck hardware:
 - `ReplayBufferToggleCommand.cs`: Toggle replay buffer on/off
 - `ReplayBufferSaveCommand.cs`: Save replay buffer to disk
 - `StudioModeToggleCommand.cs`: Toggle studio mode on/off
+- `StudioModeTransitionCommand.cs`: Trigger studio mode transition (preview to program)
 - `ReconnectCommand.cs`: Manually retry connection to OBS
 - `ScreenshotCommand.cs`: Capture screenshot via OBS
 
@@ -58,7 +59,7 @@ Command classes that handle user interactions from Loupedeck hardware:
 Core business logic and OBS integration:
 
 - **OBSWebSocketManager.cs**: Primary WebSocket connection manager, handles connect/disconnect/reconnect with exponential backoff and jitter, event routing, timer-based continuous reconnection
-- **OBSActionExecutor.cs**: Executes OBS commands (scene switching, recording control, streaming control, virtual camera, replay buffer, studio mode, profile management, source visibility, audio control)
+- **OBSActionExecutor.cs**: Executes OBS commands (scene switching, recording control, streaming control, virtual camera, replay buffer, studio mode toggle/transition, profile management, source visibility, audio control)
 - **IOBSWebsocket.cs**: Interface abstraction for OBS WebSocket operations (enables testing/mocking)
 - **OBSWebsocketAdapter.cs**: Adapter wrapping obs-websocket-dotnet library
 - **OBSConfigReader.cs**: Reads OBS configuration files to discover WebSocket settings (port, password)
@@ -120,7 +121,7 @@ OBSStudioForLogiPlugin (main)
         ├── Streaming Commands (Toggle, Start, Stop)
         ├── Virtual Camera Commands (Toggle, Start, Stop)
         ├── Replay Buffer Commands (Toggle, Save)
-        ├── Studio Mode Command (Toggle)
+        ├── Studio Mode Commands (Toggle, Transition)
         └── Utility Commands (Screenshot, Reconnect)
 ```
 

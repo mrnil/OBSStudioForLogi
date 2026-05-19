@@ -288,5 +288,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._obs?.SetStudioModeEnabled(enabled);
         }
+
+        public void TriggerStudioModeTransition()
+        {
+            this._obs?.TriggerStudioModeTransition();
+        }
     }
 }

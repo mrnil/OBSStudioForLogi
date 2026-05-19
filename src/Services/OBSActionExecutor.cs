@@ -951,5 +951,33 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._studioModeEnabled = enabled;
         }
+
+        public void TriggerStudioModeTransition()
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning("Cannot trigger studio mode transition - not connected");
+                    return;
+                }
+
+                if (!this._studioModeEnabled)
+                {
+                    this._log.Warning("Cannot trigger studio mode transition - studio mode not enabled");
+                    return;
+                }
+
+                try
+                {
+                    this._log.Info("Triggering studio mode transition");
+                    this._obs.TriggerStudioModeTransition();
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to trigger studio mode transition: {ex.Message}");
+                }
+            });
+        }
     }
 }

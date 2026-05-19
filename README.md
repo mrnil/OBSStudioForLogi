@@ -40,6 +40,7 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 - **Screenshot**: Capture screenshot to Pictures/Documents/Desktop folder
 - **Reconnect**: Manually retry connection to OBS
 - **Studio Mode Toggle**: Enable/disable OBS studio mode for preview/program workflow
+- **Studio Mode Transition**: Transition preview scene to program (only works when studio mode is enabled)
 - **Virtual Camera Toggle**: Toggle virtual camera on/off
 - **Virtual Camera Start**: Start virtual camera
 - **Virtual Camera Stop**: Stop virtual camera
@@ -108,7 +109,7 @@ dotnet clean OBSStudioForLogiPlugin.sln
 
 ## Architecture
 
-- **TDD Approach**: Comprehensive test coverage with 123 unit tests
+- **TDD Approach**: Comprehensive test coverage with 129 unit tests
 - **Dependency Injection**: Interface-based design for testability
 - **Async Operations**: All OBS operations wrapped in Task.Run to prevent UI freezing
 - **Event-Driven**: Real-time updates via OBS WebSocket events
