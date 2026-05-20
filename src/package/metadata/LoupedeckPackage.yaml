@@ -18,7 +18,7 @@ description: Control OBS Studio via WebSocket connection
 pluginFileName: OBSStudioForLogiPlugin.dll
 
 # Plugin version.
-version: 0.9.2
+version: 1.0.0
 
 # Author of the plugin. The author can be a company or an individual developer.
 author: Stephen Moretti
