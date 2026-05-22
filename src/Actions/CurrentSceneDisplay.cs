@@ -9,7 +9,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private String _currentScene = "Not Connected";
 
         public CurrentSceneDisplay()
-            : base(displayName: "", description: "Shows current OBS scene", groupName: "7. Scenes")
+            : base(displayName: "Current Scene", description: "Shows current OBS scene", groupName: "7. Scenes")
         {
             Instance = this;
             this.AddParameter("", "", groupName: "7. Scenes");

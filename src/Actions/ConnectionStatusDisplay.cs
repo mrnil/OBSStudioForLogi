@@ -7,16 +7,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public static ConnectionStatusDisplay Instance { get; private set; }
 
         public ConnectionStatusDisplay()
-            : base(displayName: "", description: "Shows OBS connection status", groupName: "1. OBS")
+            : base(displayName: "Connection Status", description: "Shows OBS connection status", groupName: "1. OBS")
         {
             Instance = this;
             this.AddParameter("", "Connection Status", groupName: "1. OBS");
         }
 
-        protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
-        {
-            return String.Empty;
-        }
+        protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize) => String.Empty;
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {

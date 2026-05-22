@@ -9,7 +9,7 @@ type: plugin4
 name: OBSStudioForLogi
 
 # Plugin name that is shown to the user.
-displayName: OBS Studio
+displayName: OBS Studio Assistant
 
 # Short description of the plugin.
 description: Control OBS Studio via WebSocket connection
@@ -18,7 +18,7 @@ description: Control OBS Studio via WebSocket connection
 pluginFileName: OBSStudioForLogiPlugin.dll
 
 # Plugin version.
-version: 1.0.0
+version: 1.0.1
 
 # Author of the plugin. The author can be a company or an individual developer.
 author: Stephen Moretti
