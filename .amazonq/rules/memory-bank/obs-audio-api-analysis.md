@@ -1,32 +1,57 @@
 # OBS WebSocket Audio API Analysis
 
-## Current Implementation
+## Current Implementation (Updated v1.0.1)
 
 ### What We Have Now
 
 #### Audio Input Discovery
-- **GetInputList()** - Returns all audio inputs filtered by kind
+- **GetInputList()** - ✅ Returns all audio inputs filtered by kind
   - Filters for audio input types: wasapi, coreaudio, pulse, alsa, jack, ffmpeg, dshow, window_capture, audio_capture
   - Returns input names only
+  - Implemented in `OBSWebsocketAdapter.GetInputList()`
   
-- **GetInputKind(inputName)** - Returns the kind/type of an input
+- **GetInputKind(inputName)** - ✅ Returns the kind/type of an input
   - Used to identify audio input types
+  - Implemented in `OBSWebsocketAdapter.GetInputKind()`
 
-- **GetAudioSourcesInScene(sceneName)** - Returns audio inputs present in a specific scene
+- **GetAudioSourcesInScene(sceneName)** - ✅ Returns audio inputs present in a specific scene
   - Filters scene items to only include audio inputs
   - Used by Scene Audio folder
+  - Implemented in `OBSWebsocketAdapter.GetAudioSourcesInScene()`
 
-- **GetScenesForInput(inputName)** - Returns which scenes contain a specific input
+- **GetScenesForInput(inputName)** - ✅ Returns which scenes contain a specific input
   - Used for debugging/logging in Audio Mixer
+  - Implemented in `OBSWebsocketAdapter.GetScenesForInput()`
 
 #### Audio Control (Currently Implemented)
-- **GetInputMute(inputName)** - Returns mute state (Boolean)
-- **ToggleInputMute(inputName)** - Toggles mute on/off
-- **Visual Feedback**: Red icon = muted, Green icon = unmuted
+- **GetInputMute(inputName)** - ✅ Returns mute state (Boolean)
+  - Implemented in `IOBSWebsocket` interface
+  - Used by `AudioMixerDynamicFolder` and `SceneAudioSourcesDynamicFolder`
+  
+- **ToggleInputMute(inputName)** - ✅ Toggles mute on/off
+  - Implemented in `IOBSWebsocket` interface
+  - Used by audio folder buttons
+  
+- **GetInputVolume(inputName)** - ✅ Returns volume level (0.0-1.0)
+  - Implemented in `IOBSWebsocket` interface
+  - Displays volume percentage (0-100%) on audio buttons
+  
+- **SetInputVolume(inputName, volumeMul)** - ✅ Sets volume level
+  - API implemented in `IOBSWebsocket` interface
+  - ⚠️ No UI controls yet (faders/buttons needed)
+  
+- **Visual Feedback**: 
+  - Red text = muted
+  - Green text = unmuted
+  - Volume percentage displayed (0-100%)
 
 ### Current UI Components
-1. **Audio Mixer Dynamic Folder** - Shows all audio inputs with mute/unmute
-2. **Scene Audio Dynamic Folder** - Shows audio inputs in current scene with mute/unmute
+1. **Audio Mixer Dynamic Folder** - ✅ Shows all audio inputs with mute/unmute and volume display
+2. **Scene Audio Dynamic Folder** - ✅ Shows audio inputs in current scene with mute/unmute and volume display
+
+### Events Subscribed
+- **InputMuteStateChanged** - ✅ Updates button colors when mute state changes
+- **InputVolumeChanged** - ✅ Updates volume percentage display in real-time
 
 ## OBS WebSocket 5.x Audio API Capabilities
 
@@ -169,18 +194,18 @@ Based on the obs-websocket-dotnet library and OBS WebSocket 5.x protocol, here a
 ## Recommended Phase 2 Implementation
 
 ### Core Features (Must Have)
-1. ✅ **Mute/Unmute** - Already implemented
-2. 🆕 **Volume Control** - Add volume fader/slider
-3. 🆕 **Volume Display** - Show current volume percentage
+1. ✅ **Mute/Unmute** - Fully implemented with visual feedback
+2. ✅ **Volume Display** - Shows current volume percentage (0-100%)
+3. 🟡 **Volume Control** - API exists, needs UI (faders/encoders or +/- buttons)
 
 ### Enhanced Features (Should Have)
-4. 🆕 **Audio Monitoring Toggle** - Monitor in headphones
-5. 🆕 **Audio Level Meters** - Real-time VU meters (if device supports dynamic displays)
+4. ❌ **Audio Monitoring Toggle** - Monitor in headphones (None/Monitor Only/Monitor & Output)
+5. ❌ **Audio Level Meters** - Real-time VU meters (if device supports dynamic displays)
 
 ### Advanced Features (Nice to Have)
-6. 🆕 **Audio Sync Offset** - Fix audio/video sync
-7. 🆕 **Track Assignment** - Multi-track recording control
-8. 🆕 **Filter Toggle** - Enable/disable audio filters
+6. ❌ **Audio Sync Offset** - Fix audio/video sync
+7. ❌ **Track Assignment** - Multi-track recording control
+8. ❌ **Filter Toggle** - Enable/disable audio filters
 
 ## Technical Considerations
 
@@ -203,43 +228,78 @@ Based on the obs-websocket-dotnet library and OBS WebSocket 5.x protocol, here a
 
 ## Events to Subscribe To
 
-### Currently Used
-- ✅ **InputMuteStateChanged** - Already implemented
+### Currently Subscribed
+- ✅ **InputMuteStateChanged** - Updates UI when mute state changes in OBS
+- ✅ **InputVolumeChanged** - Updates volume display when changed in OBS
 
 ### Recommended Additions
-- 🆕 **InputVolumeChanged** - Update volume display when changed in OBS
-- 🆕 **InputAudioMonitorTypeChanged** - Update monitoring state display
-- 🆕 **InputVolumeMeters** - Real-time audio level data
-- 🆕 **SourceFilterEnableStateChanged** - Update filter state display
+- ❌ **InputAudioMonitorTypeChanged** - Update monitoring state display
+- ❌ **InputVolumeMeters** - Real-time audio level data for VU meters
+- ❌ **SourceFilterEnableStateChanged** - Update filter state display
+- ❌ **InputAudioBalanceChanged** - Update balance display
+- ❌ **InputAudioSyncOffsetChanged** - Update sync offset display
+- ❌ **InputAudioTracksChanged** - Update track assignment display
 
 ## API Methods to Add to IOBSWebsocket
 
 ```csharp
-// Volume Control
-Single GetInputVolume(String inputName); // Returns volumeMul (0.0-1.0)
-void SetInputVolume(String inputName, Single volumeMul);
+// Volume Control - PARTIALLY IMPLEMENTED
+Single GetInputVolume(String inputName); // ✅ Already implemented
+void SetInputVolume(String inputName, Single volumeMul); // ✅ Already implemented
 
-// Audio Monitoring
-String GetInputAudioMonitorType(String inputName);
-void SetInputAudioMonitorType(String inputName, String monitorType);
+// Audio Monitoring - NOT IMPLEMENTED
+String GetInputAudioMonitorType(String inputName); // ❌ Needs implementation
+void SetInputAudioMonitorType(String inputName, String monitorType); // ❌ Needs implementation
 
-// Audio Sync
-Int64 GetInputAudioSyncOffset(String inputName);
-void SetInputAudioSyncOffset(String inputName, Int64 offset);
+// Audio Sync - NOT IMPLEMENTED
+Int64 GetInputAudioSyncOffset(String inputName); // ❌ Needs implementation
+void SetInputAudioSyncOffset(String inputName, Int64 offset); // ❌ Needs implementation
 
-// Audio Balance
-Single GetInputAudioBalance(String inputName);
-void SetInputAudioBalance(String inputName, Single balance);
+// Audio Balance - NOT IMPLEMENTED
+Single GetInputAudioBalance(String inputName); // ❌ Needs implementation
+void SetInputAudioBalance(String inputName, Single balance); // ❌ Needs implementation
 
-// Audio Tracks
-Dictionary<String, Boolean> GetInputAudioTracks(String inputName);
-void SetInputAudioTracks(String inputName, Dictionary<String, Boolean> tracks);
+// Audio Tracks - NOT IMPLEMENTED
+Dictionary<String, Boolean> GetInputAudioTracks(String inputName); // ❌ Needs implementation
+void SetInputAudioTracks(String inputName, Dictionary<String, Boolean> tracks); // ❌ Needs implementation
 
-// Audio Filters
-String[] GetSourceFilterList(String sourceName);
-Boolean GetSourceFilterEnabled(String sourceName, String filterName);
-void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enabled);
+// Audio Filters - NOT IMPLEMENTED
+String[] GetSourceFilterList(String sourceName); // ❌ Needs implementation
+Boolean GetSourceFilterEnabled(String sourceName, String filterName); // ❌ Needs implementation
+void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enabled); // ❌ Needs implementation
 ```
+
+## Implementation Progress Summary
+
+### ✅ Completed (v1.0.1)
+- Audio input discovery and filtering
+- Mute/unmute controls with visual feedback (red/green text)
+- Volume display (0-100%) on all audio buttons
+- Real-time updates via events (mute and volume changes)
+- Audio Mixer folder (all audio inputs)
+- Scene Audio folder (audio inputs in current scene)
+- Audio inputs not in any scene included in Scene Audio folder
+
+### 🟡 Partially Completed
+- Volume adjustment API implemented but no UI controls
+  - `GetInputVolume()` ✅ exists in `IOBSWebsocket`
+  - `SetInputVolume()` ✅ exists in `IOBSWebsocket`
+  - Needs: Encoder knobs, faders, or +/- buttons
+
+### ❌ Not Yet Implemented
+- Audio monitoring controls
+- Audio level meters (VU meters)
+- Audio sync offset controls
+- Audio track assignment
+- Stereo balance controls
+- Audio filter controls
+- Audio quick presets
+
+### Next Steps
+1. **High Priority**: Add volume adjustment UI (encoders/faders/buttons)
+2. **High Priority**: Implement audio monitoring toggle
+3. **Medium Priority**: Add audio level meters
+4. **Medium Priority**: Implement filter enable/disable controls
 
 ## Conclusion
 
