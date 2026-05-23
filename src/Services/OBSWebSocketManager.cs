@@ -134,6 +134,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     ProfileSelectCommand.Instance?.OnConnected();
                     SceneCollectionSelectCommand.Instance?.OnConnected();
                     AudioMixerDynamicFolder.Instance?.OnConnected();
+                    SceneSwitchAdjustableCommand.Instance?.OnConnected();
                     ConnectionStatusDisplay.Instance?.UpdateStatus();
                 }
                 catch (Exception ex)
@@ -240,8 +241,30 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             // Notify SceneCollectionSelectCommand
             OBSStudioForLogiPlugin.Instance?.OnSceneCollectionChanged(oldSceneCollection, e.SceneCollectionName);
             
-            // Update scenes in dynamic folder
+            // Update scenes in dynamic folder and get new current scene
             this.UpdateSceneList();
+            
+            // Query and update current scene after collection change
+            Task.Run(() =>
+            {
+                try
+                {
+                    // Small delay to ensure OBS has updated
+                    Task.Delay(100).Wait();
+                    
+                    var sceneList = this._obs.GetSceneList();
+                    if (sceneList?.CurrentProgramSceneName != null)
+                    {
+                        this.Actions.SetCurrentSceneState(sceneList.CurrentProgramSceneName);
+                        this._log.Info($"Current scene updated to '{sceneList.CurrentProgramSceneName}' after collection change");
+                        OBSStudioForLogiPlugin.Instance?.OnCurrentSceneChanged(sceneList.CurrentProgramSceneName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this._log.Warning($"Failed to update current scene after collection change: {ex.Message}");
+                }
+            });
         }
 
         private void OnSceneListChanged(Object sender, EventArgs e)

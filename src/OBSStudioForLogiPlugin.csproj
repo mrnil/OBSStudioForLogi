@@ -5,9 +5,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <RootNamespace>Loupedeck.OBSStudioForLogiPlugin</RootNamespace>
-    <Version>0.8.3</Version>
-    <AssemblyVersion>0.8.3.0</AssemblyVersion>
-    <FileVersion>0.8.3.0</FileVersion>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
 
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -147,6 +147,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Icons\StudioModeTransition.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StudioModeTransition.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\AudioMediaFolder.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.AudioMediaFolder.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\ScenesFolder.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ScenesFolder.svg</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
 

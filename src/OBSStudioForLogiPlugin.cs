@@ -10,9 +10,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private OBSConfigReader _configReader;
         private OBSLifecycleManager _lifecycleManager;
         public static String ScreenshotPath { get; private set; }
-
+        
         public override Boolean UsesApplicationApiOnly => true;
-        public override Boolean HasNoApplication => false;
+        public override Boolean HasNoApplication => true;
 
         public OBSStudioForLogiPlugin()
         {
@@ -115,6 +115,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             SourcesDynamicFolder.Instance?.OnDisconnected();
             AudioMixerDynamicFolder.Instance?.OnDisconnected();
             SceneAudioSourcesDynamicFolder.Instance?.OnDisconnected();
+            SceneSwitchAdjustableCommand.Instance?.OnDisconnected();
             CurrentProfileDisplay.Instance?.UpdateDisplay();
             CurrentSceneDisplay.Instance?.UpdateDisplay();
             CurrentSceneCollectionDisplay.Instance?.UpdateDisplay();
@@ -222,6 +223,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             ProfileSelectCommand.Instance?.OnCurrentProfileChanged(oldProfile, newProfile);
             ProfilesDynamicFolder.Instance?.OnCurrentProfileChanged(newProfile);
             CurrentProfileDisplay.Instance?.UpdateProfile(newProfile);
+            SceneSwitchAdjustableCommand.Instance?.OnProfileChanged();
         }
 
         public String[] GetSceneCollectionList()
@@ -242,17 +244,29 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public String CurrentSceneCollection => this._obsManager?.Actions.CurrentSceneCollection ?? String.Empty;
 
+        public String[] GetSceneList()
+        {
+            return this._obsManager?.Actions.GetSceneList() ?? new String[0];
+        }
+
+        public String GetCurrentScene()
+        {
+            return this._obsManager?.Actions.CurrentScene ?? String.Empty;
+        }
+
         public void OnSceneCollectionChanged(String oldSceneCollection, String newSceneCollection)
         {
             PluginLog.Info($"Plugin notified of scene collection change: '{oldSceneCollection}' -> '{newSceneCollection}'");
             SceneCollectionSelectCommand.Instance?.OnCurrentSceneCollectionChanged(oldSceneCollection, newSceneCollection);
             CurrentSceneCollectionDisplay.Instance?.UpdateSceneCollection(newSceneCollection);
+            SceneSwitchAdjustableCommand.Instance?.OnSceneCollectionChanged();
         }
 
         public void OnScenesChanged(String[] scenes)
         {
             var currentScene = this._obsManager?.Actions.CurrentScene ?? String.Empty;
             ScenesDynamicFolder.Instance?.UpdateScenes(scenes, currentScene);
+            SceneSwitchAdjustableCommand.Instance?.OnScenesChanged();
         }
 
         public void OnProfilesChanged(String[] profiles, String currentProfile)

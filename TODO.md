@@ -3,7 +3,6 @@
 ## High Priority
 
 - [ ] Implement volume adjustment controls (faders/encoders or +/- buttons)
-- [ ] Implement replay buffer controls (start/stop/save)
 - [ ] Add audio monitoring toggle (None/Monitor Only/Monitor & Output)
 - [ ] Add filter enable/disable controls for sources
 
@@ -15,8 +14,6 @@
 - [ ] Add stereo balance controls for audio inputs
 - [ ] Add audio filter controls (list and toggle filters)
 - [ ] Add transition selection and duration controls
-- [ ] Implement studio mode toggle
-- [ ] Create custom scene transition triggers
 - [ ] Add hotkey trigger commands
 - [ ] Implement media source controls (play/pause/restart)
 
@@ -48,10 +45,8 @@
 ## Documentation
 
 - [ ] Create video tutorial for setup and usage
-- [ ] Add troubleshooting guide with common issues
-- [ ] Document all available OBS WebSocket events
-- [ ] Create developer guide for extending the plugin
-- [ ] Add architecture diagrams
+- [ ] Expand troubleshooting guide with more common issues
+- [ ] Document all available OBS WebSocket events (reference guide)
 
 ## Completed
 
@@ -59,6 +54,8 @@
 - [x] Add streaming controls (start/stop/toggle streaming)
 - [x] Add source visibility toggle commands
 - [x] Add virtual camera controls (start/stop/toggle)
+- [x] Add replay buffer controls (toggle/start/stop/save)
+- [x] Add studio mode toggle and transition controls
 - [x] Add manual reconnect command
 - [x] Add audio mixer controls (mute/unmute audio inputs)
 - [x] Add audio volume display (0-100% on buttons)
@@ -88,6 +85,12 @@
 - [x] Create comprehensive memory bank documentation
 - [x] Document icon update patterns and best practices
 - [x] Document simplified image rendering system with ButtonImageHelper
+- [x] Create architecture documentation with diagrams
+- [x] Create developer guide for extending the plugin (CONTRIBUTING.md)
+- [x] Add troubleshooting guide (README.md)
+- [x] Document release process
+- [x] Create installation guide (INSTALL.md)
+- [x] Maintain changelog with version history
 
 ### UI/UX
 - [x] Simplify display commands to use BitmapBuilder for text rendering
