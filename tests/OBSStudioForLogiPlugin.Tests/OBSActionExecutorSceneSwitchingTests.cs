@@ -37,7 +37,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.SetCurrentScene("TestScene");
 
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(200);
             this._mockObs.Verify(x => x.SetCurrentPreviewScene("TestScene"), Times.Once);
             this._mockObs.Verify(x => x.SetCurrentProgramScene(It.IsAny<String>()), Times.Never);
         }
