@@ -2,22 +2,25 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class StreamingToggleCommand : PluginDynamicCommand
+    public class StreamingToggleCommand : ToggleCommandBase
     {
         public StreamingToggleCommand()
             : base(displayName: "Toggle Streaming", description: "Start/stop OBS streaming", groupName: "2. Streaming")
         {
         }
 
-        protected override void RunCommand(String actionParameter)
+        protected override void ExecuteToggle()
         {
             OBSStudioForLogiPlugin.Instance?.ToggleStreaming();
         }
 
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+        protected override Boolean GetState()
         {
-            Boolean isStreaming = OBSStudioForLogiPlugin.Instance?.IsStreaming ?? false;
-            return ButtonImageHelper.StateIcon(isStreaming, "StreamingToggleOff.svg", "StreamingToggleOn.svg");
+            return OBSStudioForLogiPlugin.Instance?.IsStreaming ?? false;
         }
+
+        protected override String GetActiveIcon() => "StreamingToggleOff.svg";
+
+        protected override String GetInactiveIcon() => "StreamingToggleOn.svg";
     }
 }

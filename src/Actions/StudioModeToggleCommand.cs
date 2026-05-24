@@ -2,7 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class StudioModeToggleCommand : PluginDynamicCommand, IStudioModeAwareCommand
+    public class StudioModeToggleCommand : ToggleCommandBase, IStudioModeAwareCommand
     {
         public static StudioModeToggleCommand Instance { get; private set; }
 
@@ -16,16 +16,19 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnConnected() { }
         public void OnDisconnected() { }
 
-        protected override void RunCommand(String actionParameter)
+        protected override void ExecuteToggle()
         {
             OBSStudioForLogiPlugin.Instance?.ToggleStudioMode();
         }
 
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+        protected override Boolean GetState()
         {
-            Boolean isEnabled = OBSStudioForLogiPlugin.Instance?.IsStudioModeEnabled ?? false;
-            return ButtonImageHelper.StateIcon(isEnabled, "StudioModeToggleOn.svg", "StudioModeToggleOff.svg");
+            return OBSStudioForLogiPlugin.Instance?.IsStudioModeEnabled ?? false;
         }
+
+        protected override String GetActiveIcon() => "StudioModeToggleOn.svg";
+
+        protected override String GetInactiveIcon() => "StudioModeToggleOff.svg";
 
         public void OnStudioModeStateChanged()
         {

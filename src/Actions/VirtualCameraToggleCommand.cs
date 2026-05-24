@@ -2,7 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class VirtualCameraToggleCommand : PluginDynamicCommand, IVirtualCameraAwareCommand
+    public class VirtualCameraToggleCommand : ToggleCommandBase, IVirtualCameraAwareCommand
     {
         public static VirtualCameraToggleCommand Instance { get; private set; }
 
@@ -16,16 +16,19 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnConnected() { }
         public void OnDisconnected() { }
 
-        protected override void RunCommand(String actionParameter)
+        protected override void ExecuteToggle()
         {
             OBSStudioForLogiPlugin.Instance?.ToggleVirtualCamera();
         }
 
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+        protected override Boolean GetState()
         {
-            Boolean isActive = OBSStudioForLogiPlugin.Instance?.IsVirtualCameraActive ?? false;
-            return ButtonImageHelper.StateIcon(isActive, "VirtualCameraOn.svg", "VirtualCameraOff.svg");
+            return OBSStudioForLogiPlugin.Instance?.IsVirtualCameraActive ?? false;
         }
+
+        protected override String GetActiveIcon() => "VirtualCameraOn.svg";
+
+        protected override String GetInactiveIcon() => "VirtualCameraOff.svg";
 
         public void OnVirtualCameraStateChanged()
         {

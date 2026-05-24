@@ -2,22 +2,25 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class RecordingPauseToggleCommand : PluginDynamicCommand
+    public class RecordingPauseToggleCommand : ToggleCommandBase
     {
         public RecordingPauseToggleCommand()
             : base(displayName: "Recording Pause", description: "Pause/resume OBS recording", groupName: "3. Recording")
         {
         }
 
-        protected override void RunCommand(String actionParameter)
+        protected override void ExecuteToggle()
         {
             OBSStudioForLogiPlugin.Instance?.ToggleRecordingPause();
         }
 
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+        protected override Boolean GetState()
         {
-            Boolean isPaused = OBSStudioForLogiPlugin.Instance?.IsRecordingPaused ?? false;
-            return ButtonImageHelper.StateIcon(isPaused, "RecordingPause.svg", "RecordingResume.svg");
+            return OBSStudioForLogiPlugin.Instance?.IsRecordingPaused ?? false;
         }
+
+        protected override String GetActiveIcon() => "RecordingPause.svg";
+
+        protected override String GetInactiveIcon() => "RecordingResume.svg";
     }
 }

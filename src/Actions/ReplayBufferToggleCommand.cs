@@ -2,7 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class ReplayBufferToggleCommand : PluginDynamicCommand, IReplayBufferAwareCommand
+    public class ReplayBufferToggleCommand : ToggleCommandBase, IReplayBufferAwareCommand
     {
         public static ReplayBufferToggleCommand Instance { get; private set; }
 
@@ -16,16 +16,19 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnConnected() { }
         public void OnDisconnected() { }
 
-        protected override void RunCommand(String actionParameter)
+        protected override void ExecuteToggle()
         {
             OBSStudioForLogiPlugin.Instance?.ToggleReplayBuffer();
         }
 
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+        protected override Boolean GetState()
         {
-            Boolean isActive = OBSStudioForLogiPlugin.Instance?.IsReplayBufferActive ?? false;
-            return ButtonImageHelper.StateIcon(isActive, "ReplayBufferToggleStop.svg", "ReplayBufferToggleStart.svg");
+            return OBSStudioForLogiPlugin.Instance?.IsReplayBufferActive ?? false;
         }
+
+        protected override String GetActiveIcon() => "ReplayBufferToggleStop.svg";
+
+        protected override String GetInactiveIcon() => "ReplayBufferToggleStart.svg";
 
         public void OnReplayBufferStateChanged()
         {
