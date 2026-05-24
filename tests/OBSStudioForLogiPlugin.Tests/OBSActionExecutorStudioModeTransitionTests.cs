@@ -1,5 +1,6 @@
 namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 {
+    using Loupedeck.OBSStudioForLogiPlugin.Helpers;
     using Moq;
     using Xunit;
 
@@ -24,7 +25,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.TriggerStudioModeTransition();
 
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockObs.Verify(x => x.TriggerStudioModeTransition(), Times.Once);
         }
 
@@ -36,7 +37,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.TriggerStudioModeTransition();
 
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockObs.Verify(x => x.TriggerStudioModeTransition(), Times.Never);
         }
 
@@ -48,7 +49,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.TriggerStudioModeTransition();
 
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockObs.Verify(x => x.TriggerStudioModeTransition(), Times.Never);
         }
 
@@ -60,7 +61,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.TriggerStudioModeTransition();
 
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockLog.Verify(x => x.Warning("Cannot trigger studio mode transition - not connected"), Times.Once);
         }
 
@@ -72,7 +73,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.TriggerStudioModeTransition();
 
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockLog.Verify(x => x.Warning("Cannot trigger studio mode transition - studio mode not enabled"), Times.Once);
         }
 
@@ -84,8 +85,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.TriggerStudioModeTransition();
 
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockLog.Verify(x => x.Info("Triggering studio mode transition"), Times.Once);
         }
     }
 }
+

@@ -2,6 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
     using System.Threading.Tasks;
+    using Loupedeck.OBSStudioForLogiPlugin.Helpers;
     using OBSWebsocketDotNet.Types;
 
     public class OBSActionExecutor
@@ -729,7 +730,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._log.Info($"Toggling source '{sourceName}' visibility from {currentState} to {!currentState}");
                     this._obs.SetSceneItemEnabled(sceneName, sourceName, !currentState);
                     
-                    await Task.Delay(100);
+                    await Task.Delay(OBSTimings.StateUpdateDelay);
                     OBSStudioForLogiPlugin.Instance?.OnSourceVisibilityChanged(sceneName, sourceName);
                 }
                 catch (Exception ex)

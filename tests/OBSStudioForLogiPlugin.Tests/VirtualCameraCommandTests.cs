@@ -1,5 +1,6 @@
 namespace Loupedeck.OBSStudioForLogiPlugin.Tests;
 
+using Loupedeck.OBSStudioForLogiPlugin.Helpers;
 using Moq;
 using OBSWebsocketDotNet.Types;
 
@@ -16,7 +17,7 @@ public class VirtualCameraCommandTests
 
         executor.ToggleVirtualCamera();
 
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         mockObs.Verify(x => x.StartVirtualCam(), Times.Once);
     }
 
@@ -31,7 +32,7 @@ public class VirtualCameraCommandTests
 
         executor.ToggleVirtualCamera();
 
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         mockObs.Verify(x => x.StopVirtualCam(), Times.Once);
     }
 
@@ -45,7 +46,7 @@ public class VirtualCameraCommandTests
 
         executor.StartVirtualCamera();
 
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         mockObs.Verify(x => x.StartVirtualCam(), Times.Once);
     }
 
@@ -60,7 +61,7 @@ public class VirtualCameraCommandTests
 
         executor.StopVirtualCamera();
 
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         mockObs.Verify(x => x.StopVirtualCam(), Times.Once);
     }
 
@@ -88,3 +89,4 @@ public class VirtualCameraCommandTests
         Assert.False(executor.IsVirtualCameraActive);
     }
 }
+

@@ -1,5 +1,6 @@
 namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 {
+    using Loupedeck.OBSStudioForLogiPlugin.Helpers;
     using Moq;
     using Xunit;
 
@@ -47,7 +48,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.ToggleStudioMode();
 
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockObs.Verify(x => x.SetStudioModeEnabled(true), Times.Once);
         }
 
@@ -58,7 +59,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.ToggleStudioMode();
 
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockObs.Verify(x => x.SetStudioModeEnabled(It.IsAny<Boolean>()), Times.Never);
         }
 
@@ -84,7 +85,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.ToggleStudioMode();
 
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockObs.Verify(x => x.SetStudioModeEnabled(true), Times.Once);
         }
 
@@ -96,8 +97,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.ToggleStudioMode();
 
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockObs.Verify(x => x.SetStudioModeEnabled(false), Times.Once);
         }
     }
 }
+

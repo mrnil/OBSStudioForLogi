@@ -1,5 +1,7 @@
 namespace Loupedeck.OBSStudioForLogiPlugin.Tests;
 
+using Loupedeck.OBSStudioForLogiPlugin.Helpers;
+
 public class OBSWebSocketManagerTests
 {
     [Fact]
@@ -38,10 +40,11 @@ public class OBSWebSocketManagerTests
     {
         var manager = new OBSWebSocketManager();
         manager.ConnectAsync("ws://localhost:4455", "").Wait();
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         
         manager.Dispose();
         
         Assert.False(manager.ShouldReconnect);
     }
 }
+

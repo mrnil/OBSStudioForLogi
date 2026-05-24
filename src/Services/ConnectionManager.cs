@@ -2,6 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
     using System.Threading.Tasks;
+    using Loupedeck.OBSStudioForLogiPlugin.Helpers;
 
     public class ConnectionManager
     {
@@ -34,7 +35,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             
             if (portReady)
             {
-                await Task.Delay(2000);
+                await Task.Delay(OBSTimings.ConnectionDelay);
                 PluginLog.Info("Initiating connection to OBS");
                 await this._obsManager.ConnectAsync(settings.GetWebSocketUrl(), settings.Password);
             }

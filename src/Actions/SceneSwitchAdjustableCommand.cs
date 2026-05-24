@@ -2,6 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
     using System.Threading.Tasks;
+    using Loupedeck.OBSStudioForLogiPlugin.Helpers;
 
     public class SceneSwitchAdjustableCommand : ActionEditorCommand, IObsCommand, IProfileAwareCommand, ISceneCollectionAwareCommand, IScenesListAwareCommand
     {
@@ -70,7 +71,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                             {
                                 PluginLog.Info($"SceneSwitchAdjustableCommand: Profile '{profileName}' found, switching from '{currentProfile}'");
                                 OBSStudioForLogiPlugin.Instance?.SwitchProfile(profileName);
-                                await Task.Delay(1500);
+                                await Task.Delay(OBSTimings.ProfileSwitchDelay);
                                 
                                 // Update current state after switch
                                 currentProfile = OBSStudioForLogiPlugin.Instance?.CurrentProfile ?? String.Empty;
@@ -103,7 +104,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                             {
                                 PluginLog.Info($"SceneSwitchAdjustableCommand: Collection '{collectionName}' found, switching from '{currentCollection}'");
                                 OBSStudioForLogiPlugin.Instance?.SwitchSceneCollection(collectionName);
-                                await Task.Delay(1500);
+                                await Task.Delay(OBSTimings.CollectionSwitchDelay);
                                 
                                 // Update current state after switch
                                 currentCollection = OBSStudioForLogiPlugin.Instance?.CurrentSceneCollection ?? String.Empty;
@@ -136,7 +137,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                             OBSStudioForLogiPlugin.Instance?.SwitchScene(sceneName);
                             
                             // Update current state after switch
-                            await Task.Delay(500);
+                            await Task.Delay(OBSTimings.SceneSwitchDelay);
                             currentScene = OBSStudioForLogiPlugin.Instance?.GetCurrentScene() ?? String.Empty;
                             PluginLog.Info($"SceneSwitchAdjustableCommand: After scene switch - Scene='{currentScene}'");
                         }

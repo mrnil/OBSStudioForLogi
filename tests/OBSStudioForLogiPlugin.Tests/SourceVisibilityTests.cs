@@ -1,5 +1,6 @@
 namespace Loupedeck.OBSStudioForLogiPlugin.Tests;
 
+using Loupedeck.OBSStudioForLogiPlugin.Helpers;
 using Moq;
 using Xunit;
 
@@ -45,7 +46,7 @@ public class SourceVisibilityTests
 
         this._executor.ToggleSourceVisibility("Scene1", "Source1");
 
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.SetSceneItemEnabled("Scene1", "Source1", It.IsAny<Boolean>()), Times.Once);
     }
 
@@ -56,7 +57,7 @@ public class SourceVisibilityTests
 
         this._executor.ToggleSourceVisibility("Scene1", "Source1");
 
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.SetSceneItemEnabled(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<Boolean>()), Times.Never);
     }
 
@@ -81,3 +82,4 @@ public class SourceVisibilityTests
         Assert.False(result);
     }
 }
+

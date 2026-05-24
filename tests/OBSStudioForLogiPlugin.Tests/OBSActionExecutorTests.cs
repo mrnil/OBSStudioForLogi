@@ -1,5 +1,6 @@
 namespace Loupedeck.OBSStudioForLogiPlugin.Tests;
 
+using Loupedeck.OBSStudioForLogiPlugin.Helpers;
 using Moq;
 using OBSWebsocketDotNet.Types;
 
@@ -45,7 +46,7 @@ public class OBSActionExecutorTests
 
         this._executor.SetCurrentProfile("test");
 
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.SetCurrentProfile("test"), Times.Once);
     }
 
@@ -86,7 +87,7 @@ public class OBSActionExecutorTests
 
         this._executor.SetCurrentSceneCollection("test");
 
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.SetCurrentSceneCollection("test"), Times.Once);
     }
 
@@ -175,7 +176,7 @@ public class OBSActionExecutorTests
 
         this._executor.ToggleStreaming();
 
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.ToggleStream(), Times.Once);
     }
 
@@ -186,7 +187,7 @@ public class OBSActionExecutorTests
 
         this._executor.ToggleStreaming();
 
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.ToggleStream(), Times.Never);
     }
 
@@ -197,7 +198,7 @@ public class OBSActionExecutorTests
 
         this._executor.StartStreaming();
 
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.StartStream(), Times.Once);
     }
 
@@ -209,7 +210,7 @@ public class OBSActionExecutorTests
 
         this._executor.StartStreaming();
 
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.StartStream(), Times.Never);
     }
 
@@ -221,7 +222,7 @@ public class OBSActionExecutorTests
 
         this._executor.StopStreaming();
 
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.StopStream(), Times.Once);
     }
 
@@ -233,7 +234,7 @@ public class OBSActionExecutorTests
 
         this._executor.StopStreaming();
 
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.StopStream(), Times.Never);
     }
 
@@ -278,7 +279,7 @@ public class OBSActionExecutorTests
         this._mockObs.Setup(x => x.SetCurrentProgramScene(It.IsAny<String>())).Throws(new Exception("OBS error"));
 
         this._executor.SetCurrentScene("Scene1");
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Scene1") && s.Contains("OBS error"))), Times.Once);
     }
@@ -291,7 +292,7 @@ public class OBSActionExecutorTests
         this._executor.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
 
         this._executor.ToggleRecording();
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("toggle recording") && s.Contains("OBS error"))), Times.Once);
     }
@@ -304,7 +305,7 @@ public class OBSActionExecutorTests
         this._executor.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
 
         this._executor.StartRecording();
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("start recording") && s.Contains("OBS error"))), Times.Once);
     }
@@ -317,7 +318,7 @@ public class OBSActionExecutorTests
         this._executor.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
 
         this._executor.StopRecording();
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("stop recording") && s.Contains("OBS error"))), Times.Once);
     }
@@ -330,7 +331,7 @@ public class OBSActionExecutorTests
         this._executor.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
 
         this._executor.ToggleRecordingPause();
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("toggle recording pause") && s.Contains("OBS error"))), Times.Once);
     }
@@ -354,7 +355,7 @@ public class OBSActionExecutorTests
         this._mockObs.Setup(x => x.SetCurrentProfile(It.IsAny<String>())).Throws(new Exception("OBS error"));
 
         this._executor.SetCurrentProfile("TestProfile");
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("TestProfile") && s.Contains("OBS error"))), Times.Once);
     }
@@ -378,7 +379,7 @@ public class OBSActionExecutorTests
         this._mockObs.Setup(x => x.SetCurrentSceneCollection(It.IsAny<String>())).Throws(new Exception("OBS error"));
 
         this._executor.SetCurrentSceneCollection("TestCollection");
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("TestCollection") && s.Contains("OBS error"))), Times.Once);
     }
@@ -404,7 +405,7 @@ public class OBSActionExecutorTests
         this._executor.SetCurrentSceneState("Scene1");
 
         this._executor.SaveScreenshot("C:\\Screenshots");
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("screenshot") && s.Contains("OBS error"))), Times.Once);
     }
@@ -417,7 +418,7 @@ public class OBSActionExecutorTests
         this._executor.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
 
         this._executor.ToggleStreaming();
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("toggle streaming") && s.Contains("OBS error"))), Times.Once);
     }
@@ -430,7 +431,7 @@ public class OBSActionExecutorTests
         this._executor.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
 
         this._executor.StartStreaming();
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("start streaming") && s.Contains("OBS error"))), Times.Once);
     }
@@ -443,7 +444,7 @@ public class OBSActionExecutorTests
         this._executor.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
 
         this._executor.StopStreaming();
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("stop streaming") && s.Contains("OBS error"))), Times.Once);
     }
@@ -456,7 +457,7 @@ public class OBSActionExecutorTests
         this._executor.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
 
         this._executor.ToggleVirtualCamera();
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("toggle virtual camera") && s.Contains("OBS error"))), Times.Once);
     }
@@ -469,7 +470,7 @@ public class OBSActionExecutorTests
         this._executor.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
 
         this._executor.StartVirtualCamera();
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("start virtual camera") && s.Contains("OBS error"))), Times.Once);
     }
@@ -482,7 +483,7 @@ public class OBSActionExecutorTests
         this._executor.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
 
         this._executor.StopVirtualCamera();
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("stop virtual camera") && s.Contains("OBS error"))), Times.Once);
     }
@@ -518,7 +519,7 @@ public class OBSActionExecutorTests
         this._mockObs.Setup(x => x.GetSceneItemEnabled(It.IsAny<String>(), It.IsAny<String>())).Throws(new Exception("OBS error"));
 
         this._executor.ToggleSourceVisibility("Scene1", "Source1");
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Source1") && s.Contains("OBS error"))), Times.Once);
     }
@@ -600,7 +601,7 @@ public class OBSActionExecutorTests
 
         this._executor.ToggleInputMute("Microphone");
 
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.ToggleInputMute("Microphone"), Times.Once);
     }
 
@@ -611,7 +612,7 @@ public class OBSActionExecutorTests
 
         this._executor.ToggleInputMute("Microphone");
 
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.ToggleInputMute(It.IsAny<String>()), Times.Never);
     }
 
@@ -622,7 +623,7 @@ public class OBSActionExecutorTests
         this._mockObs.Setup(x => x.ToggleInputMute(It.IsAny<String>())).Throws(new Exception("OBS error"));
 
         this._executor.ToggleInputMute("Microphone");
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Microphone") && s.Contains("OBS error"))), Times.Once);
     }

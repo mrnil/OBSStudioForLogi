@@ -1,5 +1,6 @@
 namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 {
+    using Loupedeck.OBSStudioForLogiPlugin.Helpers;
     using Moq;
     using Xunit;
 
@@ -24,7 +25,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.SetCurrentScene("TestScene");
 
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockObs.Verify(x => x.SetCurrentProgramScene("TestScene"), Times.Once);
             this._mockObs.Verify(x => x.SetCurrentPreviewScene(It.IsAny<String>()), Times.Never);
         }
@@ -37,7 +38,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.SetCurrentScene("TestScene");
 
-            System.Threading.Thread.Sleep(200);
+            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelayExtended);
             this._mockObs.Verify(x => x.SetCurrentPreviewScene("TestScene"), Times.Once);
             this._mockObs.Verify(x => x.SetCurrentProgramScene(It.IsAny<String>()), Times.Never);
         }
@@ -50,7 +51,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.SetCurrentScene("TestScene");
 
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockLog.Verify(x => x.Info("Setting current program scene to 'TestScene'"), Times.Once);
         }
 
@@ -62,7 +63,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.SetCurrentScene("TestScene");
 
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockLog.Verify(x => x.Info("Setting current preview scene to 'TestScene' (studio mode enabled)"), Times.Once);
         }
 
@@ -73,7 +74,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.SetCurrentScene("TestScene");
 
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockObs.Verify(x => x.SetCurrentProgramScene(It.IsAny<String>()), Times.Never);
             this._mockObs.Verify(x => x.SetCurrentPreviewScene(It.IsAny<String>()), Times.Never);
         }
