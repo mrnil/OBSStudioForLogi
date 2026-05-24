@@ -178,54 +178,53 @@ protected abstract String GetInactiveIcon();
 
 ---
 
+#### 2.4 Start/Stop Command Base Class ✅ COMPLETED
+
+**Status**: Fully implemented using Template Method pattern
+
+**Implementation**:
+- Created abstract `StartStopCommandBase` class
+- Refactored 6 start/stop commands to use base class:
+  - `RecordingStartCommand` / `RecordingStopCommand`
+  - `StreamingStartCommand` / `StreamingStopCommand`
+  - `VirtualCameraStartCommand` / `VirtualCameraStopCommand`
+- Eliminated ~60 lines of duplicated code (~50% reduction per command)
+
+**Template Methods**:
+```csharp
+protected abstract void ExecuteStart();
+protected abstract void ExecuteStop();
+protected abstract Boolean GetState();
+protected abstract String GetEnabledIcon();
+protected abstract String GetDisabledIcon();
+```
+
+**Key Features**:
+- `isStartCommand` parameter determines start vs stop behavior
+- Start commands enabled when state is false (not active)
+- Stop commands enabled when state is true (active)
+- Automatic icon state management based on current state
+
+**Benefits Achieved**:
+- ✅ Eliminated duplication across start/stop command pairs
+- ✅ Consistent enable/disable logic
+- ✅ Automatic icon state management
+- ✅ Single place to fix bugs
+- ✅ Applied Template Method pattern
+
+---
+
 ### ⚠️ Areas for Improvement
 
 ## 2. Code Duplication (Remaining)
 
----
+**Status**: Minimal duplication remaining after base class refactoring
 
-### ⚠️ Start/Stop Commands
+All major command duplication has been eliminated:
+- ✅ Toggle commands use `ToggleCommandBase`
+- ✅ Start/Stop commands use `StartStopCommandBase`
 
-**Problem**: Similar duplication in Start/Stop command pairs
-
-**Recommendation**: Create Base Start/Stop Command
-
-```csharp
-public abstract class StartStopCommandBase : PluginDynamicCommand
-{
-    private readonly Boolean _isStartCommand;
-    
-    protected StartStopCommandBase(String displayName, String description, String groupName, Boolean isStartCommand)
-        : base(displayName, description, groupName)
-    {
-        _isStartCommand = isStartCommand;
-    }
-    
-    protected abstract void ExecuteStart();
-    protected abstract void ExecuteStop();
-    protected abstract Boolean GetState();
-    protected abstract String GetEnabledIcon();
-    protected abstract String GetDisabledIcon();
-    
-    protected override void RunCommand(String actionParameter)
-    {
-        if (_isStartCommand)
-            ExecuteStart();
-        else
-            ExecuteStop();
-    }
-    
-    protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
-    {
-        Boolean isActive = GetState();
-        Boolean shouldEnable = _isStartCommand ? !isActive : isActive;
-        return ButtonImageHelper.StateIcon(shouldEnable, GetEnabledIcon(), GetDisabledIcon());
-    }
-}
-```
-
-**Effort**: Low (1-2 hours)
-**Impact**: Medium (similar benefits to toggle commands)
+No significant duplication patterns remain in the codebase.
 
 ---
 
@@ -687,14 +686,14 @@ public void SwitchScene(String sceneName)
    - Configurable parameters via ActionEditor
    - Proper validation and error handling
 
+5. ✅ **Start/Stop Command Base Class** - DONE
+   - Eliminates duplication in start/stop pairs
+   - Consistent enable/disable logic
+   - Template Method pattern
+
 ### High Priority (Do First)
 
-1. **Start/Stop Command Base Class** (1-2 hours)
-   - Similar benefits to toggle commands
-   - Eliminates duplication in start/stop pairs
-   - Consistent behavior
-
-2. **Null Handling Extension Methods** (1 hour)
+1. **Null Handling Extension Methods** (1 hour)
    - Cleaner null coalescing
    - More consistent code
 
@@ -727,7 +726,7 @@ public void SwitchScene(String sceneName)
 
 ## Estimated Total Effort
 
-- **Completed**: ~20 hours
+- **Completed**: ~22 hours
   - Command Registry Pattern: ~4 hours
   - God Class Refactoring: ~6 hours
   - Named Constants: ~0.5 hours
@@ -735,11 +734,12 @@ public void SwitchScene(String sceneName)
   - Toggle Command Base Class: ~1.5 hours
   - Audio Mixer Features: ~4 hours
   - Scene Switch Adjustable Command: ~2 hours
-- **High Priority**: 2-3 hours
+  - Start/Stop Command Base Class: ~2 hours
+- **High Priority**: 1 hour
 - **Medium Priority**: 7-9 hours
 - **Low Priority**: 6-8 hours
 
-**Remaining**: 15-20 hours for all improvements
+**Remaining**: 14-18 hours for all improvements
 
 ---
 
@@ -757,13 +757,13 @@ The codebase is in excellent shape with solid architecture and comprehensive tes
 7. ✅ Toggle Command Base Class - Template Method pattern eliminates duplication
 8. ✅ Audio Mixer Features - Real-time volume display and mute controls
 9. ✅ Scene Switch Adjustable Command - Multi-step switching with validation
+10. ✅ Start/Stop Command Base Class - Template Method pattern for start/stop pairs
 
 **Remaining Areas for Improvement**:
-1. **Start/Stop Command Base Class** - Similar pattern to toggle commands
-2. **Null Handling Extension Methods** - Cleaner null coalescing
-3. **Command Behavior Tests** - Test RunCommand and GetCommandImage
-4. **Error Handling Standardization** - Consistent error handling policy
-5. **XML Documentation** - Document public APIs
+1. **Null Handling Extension Methods** - Cleaner null coalescing
+2. **Command Behavior Tests** - Test RunCommand and GetCommandImage
+3. **Error Handling Standardization** - Consistent error handling policy
+4. **XML Documentation** - Document public APIs
 
 **Impact of Recent Improvements**:
 - Main class reduced by 28% (400 → 289 lines)
@@ -771,6 +771,7 @@ The codebase is in excellent shape with solid architecture and comprehensive tes
 - Zero manual command registration needed
 - Zero magic numbers for delays
 - ~90 lines of duplication eliminated in toggle commands
+- ~60 lines of duplication eliminated in start/stop commands
 - Configurable logging reduces production noise
 - Professional audio mixing capabilities added
 - Complex multi-step scene switching implemented

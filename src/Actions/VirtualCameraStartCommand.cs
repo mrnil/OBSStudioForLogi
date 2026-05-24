@@ -2,12 +2,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class VirtualCameraStartCommand : PluginDynamicCommand, IVirtualCameraAwareCommand
+    public class VirtualCameraStartCommand : StartStopCommandBase, IVirtualCameraAwareCommand
     {
         public static VirtualCameraStartCommand Instance { get; private set; }
 
         public VirtualCameraStartCommand()
-            : base(displayName: "Start Virtual Camera", description: "Start OBS virtual camera", groupName: "5. Virtual Camera")
+            : base(displayName: "Start Virtual Camera", description: "Start OBS virtual camera", groupName: "5. Virtual Camera", isStartCommand: true)
         {
             Instance = this;
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
@@ -16,15 +16,29 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnConnected() { }
         public void OnDisconnected() { }
 
-        protected override void RunCommand(String actionParameter)
+        protected override void ExecuteStart()
         {
             OBSStudioForLogiPlugin.Instance?.StartVirtualCamera();
         }
 
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+        protected override void ExecuteStop()
         {
-            Boolean isActive = OBSStudioForLogiPlugin.Instance?.IsVirtualCameraActive ?? false;
-            return ButtonImageHelper.StateIcon(isActive, "VirtualCameraStartDisabled.svg", "VirtualCameraStart.svg");
+            // Not used for start command
+        }
+
+        protected override Boolean GetState()
+        {
+            return OBSStudioForLogiPlugin.Instance?.IsVirtualCameraActive ?? false;
+        }
+
+        protected override String GetEnabledIcon()
+        {
+            return "VirtualCameraStart.svg";
+        }
+
+        protected override String GetDisabledIcon()
+        {
+            return "VirtualCameraStartDisabled.svg";
         }
 
         public void OnVirtualCameraStateChanged()

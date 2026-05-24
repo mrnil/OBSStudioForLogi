@@ -2,22 +2,36 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class RecordingStartCommand : PluginDynamicCommand
+    public class RecordingStartCommand : StartStopCommandBase
     {
         public RecordingStartCommand()
-            : base(displayName: "Start Recording", description: "Start OBS recording", groupName: "3. Recording")
+            : base(displayName: "Start Recording", description: "Start OBS recording", groupName: "3. Recording", isStartCommand: true)
         {
         }
 
-        protected override void RunCommand(String actionParameter)
+        protected override void ExecuteStart()
         {
             OBSStudioForLogiPlugin.Instance?.StartRecording();
         }
 
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+        protected override void ExecuteStop()
         {
-            Boolean isRecording = OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
-            return ButtonImageHelper.StateIcon(isRecording, "RecordingStartDisabled.svg", "RecordingStart.svg");
+            // Not used for start command
+        }
+
+        protected override Boolean GetState()
+        {
+            return OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
+        }
+
+        protected override String GetEnabledIcon()
+        {
+            return "RecordingStart.svg";
+        }
+
+        protected override String GetDisabledIcon()
+        {
+            return "RecordingStartDisabled.svg";
         }
     }
 }

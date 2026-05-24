@@ -531,6 +531,99 @@ public void OnCurrentSceneCollectionChanged(String oldSceneCollection, String ne
 14. **Use string interpolation** for log messages
 15. **Check connection state** before OBS operations
 16. **Use ButtonImageHelper** for all button image rendering
+17. **Use base classes** for common command patterns (ToggleCommandBase, StartStopCommandBase)
+
+## Command Base Classes
+
+### ToggleCommandBase Pattern
+For commands that toggle between two states (on/off, enabled/disabled):
+
+```csharp
+public class RecordingToggleCommand : ToggleCommandBase
+{
+    public RecordingToggleCommand()
+        : base(displayName: "Toggle Recording", description: "Toggle OBS recording on/off", groupName: "3. Recording")
+    {
+    }
+
+    protected override void ExecuteToggle()
+    {
+        OBSStudioForLogiPlugin.Instance?.ToggleRecording();
+    }
+
+    protected override Boolean GetState()
+    {
+        return OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
+    }
+
+    protected override String GetActiveIcon()
+    {
+        return "RecordingOn.svg";
+    }
+
+    protected override String GetInactiveIcon()
+    {
+        return "RecordingOff.svg";
+    }
+}
+```
+
+**Benefits**:
+- Eliminates duplication across toggle commands
+- Consistent behavior and error handling
+- Single place to fix bugs
+- Template Method pattern
+
+### StartStopCommandBase Pattern
+For commands that start or stop an operation:
+
+```csharp
+public class RecordingStartCommand : StartStopCommandBase
+{
+    public RecordingStartCommand()
+        : base(displayName: "Start Recording", description: "Start OBS recording", groupName: "3. Recording", isStartCommand: true)
+    {
+    }
+
+    protected override void ExecuteStart()
+    {
+        OBSStudioForLogiPlugin.Instance?.StartRecording();
+    }
+
+    protected override void ExecuteStop()
+    {
+        // Not used for start command
+    }
+
+    protected override Boolean GetState()
+    {
+        return OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
+    }
+
+    protected override String GetEnabledIcon()
+    {
+        return "RecordingStart.svg";
+    }
+
+    protected override String GetDisabledIcon()
+    {
+        return "RecordingStartDisabled.svg";
+    }
+}
+```
+
+**Key Points**:
+- `isStartCommand: true` for start commands, `false` for stop commands
+- Start commands are enabled when state is false (not active)
+- Stop commands are enabled when state is true (active)
+- Icons automatically swap based on state
+- Only implement the relevant Execute method (ExecuteStart or ExecuteStop)
+
+**Benefits**:
+- Eliminates duplication across start/stop command pairs
+- Consistent enable/disable logic
+- Automatic icon state management
+- Template Method pattern
 
 ## Button Image Rendering
 
