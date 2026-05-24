@@ -4,7 +4,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Collections.Generic;
     using System.Linq;
 
-    public class SceneAudioSourcesDynamicFolder : AudioInputDynamicFolderBase
+    public class SceneAudioSourcesDynamicFolder : AudioInputDynamicFolderBase, IObsCommand
     {
         public static SceneAudioSourcesDynamicFolder Instance { get; private set; }
 
@@ -13,6 +13,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public SceneAudioSourcesDynamicFolder()
         {
             Instance = this;
+            OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.DisplayName = "Scene Audio";
             this.GroupName = "8. Audio";
             this.Description = "Audio sources in the current scene";
@@ -31,7 +32,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.ButtonActionNamesChanged();
         }
 
-        public void OnDisconnected()
+        public override void OnConnected()
+        {
+            this.ButtonActionNamesChanged();
+        }
+
+        public override void OnDisconnected()
         {
             this.AudioInputs = new String[0];
             this._currentScene = String.Empty;

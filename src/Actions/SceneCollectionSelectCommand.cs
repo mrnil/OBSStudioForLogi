@@ -2,7 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class SceneCollectionSelectCommand : PluginMultistateDynamicCommand
+    public class SceneCollectionSelectCommand : PluginMultistateDynamicCommand, IObsCommand, ISceneCollectionAwareCommand
     {
         private const Int16 SCENE_COLLECTION_UNSELECTED = 0;
         private const Int16 SCENE_COLLECTION_SELECTED = 1;
@@ -12,6 +12,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public SceneCollectionSelectCommand()
         {
             Instance = this;
+            OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.Description = "Switches to a specific scene collection in OBS Studio";
             this.GroupName = "7. Scenes";
             this.AddState("", "Scene collection unselected");
@@ -60,7 +61,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.ResetParameters(true);
         }
 
-        public void OnCurrentSceneCollectionChanged(String oldSceneCollection, String newSceneCollection)
+        public void OnSceneCollectionChanged(String oldSceneCollection, String newSceneCollection)
+        {
+            this.OnCurrentSceneCollectionChanged(oldSceneCollection, newSceneCollection);
+        }
+
+        private void OnCurrentSceneCollectionChanged(String oldSceneCollection, String newSceneCollection)
         {
             if (!String.IsNullOrEmpty(oldSceneCollection))
             {

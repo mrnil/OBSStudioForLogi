@@ -39,7 +39,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests.Actions
         {
             var command = new SceneSwitchAdjustableCommand();
 
-            var exception = Record.Exception(() => command.OnProfileChanged());
+            var exception = Record.Exception(() => command.OnProfileChanged("oldProfile", "newProfile"));
 
             Assert.Null(exception);
         }
@@ -49,7 +49,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests.Actions
         {
             var command = new SceneSwitchAdjustableCommand();
 
-            var exception = Record.Exception(() => command.OnSceneCollectionChanged());
+            var exception = Record.Exception(() => command.OnSceneCollectionChanged("oldCollection", "newCollection"));
 
             Assert.Null(exception);
         }
@@ -59,7 +59,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests.Actions
         {
             var command = new SceneSwitchAdjustableCommand();
 
-            var exception = Record.Exception(() => command.OnScenesChanged());
+            var exception = Record.Exception(() => command.OnScenesChanged(new String[] { "Scene1", "Scene2" }));
 
             Assert.Null(exception);
         }

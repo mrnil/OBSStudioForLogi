@@ -2,7 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class CurrentProfileDisplay : PluginDynamicCommand
+    public class CurrentProfileDisplay : PluginDynamicCommand, IObsCommand, IProfileAwareCommand
     {
         public static CurrentProfileDisplay Instance { get; private set; }
 
@@ -12,6 +12,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             : base(displayName: "Current Profile", description: "Shows current OBS profile", groupName: "6. Profiles")
         {
             Instance = this;
+            OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.AddParameter("", " ", groupName: "6. Profiles");
         }
 
@@ -20,7 +21,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return String.Empty;
         }
 
-        public void UpdateProfile(String profileName)
+        public void OnProfileChanged(String oldProfile, String newProfile)
+        {
+            this.UpdateProfile(newProfile);
+        }
+
+        public void OnConnected()
+        {
+            this.ActionImageChanged("");
+        }
+
+        public void OnDisconnected()
+        {
+            this._currentProfile = "Not Connected";
+            this.ActionImageChanged("");
+        }
+
+        private void UpdateProfile(String profileName)
         {
             if (String.IsNullOrEmpty(profileName))
             {

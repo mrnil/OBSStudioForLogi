@@ -4,7 +4,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Collections.Generic;
     using System.Linq;
 
-    public class ProfilesDynamicFolder : PluginDynamicFolder
+    public class ProfilesDynamicFolder : PluginDynamicFolder, IObsCommand, IProfileAwareCommand, IProfilesListAwareCommand
     {
         private const Int16 PROFILE_UNSELECTED = 0;
         private const Int16 PROFILE_SELECTED = 1;
@@ -17,6 +17,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public ProfilesDynamicFolder()
         {
             Instance = this;
+            OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.DisplayName = "OBS Profiles";
             this.GroupName = "6. Profiles";
             this.Description = "Folder of available OBS profiles";
@@ -40,7 +41,22 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.ButtonActionNamesChanged();
         }
 
-        public void OnCurrentProfileChanged(String profileName)
+        public void OnProfileChanged(String oldProfile, String newProfile)
+        {
+            this.OnCurrentProfileChanged(newProfile);
+        }
+
+        public void OnProfilesChanged(String[] profiles, String currentProfile)
+        {
+            this.UpdateProfiles(profiles, currentProfile);
+        }
+
+        public void OnConnected()
+        {
+            this.ButtonActionNamesChanged();
+        }
+
+        private void OnCurrentProfileChanged(String profileName)
         {
             var oldProfile = this._currentProfile;
             this._currentProfile = profileName ?? String.Empty;

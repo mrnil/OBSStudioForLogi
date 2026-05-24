@@ -2,7 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class StudioModeToggleCommand : PluginDynamicCommand
+    public class StudioModeToggleCommand : PluginDynamicCommand, IStudioModeAwareCommand
     {
         public static StudioModeToggleCommand Instance { get; private set; }
 
@@ -10,7 +10,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             : base(displayName: "Toggle Studio Mode", description: "Enable/disable OBS studio mode", groupName: "1. OBS")
         {
             Instance = this;
+            OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
         }
+
+        public void OnConnected() { }
+        public void OnDisconnected() { }
 
         protected override void RunCommand(String actionParameter)
         {

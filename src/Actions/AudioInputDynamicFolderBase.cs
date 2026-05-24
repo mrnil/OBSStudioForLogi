@@ -3,13 +3,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System;
     using System.Linq;
 
-    public abstract class AudioInputDynamicFolderBase : PluginDynamicFolder
+    public abstract class AudioInputDynamicFolderBase : PluginDynamicFolder, IInputMuteAwareCommand, IInputVolumeAwareCommand
     {
         protected String[] AudioInputs = new String[0];
 
         protected AudioInputDynamicFolderBase()
         {
         }
+
+        public abstract void OnConnected();
+        public abstract void OnDisconnected();
 
         public override PluginDynamicFolderNavigation GetNavigationArea(DeviceType _)
         {

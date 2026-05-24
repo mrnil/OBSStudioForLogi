@@ -4,7 +4,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Collections.Generic;
     using System.Linq;
 
-    public class ScenesDynamicFolder : PluginDynamicFolder
+    public class ScenesDynamicFolder : PluginDynamicFolder, IObsCommand, ISceneAwareCommand, IScenesListAwareCommand
     {
         private const Int16 SCENE_UNSELECTED = 0;
         private const Int16 SCENE_SELECTED = 1;
@@ -17,6 +17,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public ScenesDynamicFolder()
         {
             Instance = this;
+            OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.DisplayName = "OBS Scenes";
             this.GroupName = "7. Scenes";
             this.Description = "Folder of scenes from the current collection";
@@ -40,7 +41,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.ButtonActionNamesChanged();
         }
 
-        public void OnCurrentSceneChanged(String sceneName)
+        public void OnScenesChanged(String[] scenes)
+        {
+            var currentScene = OBSStudioForLogiPlugin.Instance?.GetCurrentScene() ?? String.Empty;
+            this.UpdateScenes(scenes, currentScene);
+        }
+
+        public void OnSceneChanged(String sceneName)
+        {
+            this.OnCurrentSceneChanged(sceneName);
+        }
+
+        public void OnConnected()
+        {
+            this.ButtonActionNamesChanged();
+        }
+
+        private void OnCurrentSceneChanged(String sceneName)
         {
             var oldScene = this._currentScene;
             this._currentScene = sceneName ?? String.Empty;

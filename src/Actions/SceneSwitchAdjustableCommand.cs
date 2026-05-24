@@ -3,7 +3,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System;
     using System.Threading.Tasks;
 
-    public class SceneSwitchAdjustableCommand : ActionEditorCommand
+    public class SceneSwitchAdjustableCommand : ActionEditorCommand, IObsCommand, IProfileAwareCommand, ISceneCollectionAwareCommand, IScenesListAwareCommand
     {
         private const String ProfileNameControlName = "ProfileName";
         private const String CollectionNameControlName = "CollectionName";
@@ -14,6 +14,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public SceneSwitchAdjustableCommand()
         {
             Instance = this;
+            OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.Name = "SceneSwitchAdjustable";
             this.DisplayName = "Switch to Scene (Adjustable)";
             this.GroupName = "7. Scenes";
@@ -164,26 +165,36 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnConnected()
         {
             PluginLog.Info("SceneSwitchAdjustableCommand: OnConnected called");
-            this.ActionImageChanged();
         }
 
         public void OnDisconnected()
         {
             PluginLog.Info("SceneSwitchAdjustableCommand: OnDisconnected called");
-            this.ActionImageChanged();
         }
 
-        public void OnProfileChanged()
+        public void OnProfileChanged(String oldProfile, String newProfile)
+        {
+        }
+
+        public void OnSceneCollectionChanged(String oldSceneCollection, String newSceneCollection)
+        {
+        }
+
+        public void OnScenesChanged(String[] scenes)
+        {
+        }
+
+        private void OnProfileChanged()
         {
             this.ActionImageChanged();
         }
 
-        public void OnSceneCollectionChanged()
+        private void OnSceneCollectionChanged()
         {
             this.ActionImageChanged();
         }
 
-        public void OnScenesChanged()
+        private void OnScenesChanged()
         {
             this.ActionImageChanged();
         }

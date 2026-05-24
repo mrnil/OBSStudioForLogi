@@ -2,7 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class ProfileSelectCommand : PluginMultistateDynamicCommand
+    public class ProfileSelectCommand : PluginMultistateDynamicCommand, IObsCommand, IProfileAwareCommand
     {
         private const Int16 PROFILE_UNSELECTED = 0;
         private const Int16 PROFILE_SELECTED = 1;
@@ -12,6 +12,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public ProfileSelectCommand()
         {
             Instance = this;
+            OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.Description = "Switches to a specific profile in OBS Studio";
             this.GroupName = "6. Profiles";
             this.AddState("", "Profile unselected");
@@ -60,7 +61,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.ResetParameters(true);
         }
 
-        public void OnCurrentProfileChanged(String oldProfile, String newProfile)
+        public void OnProfileChanged(String oldProfile, String newProfile)
+        {
+            this.OnCurrentProfileChanged(oldProfile, newProfile);
+        }
+
+        private void OnCurrentProfileChanged(String oldProfile, String newProfile)
         {
             if (!String.IsNullOrEmpty(oldProfile))
             {

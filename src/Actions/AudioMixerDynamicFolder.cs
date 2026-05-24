@@ -4,7 +4,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Collections.Generic;
     using System.Linq;
 
-    public class AudioMixerDynamicFolder : AudioInputDynamicFolderBase
+    public class AudioMixerDynamicFolder : AudioInputDynamicFolderBase, IObsCommand, IInputsListAwareCommand
     {
         public static AudioMixerDynamicFolder Instance { get; private set; }
 
@@ -13,6 +13,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public AudioMixerDynamicFolder()
         {
             Instance = this;
+            OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.DisplayName = "Audio Mixer";
             this.GroupName = "8. Audio";
             this.Description = "Folder of audio inputs with mute/unmute controls";
@@ -23,7 +24,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this.AudioInputs.Select(input => this.CreateCommandName(input));
         }
 
-        public void UpdateInputs(String[] inputs)
+        public void OnInputsChanged(String[] inputs)
+        {
+            this.UpdateInputs(inputs);
+        }
+
+        private void UpdateInputs(String[] inputs)
         {
             this.AudioInputs = inputs ?? new String[0];
             this._inputScenes.Clear();
@@ -43,13 +49,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.ButtonActionNamesChanged();
         }
 
-        public void OnConnected()
+        public override void OnConnected()
         {
             var inputs = OBSStudioForLogiPlugin.Instance?.GetInputList() ?? new String[0];
             this.UpdateInputs(inputs);
         }
 
-        public void OnDisconnected()
+        public override void OnDisconnected()
         {
             this.AudioInputs = new String[0];
             this.ButtonActionNamesChanged();

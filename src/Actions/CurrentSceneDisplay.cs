@@ -2,7 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class CurrentSceneDisplay : PluginDynamicCommand
+    public class CurrentSceneDisplay : PluginDynamicCommand, IObsCommand, ISceneAwareCommand
     {
         public static CurrentSceneDisplay Instance { get; private set; }
 
@@ -12,6 +12,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             : base(displayName: "Current Scene", description: "Shows current OBS scene", groupName: "7. Scenes")
         {
             Instance = this;
+            OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.AddParameter("", "", groupName: "7. Scenes");
         }
 
@@ -20,7 +21,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return String.Empty;
         }
 
-        public void UpdateScene(String sceneName)
+        public void OnSceneChanged(String sceneName)
+        {
+            this.UpdateScene(sceneName);
+        }
+
+        public void OnConnected()
+        {
+            this.ActionImageChanged("");
+        }
+
+        public void OnDisconnected()
+        {
+            this._currentScene = "Not Connected";
+            this.ActionImageChanged("");
+        }
+
+        private void UpdateScene(String sceneName)
         {
             if (String.IsNullOrEmpty(sceneName))
             {

@@ -24,4 +24,18 @@
     <ProjectReference Include="..\..\src\OBSStudioForLogiPlugin.csproj" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+    <Reference Include="PluginApi">
+      <HintPath>C:\Program Files\Logi\LogiPluginService\PluginApi.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+    <Reference Include="PluginApi">
+      <HintPath>/Applications/Utilities/LogiPluginService.app/Contents/MonoBundle/PluginApi.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
 </Project>

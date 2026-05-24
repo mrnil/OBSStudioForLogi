@@ -2,7 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class VirtualCameraStopCommand : PluginDynamicCommand
+    public class VirtualCameraStopCommand : PluginDynamicCommand, IVirtualCameraAwareCommand
     {
         public static VirtualCameraStopCommand Instance { get; private set; }
 
@@ -10,7 +10,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             : base(displayName: "Stop Virtual Camera", description: "Stop OBS virtual camera", groupName: "5. Virtual Camera")
         {
             Instance = this;
+            OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
         }
+
+        public void OnConnected() { }
+        public void OnDisconnected() { }
 
         protected override void RunCommand(String actionParameter)
         {

@@ -2,7 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class VirtualCameraStartCommand : PluginDynamicCommand
+    public class VirtualCameraStartCommand : PluginDynamicCommand, IVirtualCameraAwareCommand
     {
         public static VirtualCameraStartCommand Instance { get; private set; }
 
@@ -10,7 +10,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             : base(displayName: "Start Virtual Camera", description: "Start OBS virtual camera", groupName: "5. Virtual Camera")
         {
             Instance = this;
+            OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
         }
+
+        public void OnConnected() { }
+        public void OnDisconnected() { }
 
         protected override void RunCommand(String actionParameter)
         {

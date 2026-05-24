@@ -6,6 +6,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     public class OBSStudioForLogiPlugin : Plugin
     {
         public static OBSStudioForLogiPlugin Instance { get; private set; }
+        private readonly CommandRegistry _commandRegistry = new CommandRegistry();
         private OBSWebSocketManager _obsManager;
         private OBSConfigReader _configReader;
         private OBSLifecycleManager _lifecycleManager;
@@ -108,18 +109,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private void OnApplicationStopped(Object sender, EventArgs e)
         {
             PluginLog.Info("OBS application stopped");
-            ProfileSelectCommand.Instance?.OnDisconnected();
-            ProfilesDynamicFolder.Instance?.OnDisconnected();
-            SceneCollectionSelectCommand.Instance?.OnDisconnected();
-            ScenesDynamicFolder.Instance?.OnDisconnected();
-            SourcesDynamicFolder.Instance?.OnDisconnected();
-            AudioMixerDynamicFolder.Instance?.OnDisconnected();
-            SceneAudioSourcesDynamicFolder.Instance?.OnDisconnected();
-            SceneSwitchAdjustableCommand.Instance?.OnDisconnected();
-            CurrentProfileDisplay.Instance?.UpdateDisplay();
-            CurrentSceneDisplay.Instance?.UpdateDisplay();
-            CurrentSceneCollectionDisplay.Instance?.UpdateDisplay();
+            this._commandRegistry.NotifyDisconnected();
             this._obsManager?.Disconnect();
+        }
+
+        public void RegisterCommand(IObsCommand command)
+        {
+            this._commandRegistry.Register(command);
         }
 
         private async void TryDirectConnection()
@@ -220,10 +216,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnProfileChanged(String oldProfile, String newProfile)
         {
             PluginLog.Info($"Plugin notified of profile change: '{oldProfile}' -> '{newProfile}'");
-            ProfileSelectCommand.Instance?.OnCurrentProfileChanged(oldProfile, newProfile);
-            ProfilesDynamicFolder.Instance?.OnCurrentProfileChanged(newProfile);
-            CurrentProfileDisplay.Instance?.UpdateProfile(newProfile);
-            SceneSwitchAdjustableCommand.Instance?.OnProfileChanged();
+            this._commandRegistry.NotifyProfileChanged(oldProfile, newProfile);
         }
 
         public String[] GetSceneCollectionList()
@@ -257,28 +250,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnSceneCollectionChanged(String oldSceneCollection, String newSceneCollection)
         {
             PluginLog.Info($"Plugin notified of scene collection change: '{oldSceneCollection}' -> '{newSceneCollection}'");
-            SceneCollectionSelectCommand.Instance?.OnCurrentSceneCollectionChanged(oldSceneCollection, newSceneCollection);
-            CurrentSceneCollectionDisplay.Instance?.UpdateSceneCollection(newSceneCollection);
-            SceneSwitchAdjustableCommand.Instance?.OnSceneCollectionChanged();
+            this._commandRegistry.NotifySceneCollectionChanged(oldSceneCollection, newSceneCollection);
         }
 
         public void OnScenesChanged(String[] scenes)
         {
-            var currentScene = this._obsManager?.Actions.CurrentScene ?? String.Empty;
-            ScenesDynamicFolder.Instance?.UpdateScenes(scenes, currentScene);
-            SceneSwitchAdjustableCommand.Instance?.OnScenesChanged();
+            this._commandRegistry.NotifyScenesChanged(scenes);
         }
 
         public void OnProfilesChanged(String[] profiles, String currentProfile)
         {
-            ProfilesDynamicFolder.Instance?.UpdateProfiles(profiles, currentProfile);
+            this._commandRegistry.NotifyProfilesChanged(profiles, currentProfile);
         }
 
         public void OnCurrentSceneChanged(String sceneName)
         {
             PluginLog.Info($"Plugin notified of scene change: '{sceneName}'");
-            ScenesDynamicFolder.Instance?.OnCurrentSceneChanged(sceneName);
-            CurrentSceneDisplay.Instance?.UpdateScene(sceneName);
+            this._commandRegistry.NotifySceneChanged(sceneName);
             this.UpdateSourcesForScene(sceneName);
         }
 
@@ -341,9 +329,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnVirtualCameraStateChanged()
         {
-            VirtualCameraToggleCommand.Instance?.OnVirtualCameraStateChanged();
-            VirtualCameraStartCommand.Instance?.OnVirtualCameraStateChanged();
-            VirtualCameraStopCommand.Instance?.OnVirtualCameraStateChanged();
+            this._commandRegistry.NotifyVirtualCameraStateChanged();
         }
 
         public void ToggleReplayBuffer()
@@ -368,7 +354,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnReplayBufferStateChanged()
         {
-            ReplayBufferToggleCommand.Instance?.OnReplayBufferStateChanged();
+            this._commandRegistry.NotifyReplayBufferStateChanged();
         }
 
         public String[] GetInputList()
@@ -403,24 +389,22 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnInputsChanged(String[] inputs)
         {
-            AudioMixerDynamicFolder.Instance?.UpdateInputs(inputs);
+            this._commandRegistry.NotifyInputsChanged(inputs);
         }
 
         public void OnInputMuteChanged(String inputName)
         {
-            AudioMixerDynamicFolder.Instance?.OnInputMuteChanged(inputName);
-            SceneAudioSourcesDynamicFolder.Instance?.OnInputMuteChanged(inputName);
+            this._commandRegistry.NotifyInputMuteChanged(inputName);
         }
 
         public void OnInputVolumeChanged(String inputName)
         {
-            AudioMixerDynamicFolder.Instance?.OnInputVolumeChanged(inputName);
-            SceneAudioSourcesDynamicFolder.Instance?.OnInputVolumeChanged(inputName);
+            this._commandRegistry.NotifyInputVolumeChanged(inputName);
         }
 
         public void OnSourceVisibilityChanged(String sceneName, String sourceName)
         {
-            SourcesDynamicFolder.Instance?.OnSourceVisibilityChanged(sceneName, sourceName);
+            this._commandRegistry.NotifySourceVisibilityChanged(sceneName, sourceName);
         }
 
         public void ToggleStudioMode()
@@ -430,7 +414,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnStudioModeStateChanged()
         {
-            StudioModeToggleCommand.Instance?.OnStudioModeStateChanged();
+            this._commandRegistry.NotifyStudioModeStateChanged();
         }
 
         public void TriggerStudioModeTransition()
