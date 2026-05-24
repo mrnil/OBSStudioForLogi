@@ -2,6 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
     using System.Threading.Tasks;
+    using Loupedeck.OBSStudioForLogiPlugin.Services;
 
     public class OBSStudioForLogiPlugin : Plugin
     {
@@ -20,12 +21,30 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Instance = this;
             PluginLog.Init(this.Log);
             PluginResources.Init(this.Assembly);
+            LoadPluginConfiguration();
             DiscoverScreenshotPath();
             
             this._obsManager = new OBSWebSocketManager();
             this._connectionManager = new ConnectionManager(this._obsManager, new OBSConfigReader(), new OBSLifecycleManager());
             this._commandCoordinator = new CommandCoordinator();
             this._obsFacade = new OBSFacade(this._obsManager);
+        }
+
+        private static void LoadPluginConfiguration()
+        {
+            var configReader = new PluginConfigReader();
+            var config = configReader.ReadConfig();
+            
+            if (config != null)
+            {
+                PluginLog.CurrentLevel = config.LogLevel;
+                PluginLog.Info($"Loaded configuration from file. Log level set to: {PluginLog.CurrentLevel}");
+            }
+            else
+            {
+                PluginLog.Info($"No configuration file found. Using default log level: {PluginLog.CurrentLevel}");
+                PluginLog.Info($"To customize settings, create: {configReader.ConfigPath}");
+            }
         }
 
         private static void DiscoverScreenshotPath()

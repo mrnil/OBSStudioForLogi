@@ -348,7 +348,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (e?.Volume?.InputName == null)
                 return;
 
-            this._log.Info($"Input '{e.Volume.InputName}' volume changed to {e.Volume.InputVolumeMul}");
+            PluginLog.Trace($"Input '{e.Volume.InputName}' volume changed to {e.Volume.InputVolumeMul}");
             OBSStudioForLogiPlugin.Instance?.OnInputVolumeChanged(e.Volume.InputName);
         }
 
