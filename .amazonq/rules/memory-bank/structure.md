@@ -58,8 +58,37 @@ Command classes that handle user interactions from Loupedeck hardware:
 ### Services Layer (`src/Services/`)
 Core business logic and OBS integration:
 
-- **OBSWebSocketManager.cs**: Primary WebSocket connection manager, handles connect/disconnect/reconnect with exponential backoff and jitter, event routing, timer-based continuous reconnection
-- **OBSActionExecutor.cs**: Executes OBS commands (scene switching, recording control, streaming control, virtual camera, replay buffer, studio mode toggle/transition, profile management, source visibility, audio control)
+**Connection Management:**
+- **ConnectionManager.cs**: Manages OBS connection lifecycle (52 lines)
+  - Encapsulates OBSWebSocketManager, OBSConfigReader, OBSLifecycleManager
+  - Handles ConnectAsync(), Disconnect(), IsConnected
+  - Reads configuration, waits for port, connects to WebSocket
+
+**Command Coordination:**
+- **CommandRegistry.cs**: Manages command registration and event distribution
+  - Stores registered commands implementing IObsCommand interfaces
+  - Provides notification methods for all event types
+- **CommandCoordinator.cs**: Facade for CommandRegistry (93 lines)
+  - RegisterCommand() for command self-registration
+  - 13 notification methods (NotifyConnected, NotifyProfileChanged, etc.)
+  - Delegates to CommandRegistry
+- **IObsCommand.cs**: Interface hierarchy for command registration
+  - Base IObsCommand with OnConnected/OnDisconnected
+  - 11 specialized interfaces (IProfileAwareCommand, ISceneAwareCommand, etc.)
+
+**OBS Integration:**
+- **OBSFacade.cs**: Single point of access to OBS functionality (227 lines)
+  - 7 state properties (IsRecording, IsStreaming, CurrentProfile, etc.)
+  - 10 query methods (GetProfileList, GetSceneList, GetInputList, etc.)
+  - 20+ action methods (ToggleRecording, SwitchScene, ToggleInputMute, etc.)
+  - Connection validation and error handling
+- **OBSWebSocketManager.cs**: Primary WebSocket connection manager
+  - Handles connect/disconnect/reconnect with exponential backoff and jitter
+  - Event routing, timer-based continuous reconnection
+- **OBSActionExecutor.cs**: Executes OBS commands
+  - Scene switching, recording control, streaming control
+  - Virtual camera, replay buffer, studio mode
+  - Profile management, source visibility, audio control
 - **IOBSWebsocket.cs**: Interface abstraction for OBS WebSocket operations (enables testing/mocking)
 - **OBSWebsocketAdapter.cs**: Adapter wrapping obs-websocket-dotnet library
 - **OBSConfigReader.cs**: Reads OBS configuration files to discover WebSocket settings (port, password)
@@ -74,6 +103,60 @@ Core business logic and OBS integration:
 - **OBSConnectionSettings.cs**: Data model for WebSocket connection configuration (URL, port, password)
 
 ## Architectural Patterns
+
+### Single Responsibility Principle
+The codebase follows SRP by splitting concerns into focused classes:
+- **ConnectionManager** - Connection lifecycle only
+- **CommandCoordinator** - Command coordination only
+- **OBSFacade** - OBS interface only
+- **OBSStudioForLogiPlugin** - Orchestration and event routing only
+
+This separation improves:
+- **Testability** - Mock only what you need
+- **Maintainability** - Changes are isolated
+- **Understandability** - Each class has clear purpose
+- **Reusability** - Components can be used independently
+
+### Command Registry Pattern
+Commands self-register with the plugin via interfaces:
+```csharp
+public class ScenesDynamicFolder : PluginDynamicFolder, IObsCommand, ISceneAwareCommand
+{
+    public ScenesDynamicFolder()
+    {
+        Instance = this;
+        OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
+    }
+    
+    public void OnConnected() { }
+    public void OnDisconnected() { }
+    public void OnSceneChanged(String sceneName) { }
+}
+```
+Benefits:
+- No manual registration needed in main plugin
+- Compile-time safety via interfaces
+- Automatic notification routing
+
+### Facade Pattern
+OBSFacade provides simplified interface to complex OBS subsystem:
+```csharp
+public class OBSFacade
+{
+    private readonly OBSWebSocketManager _obsManager;
+    
+    // Simple interface
+    public Boolean IsRecording { get; }
+    public void ToggleRecording() { }
+    public String[] GetSceneList() { }
+    
+    // Hides complexity of:
+    // - Connection validation
+    // - Null checking
+    // - Error handling
+    // - OBSWebSocketManager → OBSActionExecutor delegation
+}
+```
 
 ### Singleton Pattern
 Most command classes use singleton instances accessed via static `Instance` property:
@@ -107,12 +190,17 @@ Each action inherits from Loupedeck base classes:
 ## Component Relationships
 
 ```
-OBSStudioForLogiPlugin (main)
-    ├── OBSWebSocketManager (connection management)
-    │   ├── OBSWebsocketAdapter (library wrapper)
-    │   └── OBSActionExecutor (command execution)
-    ├── OBSConfigReader (configuration)
-    ├── OBSLifecycleManager (connection lifecycle)
+OBSStudioForLogiPlugin (main - 289 lines)
+    ├── ConnectionManager (connection lifecycle - 52 lines)
+    │   ├── OBSWebSocketManager
+    │   ├── OBSConfigReader
+    │   └── OBSLifecycleManager
+    ├── CommandCoordinator (command coordination - 93 lines)
+    │   └── CommandRegistry
+    ├── OBSFacade (OBS interface - 227 lines)
+    │   └── OBSWebSocketManager
+    │       ├── OBSWebsocketAdapter (library wrapper)
+    │       └── OBSActionExecutor (command execution)
     └── Commands (Actions/)
         ├── Display Commands (ConnectionStatus, CurrentProfile, CurrentScene, CurrentSceneCollection)
         ├── Profile Commands (ProfileSelect, ProfilesDynamicFolder)
@@ -126,9 +214,10 @@ OBSStudioForLogiPlugin (main)
 ```
 
 ### Data Flow
-1. **Startup**: Plugin loads → reads OBS config → waits for OBS process/port → connects to WebSocket
-2. **User Action**: Hardware button press → Command.RunCommand() → Plugin method → OBSActionExecutor → WebSocket request
-3. **OBS Event**: WebSocket event → OBSWebSocketManager → Plugin callback → Command.OnStateChanged() → UI update
+1. **Startup**: Plugin loads → ConnectionManager.ConnectAsync() → reads OBS config → waits for port → connects to WebSocket
+2. **User Action**: Hardware button press → Command.RunCommand() → Plugin delegates to OBSFacade → OBSActionExecutor → WebSocket request
+3. **OBS Event**: WebSocket event → OBSWebSocketManager → Plugin callback → CommandCoordinator.Notify*() → Commands update UI
+4. **Command Registration**: Command constructor → OBSStudioForLogiPlugin.RegisterCommand() → CommandCoordinator.RegisterCommand() → CommandRegistry stores command
 
 ## Build Configuration
 
