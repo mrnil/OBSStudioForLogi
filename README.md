@@ -113,6 +113,8 @@ dotnet build src/OBSStudioForLogiPlugin.csproj
 dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj
 ```
 
+**Note:** Tests are run locally only. The GitHub Actions workflow performs dependency checking and build validation but does not run tests due to timing issues with fire-and-forget Task.Run patterns in CI environments.
+
 ### Clean
 ```bash
 dotnet clean OBSStudioForLogiPlugin.sln

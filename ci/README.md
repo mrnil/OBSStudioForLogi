@@ -1,11 +1,11 @@
 # CI Dependencies
 
-This directory contains dependencies required for CI builds that are not available via NuGet.
+This directory contains dependencies required for dependency checking that are not available via NuGet.
 
 ## PluginApi.dll
 
-This is the Loupedeck Plugin API assembly required to build the plugin. It's included here for CI purposes only since it's not available on GitHub Actions runners.
+This is the Loupedeck Plugin API assembly required to build the plugin. It's included here for dependency validation only since it's not available on GitHub Actions runners.
 
 **Source:** Logi Plugin Service installation  
 **License:** Proprietary (Loupedeck/Logitech)  
-**Purpose:** Compile-time reference only for CI builds
+**Purpose:** Compile-time reference for dependency validation

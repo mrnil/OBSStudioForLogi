@@ -89,6 +89,8 @@ dotnet test /p:CollectCoverage=true
 dotnet test --filter "FullyQualifiedName~OBSActionExecutorTests"
 ```
 
+**Important:** All tests must pass locally before committing. The GitHub Actions workflow performs dependency checking and build validation but does not run tests.
+
 ### Writing Tests
 - Use xUnit framework
 - Use Moq for mocking dependencies
