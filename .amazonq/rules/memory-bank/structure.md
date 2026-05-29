@@ -26,6 +26,10 @@ OBSStudioForLogiPlugin/
 ### Actions Layer (`src/Actions/`)
 Command classes that handle user interactions from Loupedeck hardware:
 
+**Base Classes** (reusable patterns):
+- `ToggleCommandBase.cs`: Base class for toggle commands (on/off states)
+- `StartStopCommandBase.cs`: Base class for start/stop command pairs
+
 **Display Commands** (read-only status indicators):
 - `ConnectionStatusDisplay.cs`: Shows connection status (Connected/Disconnected)
 - `CurrentProfileDisplay.cs`: Shows active OBS profile name
@@ -37,20 +41,24 @@ Command classes that handle user interactions from Loupedeck hardware:
 - `ProfilesDynamicFolder.cs`: Dynamic folder containing all available profiles
 - `SceneCollectionSelectCommand.cs`: Multi-state command for switching scene collections
 - `ScenesDynamicFolder.cs`: Dynamic folder containing all available scenes as buttons
+- `SceneSwitchAdjustableCommand.cs`: Encoder-based scene switching (next/previous)
 - `SourcesDynamicFolder.cs`: Dynamic folder showing sources in current scene with visibility toggle
-- `RecordingToggleCommand.cs`: Toggle recording on/off
-- `RecordingStartCommand.cs`: Start recording
-- `RecordingStopCommand.cs`: Stop recording
+- `AudioMixerDynamicFolder.cs`: Dynamic folder with all audio inputs (mute/unmute, volume display)
+- `SceneAudioSourcesDynamicFolder.cs`: Dynamic folder with audio inputs in current scene
+- `AudioInputDynamicFolderBase.cs`: Base class for audio folder implementations
+- `RecordingToggleCommand.cs`: Toggle recording on/off (uses ToggleCommandBase)
+- `RecordingStartCommand.cs`: Start recording (uses StartStopCommandBase)
+- `RecordingStopCommand.cs`: Stop recording (uses StartStopCommandBase)
 - `RecordingPauseToggleCommand.cs`: Pause/resume recording
-- `StreamingToggleCommand.cs`: Toggle streaming on/off
-- `StreamingStartCommand.cs`: Start streaming
-- `StreamingStopCommand.cs`: Stop streaming
-- `VirtualCameraToggleCommand.cs`: Toggle virtual camera on/off
-- `VirtualCameraStartCommand.cs`: Start virtual camera
-- `VirtualCameraStopCommand.cs`: Stop virtual camera
-- `ReplayBufferToggleCommand.cs`: Toggle replay buffer on/off
+- `StreamingToggleCommand.cs`: Toggle streaming on/off (uses ToggleCommandBase)
+- `StreamingStartCommand.cs`: Start streaming (uses StartStopCommandBase)
+- `StreamingStopCommand.cs`: Stop streaming (uses StartStopCommandBase)
+- `VirtualCameraToggleCommand.cs`: Toggle virtual camera on/off (uses ToggleCommandBase)
+- `VirtualCameraStartCommand.cs`: Start virtual camera (uses StartStopCommandBase)
+- `VirtualCameraStopCommand.cs`: Stop virtual camera (uses StartStopCommandBase)
+- `ReplayBufferToggleCommand.cs`: Toggle replay buffer on/off (uses ToggleCommandBase)
 - `ReplayBufferSaveCommand.cs`: Save replay buffer to disk
-- `StudioModeToggleCommand.cs`: Toggle studio mode on/off
+- `StudioModeToggleCommand.cs`: Toggle studio mode on/off (uses ToggleCommandBase)
 - `StudioModeTransitionCommand.cs`: Trigger studio mode transition (preview to program)
 - `ReconnectCommand.cs`: Manually retry connection to OBS
 - `ScreenshotCommand.cs`: Capture screenshot via OBS

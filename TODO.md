@@ -71,12 +71,15 @@
 - [x] Add current scene collection display
 
 ### Technical
+- [x] Implement ToggleCommandBase and StartStopCommandBase to eliminate duplication
+- [x] Migrate all toggle and start/stop commands to use base classes
+- [x] Add SceneSwitchAdjustableCommand for encoder-based scene switching
 - [x] Implement comprehensive disposal pattern with thread safety
 - [x] Add exponential backoff with jitter for reconnection (0.85-1.15x)
 - [x] Implement continuous reconnection with auto-restart
 - [x] Implement automatic OBS configuration discovery
 - [x] Implement comprehensive logging
-- [x] Add test coverage for all core functionality (115+ tests passing)
+- [x] Add test coverage for all core functionality (140 tests passing)
 - [x] Simplify image rendering with ButtonImageHelper (replaced Factory + Store + Data pattern)
 - [x] Eliminate Windows-only System.Drawing dependencies for macOS compatibility
 - [x] Achieve full cross-platform compatibility (Windows + macOS)

@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- ToggleCommandBase and StartStopCommandBase for eliminating command duplication
+- SceneSwitchAdjustableCommand for encoder-based scene switching
 - Audio volume display on audio mixer and scene audio buttons (0-100%)
 - GetInputVolume() and SetInputVolume() API methods for volume control
 - OnInputVolumeChanged() event handler for real-time volume updates
@@ -15,8 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ButtonImageHelper static class for simplified image rendering
 
 ### Changed
-- Simplified image rendering system with ButtonImageHelper (4 simple methods)
-- All 19 commands migrated to use ButtonImageHelper API
+- All toggle commands (Recording, Streaming, Virtual Camera, Replay Buffer, Studio Mode) now use ToggleCommandBase
+- All start/stop commands now use StartStopCommandBase
+- Simplified image rendering system with ButtonImageHelper (6 simple methods)
+- All commands migrated to use ButtonImageHelper API
 - Audio buttons now display input name and volume percentage with colored text
 - Audio buttons generate fresh images on every call for real-time state updates
 - Audio button display name hidden for cleaner appearance

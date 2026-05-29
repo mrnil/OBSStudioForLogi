@@ -61,12 +61,18 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ### Adding a New Command
 1. Create command class in `src/Actions/`
-2. Inherit from `PluginDynamicCommand` or `PluginMultistateDynamicCommand`
-3. Implement `RunCommand()` method
-4. Add icon resources to `src/Icons/`
-5. Update `.csproj` with embedded resources
-6. Add tests in `tests/OBSStudioForLogiPlugin.Tests/`
-7. Update README and TODO
+2. Consider using base classes:
+   - `ToggleCommandBase` for toggle commands (on/off)
+   - `StartStopCommandBase` for start/stop commands
+   - `PluginDynamicCommand` for simple actions
+   - `PluginMultistateDynamicCommand` for multi-state buttons
+   - `PluginDynamicFolder` for dynamic folders
+3. Implement required methods (RunCommand, GetCommandImage, etc.)
+4. Use ButtonImageHelper for all image rendering
+5. Add icon resources to `src/Icons/`
+6. Update `.csproj` with embedded resources
+7. Add tests in `tests/OBSStudioForLogiPlugin.Tests/`
+8. Update README and TODO
 
 ### Adding OBS Integration
 1. Add method to `IOBSWebsocket.cs` interface

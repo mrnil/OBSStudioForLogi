@@ -532,6 +532,9 @@ public void OnCurrentSceneCollectionChanged(String oldSceneCollection, String ne
 15. **Check connection state** before OBS operations
 16. **Use ButtonImageHelper** for all button image rendering
 17. **Use base classes** for common command patterns (ToggleCommandBase, StartStopCommandBase)
+18. **Consider adjustable commands** for encoder-based cycling through lists
+19. **Implement wrapping** for finite lists in adjustable commands
+20. **Update display immediately** after state changes
 
 ## Command Base Classes
 
@@ -573,6 +576,8 @@ public class RecordingToggleCommand : ToggleCommandBase
 - Consistent behavior and error handling
 - Single place to fix bugs
 - Template Method pattern
+
+**Used by**: RecordingToggleCommand, StreamingToggleCommand, VirtualCameraToggleCommand, ReplayBufferToggleCommand, StudioModeToggleCommand
 
 ### StartStopCommandBase Pattern
 For commands that start or stop an operation:
@@ -624,6 +629,8 @@ public class RecordingStartCommand : StartStopCommandBase
 - Consistent enable/disable logic
 - Automatic icon state management
 - Template Method pattern
+
+**Used by**: RecordingStartCommand, RecordingStopCommand, StreamingStartCommand, StreamingStopCommand, VirtualCameraStartCommand, VirtualCameraStopCommand
 
 ## Button Image Rendering
 

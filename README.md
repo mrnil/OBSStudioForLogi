@@ -122,12 +122,13 @@ dotnet clean OBSStudioForLogiPlugin.sln
 
 ## Architecture
 
-- **TDD Approach**: Comprehensive test coverage with 134 unit tests
+- **TDD Approach**: Comprehensive test coverage with 140 unit tests
 - **Dependency Injection**: Interface-based design for testability
 - **Async Operations**: All OBS operations wrapped in Task.Run to prevent UI freezing
 - **Event-Driven**: Real-time updates via OBS WebSocket events
 - **Singleton Pattern**: Command instances accessible via static Instance properties
 - **Resilient Reconnection**: Timer-based reconnection with exponential backoff (1s to 30s) and jitter (0.85-1.15x)
+- **Command Base Classes**: ToggleCommandBase and StartStopCommandBase eliminate duplication across similar commands
 
 ## Troubleshooting
 
