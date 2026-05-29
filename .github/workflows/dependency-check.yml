@@ -18,6 +18,12 @@ jobs:
         with:
           dotnet-version: '8.x'
 
+      - name: Setup PluginApi.dll for CI
+        run: |
+          mkdir -p "C:\Program Files\Logi\LogiPluginService"
+          copy "ci\PluginApi.dll" "C:\Program Files\Logi\LogiPluginService\PluginApi.dll"
+        shell: cmd
+
       - name: Restore
         run: dotnet restore OBSStudioForLogiPlugin.sln
 
