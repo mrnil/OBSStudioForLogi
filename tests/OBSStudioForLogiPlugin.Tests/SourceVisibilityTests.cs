@@ -46,7 +46,7 @@ public class SourceVisibilityTests
 
         this._executor.ToggleSourceVisibility("Scene1", "Source1");
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelayExtended);
         this._mockObs.Verify(x => x.SetSceneItemEnabled("Scene1", "Source1", It.IsAny<Boolean>()), Times.Once);
     }
 

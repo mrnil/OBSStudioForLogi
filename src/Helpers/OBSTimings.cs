@@ -33,13 +33,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Helpers
         public const Int32 ConnectionDelay = 2000;
 
         /// <summary>
-        /// Test delay for async operations in unit tests (100ms).
+        /// Test delay for async operations in unit tests (200ms for CI reliability).
         /// </summary>
-        public const Int32 TestAsyncDelay = 100;
+        public const Int32 TestAsyncDelay = 200;
 
         /// <summary>
-        /// Extended test delay for slower async operations in unit tests (200ms).
+        /// Extended test delay for slower async operations in unit tests (300ms for CI reliability).
         /// </summary>
-        public const Int32 TestAsyncDelayExtended = 200;
+        public const Int32 TestAsyncDelayExtended = 300;
     }
 }
