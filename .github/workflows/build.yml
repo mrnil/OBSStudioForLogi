@@ -19,10 +19,10 @@ jobs:
         dotnet-version: 8.0.x
     
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore OBSStudioForLogiPlugin.sln
     
     - name: Build
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build OBSStudioForLogiPlugin.sln --no-restore --configuration Release
     
     # Tests are skipped in CI due to incompatibility between fire-and-forget Task.Run()
     # pattern and CI environment thread pool scheduling. Tests pass locally.
