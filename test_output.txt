@@ -1,0 +1,15 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  OBSStudioForLogiPlugin -> b:\development\OBSStudioForLogiPlugin\bin\Release\bin\OBSStudioForLogiPlugin.dll
+  📦 Copying package files...
+  ✅ Package files copied to b:\development\OBSStudioForLogiPlugin\bin\Release\bin\..
+  🔨 Created plugin link at: C:\Users\steph\AppData\Local\Logi\LogiPluginService\Plugins\OBSStudioForLogiPlugin.link
+  🔄 Sending plugin reload command for OBSStudioForLogi to Logi Plugin Service
+  OBSStudioForLogiPlugin.Tests -> b:\development\OBSStudioForLogiPlugin\tests\OBSStudioForLogiPlugin.Tests\bin\Release\net9.0\OBSStudioForLogiPlugin.Tests.dll
+Test run for b:\development\OBSStudioForLogiPlugin\tests\OBSStudioForLogiPlugin.Tests\bin\Release\net9.0\OBSStudioForLogiPlugin.Tests.dll (.NETCoreApp,Version=v9.0)
+VSTest version 17.13.0 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   140, Skipped:     0, Total:   140, Duration: 6 s - OBSStudioForLogiPlugin.Tests.dll (net9.0)

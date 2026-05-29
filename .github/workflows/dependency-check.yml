@@ -11,12 +11,18 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup .NET 8
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '8.x'
+
+      - name: Setup PluginApi.dll for CI
+        run: |
+          mkdir -p "C:\Program Files\Logi\LogiPluginService"
+          copy "ci\PluginApi.dll" "C:\Program Files\Logi\LogiPluginService\PluginApi.dll"
+        shell: cmd
 
       - name: Restore
         run: dotnet restore OBSStudioForLogiPlugin.sln
@@ -34,7 +40,7 @@ jobs:
           --logger "trx;LogFileName=test-results.trx"
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-results
@@ -50,7 +56,7 @@ jobs:
 
     steps:
       - name: Fetch Dependabot metadata
-        uses: dependabot/fetch-metadata@v2
+        uses: dependabot/fetch-metadata@v3
         id: metadata
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
