@@ -46,5 +46,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             BitmapColor color = isActive ? activeColor : inactiveColor;
             return ButtonTextRenderer.RenderTextWithIcon(text, imageSize, icon, color);
         }
+        
+        // For text with colored state and optional border
+        public static BitmapImage StateTextWithBorder(String text, PluginImageSize imageSize, 
+            Boolean isActive, BitmapColor activeColor, BitmapColor inactiveColor, Boolean showBorder)
+        {
+            return ButtonTextRenderer.RenderTextWithBorder(text, imageSize, 
+                isActive ? activeColor : inactiveColor, showBorder);
+        }
     }
 }

@@ -62,6 +62,33 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return RenderText("Not Connected", imageSize, BitmapColor.Black, new BitmapColor(128, 128, 128));
         }
 
+        public static BitmapImage RenderTextWithBorder(String text, PluginImageSize imageSize, BitmapColor textColor, Boolean showBorder)
+        {
+            Int32 fontSize = GetDynamicFontSize(text, imageSize);
+            
+            using (var builder = new BitmapBuilder(imageSize))
+            {
+                builder.Clear(BitmapColor.Black);
+                
+                if (showBorder)
+                {
+                    Int32 width = builder.Width;
+                    Int32 height = builder.Height;
+                    Int32 borderWidth = 3;
+                    BitmapColor borderColor = BitmapColor.White;
+                    
+                    // Draw border rectangle
+                    builder.FillRectangle(0, 0, width, borderWidth, borderColor); // Top
+                    builder.FillRectangle(0, height - borderWidth, width, borderWidth, borderColor); // Bottom
+                    builder.FillRectangle(0, 0, borderWidth, height, borderColor); // Left
+                    builder.FillRectangle(width - borderWidth, 0, borderWidth, height, borderColor); // Right
+                }
+                
+                builder.DrawText(text, textColor, fontSize);
+                return builder.ToImage();
+            }
+        }
+
         private static Int32 GetFontSize(PluginImageSize imageSize)
         {
             return imageSize == PluginImageSize.Width90 ? 13 : 11;

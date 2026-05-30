@@ -6,6 +6,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     public abstract class AudioInputDynamicFolderBase : PluginDynamicFolder, IInputMuteAwareCommand, IInputVolumeAwareCommand
     {
         protected String[] AudioInputs = new String[0];
+        private readonly DoubleTapHelper _doubleTapHelper = new DoubleTapHelper();
 
         protected AudioInputDynamicFolderBase()
         {
@@ -37,7 +38,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Int32 volumePercent = (Int32)(volumeLevel * 100);
             String text = $"{actionParameter}\n\n{volumePercent}%";
             
-            return ButtonImageHelper.StateText(text, imageSize, !isMuted, BitmapColor.Green, BitmapColor.Red);
+            Boolean isSelected = AudioSelectionState.IsSelected(actionParameter);
+            
+            return ButtonImageHelper.StateTextWithBorder(text, imageSize, !isMuted, 
+                BitmapColor.Green, BitmapColor.Red, isSelected);
         }
 
         public override void RunCommand(String actionParameter)
@@ -45,7 +49,35 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (String.IsNullOrEmpty(actionParameter))
                 return;
 
-            OBSStudioForLogiPlugin.Instance?.ToggleInputMute(actionParameter);
+            this._doubleTapHelper.OnTap(actionParameter,
+                onSingleTap: (input) =>
+                {
+                    OBSStudioForLogiPlugin.Instance?.ToggleInputMute(input);
+                },
+                onDoubleTap: (input) =>
+                {
+                    HandleDoubleTap(input);
+                });
+        }
+
+        private void HandleDoubleTap(String inputName)
+        {
+            if (AudioSelectionState.IsSelected(inputName))
+            {
+                AudioSelectionState.Deselect();
+            }
+            else
+            {
+                var previousSelection = AudioSelectionState.SelectedInput;
+                AudioSelectionState.Select(inputName);
+                
+                if (!String.IsNullOrEmpty(previousSelection))
+                {
+                    this.CommandImageChanged(previousSelection);
+                }
+            }
+            
+            this.CommandImageChanged(inputName);
         }
 
         public void OnInputMuteChanged(String inputName)

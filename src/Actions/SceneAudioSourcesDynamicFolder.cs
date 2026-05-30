@@ -26,8 +26,17 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void UpdateAudioSources(String sceneName, String[] audioSources)
         {
+            var previousSelection = AudioSelectionState.SelectedInput;
+            
             this._currentScene = sceneName ?? String.Empty;
             this.AudioInputs = audioSources ?? new String[0];
+            
+            // Deselect if selected input is no longer in the list
+            if (!String.IsNullOrEmpty(previousSelection) && !this.AudioInputs.Contains(previousSelection))
+            {
+                AudioSelectionState.Deselect();
+            }
+            
             PluginLog.Info($"SceneAudioSourcesDynamicFolder updated with {this.AudioInputs.Length} audio sources for scene '{this._currentScene}'");
             this.ButtonActionNamesChanged();
         }
@@ -41,6 +50,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this.AudioInputs = new String[0];
             this._currentScene = String.Empty;
+            AudioSelectionState.Deselect();
             this.ButtonActionNamesChanged();
         }
     }

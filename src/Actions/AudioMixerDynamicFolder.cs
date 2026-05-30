@@ -31,8 +31,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         private void UpdateInputs(String[] inputs)
         {
+            var previousSelection = AudioSelectionState.SelectedInput;
+            
             this.AudioInputs = inputs ?? new String[0];
             this._inputScenes.Clear();
+            
+            // Deselect if selected input is no longer in the list
+            if (!String.IsNullOrEmpty(previousSelection) && !this.AudioInputs.Contains(previousSelection))
+            {
+                AudioSelectionState.Deselect();
+            }
             
             PluginLog.Info($"=== AudioMixerDynamicFolder updated with {this.AudioInputs.Length} inputs ===");
             
@@ -58,6 +66,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public override void OnDisconnected()
         {
             this.AudioInputs = new String[0];
+            AudioSelectionState.Deselect();
             this.ButtonActionNamesChanged();
         }
     }
