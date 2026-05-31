@@ -12,13 +12,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             : base(displayName: "Current Collection", description: "Shows current OBS scene collection", groupName: "7. Scenes")
         {
             Instance = this;
+            this.IsWidget = true;
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.AddParameter("", "", groupName: "7. Scenes");
-        }
-
-        protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
-        {
-            return String.Empty;
         }
 
         public void OnSceneCollectionChanged(String oldSceneCollection, String newSceneCollection)

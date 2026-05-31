@@ -16,11 +16,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.AddParameter("", "", groupName: "7. Scenes");
         }
 
-        protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
-        {
-            return String.Empty;
-        }
-
         public void OnSceneChanged(String sceneName)
         {
             this.UpdateScene(sceneName);

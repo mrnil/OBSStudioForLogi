@@ -11,6 +11,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                        : $"Takes a screenshot of currently active scene and saves it to {OBSStudioForLogiPlugin.ScreenshotPath}", 
                    groupName: "1. OBS")
         {
+            this.IsWidget = true;
         }
 
         protected override Boolean OnLoad()

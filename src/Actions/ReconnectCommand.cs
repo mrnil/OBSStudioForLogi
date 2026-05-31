@@ -7,6 +7,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public ReconnectCommand()
             : base(displayName: "Reconnect to OBS", description: "Manually reconnect to OBS Studio", groupName: "1. OBS")
         {
+            this.IsWidget = true;
         }
 
         protected override void RunCommand(String actionParameter)
