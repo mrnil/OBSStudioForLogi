@@ -3,6 +3,7 @@
 ## New Features
 
 ### Adjustable Scene Switch Command
+
 - **New Command**: "Switch to Scene (Adjustable)" in the Scenes group
 - **Manual Configuration**: Enter profile name, collection name, and scene name via text inputs in the Action Editor
 - **Smart Switching**: Automatically switches profile → collection → scene with appropriate delays
@@ -16,11 +17,13 @@
 ## Improvements
 
 ### Scene Collection Change Handling
+
 - **Enhanced State Management**: Current scene is now automatically updated when scene collection changes
 - **Better Synchronization**: Ensures UI displays correct active scene after collection switches
 - **Improved Reliability**: 100ms delay ensures OBS has processed the collection change before querying current scene
 
 ### Logging Enhancements
+
 - **Validation Logging**: Logs whether profile/collection/scene exists in available options
 - **State Tracking**: Logs current state before and after each switch operation
 - **Error Details**: Lists available options when requested item is not found
@@ -29,12 +32,14 @@
 ## Technical Details
 
 ### Architecture
+
 - **Base Class**: `ActionEditorCommand` with `ActionEditorTextbox` controls
 - **Event Handling**: Wired into existing connection/profile/collection/scene change events
 - **Async Operations**: Uses `Task.Run` with delays for sequential switching
 - **Singleton Pattern**: Accessible via `SceneSwitchAdjustableCommand.Instance`
 
 ### Testing
+
 - **Unit Tests**: 6 new tests for command initialization and event handlers
 - **Total Tests**: 134 tests passing (100% pass rate)
 - **Coverage**: Constructor, singleton instance, and all public event handlers
@@ -68,16 +73,19 @@
 ### Examples
 
 **Switch scene only:**
+
 - Profile Name: (empty)
 - Collection Name: (empty)
 - Scene Name: `Gaming Scene`
 
 **Switch collection and scene:**
+
 - Profile Name: (empty)
 - Collection Name: `Streaming`
 - Scene Name: `Starting Soon`
 
 **Switch everything:**
+
 - Profile Name: `Twitch`
 - Collection Name: `Live Show`
 - Scene Name: `Main Camera`
@@ -92,6 +100,6 @@ Thanks to the Loupedeck/Logitech community for feedback and testing.
 
 ## Links
 
-- **GitHub Repository**: https://github.com/mrnil/OBSStudioForLogi
-- **Issue Tracker**: https://github.com/mrnil/OBSStudioForLogi/issues
+- **GitHub Repository**: <https://github.com/mrnil/OBSStudioForLogi>
+- **Issue Tracker**: <https://github.com/mrnil/OBSStudioForLogi/issues>
 - **Documentation**: See README.md in the repository

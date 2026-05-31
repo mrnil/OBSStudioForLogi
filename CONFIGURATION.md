@@ -13,6 +13,7 @@ The OBSStudioForLogiPlugin supports optional configuration via a JSON file. This
 ## Creating the Configuration File
 
 1. Create the directory if it doesn't exist:
+
    ```
    %AppData%\Loupedeck\OBSStudioForLogiPlugin\
    ```
@@ -30,6 +31,7 @@ The OBSStudioForLogiPlugin supports optional configuration via a JSON file. This
 Controls the verbosity of plugin logging.
 
 **Available Levels** (from most to least verbose):
+
 - `Trace` - Very detailed logging for debugging specific issues (disabled in production)
 - `Debug` - Detailed logging for development and troubleshooting
 - `Info` - General informational messages (default for Release builds)
@@ -37,6 +39,7 @@ Controls the verbosity of plugin logging.
 - `Error` - Error messages only
 
 **Default Values**:
+
 - Debug builds: `Debug`
 - Release builds: `Info`
 
@@ -86,6 +89,7 @@ Plugin logs are written to the Logi Plugin Service log file:
 ### Invalid JSON
 
 If the configuration file contains invalid JSON, the plugin will:
+
 - Log a warning message
 - Use the default log level
 - Continue operating normally
@@ -93,6 +97,7 @@ If the configuration file contains invalid JSON, the plugin will:
 ## Future Configuration Options
 
 Additional configuration options may be added in future versions, such as:
+
 - Custom reconnection delays
 - Screenshot format preferences
 - UI customization options

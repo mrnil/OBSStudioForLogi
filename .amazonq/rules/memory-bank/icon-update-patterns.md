@@ -1,14 +1,17 @@
 # Icon Update Patterns
 
 ## Overview
+
 This document describes the patterns used for updating button icons in dynamic folders when state changes occur in OBS.
 
 ## Pattern: CommandImageChanged for Individual Button Updates
 
 ### When to Use
+
 Use `CommandImageChanged(actionParameter)` when you need to update a specific button's icon without rebuilding the entire button list.
 
 ### Benefits
+
 - **Efficient**: Only refreshes the specific button that changed
 - **Fast**: No need to rebuild all buttons in the folder
 - **Immediate**: Provides instant visual feedback to the user
@@ -16,6 +19,7 @@ Use `CommandImageChanged(actionParameter)` when you need to update a specific bu
 ### Pattern Implementation
 
 #### For State-Based Icons (Selected/Unselected)
+
 Used in: **ScenesDynamicFolder**, **ProfilesDynamicFolder**
 
 ```csharp
@@ -39,12 +43,14 @@ public void OnCurrentSceneChanged(String sceneName)
 ```
 
 **Key Points:**
+
 - Track the old state before updating
 - Refresh both old and new items (if different)
 - Check for null/empty strings
 - Check that old != new to avoid double refresh
 
 #### For Toggle-Based Icons (On/Off, Visible/Hidden)
+
 Used in: **SourcesDynamicFolder**
 
 ```csharp
@@ -69,12 +75,14 @@ public void OnSourceVisibilityChanged(String sceneName, String sourceName)
 ```
 
 **Key Points:**
+
 - Do NOT refresh immediately in RunCommand (race condition)
 - Use async callback with delay to allow OBS to process
 - Refresh only after OBS has updated the state
 - Verify the change is for the current scene/context
 
 #### For Real-Time State Icons (Mute/Volume)
+
 Used in: **AudioInputDynamicFolderBase**, **AudioMixerDynamicFolder**, **SceneAudioSourcesDynamicFolder**
 
 ```csharp
@@ -90,6 +98,7 @@ public void OnInputVolumeChanged(String inputName)
 ```
 
 **Key Points:**
+
 - Simple direct refresh when OBS event fires
 - No delay needed (event fires after OBS has updated)
 - GetCommandImage queries current state from OBS
@@ -97,7 +106,9 @@ public void OnInputVolumeChanged(String inputName)
 ## Pattern: Delayed Callback for Toggle Operations
 
 ### Problem
+
 When toggling state in OBS (e.g., source visibility), there's a timing issue:
+
 1. Plugin sends toggle command to OBS
 2. Plugin immediately refreshes icon
 3. GetCommandImage queries OBS for current state
@@ -105,6 +116,7 @@ When toggling state in OBS (e.g., source visibility), there's a timing issue:
 5. Icon shows incorrect state
 
 ### Solution
+
 Add delay and callback after OBS API call:
 
 ```csharp
@@ -140,6 +152,7 @@ public void ToggleSourceVisibility(String sceneName, String sourceName)
 ```
 
 **Key Points:**
+
 - Use `async` Task.Run for the operation
 - Call OBS API to toggle state
 - Add `await Task.Delay(100)` after API call
@@ -149,6 +162,7 @@ public void ToggleSourceVisibility(String sceneName, String sourceName)
 ## Anti-Patterns to Avoid
 
 ### ❌ ButtonActionNamesChanged for Icon Updates
+
 **Problem**: Rebuilds entire button list, inefficient and slow
 
 ```csharp
@@ -178,6 +192,7 @@ public void OnCurrentSceneChanged(String sceneName)
 ```
 
 ### ❌ Immediate Refresh After Toggle
+
 **Problem**: Race condition - OBS hasn't processed change yet
 
 ```csharp
@@ -220,6 +235,7 @@ public void OnSourceVisibilityChanged(String sceneName, String sourceName)
 ## Event Flow Examples
 
 ### Scene Change
+
 1. User clicks scene button OR changes scene in OBS
 2. OBS fires `CurrentProgramSceneChanged` event
 3. `OBSWebSocketManager.OnCurrentSceneChanged()` receives event
@@ -231,6 +247,7 @@ public void OnSourceVisibilityChanged(String sceneName, String sourceName)
 9. Icons update to show correct selected/unselected state
 
 ### Source Visibility Toggle
+
 1. User clicks source button
 2. `SourcesDynamicFolder.RunCommand()` called
 3. `OBSStudioForLogiPlugin.ToggleSourceVisibility()` called
@@ -245,6 +262,7 @@ public void OnSourceVisibilityChanged(String sceneName, String sourceName)
 12. Icon updates to show correct visibility state
 
 ### Audio Mute Change
+
 1. User clicks audio button OR changes mute in OBS
 2. OBS fires `InputMuteStateChanged` event
 3. `OBSWebSocketManager.OnInputMuteStateChanged()` receives event

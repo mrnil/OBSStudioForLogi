@@ -5,12 +5,14 @@ Thank you for your interest in contributing! This document provides guidelines f
 ## Development Setup
 
 ### Prerequisites
+
 - .NET 8.0 SDK
 - Visual Studio 2022 or VS Code
 - Logi Plugin Service installed
 - OBS Studio 28.0+ with obs-websocket 5.0+
 
 ### Getting Started
+
 1. Clone the repository
 2. Open `OBSStudioForLogiPlugin.sln` in Visual Studio
 3. Build the solution: `dotnet build`
@@ -19,6 +21,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 ## Development Guidelines
 
 ### Code Style
+
 - Follow the conventions in `.amazonq/rules/memory-bank/guidelines.md`
 - Use BCL type names (`String`, `Boolean`, `Int32`) instead of C# keywords
 - Prefix private fields with underscore (`_fieldName`)
@@ -26,16 +29,19 @@ Thank you for your interest in contributing! This document provides guidelines f
 - Use camelCase for parameters and local variables
 
 ### Test-Driven Development
+
 - Write tests before or alongside implementation
 - All business logic must have accompanying tests
 - Maintain 80%+ test coverage for services layer
 - Run all tests before committing: `dotnet test`
 
 ### Commit Messages
+
 - Use conventional commit format: `type: description`
 - Types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`
 - Include detailed body explaining what changed and why
 - Example:
+
   ```
   feat: add audio mixer mute/unmute controls
   
@@ -50,6 +56,7 @@ Thank you for your interest in contributing! This document provides guidelines f
   ```
 
 ### Pull Request Process
+
 1. Create a feature branch from `main`
 2. Implement changes with tests
 3. Ensure all tests pass
@@ -60,6 +67,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 ## Adding New Features
 
 ### Adding a New Command
+
 1. Create command class in `src/Actions/`
 2. Consider using base classes:
    - `ToggleCommandBase` for toggle commands (on/off)
@@ -75,6 +83,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 8. Update README and TODO
 
 ### Adding OBS Integration
+
 1. Add method to `IOBSWebsocket.cs` interface
 2. Implement in `OBSWebsocketAdapter.cs`
 3. Add business logic to `OBSActionExecutor.cs`
@@ -84,6 +93,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 ## Testing
 
 ### Running Tests
+
 ```bash
 # Run all tests
 dotnet test
@@ -98,6 +108,7 @@ dotnet test --filter "FullyQualifiedName~OBSActionExecutorTests"
 **Important:** All tests must pass locally before committing. The GitHub Actions workflow performs dependency checking and build validation but does not run tests.
 
 ### Writing Tests
+
 - Use xUnit framework
 - Use Moq for mocking dependencies
 - Follow Arrange-Act-Assert pattern
@@ -107,12 +118,14 @@ dotnet test --filter "FullyQualifiedName~OBSActionExecutorTests"
 ## Documentation
 
 ### Update These Files
+
 - `README.md`: User-facing features and usage
 - `TODO.md`: Roadmap and completed items
 - `CHANGELOG.md`: Version history
 - `.amazonq/rules/memory-bank/*.md`: Architecture and patterns
 
 ### Memory Bank Structure
+
 - `product.md`: Product overview and use cases
 - `structure.md`: Project structure and components
 - `tech.md`: Technology stack and build system
@@ -121,6 +134,7 @@ dotnet test --filter "FullyQualifiedName~OBSActionExecutorTests"
 ## Questions?
 
 Open an issue for:
+
 - Bug reports
 - Feature requests
 - Documentation improvements

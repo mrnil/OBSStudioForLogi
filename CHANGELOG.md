@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - ToggleCommandBase and StartStopCommandBase for eliminating command duplication
 - SceneSwitchAdjustableCommand for encoder-based scene switching
 - Audio volume display on audio mixer and scene audio buttons (0-100%)
@@ -17,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ButtonImageHelper static class for simplified image rendering
 
 ### Changed
+
 - All toggle commands (Recording, Streaming, Virtual Camera, Replay Buffer, Studio Mode) now use ToggleCommandBase
 - All start/stop commands now use StartStopCommandBase
 - Simplified image rendering system with ButtonImageHelper (6 simple methods)
@@ -27,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reduced image rendering code by ~80% while maintaining same functionality
 
 ### Removed
+
 - ActionImageStore, IActionImageFactory, IActionImageData (replaced with ButtonImageHelper)
 - StateImageFactory, TextImageFactory, SimpleIconImageFactory (no longer needed)
 - StateImageData, TextImageData, SimpleIconImageData models (no longer needed)
@@ -35,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - IconWithTextImageFactory.cs and IconWithTextImageData.cs (unused)
 
 ### Fixed
+
 - All 78 CA1416 platform-specific warnings eliminated
 - Plugin now fully compatible with macOS (no Windows-only dependencies)
 - Audio buttons now update correctly when mute state or volume changes
@@ -42,12 +46,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.8.3] - 2026-03-10
 
 ### Fixed
+
 - macOS plugin load failure by enabling pluginFolderMac in package metadata
 - Plugin now loads successfully on macOS devices
 
 ## [0.8.2] - 2026-01-17
 
 ### Fixed
+
 - Plugin load failure with "channelName cannot be null" error
 - Display commands now properly initialize with default empty parameter
 - ActionImageChanged() calls now include required actionParameter
@@ -55,20 +61,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.8.1] - 2026-01-17
 
 ### Fixed
+
 - Eliminated jaggy text rendering on all buttons by preventing double text rendering
 - Display commands now return null from GetCommandDisplayName() to avoid native text overlay
 - Dynamic folders (Scenes, Sources) now render only anti-aliased text via BitmapBuilder
 
 ### Added
+
 - ButtonTextRenderer helper class for consistent, reusable text rendering across all display commands
 - RenderText(), RenderConnectionStatus(), RenderNotConnected() methods with proper font sizing
 
 ### Changed
+
 - Simplified .gitignore to essential patterns, added *.lplug4 to ignored files
 
 ## [0.8.0] - 2026-01-17
 
 ### Added
+
 - Virtual camera controls (toggle, start, stop)
 - Source visibility toggle for sources in current scene
 - Profiles dynamic folder showing all available profiles
@@ -80,12 +90,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 80 unit tests with full coverage of core functionality
 
 ### Changed
+
 - Display commands now use BitmapBuilder for anti-aliased text rendering
 - Display commands show "Not Connected" when disconnected
 - Virtual camera commands simplified to use base constructor pattern
 - Reconnection now uses timer-based approach with auto-restart
 
 ### Fixed
+
 - Virtual camera commands now appear in Logi Plugin Service app
 - Display commands now properly initialize on connection
 - Dynamic folders now clear when OBS disconnects
@@ -93,6 +105,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - Initial Development
 
 ### Added
+
 - Recording controls (toggle, start, stop, pause/resume)
 - Scene management with dynamic folder
 - Profile selection with multi-state buttons

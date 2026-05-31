@@ -51,6 +51,7 @@
 ## Completed
 
 ### Features
+
 - [x] Add streaming controls (start/stop/toggle streaming)
 - [x] Add source visibility toggle commands
 - [x] Add virtual camera controls (start/stop/toggle)
@@ -71,6 +72,7 @@
 - [x] Add current scene collection display
 
 ### Technical
+
 - [x] Implement ToggleCommandBase and StartStopCommandBase to eliminate duplication
 - [x] Migrate all toggle and start/stop commands to use base classes
 - [x] Add SceneSwitchAdjustableCommand for encoder-based scene switching
@@ -85,6 +87,7 @@
 - [x] Achieve full cross-platform compatibility (Windows + macOS)
 
 ### Documentation
+
 - [x] Create comprehensive memory bank documentation
 - [x] Document icon update patterns and best practices
 - [x] Document simplified image rendering system with ButtonImageHelper
@@ -96,6 +99,7 @@
 - [x] Maintain changelog with version history
 
 ### UI/UX
+
 - [x] Simplify display commands to use BitmapBuilder for text rendering
 - [x] Ensure display buttons get initial state on connection
 - [x] Add description to scenes dynamic folder

@@ -3,6 +3,7 @@
 ## Code Quality Standards
 
 ### Naming Conventions
+
 - **Classes**: PascalCase (e.g., `OBSActionExecutor`, `PluginResources`, `SceneCollectionSelectCommand`)
 - **Interfaces**: PascalCase with `I` prefix (e.g., `IOBSWebsocket`, `IPluginLog`)
 - **Private Fields**: camelCase with underscore prefix (e.g., `_obsManager`, `_configReader`, `_mockObs`)
@@ -12,15 +13,18 @@
 - **Constants**: SCREAMING_SNAKE_CASE (e.g., `SCENE_COLLECTION_UNSELECTED`, `SCENE_COLLECTION_SELECTED`)
 
 ### Type Usage
+
 - **Always use BCL types**: Use `String`, `Boolean`, `Int32`, `Int16`, `Byte[]` instead of `string`, `bool`, `int`, `short`, `byte[]`
 - **Explicit types**: Prefer explicit type declarations over `var` for clarity
 - **Nullable handling**: Project has nullable reference types disabled (`<Nullable>disable</Nullable>`)
 
 ### Code Formatting
+
 - **Braces**: Opening braces on same line for methods and control structures
 - **Indentation**: Consistent 4-space indentation
 - **Line breaks**: Single line break between methods
 - **Namespace**: File-scoped namespace declarations (C# 10+ style)
+
   ```csharp
   namespace Loupedeck.OBSStudioForLogiPlugin
   {
@@ -30,9 +34,11 @@
   ```
 
 ### Using Directives
+
 - **Placement**: Inside namespace block, after namespace declaration
 - **Order**: System namespaces first, then third-party, then project namespaces
 - **Example**:
+
   ```csharp
   namespace Loupedeck.OBSStudioForLogiPlugin
   {
@@ -45,7 +51,9 @@
 ## Structural Conventions
 
 ### Singleton Pattern Implementation
+
 Commands and major components use static `Instance` property:
+
 ```csharp
 public static SceneCollectionSelectCommand Instance { get; private set; }
 
@@ -55,11 +63,13 @@ public SceneCollectionSelectCommand()
     // initialization
 }
 ```
+
 - Set `Instance` in constructor
 - Use `private set` to prevent external modification
 - Access via `ClassName.Instance?.Method()` with null-conditional operator
 
 ### Class Organization Order
+
 1. Constants
 2. Static properties
 3. Private fields
@@ -70,6 +80,7 @@ public SceneCollectionSelectCommand()
 8. Private methods
 
 Example from `OBSActionExecutor`:
+
 ```csharp
 public class OBSActionExecutor
 {
@@ -93,9 +104,11 @@ public class OBSActionExecutor
 ```
 
 ### Dependency Injection
+
 - Constructor injection for dependencies
 - Use interfaces for testability (`IOBSWebsocket`, `IPluginLog`)
 - Store dependencies in readonly private fields
+
 ```csharp
 private readonly IOBSWebsocket _obs;
 private readonly IPluginLog _log;
@@ -110,7 +123,9 @@ public OBSActionExecutor(IOBSWebsocket obs, IPluginLog log)
 ## Semantic Patterns
 
 ### Asynchronous Operations with Task.Run
+
 Wrap long-running or I/O operations in `Task.Run` to avoid blocking:
+
 ```csharp
 public void SetCurrentScene(String sceneName)
 {
@@ -142,6 +157,7 @@ public void SetCurrentScene(String sceneName)
     });
 }
 ```
+
 - Use `Task.Run` for fire-and-forget operations
 - Always check connection state before OBS operations
 - Log warnings for failed preconditions
@@ -149,7 +165,9 @@ public void SetCurrentScene(String sceneName)
 - **Studio Mode Behavior**: When studio mode is enabled, scene switching sets the preview scene instead of program scene
 
 ### Async/Await Pattern
+
 For operations requiring sequential async steps:
+
 ```csharp
 private async void OnApplicationStarted(Object sender, EventArgs e)
 {
@@ -174,13 +192,16 @@ private async void OnApplicationStarted(Object sender, EventArgs e)
     });
 }
 ```
+
 - Use `async void` for event handlers
 - Wrap in `Task.Run(async () => ...)` for background execution
 - Use `await` for sequential async operations
 - Add delays (`Task.Delay`) for timing-sensitive operations
 
 ### Null-Conditional Operator Pattern
+
 Extensively use `?.` for safe navigation:
+
 ```csharp
 // Safe method invocation
 ProfileSelectCommand.Instance?.OnConnected();
@@ -190,12 +211,15 @@ this._obsManager?.Dispose();
 public String CurrentProfile => this._obsManager?.Actions.CurrentProfile ?? String.Empty;
 public String[] GetProfileList() => this._obsManager?.Actions.GetProfileList() ?? new String[0];
 ```
+
 - Always use `?.` when accessing singleton instances
 - Combine with `??` operator for default values
 - Return empty arrays (`new String[0]`) instead of null for collections
 
 ### Guard Clauses
+
 Always validate preconditions at method start:
+
 ```csharp
 public void SetCurrentProfile(String profileName)
 {
@@ -221,13 +245,16 @@ public void SetCurrentProfile(String profileName)
     });
 }
 ```
+
 - Check connection state first
 - Check for redundant operations
 - Log appropriate messages for each guard
 - Return early to avoid nesting
 
 ### String Validation Pattern
+
 Use `String.IsNullOrEmpty()` for string validation:
+
 ```csharp
 protected override void RunCommand(String actionParameter)
 {
@@ -239,7 +266,9 @@ protected override void RunCommand(String actionParameter)
 ```
 
 ### Logging Pattern
+
 Consistent logging throughout the codebase:
+
 ```csharp
 // Info: Normal operations
 PluginLog.Info("Plugin loading...");
@@ -252,6 +281,7 @@ PluginLog.Warning($"Cannot set scene '{sceneName}' - not connected");
 // Error: Unexpected failures
 PluginLog.Error("OBS WebSocket port did not become available");
 ```
+
 - Use string interpolation for dynamic messages
 - Include relevant context (names, states) in messages
 - Log before and after significant operations
@@ -261,6 +291,7 @@ PluginLog.Error("OBS WebSocket port did not become available");
 ### Loupedeck Plugin API
 
 #### Plugin Base Class
+
 ```csharp
 public class OBSStudioForLogiPlugin : Plugin
 {
@@ -271,11 +302,13 @@ public class OBSStudioForLogiPlugin : Plugin
     public override void Unload() { }
 }
 ```
+
 - Override `Load()` for initialization
 - Override `Unload()` for cleanup
 - Set `UsesApplicationApiOnly` and `HasNoApplication` appropriately
 
 #### Command Base Classes
+
 ```csharp
 // Multi-state commands (selected/unselected)
 public class SceneCollectionSelectCommand : PluginMultistateDynamicCommand
@@ -305,6 +338,7 @@ public class SceneCollectionSelectCommand : PluginMultistateDynamicCommand
 ```
 
 #### Dynamic Parameters
+
 ```csharp
 private void ResetParameters(Boolean readContent)
 {
@@ -326,12 +360,14 @@ private void ResetParameters(Boolean readContent)
     this.ActionImageChanged();
 }
 ```
+
 - Call `RemoveAllParameters()` before rebuilding
 - Use `AddParameter(value, displayName, groupName)` to add options
 - Set state with `SetCurrentState(parameter, stateIndex)`
 - Call `ParametersChanged()` and `ActionImageChanged()` after updates
 
 #### ClientApplication Integration
+
 ```csharp
 public class OBSStudioForLogiApplication : ClientApplication
 {
@@ -346,6 +382,7 @@ public class OBSStudioForLogiApplication : ClientApplication
 ```
 
 #### Event Subscription
+
 ```csharp
 this.ClientApplication.ApplicationStarted += this.OnApplicationStarted;
 this.ClientApplication.ApplicationStopped += this.OnApplicationStopped;
@@ -356,6 +393,7 @@ this.ClientApplication.ApplicationStopped -= this.OnApplicationStopped;
 ```
 
 ### Resource Management
+
 ```csharp
 // Initialize in plugin constructor
 PluginResources.Init(this.Assembly);
@@ -371,6 +409,7 @@ var text = PluginResources.ReadTextFile("ResourceName.txt");
 ## Testing Patterns
 
 ### Unit Test Structure (xUnit)
+
 ```csharp
 namespace Loupedeck.OBSStudioForLogiPlugin.Tests;
 
@@ -408,18 +447,22 @@ public class OBSActionExecutorTests
 ```
 
 ### Mocking with Moq
+
 - Use `Mock<T>` for interface dependencies
 - Setup return values: `mock.Setup(x => x.Method()).Returns(value)`
 - Verify calls: `mock.Verify(x => x.Method(param), Times.Once)`
 - Access mock object: `mock.Object`
 
 ### Test Naming Convention
+
 Format: `MethodName_Condition_ExpectedBehavior`
+
 - `GetProfileList_WhenConnected_ReturnsProfiles`
 - `GetProfileList_WhenNotConnected_ReturnsEmpty`
 - `SetCurrentProfile_WhenConnected_CallsObs`
 
 ### Async Test Handling
+
 ```csharp
 [Fact]
 public void SetCurrentProfile_WhenConnected_CallsObs()
@@ -433,12 +476,14 @@ public void SetCurrentProfile_WhenConnected_CallsObs()
     this._mockObs.Verify(x => x.SetCurrentProfile("test"), Times.Once);
 }
 ```
+
 - Add `Thread.Sleep()` when testing `Task.Run` fire-and-forget methods
 - Keep delays minimal (100ms typically sufficient)
 
 ## Common Idioms
 
 ### State Management Pattern
+
 ```csharp
 public void SetRecordingState(OutputState state)
 {
@@ -458,11 +503,13 @@ public void SetRecordingState(OutputState state)
     }
 }
 ```
+
 - Update internal state first
 - Use if-else chains for state transitions
 - Update derived properties based on state
 
 ### Expression-Bodied Properties
+
 ```csharp
 public Boolean IsRecording => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED 
                             || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_PAUSED
@@ -470,11 +517,13 @@ public Boolean IsRecording => this._recordingState == OutputState.OBS_WEBSOCKET_
 
 public String CurrentProfile => this._obsManager?.Actions.CurrentProfile ?? String.Empty;
 ```
+
 - Use for computed properties
 - Multi-line expressions aligned with `||` or `&&` operators
 - Combine with null-conditional and null-coalescing operators
 
 ### Connection State Callbacks
+
 ```csharp
 public void OnConnected()
 {
@@ -488,10 +537,12 @@ public void OnDisconnected()
     this.ResetParameters(false);
 }
 ```
+
 - Enable/disable commands based on connection
 - Refresh parameters with appropriate data loading flag
 
 ### Event Notification Pattern
+
 ```csharp
 public void OnCurrentSceneCollectionChanged(String oldSceneCollection, String newSceneCollection)
 {
@@ -508,6 +559,7 @@ public void OnCurrentSceneCollectionChanged(String oldSceneCollection, String ne
     this.ActionImageChanged();
 }
 ```
+
 - Accept both old and new values
 - Validate strings before processing
 - Update UI state for both old and new values
@@ -539,6 +591,7 @@ public void OnCurrentSceneCollectionChanged(String oldSceneCollection, String ne
 ## Command Base Classes
 
 ### ToggleCommandBase Pattern
+
 For commands that toggle between two states (on/off, enabled/disabled):
 
 ```csharp
@@ -572,6 +625,7 @@ public class RecordingToggleCommand : ToggleCommandBase
 ```
 
 **Benefits**:
+
 - Eliminates duplication across toggle commands
 - Consistent behavior and error handling
 - Single place to fix bugs
@@ -580,6 +634,7 @@ public class RecordingToggleCommand : ToggleCommandBase
 **Used by**: RecordingToggleCommand, StreamingToggleCommand, VirtualCameraToggleCommand, ReplayBufferToggleCommand, StudioModeToggleCommand
 
 ### StartStopCommandBase Pattern
+
 For commands that start or stop an operation:
 
 ```csharp
@@ -618,6 +673,7 @@ public class RecordingStartCommand : StartStopCommandBase
 ```
 
 **Key Points**:
+
 - `isStartCommand: true` for start commands, `false` for stop commands
 - Start commands are enabled when state is false (not active)
 - Stop commands are enabled when state is true (active)
@@ -625,6 +681,7 @@ public class RecordingStartCommand : StartStopCommandBase
 - Only implement the relevant Execute method (ExecuteStart or ExecuteStop)
 
 **Benefits**:
+
 - Eliminates duplication across start/stop command pairs
 - Consistent enable/disable logic
 - Automatic icon state management
@@ -635,6 +692,7 @@ public class RecordingStartCommand : StartStopCommandBase
 ## Button Image Rendering
 
 ### Use ButtonImageHelper for All Images
+
 All button images should use the static `ButtonImageHelper` class:
 
 ```csharp
@@ -662,10 +720,12 @@ return ButtonImageHelper.StateTextWithIcon(text, imageSize, isActive,
 ```
 
 ### Icon Resource Names
+
 - Use short names: `"RecordingOn.svg"` not `"Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOn.svg"`
 - ButtonImageHelper automatically resolves full resource path
 
 ### No Manual Caching Needed
+
 - Loupedeck framework handles image caching internally
 - Just return the image from `GetCommandImage()`
 - Call `CommandImageChanged()` or `ActionImageChanged()` to trigger refresh

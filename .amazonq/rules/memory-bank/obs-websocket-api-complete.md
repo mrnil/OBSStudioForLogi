@@ -1,9 +1,11 @@
 # OBS WebSocket API - Complete Feature Reference
 
 ## Overview
+
 This document catalogs all available features in the OBS WebSocket 5.x API (via obs-websocket-dotnet 5.0.1) and tracks which features are implemented in the OBSStudioForLogiPlugin.
 
 **Legend:**
+
 - ✅ Fully Implemented
 - 🟡 Partially Implemented
 - ❌ Not Implemented
@@ -26,6 +28,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 ## 2. Outputs (Streaming/Recording/Virtual Camera)
 
 ### Streaming
+
 | Feature | Status | Implementation |
 |---------|--------|----------------|
 | Start Streaming | ✅ | `StreamingStartCommand` |
@@ -37,6 +40,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 | Set Stream Settings | ❌ | Not implemented |
 
 ### Recording
+
 | Feature | Status | Implementation |
 |---------|--------|----------------|
 | Start Recording | ✅ | `RecordingStartCommand` |
@@ -50,6 +54,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 | Set Recording Folder | ❌ | Not implemented |
 
 ### Virtual Camera
+
 | Feature | Status | Implementation |
 |---------|--------|----------------|
 | Start Virtual Camera | ✅ | `VirtualCameraStartCommand` |
@@ -59,6 +64,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 | Virtual Camera State Events | ✅ | `VirtualcamStateChanged` event |
 
 ### Replay Buffer
+
 | Feature | Status | Implementation |
 |---------|--------|----------------|
 | Start Replay Buffer | ✅ | `ReplayBufferToggleCommand` |
@@ -126,6 +132,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 ## 6. Inputs (Sources)
 
 ### Input Discovery
+
 | Feature | Status | Implementation |
 |---------|--------|----------------|
 | Get Input List | ✅ | `GetInputList()` - filtered for audio |
@@ -138,6 +145,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 | Set Input Name | ❌ | Not implemented |
 
 ### Audio Control
+
 | Feature | Status | Implementation |
 |---------|--------|----------------|
 | Get Input Mute | ✅ | `GetInputMute()` |
@@ -157,6 +165,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 | Set Input Audio Tracks | ❌ | Not implemented |
 
 ### Audio Monitoring
+
 | Feature | Status | Implementation |
 |---------|--------|----------------|
 | Monitor Type: None | ❌ | Not implemented |
@@ -280,6 +289,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 ## 15. Events (Subscribed)
 
 ### Currently Subscribed Events
+
 | Event | Status | Handler |
 |-------|--------|---------|
 | Connected | ✅ | `OnConnected()` |
@@ -297,6 +307,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 | StudioModeStateChanged | ✅ | `OnStudioModeStateChanged()` |
 
 ### Available But Not Subscribed
+
 | Event | Status | Potential Use |
 |-------|--------|---------------|
 | CurrentPreviewSceneChanged | ❌ | Studio mode preview tracking |
@@ -329,6 +340,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 ## Implementation Summary
 
 ### ✅ Fully Implemented Categories
+
 1. **Connection Management** - Auto-connect, reconnect, authentication
 2. **Streaming Controls** - Start, stop, toggle, status
 3. **Recording Controls** - Start, stop, toggle, pause/resume, status
@@ -344,10 +356,12 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 13. **Screenshots** - Capture to file
 
 ### 🟡 Partially Implemented Categories
+
 1. **Audio Control** - Volume display ✅, Volume adjustment API exists but no UI ❌
 2. **Inputs** - Discovery ✅, Settings ❌, Creation ❌
 
 ### ❌ Not Implemented Categories
+
 1. **Media Source Controls** - Play, pause, stop, seek
 2. **Filters** - List, enable/disable, settings
 3. **Transitions** - List, select, duration, settings
@@ -363,11 +377,13 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 ## Priority Recommendations
 
 ### High Priority (User-Requested Features)
+
 1. **Volume Adjustment Controls** - Faders/encoders or +/- buttons
 2. **Audio Monitoring Toggle** - None/Monitor Only/Monitor & Output
 3. **Filter Enable/Disable** - Toggle audio/video filters
 
 ### Medium Priority (Professional Features)
+
 1. **Media Source Controls** - Play/pause/stop pre-recorded content
 2. **Audio Level Meters** - Real-time VU meters
 3. **Audio Sync Offset** - Fix audio/video sync
@@ -376,6 +392,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 6. **Hotkey Triggers** - Execute OBS hotkeys from hardware
 
 ### Low Priority (Advanced Features)
+
 1. **Statistics Display** - FPS, CPU, dropped frames
 2. **Scene Item Transforms** - Position, scale, rotation
 3. **Audio Balance** - Stereo balance control
@@ -387,12 +404,14 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 ## Technical Notes
 
 ### API Wrapper Architecture
+
 - **IOBSWebsocket** - Interface for testability
 - **OBSWebsocketAdapter** - Wraps obs-websocket-dotnet library
 - **OBSActionExecutor** - Business logic layer
 - **OBSWebSocketManager** - Connection and event management
 
 ### Event Handling Pattern
+
 1. OBS fires event → obs-websocket-dotnet
 2. Event → OBSWebSocketManager handler
 3. Handler → OBSStudioForLogiPlugin callback
@@ -400,6 +419,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 5. Command → UI update (CommandImageChanged)
 
 ### Adding New Features Checklist
+
 1. Add method to `IOBSWebsocket` interface
 2. Implement in `OBSWebsocketAdapter`
 3. Add business logic to `OBSActionExecutor`
@@ -411,6 +431,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 ---
 
 ## Version Information
+
 - **OBS WebSocket Protocol**: 5.x
 - **obs-websocket-dotnet**: 5.0.1
 - **OBS Studio**: 28.0+ required

@@ -20,23 +20,28 @@ OBSStudioForLogiPlugin/
 ## Core Components
 
 ### Plugin Entry Points
+
 - **OBSStudioForLogiPlugin.cs**: Main plugin class, singleton instance, manages lifecycle and coordinates all subsystems
 - **OBSStudioForLogiApplication.cs**: Defines OBS application detection (process name: obs64.exe, bundle: com.obsproject.obs-studio)
 
 ### Actions Layer (`src/Actions/`)
+
 Command classes that handle user interactions from Loupedeck hardware:
 
 **Base Classes** (reusable patterns):
+
 - `ToggleCommandBase.cs`: Base class for toggle commands (on/off states)
 - `StartStopCommandBase.cs`: Base class for start/stop command pairs
 
 **Display Commands** (read-only status indicators):
+
 - `ConnectionStatusDisplay.cs`: Shows connection status (Connected/Disconnected)
 - `CurrentProfileDisplay.cs`: Shows active OBS profile name
 - `CurrentSceneCollectionDisplay.cs`: Shows active scene collection name
 - `CurrentSceneDisplay.cs`: Shows current active scene
 
 **Interactive Commands** (user-triggered actions):
+
 - `ProfileSelectCommand.cs`: Multi-state command for switching OBS profiles
 - `ProfilesDynamicFolder.cs`: Dynamic folder containing all available profiles
 - `SceneCollectionSelectCommand.cs`: Multi-state command for switching scene collections
@@ -64,15 +69,18 @@ Command classes that handle user interactions from Loupedeck hardware:
 - `ScreenshotCommand.cs`: Capture screenshot via OBS
 
 ### Services Layer (`src/Services/`)
+
 Core business logic and OBS integration:
 
 **Connection Management:**
+
 - **ConnectionManager.cs**: Manages OBS connection lifecycle (52 lines)
   - Encapsulates OBSWebSocketManager, OBSConfigReader, OBSLifecycleManager
   - Handles ConnectAsync(), Disconnect(), IsConnected
   - Reads configuration, waits for port, connects to WebSocket
 
 **Command Coordination:**
+
 - **CommandRegistry.cs**: Manages command registration and event distribution
   - Stores registered commands implementing IObsCommand interfaces
   - Provides notification methods for all event types
@@ -85,6 +93,7 @@ Core business logic and OBS integration:
   - 11 specialized interfaces (IProfileAwareCommand, ISceneAwareCommand, etc.)
 
 **OBS Integration:**
+
 - **OBSFacade.cs**: Single point of access to OBS functionality (227 lines)
   - 7 state properties (IsRecording, IsStreaming, CurrentProfile, etc.)
   - 10 query methods (GetProfileList, GetSceneList, GetInputList, etc.)
@@ -103,30 +112,37 @@ Core business logic and OBS integration:
 - **OBSLifecycleManager.cs**: Manages connection lifecycle, port availability checking
 
 ### Helpers Layer (`src/Helpers/`)
+
 - **PluginLog.cs**: Centralized logging wrapper (implements IPluginLog)
 - **IPluginLog.cs**: Logging interface for dependency injection
 - **PluginResources.cs**: Embedded resource loader for icons and images
 
 ### Models Layer (`src/Models/`)
+
 - **OBSConnectionSettings.cs**: Data model for WebSocket connection configuration (URL, port, password)
 
 ## Architectural Patterns
 
 ### Single Responsibility Principle
+
 The codebase follows SRP by splitting concerns into focused classes:
+
 - **ConnectionManager** - Connection lifecycle only
 - **CommandCoordinator** - Command coordination only
 - **OBSFacade** - OBS interface only
 - **OBSStudioForLogiPlugin** - Orchestration and event routing only
 
 This separation improves:
+
 - **Testability** - Mock only what you need
 - **Maintainability** - Changes are isolated
 - **Understandability** - Each class has clear purpose
 - **Reusability** - Components can be used independently
 
 ### Command Registry Pattern
+
 Commands self-register with the plugin via interfaces:
+
 ```csharp
 public class ScenesDynamicFolder : PluginDynamicFolder, IObsCommand, ISceneAwareCommand
 {
@@ -141,13 +157,17 @@ public class ScenesDynamicFolder : PluginDynamicFolder, IObsCommand, ISceneAware
     public void OnSceneChanged(String sceneName) { }
 }
 ```
+
 Benefits:
+
 - No manual registration needed in main plugin
 - Compile-time safety via interfaces
 - Automatic notification routing
 
 ### Facade Pattern
+
 OBSFacade provides simplified interface to complex OBS subsystem:
+
 ```csharp
 public class OBSFacade
 {
@@ -167,30 +187,39 @@ public class OBSFacade
 ```
 
 ### Singleton Pattern
+
 Most command classes use singleton instances accessed via static `Instance` property:
+
 ```csharp
 public static SceneCollectionSelectCommand Instance { get; private set; }
 ```
+
 This allows the main plugin to notify commands of state changes without maintaining explicit references.
 
 ### Event-Driven Architecture
+
 - Plugin subscribes to Loupedeck ClientApplication events (ApplicationStarted, ApplicationStopped)
 - OBSWebSocketManager raises events for OBS state changes (scene changes, profile changes, recording state)
 - Commands subscribe to relevant events and update their UI state accordingly
 
 ### Adapter Pattern
+
 `OBSWebsocketAdapter` wraps the third-party `obs-websocket-dotnet` library, providing:
+
 - Abstraction layer for easier testing
 - Consistent error handling
 - Event translation to plugin-specific formats
 
 ### Command Pattern
+
 Each action inherits from Loupedeck base classes:
+
 - `PluginMultistateDynamicCommand`: Commands with multiple states (selected/unselected)
 - `PluginDynamicCommand`: Simple action commands
 - Commands implement `RunCommand(String actionParameter)` for execution
 
 ### Dependency Injection (Partial)
+
 - Services use interface abstractions (IOBSWebsocket) for testability
 - PluginLog uses IPluginLog interface
 - Main plugin instantiates concrete implementations
@@ -222,6 +251,7 @@ OBSStudioForLogiPlugin (main - 289 lines)
 ```
 
 ### Data Flow
+
 1. **Startup**: Plugin loads → ConnectionManager.ConnectAsync() → reads OBS config → waits for port → connects to WebSocket
 2. **User Action**: Hardware button press → Command.RunCommand() → Plugin delegates to OBSFacade → OBSActionExecutor → WebSocket request
 3. **OBS Event**: WebSocket event → OBSWebSocketManager → Plugin callback → CommandCoordinator.Notify*() → Commands update UI
@@ -230,16 +260,19 @@ OBSStudioForLogiPlugin (main - 289 lines)
 ## Build Configuration
 
 ### Project Structure
+
 - **Target Framework**: .NET 8.0
 - **Root Namespace**: Loupedeck.OBSStudioForLogiPlugin
 - **Output**: Custom paths to Logi Plugin Service directories
 - **Platform**: Cross-platform (Windows/macOS with conditional compilation)
 
 ### Build Targets
+
 - **CopyPackage**: Copies metadata and package files to output
 - **PostBuild**: Creates .link file in plugin directory, triggers hot-reload via loupedeck:// protocol
 - **PluginClean**: Removes link files and output directories
 
 ### Dependencies
+
 - **PluginApi.dll**: Loupedeck SDK (referenced from system installation)
 - **obs-websocket-dotnet** (v5.0.1): NuGet package for OBS WebSocket communication

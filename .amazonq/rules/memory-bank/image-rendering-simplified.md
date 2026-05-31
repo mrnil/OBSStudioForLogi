@@ -1,6 +1,7 @@
 # Image Rendering System - Simplified
 
 ## Overview
+
 The plugin uses a simple, consistent helper class for all button image rendering. No complex factory/store/data patterns needed.
 
 ## ButtonImageHelper API
@@ -10,6 +11,7 @@ All button images are created using the static `ButtonImageHelper` class:
 ### Methods
 
 #### Icon(iconResourceName)
+
 Returns a static SVG icon from embedded resources.
 
 ```csharp
@@ -17,6 +19,7 @@ return ButtonImageHelper.Icon("Reconnect.svg");
 ```
 
 #### StateIcon(isActive, activeIcon, inactiveIcon)
+
 Returns different icons based on boolean state.
 
 ```csharp
@@ -25,6 +28,7 @@ return ButtonImageHelper.StateIcon(isRecording, "RecordingOn.svg", "RecordingOff
 ```
 
 #### Text(text, imageSize, backgroundColor, textColor)
+
 Renders text-only button with optional colors.
 
 ```csharp
@@ -32,6 +36,7 @@ return ButtonImageHelper.Text("Connected", imageSize, BitmapColor.Green, BitmapC
 ```
 
 #### StateText(text, imageSize, isActive, activeColor, inactiveColor)
+
 Renders text with color based on boolean state.
 
 ```csharp
@@ -41,6 +46,7 @@ return ButtonImageHelper.StateText(text, imageSize, !isMuted, BitmapColor.Green,
 ```
 
 #### TextWithIcon(text, imageSize, iconResourceName, textColor)
+
 Renders text with a background icon.
 
 ```csharp
@@ -49,25 +55,7 @@ return ButtonImageHelper.TextWithIcon(text, imageSize, "AudioMixerUnmuted.svg", 
 ```
 
 #### StateTextWithIcon(text, imageSize, isActive, activeIcon, inactiveIcon, activeColor, inactiveColor)
-Renders text with state-based background icon and color.
 
-```csharp
-Boolean isMuted = GetMuteState();
-String text = $"{inputName}\n\n{volume}%";
-return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted, 
-    "AudioMixerUnmuted.svg", "AudioMixerMuted.svg",
-    BitmapColor.Green, BitmapColor.Red);
-```
-
-#### TextWithIcon(text, imageSize, iconResourceName, textColor)
-Renders text with a background icon.
-
-```csharp
-String text = $"{inputName}\n\n{volume}%";
-return ButtonImageHelper.TextWithIcon(text, imageSize, "AudioMixerUnmuted.svg", BitmapColor.Green);
-```
-
-#### StateTextWithIcon(text, imageSize, isActive, activeIcon, inactiveIcon, activeColor, inactiveColor)
 Renders text with state-based background icon and color.
 
 ```csharp
@@ -81,6 +69,7 @@ return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted,
 ## Usage Examples
 
 ### Simple Icon Button
+
 ```csharp
 public class ScreenshotCommand : PluginDynamicCommand
 {
@@ -92,6 +81,7 @@ public class ScreenshotCommand : PluginDynamicCommand
 ```
 
 ### State-Based Icon Button
+
 ```csharp
 public class RecordingToggleCommand : PluginDynamicCommand
 {
@@ -104,6 +94,7 @@ public class RecordingToggleCommand : PluginDynamicCommand
 ```
 
 ### Text Display Button
+
 ```csharp
 public class CurrentSceneDisplay : PluginDynamicCommand
 {
@@ -122,6 +113,7 @@ public class CurrentSceneDisplay : PluginDynamicCommand
 ```
 
 ### State-Based Text Button
+
 ```csharp
 public class AudioInputDynamicFolderBase : PluginDynamicFolder
 {
@@ -141,6 +133,7 @@ public class AudioInputDynamicFolderBase : PluginDynamicFolder
 ```
 
 ### Dynamic Folder with State Icons
+
 ```csharp
 public class ScenesDynamicFolder : PluginDynamicFolder
 {
@@ -166,6 +159,7 @@ public class ScenesDynamicFolder : PluginDynamicFolder
 ## Icon Resource Naming
 
 Icons are embedded resources with automatic path resolution:
+
 - Input: `"RecordingOn.svg"`
 - Resolved to: `"Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOn.svg"`
 
@@ -174,6 +168,7 @@ No need to specify full resource path.
 ## When GetCommandImage is Called
 
 The Loupedeck framework calls `GetCommandImage()`:
+
 - When button first appears
 - When you call `CommandImageChanged(actionParameter)`
 - When you call `ActionImageChanged()`
@@ -183,6 +178,7 @@ The framework handles caching internally - you don't need to implement your own 
 ## Migration from Old System
 
 **Before (complex):**
+
 ```csharp
 private readonly ActionImageStore<StateImageData> imageStore;
 
@@ -215,6 +211,7 @@ protected override BitmapImage GetCommandImage(String actionParameter, PluginIma
 ```
 
 **After (simple):**
+
 ```csharp
 protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
 {

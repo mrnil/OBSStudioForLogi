@@ -33,6 +33,7 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 ## Installation
 
 1. Build the project:
+
    ```bash
    dotnet build src/OBSStudioForLogiPlugin.csproj -c Release
    ```
@@ -44,6 +45,7 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 ## Available Controls
 
 ### OBS (Group 1)
+
 - **Screenshot**: Capture screenshot to Pictures/Documents/Desktop folder
 - **Reconnect**: Manually retry connection to OBS
 - **Studio Mode Toggle**: Enable/disable OBS studio mode for preview/program workflow
@@ -51,31 +53,37 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 - **Connection Status Display**: Shows "Connected" (green) or "Disconnected" (red)
 
 ### Streaming (Group 2)
+
 - **Streaming Toggle**: Toggle streaming on/off
 - **Streaming Start**: Start streaming
 - **Streaming Stop**: Stop streaming
 
 ### Recording (Group 3)
+
 - **Recording Toggle**: Toggle recording on/off
 - **Recording Start**: Start recording
 - **Recording Stop**: Stop recording
 - **Recording Pause/Resume**: Pause or resume active recording
 
 ### Replay Buffer (Group 4)
+
 - **Replay Buffer Toggle**: Start/stop replay buffer
 - **Save Replay Buffer**: Save the current replay buffer to disk
 
 ### Virtual Camera (Group 5)
+
 - **Virtual Camera Toggle**: Toggle virtual camera on/off
 - **Virtual Camera Start**: Start virtual camera
 - **Virtual Camera Stop**: Stop virtual camera
 
 ### Profiles (Group 6)
+
 - **Profile Select**: Switch between OBS profiles (multi-state buttons)
 - **Profiles Folder**: Dynamic folder with all available profiles
 - **Current Profile Display**: Shows active profile name
 
 ### Scenes (Group 7)
+
 - **Scene Collection Select**: Switch between scene collections (multi-state buttons)
 - **Scenes Folder**: Dynamic folder with all available scenes
   - When studio mode is disabled: Switches scene to program (live)
@@ -85,6 +93,7 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 - **Current Scene Collection Display**: Shows active scene collection name
 
 ### Audio (Group 8)
+
 - **Audio Mixer Folder**: Dynamic folder with all audio inputs (mute/unmute toggle, volume display)
   - Visual feedback: Green text = unmuted, Red text = muted
   - Displays input name and current volume percentage (0-100%)
@@ -98,17 +107,20 @@ Control OBS Studio directly from your Loupedeck/Logitech hardware device with de
 ## Configuration
 
 No manual configuration required. The plugin automatically reads OBS WebSocket settings from:
+
 - **Windows**: `%AppData%\obs-studio\plugin_config\obs-websocket\config.json`
 - **macOS**: `~/Library/Application Support/obs-studio/plugin_config/obs-websocket/config.json`
 
 ## Development
 
 ### Build
+
 ```bash
 dotnet build src/OBSStudioForLogiPlugin.csproj
 ```
 
 ### Test
+
 ```bash
 dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj
 ```
@@ -116,6 +128,7 @@ dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.cspr
 **Note:** Tests are run locally only. The GitHub Actions workflow performs dependency checking and build validation but does not run tests due to timing issues with fire-and-forget Task.Run patterns in CI environments.
 
 ### Clean
+
 ```bash
 dotnet clean OBSStudioForLogiPlugin.sln
 ```
@@ -133,11 +146,13 @@ dotnet clean OBSStudioForLogiPlugin.sln
 ## Troubleshooting
 
 **Plugin doesn't connect:**
+
 - Ensure OBS Studio is running
 - Verify obs-websocket is enabled in OBS (Tools → WebSocket Server Settings)
 - Check logs in Logi Plugin Service
 
 **Commands disabled:**
+
 - Plugin only enables when connected to OBS
 - Wait for automatic connection or restart OBS Studio
 

@@ -1,6 +1,7 @@
 # Action Editor Command Pattern
 
 ## Overview
+
 Action Editor commands use the ActionEditorCommand base class to create configurable actions with user-defined parameters. These commands allow users to configure actions through textboxes, dropdowns, and other controls in the Loupedeck software.
 
 ## Pattern Implementation
@@ -8,7 +9,9 @@ Action Editor commands use the ActionEditorCommand base class to create configur
 ### Base Classes
 
 #### ActionEditorCommand
+
 For button press actions with configurable parameters:
+
 ```csharp
 public class MyCommand : ActionEditorCommand
 {
@@ -21,7 +24,9 @@ public class MyCommand : ActionEditorCommand
 ```
 
 #### ActionEditorAdjustment
+
 For encoder rotation actions with configurable parameters:
+
 ```csharp
 public class MyAdjustment : ActionEditorAdjustment
 {
@@ -39,6 +44,7 @@ public class MyAdjustment : ActionEditorAdjustment
 ```
 
 ### Example: Scene Switching with Configuration
+
 ```csharp
 public class SceneSwitchAdjustableCommand : ActionEditorCommand, IObsCommand
 {
@@ -104,7 +110,9 @@ public class SceneSwitchAdjustableCommand : ActionEditorCommand, IObsCommand
 ## Key Concepts
 
 ### ActionEditorActionParameters
+
 Parameters configured by the user in the Loupedeck software:
+
 ```csharp
 // Get string parameter
 if (actionParameters.TryGetString("ControlName", out var value))
@@ -120,14 +128,18 @@ if (actionParameters.TryGetInt("ControlName", out var intValue))
 ```
 
 ### Configuration Controls
+
 Available control types:
+
 - **ActionEditorTextbox**: Single-line text input
 - **ActionEditorDropdown**: Dropdown selection
 - **ActionEditorCheckbox**: Boolean checkbox
 - **ActionEditorSlider**: Numeric slider
 
 ### Control Names
+
 Use constants for control names to avoid typos:
+
 ```csharp
 private const String ProfileNameControlName = "ProfileName";
 private const String SceneNameControlName = "SceneName";
@@ -138,16 +150,19 @@ this.ActionEditor.AddControlEx(new ActionEditorTextbox(ProfileNameControlName, "
 ## Use Cases
 
 ### Scene Switching with Context
+
 - Configure profile, collection, and scene name
 - Single button switches entire OBS context
 - Useful for different show formats
 
 ### Audio Volume Adjustment
+
 - Configure audio input name
 - Encoder adjusts volume for that specific input
 - No need for dynamic folders
 
 ### Parameterized Actions
+
 - Any action that needs user configuration
 - Reusable across different contexts
 - Configuration stored per button instance
@@ -203,6 +218,7 @@ When creating an ActionEditorCommand:
 | **Multi-State Command** | Few fixed options | Predefined states | Cycle through |
 
 Choose based on:
+
 - **User-configured actions**: ActionEditorCommand
 - **Dynamic lists from OBS**: Dynamic Folder
 - **Fixed set of options**: Multi-State Command
