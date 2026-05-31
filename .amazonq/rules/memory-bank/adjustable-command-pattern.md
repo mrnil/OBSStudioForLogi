@@ -1,229 +1,208 @@
-# Adjustable Command Pattern
+# Action Editor Command Pattern
 
 ## Overview
-Adjustable commands are Loupedeck commands that respond to encoder rotation (dial turning) rather than button presses. They allow users to cycle through options by turning a physical encoder knob.
+Action Editor commands use the ActionEditorCommand base class to create configurable actions with user-defined parameters. These commands allow users to configure actions through textboxes, dropdowns, and other controls in the Loupedeck software.
 
 ## Pattern Implementation
 
-### Base Class
+### Base Classes
+
+#### ActionEditorCommand
+For button press actions with configurable parameters:
 ```csharp
-public abstract class PluginDynamicCommand : PluginDynamicCommandBase
+public class MyCommand : ActionEditorCommand
 {
-    protected override void ApplyAdjustment(String actionParameter, Int32 ticks)
+    protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
     {
-        // Called when encoder is rotated
-        // ticks > 0: clockwise rotation
-        // ticks < 0: counter-clockwise rotation
+        // Execute action with user-configured parameters
+        return true;
     }
 }
 ```
 
-### Example: Scene Switching with Encoder
+#### ActionEditorAdjustment
+For encoder rotation actions with configurable parameters:
 ```csharp
-public class SceneSwitchAdjustableCommand : PluginDynamicCommand
+public class MyAdjustment : ActionEditorAdjustment
 {
+    public MyAdjustment() : base(hasReset: false)
+    {
+    }
+
+    protected override Boolean ApplyAdjustment(ActionEditorActionParameters actionParameters, Int32 diff)
+    {
+        // diff > 0: clockwise rotation
+        // diff < 0: counter-clockwise rotation
+        return true;
+    }
+}
+```
+
+### Example: Scene Switching with Configuration
+```csharp
+public class SceneSwitchAdjustableCommand : ActionEditorCommand, IObsCommand
+{
+    private const String ProfileNameControlName = "ProfileName";
+    private const String CollectionNameControlName = "CollectionName";
+    private const String SceneNameControlName = "SceneName";
+
     public static SceneSwitchAdjustableCommand Instance { get; private set; }
 
     public SceneSwitchAdjustableCommand()
     {
         Instance = this;
-        this.DisplayName = "Scene Switch";
-        this.Description = "Switch between scenes using encoder";
-        this.GroupName = "7. Scenes";
-        
         OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
-    }
-
-    protected override void ApplyAdjustment(String actionParameter, Int32 ticks)
-    {
-        if (ticks == 0)
-            return;
-
-        String[] scenes = OBSStudioForLogiPlugin.Instance?.GetSceneList() ?? new String[0];
-        if (scenes.Length == 0)
-            return;
-
-        String currentScene = OBSStudioForLogiPlugin.Instance?.CurrentScene ?? String.Empty;
-        Int32 currentIndex = Array.IndexOf(scenes, currentScene);
         
-        if (currentIndex == -1)
-            currentIndex = 0;
+        this.Name = "SceneSwitchAdjustable";
+        this.DisplayName = "Switch to Scene (Adjustable)";
+        this.GroupName = "7. Scenes";
+        this.Description = "Switch to a specific scene with optional profile and collection switching";
 
-        // Calculate new index with wrapping
-        Int32 newIndex = currentIndex + (ticks > 0 ? 1 : -1);
-        
-        if (newIndex < 0)
-            newIndex = scenes.Length - 1;
-        else if (newIndex >= scenes.Length)
-            newIndex = 0;
-
-        OBSStudioForLogiPlugin.Instance?.SwitchScene(scenes[newIndex]);
+        // Add configuration controls
+        this.ActionEditor.AddControlEx(new ActionEditorTextbox(ProfileNameControlName, "Profile Name (optional)"));
+        this.ActionEditor.AddControlEx(new ActionEditorTextbox(CollectionNameControlName, "Collection Name (optional)"));
+        this.ActionEditor.AddControlEx(new ActionEditorTextbox(SceneNameControlName, "Scene Name (required)"));
     }
 
-    protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+    protected override Boolean OnLoad() => true;
+
+    protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
     {
-        String currentScene = OBSStudioForLogiPlugin.Instance?.CurrentScene ?? "No Scene";
-        return ButtonImageHelper.Text(currentScene, imageSize);
+        // Get user-configured values
+        if (!actionParameters.TryGetString(SceneNameControlName, out var sceneName) || String.IsNullOrEmpty(sceneName))
+            return false;
+
+        actionParameters.TryGetString(ProfileNameControlName, out var profileName);
+        actionParameters.TryGetString(CollectionNameControlName, out var collectionName);
+
+        // Execute action
+        Task.Run(async () =>
+        {
+            if (!String.IsNullOrEmpty(profileName))
+            {
+                OBSStudioForLogiPlugin.Instance?.SwitchProfile(profileName);
+                await Task.Delay(OBSTimings.ProfileSwitchDelay);
+            }
+
+            if (!String.IsNullOrEmpty(collectionName))
+            {
+                OBSStudioForLogiPlugin.Instance?.SwitchSceneCollection(collectionName);
+                await Task.Delay(OBSTimings.CollectionSwitchDelay);
+            }
+
+            OBSStudioForLogiPlugin.Instance?.SwitchScene(sceneName);
+        });
+
+        return true;
     }
 
-    public void OnConnected()
-    {
-        this.IsEnabled = true;
-        this.ActionImageChanged();
-    }
-
-    public void OnDisconnected()
-    {
-        this.IsEnabled = false;
-        this.ActionImageChanged();
-    }
-
-    public void OnSceneChanged(String sceneName)
-    {
-        this.ActionImageChanged();
-    }
+    public void OnConnected() { }
+    public void OnDisconnected() { }
 }
 ```
 
 ## Key Concepts
 
-### Ticks Parameter
-- **Positive ticks**: Clockwise rotation (next item)
-- **Negative ticks**: Counter-clockwise rotation (previous item)
-- **Zero ticks**: No rotation (should be ignored)
-- **Magnitude**: Number of detents/clicks rotated (usually 1 or -1)
-
-### Wrapping Behavior
-When cycling through a list:
-- At end of list + clockwise → wrap to beginning
-- At beginning of list + counter-clockwise → wrap to end
-
+### ActionEditorActionParameters
+Parameters configured by the user in the Loupedeck software:
 ```csharp
-// Wrap forward
-if (newIndex >= items.Length)
-    newIndex = 0;
-
-// Wrap backward
-if (newIndex < 0)
-    newIndex = items.Length - 1;
-```
-
-### State Display
-Update the button display to show current selection:
-```csharp
-protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+// Get string parameter
+if (actionParameters.TryGetString("ControlName", out var value))
 {
-    String currentItem = GetCurrentItem();
-    return ButtonImageHelper.Text(currentItem, imageSize);
+    // Use value
+}
+
+// Get integer parameter
+if (actionParameters.TryGetInt("ControlName", out var intValue))
+{
+    // Use intValue
 }
 ```
 
-Call `ActionImageChanged()` when state changes to refresh display.
+### Configuration Controls
+Available control types:
+- **ActionEditorTextbox**: Single-line text input
+- **ActionEditorDropdown**: Dropdown selection
+- **ActionEditorCheckbox**: Boolean checkbox
+- **ActionEditorSlider**: Numeric slider
+
+### Control Names
+Use constants for control names to avoid typos:
+```csharp
+private const String ProfileNameControlName = "ProfileName";
+private const String SceneNameControlName = "SceneName";
+
+this.ActionEditor.AddControlEx(new ActionEditorTextbox(ProfileNameControlName, "Profile Name"));
+```
 
 ## Use Cases
 
-### Scene Switching
-- Rotate encoder to cycle through scenes
-- Display shows current scene name
-- Wraps from last scene to first scene
+### Scene Switching with Context
+- Configure profile, collection, and scene name
+- Single button switches entire OBS context
+- Useful for different show formats
 
-### Profile Switching
-- Rotate encoder to cycle through profiles
-- Display shows current profile name
-- Wraps from last profile to first profile
+### Audio Volume Adjustment
+- Configure audio input name
+- Encoder adjusts volume for that specific input
+- No need for dynamic folders
 
-### Volume Control
-- Rotate encoder to adjust volume
-- Display shows current volume percentage
-- Clamps at 0% and 100% (no wrapping)
-
-### Audio Source Selection
-- Rotate encoder to cycle through audio inputs
-- Display shows current input name
-- Wraps from last input to first input
+### Parameterized Actions
+- Any action that needs user configuration
+- Reusable across different contexts
+- Configuration stored per button instance
 
 ## Implementation Checklist
 
-When creating an adjustable command:
+When creating an ActionEditorCommand:
 
-- [ ] Inherit from `PluginDynamicCommand`
-- [ ] Override `ApplyAdjustment(String actionParameter, Int32 ticks)`
-- [ ] Check for `ticks == 0` and return early
-- [ ] Get current list of items
-- [ ] Find current item index
-- [ ] Calculate new index based on ticks direction
-- [ ] Implement wrapping or clamping logic
-- [ ] Call action method with new item
-- [ ] Override `GetCommandImage()` to show current state
-- [ ] Call `ActionImageChanged()` when state changes
+- [ ] Inherit from `ActionEditorCommand` or `ActionEditorAdjustment`
+- [ ] Set `Name`, `DisplayName`, `GroupName`, `Description`
+- [ ] Define control name constants
+- [ ] Add controls with `ActionEditor.AddControlEx()`
+- [ ] Override `OnLoad()` to return true
+- [ ] Override `RunCommand()` or `ApplyAdjustment()`
+- [ ] Extract parameters with `TryGetString()`, `TryGetInt()`, etc.
+- [ ] Validate required parameters
+- [ ] Execute action with parameters
 - [ ] Implement `IObsCommand` for connection state
 - [ ] Register command with plugin in constructor
 
 ## Benefits
 
-- **Intuitive**: Physical rotation matches mental model of cycling through options
-- **Fast**: Quickly navigate through many items without multiple button presses
-- **Compact**: Single encoder can replace many buttons
-- **Contextual**: Display shows current selection at all times
+- **Configurable**: Users customize behavior per button
+- **Reusable**: Same command, different configurations
+- **Flexible**: Supports optional and required parameters
+- **Type-Safe**: Parameter extraction with type checking
+- **User-Friendly**: Configuration UI in Loupedeck software
 
 ## Limitations
 
-- **Hardware Dependent**: Requires device with encoder knobs (Loupedeck CT, Live, Live S)
-- **No Direct Selection**: Can't jump directly to specific item (must cycle through)
-- **Wrapping Can Be Confusing**: Users may not expect wrap-around behavior
+- **Static Configuration**: Parameters set at design time, not runtime
+- **No Dynamic Lists**: Can't populate dropdowns from OBS
+- **Manual Entry**: Users must type exact names (profiles, scenes, etc.)
+- **No Validation**: Invalid names fail silently at runtime
 
 ## Best Practices
 
-1. **Always show current state** on the button display
-2. **Implement wrapping** for finite lists (scenes, profiles)
-3. **Implement clamping** for ranges (volume, 0-100%)
-4. **Handle empty lists** gracefully (return early)
-5. **Update display immediately** after adjustment
-6. **Disable when disconnected** from OBS
-7. **Log adjustments** for debugging (optional)
+1. **Use constants** for control names
+2. **Validate required parameters** before execution
+3. **Provide clear labels** for controls
+4. **Mark optional parameters** in labels
+5. **Log parameter values** for debugging
+6. **Handle missing/invalid values** gracefully
+7. **Use async operations** for OBS actions
+8. **Add delays** between sequential OBS operations
 
-## Testing
+## Comparison with Other Patterns
 
-```csharp
-[Fact]
-public void ApplyAdjustment_ClockwiseRotation_SelectsNextScene()
-{
-    // Arrange
-    var scenes = new[] { "Scene1", "Scene2", "Scene3" };
-    mockPlugin.Setup(x => x.GetSceneList()).Returns(scenes);
-    mockPlugin.Setup(x => x.CurrentScene).Returns("Scene1");
-    
-    // Act
-    command.ApplyAdjustment(String.Empty, 1); // Clockwise
-    
-    // Assert
-    mockPlugin.Verify(x => x.SwitchScene("Scene2"), Times.Once);
-}
-
-[Fact]
-public void ApplyAdjustment_CounterClockwiseAtStart_WrapsToEnd()
-{
-    // Arrange
-    var scenes = new[] { "Scene1", "Scene2", "Scene3" };
-    mockPlugin.Setup(x => x.GetSceneList()).Returns(scenes);
-    mockPlugin.Setup(x => x.CurrentScene).Returns("Scene1");
-    
-    // Act
-    command.ApplyAdjustment(String.Empty, -1); // Counter-clockwise
-    
-    // Assert
-    mockPlugin.Verify(x => x.SwitchScene("Scene3"), Times.Once);
-}
-```
-
-## Related Patterns
-
-- **Dynamic Folder**: Shows all items as individual buttons
-- **Multi-State Command**: Shows all items as states on one button
-- **Adjustable Command**: Cycles through items with encoder
+| Pattern | Use Case | Configuration | Selection |
+|---------|----------|---------------|----------|
+| **ActionEditorCommand** | Parameterized actions | User-configured | Manual entry |
+| **Dynamic Folder** | List of items | Auto-populated | Click button |
+| **Multi-State Command** | Few fixed options | Predefined states | Cycle through |
 
 Choose based on:
-- **Few items (2-5)**: Multi-State Command
-- **Many items (6+)**: Dynamic Folder or Adjustable Command
-- **Frequent switching**: Adjustable Command (fastest)
-- **Direct selection**: Dynamic Folder (most intuitive)
+- **User-configured actions**: ActionEditorCommand
+- **Dynamic lists from OBS**: Dynamic Folder
+- **Fixed set of options**: Multi-State Command
