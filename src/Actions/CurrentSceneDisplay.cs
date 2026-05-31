@@ -12,6 +12,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             : base(displayName: "Current Scene", description: "Shows current OBS scene", groupName: "7. Scenes")
         {
             Instance = this;
+            this.IsWidget = true;
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.AddParameter("", "", groupName: "7. Scenes");
         }
