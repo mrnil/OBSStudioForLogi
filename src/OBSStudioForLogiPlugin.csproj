@@ -139,11 +139,11 @@
     <EmbeddedResource Include="Resources\icons\ReplayBufferSave.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ReplayBufferSave.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\icons\StudioModeToggleOn.svg">
-      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StudioModeToggleOn.svg</LogicalName>
+    <EmbeddedResource Include="Resources\icons\StudioModeOn.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StudioModeOn.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\icons\StudioModeToggleOff.svg">
-      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StudioModeToggleOff.svg</LogicalName>
+    <EmbeddedResource Include="Resources\icons\StudioModeOff.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StudioModeOff.svg</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\icons\StudioModeTransition.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StudioModeTransition.svg</LogicalName>

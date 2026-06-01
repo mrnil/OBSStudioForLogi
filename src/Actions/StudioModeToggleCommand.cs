@@ -26,9 +26,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return OBSStudioForLogiPlugin.Instance?.IsStudioModeEnabled ?? false;
         }
 
-        protected override String GetActiveIcon() => "StudioModeToggleOn.svg";
+        protected override String GetActiveIcon() => "StudioModeOn.svg";
 
-        protected override String GetInactiveIcon() => "StudioModeToggleOff.svg";
+        protected override String GetInactiveIcon() => "StudioModeOff.svg";
 
         public void OnStudioModeStateChanged()
         {
