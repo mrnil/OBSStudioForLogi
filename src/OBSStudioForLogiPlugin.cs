@@ -85,7 +85,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             else
             {
                 PluginLog.Info("OBS not detected, attempting direct connection");
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning,"OBS offline. Please launch OBS");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning,"OBS is offline. Please launch OBS");
                 Task.Run(() => this._connectionManager.ConnectAsync());
             }
             
@@ -132,7 +132,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private void OnOBSDisconnected(Object sender, EventArgs e)
         {
             PluginLog.Info("OBS WebSocket disconnected");
-            this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning,"OBS offline. Please launch OBS");
+            this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning,"OBS is offline. Please launch OBS");
         }
 
         public void RegisterCommand(IObsCommand command)

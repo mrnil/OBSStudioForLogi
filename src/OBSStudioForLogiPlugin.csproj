@@ -43,115 +43,115 @@
     <EmbeddedResource Include="package\metadata\Icon256x256.png">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.metadata.Icon256x256.png</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\RecordingOn.svg">
+    <EmbeddedResource Include="Resources\icons\RecordingOn.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOn.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\RecordingOff.svg">
+    <EmbeddedResource Include="Resources\icons\RecordingOff.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOff.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\RecordingPause.svg">
+    <EmbeddedResource Include="Resources\icons\RecordingPause.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingPause.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\RecordingResume.svg">
+    <EmbeddedResource Include="Resources\icons\RecordingResume.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingResume.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\RecordingStart.svg">
+    <EmbeddedResource Include="Resources\icons\RecordingStart.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingStart.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\RecordingStartDisabled.svg">
+    <EmbeddedResource Include="Resources\icons\RecordingStartDisabled.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingStartDisabled.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\RecordingStop.svg">
+    <EmbeddedResource Include="Resources\icons\RecordingStop.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingStop.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\RecordingStopDisabled.svg">
+    <EmbeddedResource Include="Resources\icons\RecordingStopDisabled.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingStopDisabled.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\ScenesSelected.svg">
+    <EmbeddedResource Include="Resources\icons\ScenesSelected.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ScenesSelected.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\ScenesUnselected.svg">
+    <EmbeddedResource Include="Resources\icons\ScenesUnselected.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ScenesUnselected.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\Screenshot.svg">
+    <EmbeddedResource Include="Resources\icons\Screenshot.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.Screenshot.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\SourceVisibilityOn.svg">
+    <EmbeddedResource Include="Resources\icons\SourceVisibilityOn.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.SourceVisibilityOn.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\SourceVisibilityOff.svg">
+    <EmbeddedResource Include="Resources\icons\SourceVisibilityOff.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.SourceVisibilityOff.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\StreamingToggleOn.svg">
+    <EmbeddedResource Include="Resources\icons\StreamingToggleOn.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StreamingToggleOn.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\StreamingToggleOff.svg">
+    <EmbeddedResource Include="Resources\icons\StreamingToggleOff.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StreamingToggleOff.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\VirtualCameraOn.svg">
+    <EmbeddedResource Include="Resources\icons\VirtualCameraOn.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.VirtualCameraOn.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\VirtualCameraOff.svg">
+    <EmbeddedResource Include="Resources\icons\VirtualCameraOff.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.VirtualCameraOff.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\VirtualCameraStart.svg">
+    <EmbeddedResource Include="Resources\icons\VirtualCameraStart.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.VirtualCameraStart.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\VirtualCameraStartDisabled.svg">
+    <EmbeddedResource Include="Resources\icons\VirtualCameraStartDisabled.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.VirtualCameraStartDisabled.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\VirtualCameraStop.svg">
+    <EmbeddedResource Include="Resources\icons\VirtualCameraStop.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.VirtualCameraStop.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\VirtualCameraStopDisabled.svg">
+    <EmbeddedResource Include="Resources\icons\VirtualCameraStopDisabled.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.VirtualCameraStopDisabled.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\ProfileSelected.svg">
+    <EmbeddedResource Include="Resources\icons\ProfileSelected.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ProfileSelected.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\ProfileUnselected.svg">
+    <EmbeddedResource Include="Resources\icons\ProfileUnselected.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ProfileUnselected.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\CurrentProfile.svg">
+    <EmbeddedResource Include="Resources\icons\CurrentProfile.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.CurrentProfile.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\CurrentSceneCollection.svg">
+    <EmbeddedResource Include="Resources\icons\CurrentSceneCollection.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.CurrentSceneCollection.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\CurrentScene.svg">
+    <EmbeddedResource Include="Resources\icons\CurrentScene.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.CurrentScene.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\AudioMixerMuted.svg">
+    <EmbeddedResource Include="Resources\icons\AudioMixerMuted.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.AudioMixerMuted.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\AudioMixerUnmuted.svg">
+    <EmbeddedResource Include="Resources\icons\AudioMixerUnmuted.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.AudioMixerUnmuted.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\Reconnect.svg">
+    <EmbeddedResource Include="Resources\icons\Reconnect.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.Reconnect.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\ReplayBufferToggleStart.svg">
+    <EmbeddedResource Include="Resources\icons\ReplayBufferToggleStart.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ReplayBufferToggleStart.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\ReplayBufferToggleStop.svg">
+    <EmbeddedResource Include="Resources\icons\ReplayBufferToggleStop.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ReplayBufferToggleStop.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\ReplayBufferSave.svg">
+    <EmbeddedResource Include="Resources\icons\ReplayBufferSave.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ReplayBufferSave.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\StudioModeToggleOn.svg">
+    <EmbeddedResource Include="Resources\icons\StudioModeToggleOn.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StudioModeToggleOn.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\StudioModeToggleOff.svg">
+    <EmbeddedResource Include="Resources\icons\StudioModeToggleOff.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StudioModeToggleOff.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\StudioModeTransition.svg">
+    <EmbeddedResource Include="Resources\icons\StudioModeTransition.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StudioModeTransition.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\AudioMediaFolder.svg">
+    <EmbeddedResource Include="Resources\icons\AudioMediaFolder.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.AudioMediaFolder.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons\ScenesFolder.svg">
+    <EmbeddedResource Include="Resources\icons\ScenesFolder.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ScenesFolder.svg</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
