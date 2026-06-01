@@ -29,6 +29,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Boolean IsRecordingChanging => this.Actions.IsRecordingChanging;
         public OBSActionExecutor Actions { get; }
 
+        public event EventHandler ConnectionEstablished;
+        public event EventHandler ConnectionLost;
+
         public OBSWebSocketManager() : this(new PluginLogAdapter())
         {
         }
@@ -97,6 +100,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._reconnectAttempts = 0;
             this._reconnectTimer?.Stop();
             
+            // Raise plugin-level event
+            this.ConnectionEstablished?.Invoke(this, EventArgs.Empty);
+            
             // Get initial state
             Task.Run(() =>
             {
@@ -147,6 +153,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private void OnDisconnected(Object sender, ObsDisconnectionInfo e)
         {
             this._log.Warning($"WebSocket disconnected: {e.DisconnectReason}");
+            
+            // Raise plugin-level event
+            this.ConnectionLost?.Invoke(this, EventArgs.Empty);
             
             this.Actions.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             this.Actions.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);

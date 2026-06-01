@@ -69,17 +69,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             
             this.Info.Icon256x256 = EmbeddedResources.ReadImage("Loupedeck.OBSStudioForLogiPlugin.metadata.Icon256x256.png");
 
+            // Subscribe to connection events for status reporting
+            this._obsManager.ConnectionEstablished += this.OnOBSConnected;
+            this._obsManager.ConnectionLost += this.OnOBSDisconnected;
+
             this.ClientApplication.ApplicationStarted += this.OnApplicationStarted;
             this.ClientApplication.ApplicationStopped += this.OnApplicationStopped;
             
             if (this.ClientApplication.IsRunning())
             {
                 PluginLog.Info("OBS detected via ClientApplication");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Normal, null);                
                 this.OnApplicationStarted(this, EventArgs.Empty);
             }
             else
             {
                 PluginLog.Info("OBS not detected, attempting direct connection");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning,"OBS offline. Please launch OBS");
                 Task.Run(() => this._connectionManager.ConnectAsync());
             }
             
@@ -89,6 +95,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public override void Unload()
         {
             PluginLog.Info("Plugin unloading...");
+            
+            // Unsubscribe from connection events
+            this._obsManager.ConnectionEstablished -= this.OnOBSConnected;
+            this._obsManager.ConnectionLost -= this.OnOBSDisconnected;
             
             this.ClientApplication.ApplicationStarted -= this.OnApplicationStarted;
             this.ClientApplication.ApplicationStopped -= this.OnApplicationStopped;
@@ -111,6 +121,18 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             PluginLog.Info("OBS application stopped");
             this._commandCoordinator.NotifyDisconnected();
             this._connectionManager.Disconnect();
+        }
+
+        private void OnOBSConnected(Object sender, EventArgs e)
+        {
+            PluginLog.Info("OBS WebSocket connected");
+            this.OnPluginStatusChanged(Loupedeck.PluginStatus.Normal, null);
+        }
+
+        private void OnOBSDisconnected(Object sender, EventArgs e)
+        {
+            PluginLog.Info("OBS WebSocket disconnected");
+            this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning,"OBS offline. Please launch OBS");
         }
 
         public void RegisterCommand(IObsCommand command)
