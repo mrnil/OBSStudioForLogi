@@ -95,8 +95,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
         {
-            // Return null to use default icon for now
-            return null;
+            Boolean isConnected = OBSStudioForLogiPlugin.Instance?.IsConnected ?? false;
+            
+            if (!isConnected)
+            {
+                return ButtonImageHelper.Icon("ScenesCollectionsUnselected.svg");
+            }
+            
+            Boolean isSelected = stateIndex == SCENE_COLLECTION_SELECTED;
+            return ButtonImageHelper.StateIcon(isSelected, "ScenesCollectionsSelected.svg", "ScenesCollectionsUnselected.svg");
         }
     }
 }
