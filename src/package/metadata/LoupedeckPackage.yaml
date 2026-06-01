@@ -87,3 +87,19 @@ supportPageUrl: https://github.com/mrnil/OBSStudioForLogi/issues
 
 # URL of the plugin homepage. The URL is shown in Loupedeck Marketplace.
 homePageUrl: https://github.com/mrnil/OBSStudioForLogi
+
+# Category for marketplace organization and discoverability.
+category: Streaming
+
+# Keywords for marketplace search optimization.
+keywords:
+  - obs
+  - streaming
+  - recording
+  - broadcast
+  - twitch
+  - youtube
+  - live
+  - video
+  - scene
+  - audio

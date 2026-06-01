@@ -79,11 +79,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.ButtonActionNamesChanged();
         }
 
-        public override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
-        {
-            return actionParameter;
-        }
-
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             Boolean isSelected = actionParameter == this._currentProfile;
