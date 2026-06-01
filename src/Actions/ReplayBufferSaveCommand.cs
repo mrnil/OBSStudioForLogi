@@ -7,7 +7,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public ReplayBufferSaveCommand()
             : base(displayName: "Save Replay", description: "Save OBS replay buffer", groupName: "4. Replay Buffer")
         {
-            this.IsWidget = true;
+            this.IsWidget = false;
         }
 
         protected override void RunCommand(String actionParameter)

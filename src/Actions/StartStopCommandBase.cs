@@ -10,7 +10,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             : base(displayName, description, groupName)
         {
             this._isStartCommand = isStartCommand;
-            this.IsWidget = true;
+            this.IsWidget = false;
         }
 
         protected abstract void ExecuteStart();

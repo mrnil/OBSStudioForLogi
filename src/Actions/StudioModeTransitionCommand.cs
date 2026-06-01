@@ -10,7 +10,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             : base(displayName: "Studio Mode Transition", description: "Transition preview to program in studio mode", groupName: "1. OBS")
         {
             Instance = this;
-            this.IsWidget = true;
+            this.IsWidget = false;
         }
 
         protected override void RunCommand(String actionParameter)

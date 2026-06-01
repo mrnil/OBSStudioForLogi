@@ -10,7 +10,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         protected ToggleCommandBase(String displayName, String description, String groupName)
             : base(displayName, description, groupName)
         {
-            this.IsWidget = true;
+            this.IsWidget = false;
         }
 
         /// <summary>
