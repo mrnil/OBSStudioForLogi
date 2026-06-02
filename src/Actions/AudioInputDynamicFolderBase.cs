@@ -55,7 +55,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 var selected = AudioSelectionState.SelectedInput;
                 if (!String.IsNullOrEmpty(selected))
                 {
-                    OBSStudioForLogiPlugin.Instance?.ToggleInputMute(selected);
+                    OBSStudioForLogiPlugin.Instance?.CycleInputAudioMonitorType(selected);
                 }
                 return;
             }

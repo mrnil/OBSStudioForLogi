@@ -55,7 +55,13 @@ supportedDevices:
     - LoupedeckCtFamily
 
     # LoupedeckPlusFamily covers Loupedeck+ device. Uncomment the following line to support Loupedeck+.
-    #- LoupedeckPlusFamily
+    - LoupedeckPlusFamily
+
+    # Logitech MX Creative Console
+    - LogiMxCreativeConsoleFamily
+
+    # Logitech MX Dialpad (previously known as MX Keys)
+    - MxDialpadFamily
 
 # List of plugin capabilities.
 pluginCapabilities:

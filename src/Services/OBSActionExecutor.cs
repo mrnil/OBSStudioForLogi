@@ -875,6 +875,69 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             });
         }
 
+        public String GetInputAudioMonitorType(String inputName)
+        {
+            if (!this._obs.IsConnected)
+            {
+                this._log.Warning($"Cannot get audio monitor type for '{inputName}' - not connected");
+                return "OBS_MONITORING_TYPE_NONE";
+            }
+
+            try
+            {
+                return this._obs.GetInputAudioMonitorType(inputName);
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get audio monitor type for '{inputName}': {ex.Message}");
+                return "OBS_MONITORING_TYPE_NONE";
+            }
+        }
+
+        public void CycleInputAudioMonitorType(String inputName)
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning($"Cannot cycle audio monitor type for '{inputName}' - not connected");
+                    return;
+                }
+
+                if (String.IsNullOrEmpty(inputName))
+                {
+                    this._log.Warning("Cannot cycle audio monitor type - input name is empty");
+                    return;
+                }
+
+                try
+                {
+                    var current = this._obs.GetInputAudioMonitorType(inputName);
+                    String next;
+                    
+                    switch (current)
+                    {
+                        case "OBS_MONITORING_TYPE_NONE":
+                            next = "OBS_MONITORING_TYPE_MONITOR_ONLY";
+                            break;
+                        case "OBS_MONITORING_TYPE_MONITOR_ONLY":
+                            next = "OBS_MONITORING_TYPE_MONITOR_AND_OUTPUT";
+                            break;
+                        default:
+                            next = "OBS_MONITORING_TYPE_NONE";
+                            break;
+                    }
+                    
+                    this._log.Info($"Cycling audio monitor type for '{inputName}' from {current} to {next}");
+                    this._obs.SetInputAudioMonitorType(inputName, next);
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to cycle audio monitor type for '{inputName}': {ex.Message}");
+                }
+            });
+        }
+
         public String[] GetAudioSourcesInScene(String sceneName)
         {
             if (!this._obs.IsConnected)

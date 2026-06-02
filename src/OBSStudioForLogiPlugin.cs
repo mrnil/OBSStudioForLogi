@@ -359,6 +359,17 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsFacade.SetInputVolume(inputName, volumeMul);
         }
 
+        public String GetInputAudioMonitorType(String inputName)
+        {
+            return this._obsFacade.GetInputAudioMonitorType(inputName);
+        }
+
+        public void CycleInputAudioMonitorType(String inputName)
+        {
+            PluginLog.Info($"Plugin: Cycling audio monitoring for '{inputName}'");
+            this._obsFacade.CycleInputAudioMonitorType(inputName);
+        }
+
         public void OnInputsChanged(String[] inputs)
         {
             this._commandCoordinator.NotifyInputsChanged(inputs);

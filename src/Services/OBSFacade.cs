@@ -189,6 +189,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsManager.Actions.SetInputVolume(inputName, volumeMul);
         }
 
+        public String GetInputAudioMonitorType(String inputName)
+        {
+            return this._obsManager?.Actions.GetInputAudioMonitorType(inputName) ?? "OBS_MONITORING_TYPE_NONE";
+        }
+
+        public void CycleInputAudioMonitorType(String inputName)
+        {
+            if (!this._obsManager.IsConnected)
+            {
+                PluginLog.Warning($"Cannot cycle audio monitoring for '{inputName}' - not connected to OBS");
+                return;
+            }
+
+            PluginLog.Info($"Cycling audio monitoring for '{inputName}'");
+            this._obsManager.Actions.CycleInputAudioMonitorType(inputName);
+        }
+
         public void ToggleSourceVisibility(String sceneName, String sourceName)
         {
             this._obsManager?.Actions.ToggleSourceVisibility(sceneName, sourceName);

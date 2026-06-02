@@ -218,6 +218,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs?.SetInputVolume(inputName, volumeMul);
         }
 
+        public String GetInputAudioMonitorType(String inputName)
+        {
+            return this._obs?.GetInputAudioMonitorType(inputName) ?? "OBS_MONITORING_TYPE_NONE";
+        }
+
+        public void SetInputAudioMonitorType(String inputName, String monitorType)
+        {
+            this._obs?.SetInputAudioMonitorType(inputName, monitorType);
+        }
+
         public String[] GetAudioSourcesInScene(String sceneName)
         {
             var sceneItems = this._obs?.GetSceneItemList(sceneName);
