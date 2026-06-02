@@ -132,9 +132,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             {
                 Single current = OBSStudioForLogiPlugin.Instance?.GetInputVolume(selected) ?? 1.0f;
                 Single step = diff * 0.01f; // 1% per click
-                Single target = Math.Clamp(current + step, 0.0f, 1.0f);
+                Single target = Math.Clamp(current + step, 0.0f, 20.0f); // OBS supports 0.0-20.0 (0-2000%)
                 OBSStudioForLogiPlugin.Instance?.SetInputVolume(selected, target);
-                PluginLog.Info($"AudioInputDynamicFolderBase: Apply Adjustment {selected} - {target}%");
+                PluginLog.Info($"AudioInputDynamicFolderBase: Apply Adjustment {selected} - {target} ({(Int32)(target * 100)}%)");
                 this.AdjustmentValueChanged(actionParameter);
             }
         }
@@ -151,7 +151,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var volume = OBSStudioForLogiPlugin.Instance?.GetInputVolume(selectedInput) ?? 1.0f;
             var volumePercent = (Int32)(volume * 100);
             
-            return $"{volumePercent}%\n{selectedInput}";
+            // Show boost indicator for volumes > 100%
+            String boostIndicator = volume > 1.0f ? "+" : "";
+            
+            return $"{boostIndicator}{volumePercent}%\n{selectedInput}";
         }
 
 
