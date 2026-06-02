@@ -125,6 +125,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return new[] { this.CreateCommandName("Toggle Mute") };
         }
 
+        public override IEnumerable<String> GetWheelToolNames(DeviceType deviceType)
+        {
+            PluginLog.Info($"AudioInputDynamicFolderBase: Wheel Tool Names {deviceType}");
+            return new[] { this.CreateAdjustmentName("volume-adjust") };
+        }
+
         public override void ApplyAdjustment(String actionParameter, Int32 diff)
         {
             var selected = AudioSelectionState.SelectedInput;
