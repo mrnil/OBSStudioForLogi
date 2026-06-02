@@ -46,21 +46,29 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override void RunCommand(String actionParameter)
         {
+            PluginLog.Info($"AudioInputDynamicFolderBase: RunCommand called with actionParameter='{actionParameter}'");
             
             if (String.IsNullOrEmpty(actionParameter))
                 return;
 
-            if (actionParameter == "encoder-press")
+            // Encoder press sends the command name from GetEncoderPressActionNames
+            if (actionParameter == "Cycle Monitor")
             {
                 var selected = AudioSelectionState.SelectedInput;
                 if (!String.IsNullOrEmpty(selected))
                 {
+                    var currentType = OBSStudioForLogiPlugin.Instance?.GetInputAudioMonitorType(selected) ?? "OBS_MONITORING_TYPE_NONE";
+                    PluginLog.Info($"AudioInputDynamicFolderBase: Encoder press - cycling monitoring for '{selected}' from {currentType}");
                     OBSStudioForLogiPlugin.Instance?.CycleInputAudioMonitorType(selected);
+                }
+                else
+                {
+                    PluginLog.Warning("AudioInputDynamicFolderBase: Encoder press - no source selected");
                 }
                 return;
             }
 
-
+            // Button tap/double-tap for audio input buttons
             this._doubleTapHelper.OnTap(actionParameter,
                 onSingleTap: (input) =>
                 {
@@ -121,8 +129,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
        
         public override IEnumerable<String> GetEncoderPressActionNames(DeviceType deviceType)
         {
-            PluginLog.Info($"AudioInputDynamicFolderBase: Encoder Pressed {deviceType}");
-            return new[] { this.CreateCommandName("Toggle Mute") };
+            return new[] { this.CreateCommandName("Cycle Monitor") };
         }
 
         public override IEnumerable<String> GetWheelToolNames(DeviceType deviceType)
