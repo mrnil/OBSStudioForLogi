@@ -845,6 +845,36 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
+        public void SetInputVolume(String inputName, Single volumeMul)
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning($"Cannot set input volume for '{inputName}' - not connected");
+                    return;
+                }
+
+                if (String.IsNullOrEmpty(inputName))
+                {
+                    this._log.Warning("Cannot set input volume - input name is empty");
+                    return;
+                }
+
+                try
+                {
+                    var volumePercent = (Int32)(volumeMul * 100);
+                    this._log.Info($"Setting input volume for '{inputName}' to {volumePercent}% ({volumeMul:F2})");
+                    this._obs.SetInputVolume(inputName, volumeMul);
+                    this._log.Info($"Successfully set input volume for '{inputName}'");
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to set input volume for '{inputName}': {ex.Message}");
+                }
+            });
+        }
+
         public String[] GetAudioSourcesInScene(String sceneName)
         {
             if (!this._obs.IsConnected)

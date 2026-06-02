@@ -353,6 +353,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._obsFacade.GetInputVolume(inputName);
         }
 
+        public void SetInputVolume(String inputName, Single volumeMul)
+        {
+            PluginLog.Info($"Plugin: Setting input volume for '{inputName}' to {(Int32)(volumeMul * 100)}%");
+            this._obsFacade.SetInputVolume(inputName, volumeMul);
+        }
+
         public void OnInputsChanged(String[] inputs)
         {
             this._commandCoordinator.NotifyInputsChanged(inputs);

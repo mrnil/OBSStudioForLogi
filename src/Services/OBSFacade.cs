@@ -177,6 +177,18 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsManager?.Actions.ToggleInputMute(inputName);
         }
 
+        public void SetInputVolume(String inputName, Single volumeMul)
+        {
+            if (!this._obsManager.IsConnected)
+            {
+                PluginLog.Warning($"Cannot set volume for '{inputName}' - not connected to OBS");
+                return;
+            }
+
+            PluginLog.Info($"Setting input volume for '{inputName}' to {(Int32)(volumeMul * 100)}%");
+            this._obsManager.Actions.SetInputVolume(inputName, volumeMul);
+        }
+
         public void ToggleSourceVisibility(String sceneName, String sourceName)
         {
             this._obsManager?.Actions.ToggleSourceVisibility(sceneName, sourceName);

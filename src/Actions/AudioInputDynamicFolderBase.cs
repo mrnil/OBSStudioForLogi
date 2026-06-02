@@ -46,8 +46,20 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override void RunCommand(String actionParameter)
         {
+            
             if (String.IsNullOrEmpty(actionParameter))
                 return;
+
+            if (actionParameter == "encoder-press")
+            {
+                var selected = AudioSelectionState.SelectedInput;
+                if (!String.IsNullOrEmpty(selected))
+                {
+                    OBSStudioForLogiPlugin.Instance?.ToggleInputMute(selected);
+                }
+                return;
+            }
+
 
             this._doubleTapHelper.OnTap(actionParameter,
                 onSingleTap: (input) =>
@@ -62,8 +74,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         private void HandleDoubleTap(String inputName)
         {
+            PluginLog.Info($"AudioInputDynamicFolderBase: Double-tap detected on '{inputName}'");
+            
             if (AudioSelectionState.IsSelected(inputName))
             {
+                PluginLog.Info($"AudioInputDynamicFolderBase: '{inputName}' is already selected, deselecting");
                 AudioSelectionState.Deselect();
             }
             else
@@ -73,10 +88,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 
                 if (!String.IsNullOrEmpty(previousSelection))
                 {
+                    PluginLog.Info($"AudioInputDynamicFolderBase: Updating previous selection '{previousSelection}' button image");
                     this.CommandImageChanged(previousSelection);
                 }
             }
             
+            PluginLog.Info($"AudioInputDynamicFolderBase: Updating '{inputName}' button image");
             this.CommandImageChanged(inputName);
         }
 
@@ -95,5 +112,32 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 this.CommandImageChanged(inputName);
             }
         }
+
+        public override IEnumerable<String> GetEncoderRotateActionNames(DeviceType deviceType)
+        {
+            PluginLog.Info($"AudioInputDynamicFolderBase: Encoder Rotated {deviceType}");
+            return new[] { this.CreateAdjustmentName("volume-adjust") };
+        }
+       
+        public override IEnumerable<String> GetEncoderPressActionNames(DeviceType deviceType)
+        {
+            PluginLog.Info($"AudioInputDynamicFolderBase: Encoder Pressed {deviceType}");
+            return new[] { this.CreateCommandName("Toggle Mute") };
+        }
+
+        public override void ApplyAdjustment(String actionParameter, Int32 diff)
+        {
+            var selected = AudioSelectionState.SelectedInput;
+            if (!String.IsNullOrEmpty(selected))
+            {
+                Single current = OBSStudioForLogiPlugin.Instance?.GetInputVolume(selected) ?? 1.0f;
+                Single step = diff * 0.01f; // 1% per click
+                Single target = Math.Clamp(current + step, 0.0f, 1.0f);
+                OBSStudioForLogiPlugin.Instance?.SetInputVolume(selected, target);
+            }
+        }
+
+
+
     }
 }
