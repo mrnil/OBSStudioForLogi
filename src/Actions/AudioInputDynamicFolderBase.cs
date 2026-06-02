@@ -134,7 +134,24 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 Single step = diff * 0.01f; // 1% per click
                 Single target = Math.Clamp(current + step, 0.0f, 1.0f);
                 OBSStudioForLogiPlugin.Instance?.SetInputVolume(selected, target);
+                PluginLog.Info($"AudioInputDynamicFolderBase: Apply Adjustment {selected} - {target}%");
+                this.AdjustmentValueChanged(actionParameter);
             }
+        }
+
+        public override String GetAdjustmentDisplayName(String actionParameter, PluginImageSize imageSize)
+        {
+            var selectedInput = AudioSelectionState.SelectedInput;
+            
+            if (String.IsNullOrEmpty(selectedInput))
+            {
+                return "No source\nselected";
+            }
+            
+            var volume = OBSStudioForLogiPlugin.Instance?.GetInputVolume(selectedInput) ?? 1.0f;
+            var volumePercent = (Int32)(volume * 100);
+            
+            return $"{volumePercent}%\n{selectedInput}";
         }
 
 
