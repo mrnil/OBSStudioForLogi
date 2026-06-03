@@ -46,24 +46,21 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override void RunCommand(String actionParameter)
         {
-            PluginLog.Info($"AudioInputDynamicFolderBase: RunCommand called with actionParameter='{actionParameter}'");
-            
             if (String.IsNullOrEmpty(actionParameter))
                 return;
 
             // Encoder press sends the command name from GetEncoderPressActionNames
-            if (actionParameter == "Cycle Monitor")
+            if (actionParameter == "cycle-monitor")
             {
                 var selected = AudioSelectionState.SelectedInput;
                 if (!String.IsNullOrEmpty(selected))
                 {
-                    var currentType = OBSStudioForLogiPlugin.Instance?.GetInputAudioMonitorType(selected) ?? "OBS_MONITORING_TYPE_NONE";
-                    PluginLog.Info($"AudioInputDynamicFolderBase: Encoder press - cycling monitoring for '{selected}' from {currentType}");
+                    PluginLog.Info($"Cycling audio monitoring for '{selected}'");
                     OBSStudioForLogiPlugin.Instance?.CycleInputAudioMonitorType(selected);
                 }
                 else
                 {
-                    PluginLog.Warning("AudioInputDynamicFolderBase: Encoder press - no source selected");
+                    PluginLog.Warning("Cannot cycle monitoring - no source selected");
                 }
                 return;
             }
@@ -82,11 +79,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         private void HandleDoubleTap(String inputName)
         {
-            PluginLog.Info($"AudioInputDynamicFolderBase: Double-tap detected on '{inputName}'");
+            PluginLog.Info($"Audio source '{inputName}' double-tapped");
             
             if (AudioSelectionState.IsSelected(inputName))
             {
-                PluginLog.Info($"AudioInputDynamicFolderBase: '{inputName}' is already selected, deselecting");
                 AudioSelectionState.Deselect();
             }
             else
@@ -96,12 +92,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 
                 if (!String.IsNullOrEmpty(previousSelection))
                 {
-                    PluginLog.Info($"AudioInputDynamicFolderBase: Updating previous selection '{previousSelection}' button image");
                     this.CommandImageChanged(previousSelection);
                 }
             }
             
-            PluginLog.Info($"AudioInputDynamicFolderBase: Updating '{inputName}' button image");
             this.CommandImageChanged(inputName);
         }
 
@@ -123,20 +117,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override IEnumerable<String> GetEncoderRotateActionNames(DeviceType deviceType)
         {
-            PluginLog.Info($"AudioInputDynamicFolderBase: Encoder Rotated {deviceType}");
             return new[] { this.CreateAdjustmentName("volume-adjust") };
         }
        
         public override IEnumerable<String> GetEncoderPressActionNames(DeviceType deviceType)
         {
-            return new[] { this.CreateCommandName("Cycle Monitor") };
+            return new[] { this.CreateCommandName("cycle-monitor") };
         }
 
         public override IEnumerable<String> GetWheelToolNames(DeviceType deviceType)
-        {
-            PluginLog.Info($"AudioInputDynamicFolderBase: Wheel Tool Names {deviceType}");
-            return new[] { this.CreateAdjustmentName("volume-adjust") };
-        }
+            => new[] { "AudioVolumeWheelTool" };
 
         public override void ApplyAdjustment(String actionParameter, Int32 diff)
         {
@@ -144,10 +134,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (!String.IsNullOrEmpty(selected))
             {
                 Single current = OBSStudioForLogiPlugin.Instance?.GetInputVolume(selected) ?? 1.0f;
-                Single step = diff * 0.01f; // 1% per click
-                Single target = Math.Clamp(current + step, 0.0f, 20.0f); // OBS supports 0.0-20.0 (0-2000%)
+                Single step = diff * 0.01f;
+                Single target = Math.Clamp(current + step, 0.0f, 20.0f);
                 OBSStudioForLogiPlugin.Instance?.SetInputVolume(selected, target);
-                PluginLog.Info($"AudioInputDynamicFolderBase: Apply Adjustment {selected} - {target} ({(Int32)(target * 100)}%)");
+                PluginLog.Info($"Volume adjusted for '{selected}': {(Int32)(target * 100)}%");
                 this.AdjustmentValueChanged(actionParameter);
             }
         }
@@ -163,10 +153,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             
             var volume = OBSStudioForLogiPlugin.Instance?.GetInputVolume(selectedInput) ?? 1.0f;
             var volumePercent = (Int32)(volume * 100);
-            
-            // Show boost indicator for volumes > 100%
             String boostIndicator = volume > 1.0f ? "+" : "";
-            
+
             return $"{boostIndicator}{volumePercent}%\n{selectedInput}";
         }
 
