@@ -69,17 +69,17 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._doubleTapHelper.OnTap(actionParameter,
                 onSingleTap: (input) =>
                 {
-                    OBSStudioForLogiPlugin.Instance?.ToggleInputMute(input);
+                    HandleSingleTap(input);
                 },
                 onDoubleTap: (input) =>
                 {
-                    HandleDoubleTap(input);
+                    OBSStudioForLogiPlugin.Instance?.ToggleInputMute(input);
                 });
         }
 
-        private void HandleDoubleTap(String inputName)
+        private void HandleSingleTap(String inputName)
         {
-            PluginLog.Info($"Audio source '{inputName}' double-tapped");
+            PluginLog.Info($"Audio source '{inputName}' selected");
             
             if (AudioSelectionState.IsSelected(inputName))
             {
@@ -124,9 +124,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             return new[] { this.CreateCommandName("cycle-monitor") };
         }
-
-        public override IEnumerable<String> GetWheelToolNames(DeviceType deviceType)
-            => new[] { "AudioVolumeWheelTool" };
 
         public override void ApplyAdjustment(String actionParameter, Int32 diff)
         {
