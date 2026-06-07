@@ -1,6 +1,7 @@
 namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using System.Timers;
     using OBSWebsocketDotNet;
@@ -58,6 +59,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.InputMuteStateChanged += this.OnInputMuteStateChanged;
             this._obs.InputVolumeChanged += this.OnInputVolumeChanged;
             this._obs.StudioModeStateChanged += this.OnStudioModeStateChanged;
+            this._obs.SceneItemEnableStateChanged += this.OnSceneItemEnableStateChanged;
             
             this._log.Info("OBSWebSocketManager initialized");
         }
@@ -386,6 +388,31 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.OnStudioModeStateChanged();
         }
 
+        private void OnSceneItemEnableStateChanged(Object sender, SceneItemEnableStateChangedEventArgs e)
+        {
+            if (String.IsNullOrEmpty(e?.SceneName))
+                return;
+
+            // Event provides SceneItemId, need to get source name from scene items
+            Task.Run(() =>
+            {
+                try
+                {
+                    var sceneItems = this._obs?.GetSceneItemList(e.SceneName);
+                    var item = sceneItems?.FirstOrDefault(i => i.ItemId == e.SceneItemId);
+                    if (item != null && !String.IsNullOrEmpty(item.SourceName))
+                    {
+                        this._log.Info($"Scene item '{item.SourceName}' visibility changed to {e.SceneItemEnabled} in scene '{e.SceneName}'");
+                        OBSStudioForLogiPlugin.Instance?.OnSourceVisibilityChanged(e.SceneName, item.SourceName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this._log.Warning($"Failed to process scene item visibility change: {ex.Message}");
+                }
+            });
+        }
+
         private void OnReconnectTimer(Object sender, ElapsedEventArgs e)
         {
             if (this._disposed || !this._shouldReconnect)
@@ -448,6 +475,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._obs.InputMuteStateChanged -= this.OnInputMuteStateChanged;
                     this._obs.InputVolumeChanged -= this.OnInputVolumeChanged;
                     this._obs.StudioModeStateChanged -= this.OnStudioModeStateChanged;
+                    this._obs.SceneItemEnableStateChanged -= this.OnSceneItemEnableStateChanged;
                     
                     this._obs.Disconnect();
                     

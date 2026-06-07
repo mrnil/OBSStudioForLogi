@@ -127,32 +127,29 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override void ApplyAdjustment(String actionParameter, Int32 diff)
         {
-            var selected = AudioSelectionState.SelectedInput;
-            if (!String.IsNullOrEmpty(selected))
-            {
-                Single current = OBSStudioForLogiPlugin.Instance?.GetInputVolume(selected) ?? 1.0f;
-                Single step = diff * 0.01f;
-                Single target = Math.Clamp(current + step, 0.0f, 20.0f);
-                OBSStudioForLogiPlugin.Instance?.SetInputVolume(selected, target);
-                PluginLog.Info($"Volume adjusted for '{selected}': {(Int32)(target * 100)}%");
-                this.AdjustmentValueChanged(actionParameter);
-            }
+
+            Single current = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
+            Single step = diff * 0.01f;
+            Single target = Math.Clamp(current + step, 0.0f, 20.0f);
+            OBSStudioForLogiPlugin.Instance?.SetInputVolume(actionParameter, target);
+            PluginLog.Info($"Volume adjusted for '{actionParameter}': {(Int32)(target * 100)}%");
+            this.AdjustmentValueChanged(actionParameter);
         }
 
         public override String GetAdjustmentDisplayName(String actionParameter, PluginImageSize imageSize)
         {
-            var selectedInput = AudioSelectionState.SelectedInput;
+ //           var selectedInput = AudioSelectionState.SelectedInput;
             
-            if (String.IsNullOrEmpty(selectedInput))
+            if (String.IsNullOrEmpty(actionParameter))
             {
                 return "No source\nselected";
             }
             
-            var volume = OBSStudioForLogiPlugin.Instance?.GetInputVolume(selectedInput) ?? 1.0f;
+            var volume = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
             var volumePercent = (Int32)(volume * 100);
             String boostIndicator = volume > 1.0f ? "+" : "";
 
-            return $"{boostIndicator}{volumePercent}%\n{selectedInput}";
+            return $"{boostIndicator}{volumePercent}%\n{actionParameter}";
         }
 
 

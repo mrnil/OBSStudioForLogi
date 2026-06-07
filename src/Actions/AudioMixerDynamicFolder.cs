@@ -19,19 +19,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.Description = "Folder of audio inputs with mute/unmute controls";
         }
 
-        public override IEnumerable<String> GetButtonPressActionNames(DeviceType deviceType)
-        {
-            return this.AudioInputs.Select(input => this.CreateCommandName(input));
-        }
+        public override IEnumerable<String> GetButtonPressActionNames(DeviceType deviceType) 
+            => this.AudioInputs.Select(this.CreateAdjustmentName);
 
-        public void OnInputsChanged(String[] inputs)
-        {
-            this.UpdateInputs(inputs);
-        }
+        public void OnInputsChanged(String[] inputs) => this.UpdateInputs(inputs);
 
         private void UpdateInputs(String[] inputs)
         {
-            var previousSelection = AudioSelectionState.SelectedInput;
+            String previousSelection = AudioSelectionState.SelectedInput;
             
             this.AudioInputs = inputs ?? new String[0];
             this._inputScenes.Clear();
