@@ -2,9 +2,8 @@
 
 ## High Priority
 
-- [ ] Implement volume adjustment controls (faders/encoders or +/- buttons)
-- [ ] Add audio monitoring toggle (None/Monitor Only/Monitor & Output)
 - [ ] Add filter enable/disable controls for sources
+- [ ] Broader volume adjustment device support (+/- buttons for devices without WheelTool)
 
 ## Medium Priority
 
@@ -60,6 +59,9 @@
 - [x] Add manual reconnect command
 - [x] Add audio mixer controls (mute/unmute audio inputs)
 - [x] Add audio volume display (0-100% on buttons)
+- [x] Add audio volume adjustment via encoder/wheel tool
+- [x] Add audio monitoring type cycling (None/Monitor Only/Monitor & Output)
+- [x] Add audio source selection state for dial control
 - [x] Add scene audio sources folder (audio inputs in current scene)
 - [x] Implement recording controls (start/stop/toggle/pause)
 - [x] Implement scene management with dynamic folder
@@ -80,18 +82,20 @@
 - [x] Add exponential backoff with jitter for reconnection (0.85-1.15x)
 - [x] Implement continuous reconnection with auto-restart
 - [x] Implement automatic OBS configuration discovery
-- [x] Implement comprehensive logging
-- [x] Add test coverage for all core functionality (140 tests passing)
+- [x] Implement comprehensive logging with configurable levels
+- [x] Add test coverage for all core functionality (241 tests passing)
 - [x] Simplify image rendering with ButtonImageHelper (replaced Factory + Store + Data pattern)
 - [x] Eliminate Windows-only System.Drawing dependencies for macOS compatibility
 - [x] Achieve full cross-platform compatibility (Windows + macOS)
+- [x] Implement Command Registry pattern with interface-based self-registration
+- [x] Refactor main plugin class into focused components (SRP)
+- [x] Implement OBSFacade and ConnectionManager for separation of concerns
 
 ### Documentation
 
 - [x] Create comprehensive memory bank documentation
 - [x] Document icon update patterns and best practices
 - [x] Document simplified image rendering system with ButtonImageHelper
-- [x] Create architecture documentation with diagrams
 - [x] Create developer guide for extending the plugin (CONTRIBUTING.md)
 - [x] Add troubleshooting guide (README.md)
 - [x] Document release process
@@ -102,7 +106,6 @@
 
 - [x] Simplify display commands to use BitmapBuilder for text rendering
 - [x] Ensure display buttons get initial state on connection
-- [x] Add description to scenes dynamic folder
 - [x] Fix display commands to show "Not Connected" when disconnected
 - [x] Implement efficient image caching for all state-based and display commands
 - [x] Fix source visibility toggle to work bidirectionally
@@ -110,7 +113,6 @@
 - [x] Fix scene icon updates to use CommandImageChanged (not ButtonActionNamesChanged)
 - [x] Fix profile icon updates to use CommandImageChanged (not ButtonActionNamesChanged)
 - [x] Fix audio button color updates to use CommandImageChanged for individual buttons
-- [x] Correct audio button font sizes (16pt Width90, 14pt Width60)
 
 ## Future Considerations
 

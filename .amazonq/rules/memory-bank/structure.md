@@ -1,5 +1,61 @@
 # Project Structure
 
+## High-Level Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Loupedeck Hardware                        │
+│                  (Physical Buttons/Displays)                 │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  Logi Plugin Service                         │
+│              (Plugin Host Environment)                       │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│              OBSStudioForLogiPlugin                          │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  Actions Layer (Commands)                            │   │
+│  │  - Recording/Streaming/Virtual Camera Controls       │   │
+│  │  - Scene/Profile/Source Management                   │   │
+│  │  - Audio Mixer/Volume Controls                       │   │
+│  │  - Display Commands (Status Indicators)              │   │
+│  └────────────────────┬─────────────────────────────────┘   │
+│                       │                                      │
+│  ┌────────────────────▼─────────────────────────────────┐   │
+│  │  Plugin Coordinator (OBSStudioForLogiPlugin.cs)      │   │
+│  │  - Lifecycle Management                              │   │
+│  │  - Event Routing                                     │   │
+│  │  - Command Coordination                              │   │
+│  └────────────────────┬─────────────────────────────────┘   │
+│                       │                                      │
+│  ┌────────────────────▼─────────────────────────────────┐   │
+│  │  Services Layer                                      │   │
+│  │  - OBSFacade (Simplified OBS Interface)              │   │
+│  │  - ConnectionManager (Connection Lifecycle)          │   │
+│  │  - CommandCoordinator (Event Distribution)           │   │
+│  │  - OBSWebSocketManager (Connection & Events)         │   │
+│  │  - OBSActionExecutor (Command Execution)             │   │
+│  │  - OBSConfigReader (Configuration Discovery)         │   │
+│  │  - OBSLifecycleManager (Port Monitoring)             │   │
+│  └────────────────────┬─────────────────────────────────┘   │
+│                       │                                      │
+│  ┌────────────────────▼─────────────────────────────────┐   │
+│  │  Adapter Layer                                       │   │
+│  │  - OBSWebsocketAdapter (IOBSWebsocket)               │   │
+│  └────────────────────┬─────────────────────────────────┘   │
+└───────────────────────┼──────────────────────────────────────┘
+                        │
+                        ▼ WebSocket (ws://127.0.0.1:4455)
+┌─────────────────────────────────────────────────────────────┐
+│                    OBS Studio                                │
+│              (obs-websocket v5.0+)                           │
+└─────────────────────────────────────────────────────────────┘
+```
+
 ## Directory Organization
 
 ```

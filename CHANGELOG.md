@@ -5,16 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.0] - 2026-06-08
 
 ### Added
 
-- ToggleCommandBase and StartStopCommandBase for eliminating command duplication
-- SceneSwitchAdjustableCommand for encoder-based scene switching
+- SceneSwitchAdjustableCommand for encoder-based scene switching with configurable profile, collection, and scene
+- Enhanced scene collection change handling with automatic current scene update
+- Validation logging for profile/collection/scene switching
+
+### Changed
+
+- Scene collection switching now waits 100ms before querying current scene for reliability
+
+## [1.0.1] - 2026-05-xx
+
+### Added
+
 - Audio volume display on audio mixer and scene audio buttons (0-100%)
 - GetInputVolume() and SetInputVolume() API methods for volume control
 - OnInputVolumeChanged() event handler for real-time volume updates
 - Scene audio sources folder showing audio inputs in the current scene
+- AudioVolumeWheelTool for encoder-based volume adjustment
+- AudioSelectionState for dial control source selection
+- DoubleTapHelper for distinguishing single/double tap on buttons
+- Audio monitoring type cycling (None → Monitor Only → Monitor & Output)
 - ButtonImageHelper static class for simplified image rendering
 
 ### Changed
@@ -24,24 +38,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Simplified image rendering system with ButtonImageHelper (6 simple methods)
 - All commands migrated to use ButtonImageHelper API
 - Audio buttons now display input name and volume percentage with colored text
-- Audio buttons generate fresh images on every call for real-time state updates
-- Audio button display name hidden for cleaner appearance
 - Reduced image rendering code by ~80% while maintaining same functionality
 
 ### Removed
 
 - ActionImageStore, IActionImageFactory, IActionImageData (replaced with ButtonImageHelper)
-- StateImageFactory, TextImageFactory, SimpleIconImageFactory (no longer needed)
-- StateImageData, TextImageData, SimpleIconImageData models (no longer needed)
-- AudioInputImageFactory and AudioInputImageData (deferred implementation)
+- StateImageFactory, TextImageFactory, SimpleIconImageFactory
+- StateImageData, TextImageData, SimpleIconImageData models
 - BitmapHelper.cs (Windows-only System.Drawing code)
-- IconWithTextImageFactory.cs and IconWithTextImageData.cs (unused)
 
 ### Fixed
 
 - All 78 CA1416 platform-specific warnings eliminated
 - Plugin now fully compatible with macOS (no Windows-only dependencies)
 - Audio buttons now update correctly when mute state or volume changes
+
+## [1.0.0] - 2026-04-xx
+
+### Added
+
+- Command Registry pattern with interface-based self-registration
+- CommandCoordinator and CommandRegistry for centralized event distribution
+- OBSFacade for simplified OBS interface access
+- ConnectionManager for encapsulated connection lifecycle
+- Replay buffer controls (toggle, start, stop, save)
+- Studio mode toggle and transition commands
+- Audio mixer folder with mute/unmute controls
+- Configurable log levels via JSON configuration file
+- OBSTimings centralized timing constants
+- PluginConfigReader for plugin configuration
+
+### Changed
+
+- Refactored main plugin class from ~400 lines to 289 lines (4 focused classes)
+- All commands self-register via IObsCommand interfaces
+- Eliminated 15+ manual notification calls from main plugin
 
 ## [0.8.3] - 2026-03-10
 
@@ -64,16 +95,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Eliminated jaggy text rendering on all buttons by preventing double text rendering
 - Display commands now return null from GetCommandDisplayName() to avoid native text overlay
-- Dynamic folders (Scenes, Sources) now render only anti-aliased text via BitmapBuilder
 
 ### Added
 
-- ButtonTextRenderer helper class for consistent, reusable text rendering across all display commands
-- RenderText(), RenderConnectionStatus(), RenderNotConnected() methods with proper font sizing
-
-### Changed
-
-- Simplified .gitignore to essential patterns, added *.lplug4 to ignored files
+- ButtonTextRenderer helper class for consistent text rendering
 
 ## [0.8.0] - 2026-01-17
 
@@ -92,7 +117,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Display commands now use BitmapBuilder for anti-aliased text rendering
-- Display commands show "Not Connected" when disconnected
 - Virtual camera commands simplified to use base constructor pattern
 - Reconnection now uses timer-based approach with auto-restart
 
@@ -113,8 +137,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Screenshot capture functionality
 - Automatic OBS configuration discovery
 - Connection resilience with exponential backoff
-- Comprehensive logging
-- 80 unit tests with full coverage of core functionality
 - Display commands for current profile, scene, and scene collection
 - Automatic connection on OBS startup
-- Direct connection fallback when process detection fails
