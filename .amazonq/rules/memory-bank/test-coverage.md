@@ -4,7 +4,7 @@
 
 The project follows a TDD approach with 241 unit tests using xUnit + Moq. Overall line coverage is ~39.5% (Cobertura), branch coverage ~22.6%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage.
 
-## Test Count: 241
+## Test Count: 274
 
 ## Test Files
 
@@ -22,6 +22,8 @@ The project follows a TDD approach with 241 unit tests using xUnit + Moq. Overal
 | `OBSWebSocketManagerStateTests.cs` | State properties delegation | ~6 |
 | `OBSWebSocketManagerReconnectionTests.cs` | Reconnection with exponential backoff | ~4 |
 | `OBSWebSocketManagerLoggingTests.cs` | Log output verification | ~3 |
+| `OBSWebSocketManagerEventDispatchTests.cs` | State propagation through Actions executor | 18 |
+| `ReconnectionStrategyTests.cs` | Backoff delays, attempt counting, error handling | 15 |
 | `OBSConfigReaderTests.cs` | Config file parsing, validation | ~7 |
 | `OBSConnectionSettingsTests.cs` | Connection settings model, localhost validation | ~5 |
 | `OBSLifecycleManagerTests.cs` | Port checking, wait logic | ~3 |
@@ -148,8 +150,8 @@ public void GetInputVolume_WhenOBSThrows_LogsErrorAndReturnsDefault()
 
 ### Should Add Tests For
 
-1. **OBSWebSocketManager event handlers** — `OnStreamStateChanged`, `OnRecordStateChanged`, `OnVirtualCameraStateChanged`, `OnReplayBufferStateChanged`, `OnCurrentSceneChanged`, `OnInputMuteStateChanged`, `OnInputVolumeChanged` contain real dispatch logic
-2. **Reconnection timer logic** — `OnReconnectTimer` has complex branching (partially covered at 75%)
+1. **OBSWebSocketManager event handlers (null-guard branches)** — `OnStreamStateChanged`, `OnRecordStateChanged`, etc. contain null-coalescing fallbacks (`e?.OutputState?.State ?? STOPPED`) that only fire if OBS sends malformed events. These are private methods triggered by the real `OBSWebsocket` library and can't be invoked directly without `InternalsVisibleTo`. The actual state-setting logic they delegate to is fully tested via `OBSActionExecutor` and `OBSWebSocketManagerEventDispatchTests`.
+2. **Reconnection timer logic** — `OnReconnectTimer` complexity reduced to 4 after extracting `ReconnectionStrategy` (fully tested with 15 tests). Remaining untested branches are the guard clause (`_disposed || !_shouldReconnect`) and scheduling condition.
 
 ### Intentionally Not Tested
 
