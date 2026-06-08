@@ -309,13 +309,19 @@ void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enable
 - Audio Mixer folder (all audio inputs)
 - Scene Audio folder (audio inputs in current scene)
 - Audio inputs not in any scene included in Scene Audio folder
+- Volume adjustment via encoder/wheel tool (`AudioVolumeWheelTool`)
+- Audio selection state for dial control (`AudioSelectionState`)
+- Double-tap to select/deselect audio source for wheel control
+- Audio monitoring type cycling (None → Monitor Only → Monitor & Output)
 
 ### 🟡 Partially Completed
 
-- Volume adjustment API implemented but no UI controls
+- Volume adjustment - wheel tool works but limited to devices with WheelTool support
   - `GetInputVolume()` ✅ exists in `IOBSWebsocket`
   - `SetInputVolume()` ✅ exists in `IOBSWebsocket`
-  - Needs: Encoder knobs, faders, or +/- buttons
+  - `AudioVolumeWheelTool` ✅ encoder-based volume adjustment
+  - `AudioSelectionState` ✅ tracks selected input for dial
+  - Needs: Broader device support, +/- button alternatives
 
 ### ❌ Not Yet Implemented
 

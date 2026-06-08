@@ -129,15 +129,30 @@ dotnet restore OBSStudioForLogiPlugin.sln
 ### Test Project
 
 - **Project**: OBSStudioForLogiPlugin.Tests
-- **Framework**: Likely xUnit or NUnit (based on standard .NET test project structure)
+- **Framework**: xUnit 2.9.3 with Moq 4.20.72
+- **Coverage Tool**: coverlet.collector 10.0.1
+- **Test Runner**: xunit.runner.visualstudio 3.1.5
+- **Test Count**: 241 tests
 - **Test Categories**:
-  - `OBSActionExecutorTests.cs`: Action execution logic
+  - `OBSActionExecutorTests.cs`: Core action execution logic
+  - `OBSActionExecutorReplayBufferTests.cs`: Replay buffer operations
+  - `OBSActionExecutorAudioTests.cs`: Audio volume, monitoring, input queries
+  - `OBSActionExecutorSceneSwitchingTests.cs`: Studio mode scene switching
+  - `OBSActionExecutorStudioModeTests.cs`: Studio mode toggle/state
+  - `OBSActionExecutorStudioModeTransitionTests.cs`: Studio mode transitions
+  - `OBSFacadeTests.cs`: Facade disconnected state and validation
+  - `CommandRegistryTests.cs`: Interface-based command dispatch
   - `OBSConfigReaderTests.cs`: Configuration file parsing
-  - `OBSLifecycleManagerTests.cs`: Connection lifecycle
+  - `OBSConnectionSettingsTests.cs`: Connection settings model
+  - `OBSLifecycleManagerTests.cs`: Port availability/lifecycle
   - `OBSWebSocketManagerTests.cs`: WebSocket management
-  - `OBSWebSocketManagerStateTests.cs`: State management
+  - `OBSWebSocketManagerStateTests.cs`: State property delegation
   - `OBSWebSocketManagerReconnectionTests.cs`: Reconnection logic
   - `OBSWebSocketManagerLoggingTests.cs`: Logging behavior
+  - `SourceVisibilityTests.cs`: Source visibility operations
+  - `VirtualCameraCommandTests.cs`: Virtual camera state
+  - `ManualReconnectTests.cs`: Manual reconnection
+  - `Actions/` subdirectory: Integration tests for command construction
 
 ## Embedded Resources
 

@@ -54,6 +54,7 @@ Command classes that handle user interactions from Loupedeck hardware:
 - `AudioMixerDynamicFolder.cs`: Dynamic folder with all audio inputs (mute/unmute, volume display)
 - `SceneAudioSourcesDynamicFolder.cs`: Dynamic folder with audio inputs in current scene
 - `AudioInputDynamicFolderBase.cs`: Base class for audio folder implementations
+- `AudioVolumeWheelTool.cs`: Wheel/encoder tool for adjusting selected audio input volume
 - `RecordingToggleCommand.cs`: Toggle recording on/off (uses ToggleCommandBase)
 - `RecordingStartCommand.cs`: Start recording (uses StartStopCommandBase)
 - `RecordingStopCommand.cs`: Stop recording (uses StartStopCommandBase)
@@ -113,16 +114,24 @@ Core business logic and OBS integration:
 - **OBSWebsocketAdapter.cs**: Adapter wrapping obs-websocket-dotnet library
 - **OBSConfigReader.cs**: Reads OBS configuration files to discover WebSocket settings (port, password)
 - **OBSLifecycleManager.cs**: Manages connection lifecycle, port availability checking
+- **PluginConfigReader.cs**: Reads plugin-specific configuration from AppData
 
 ### Helpers Layer (`src/Helpers/`)
 
 - **PluginLog.cs**: Centralized logging wrapper (implements IPluginLog)
 - **IPluginLog.cs**: Logging interface for dependency injection
+- **LogLevel.cs**: Enum defining log levels (Trace, Debug, Info, Warning, Error)
 - **PluginResources.cs**: Embedded resource loader for icons and images
+- **OBSTimings.cs**: Centralized timing constants for OBS operations and tests
+- **ButtonImageHelper.cs**: Static helper for all button image rendering (icons, text, state-based)
+- **ButtonTextRenderer.cs**: Text rendering with dynamic font sizing and layout
+- **AudioSelectionState.cs**: Static state tracker for which audio input is selected for dial control
+- **PressTimingHelper.cs**: DoubleTapHelper for distinguishing single/double tap on buttons
 
 ### Models Layer (`src/Models/`)
 
 - **OBSConnectionSettings.cs**: Data model for WebSocket connection configuration (URL, port, password)
+- **PluginConfig.cs**: Plugin configuration model (log level settings)
 
 ## Architectural Patterns
 

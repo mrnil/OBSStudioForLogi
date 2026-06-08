@@ -153,14 +153,14 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 | Toggle Input Mute | ✅ | `AudioMixerDynamicFolder`, `SceneAudioSourcesDynamicFolder` |
 | Input Mute Changed Event | ✅ | `InputMuteStateChanged` event |
 | Get Input Volume | ✅ | `GetInputVolume()` - displays on buttons |
-| Set Input Volume | ✅ | `SetInputVolume()` - API exists but no UI |
+| Set Input Volume | ✅ | `SetInputVolume()` - wheel tool + API |
 | Input Volume Changed Event | ✅ | `InputVolumeChanged` event |
 | Get Input Audio Balance | ❌ | Not implemented |
 | Set Input Audio Balance | ❌ | Not implemented |
 | Get Input Audio Sync Offset | ❌ | Not implemented |
 | Set Input Audio Sync Offset | ❌ | Not implemented |
-| Get Input Audio Monitor Type | ❌ | Not implemented |
-| Set Input Audio Monitor Type | ❌ | Not implemented |
+| Get Input Audio Monitor Type | ✅ | `GetInputAudioMonitorType()` |
+| Set Input Audio Monitor Type | ✅ | `CycleInputAudioMonitorType()` |
 | Get Input Audio Tracks | ❌ | Not implemented |
 | Set Input Audio Tracks | ❌ | Not implemented |
 
@@ -168,9 +168,9 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 
 | Feature | Status | Implementation |
 |---------|--------|----------------|
-| Monitor Type: None | ❌ | Not implemented |
-| Monitor Type: Monitor Only | ❌ | Not implemented |
-| Monitor Type: Monitor & Output | ❌ | Not implemented |
+| Monitor Type: None | ✅ | `CycleInputAudioMonitorType()` |
+| Monitor Type: Monitor Only | ✅ | Cycles through states |
+| Monitor Type: Monitor & Output | ✅ | Cycles through states |
 
 ---
 

@@ -47,6 +47,30 @@ OBSStudioForLogiPlugin is a Loupedeck/Logi Plugin Service integration that enabl
 - Display current profile and scene collection
 - Automatic synchronization when profiles/collections change in OBS
 
+### Audio Control
+
+- Mute/unmute audio inputs with visual feedback (red=muted, green=unmuted)
+- Volume percentage display (0-100%) on all audio buttons
+- Volume adjustment via encoder/wheel tool for selected input
+- Audio source selection state for dial control
+- Double-tap to select/deselect audio inputs for encoder control
+- Audio Mixer folder showing all audio inputs
+- Scene Audio folder showing audio inputs in current scene
+
+### Replay Buffer
+
+- Start/stop replay buffer with dedicated toggle
+- Save replay buffer to disk
+- Visual indicators for replay buffer state
+
+### Studio Mode
+
+- Toggle studio mode on/off
+- Trigger transition (preview to program) when studio mode is enabled
+- Scene switching behavior changes based on studio mode state
+  - Studio mode disabled: scenes switch to program (live)
+  - Studio mode enabled: scenes switch to preview (not live)
+
 ### Screenshot Capture
 
 - Trigger OBS screenshots directly from hardware
