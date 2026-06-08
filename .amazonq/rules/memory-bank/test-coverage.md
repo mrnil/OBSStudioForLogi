@@ -2,7 +2,7 @@
 
 ## Overview
 
-The project follows a TDD approach with 241 unit tests using xUnit + Moq. Overall line coverage is ~27% (Cobertura), but this is misleading due to the architecture — the testable business logic layer has much higher coverage while Loupedeck SDK-dependent code is exempt.
+The project follows a TDD approach with 241 unit tests using xUnit + Moq. Overall line coverage is ~39.5% (Cobertura), branch coverage ~22.6%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage.
 
 ## Test Count: 241
 
@@ -48,13 +48,14 @@ The project follows a TDD approach with 241 unit tests using xUnit + Moq. Overal
 
 | Class | Line Coverage | Branch Coverage | Notes |
 |-------|-------------|-----------------|-------|
-| **OBSActionExecutor** | 63% | 54% | Core business logic, well-tested |
+| **OBSActionExecutor** | 90% | 83% | Core business logic, excellent coverage |
 | **OBSConfigReader** | 91% | 90% | Excellent coverage |
-| **OBSLifecycleManager** | 79-89% | 75% | Good coverage |
+| **OBSLifecycleManager** | 79-100% | 75-100% | Good coverage |
 | **OBSConnectionSettings** | 100% | 100% | Perfect |
 | **OBSWebSocketManager** | 34% | 17% | Event handlers hard to unit test |
-| **CommandRegistry** | 0%→covered | - | Tests exist but coverage tool shows 0 due to execution path |
-| **OBSFacade** | 0%→covered | - | Tests verify behavior when disconnected |
+| **CommandRegistry** | 100% | 100% | Fully covered |
+| **OBSFacade** | 71% | 37% | Query/state methods covered, action delegation partially |
+| **CommandCoordinator** | 0% | - | Thin delegation to CommandRegistry (tested indirectly) |
 
 ## Why Some Classes Show 0% Despite Tests
 
@@ -77,7 +78,7 @@ All `Actions/` classes inherit from SDK base classes (`PluginDynamicCommand`, `P
 
 ### Coverage Tool Quirks
 
-`CommandRegistry` shows 0% in Cobertura despite having 19 tests because the coverage was measured before those tests were added. Re-running coverage will show the actual numbers.
+`CommandCoordinator` shows 0% in Cobertura because it is a thin facade that delegates to `CommandRegistry` — the registry itself is tested directly and shows 100% coverage.
 
 ## Running Tests
 
