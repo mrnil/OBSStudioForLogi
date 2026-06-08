@@ -14,6 +14,9 @@ OBSStudioForLogiPlugin/
 │   └── *.cs                      # Root plugin and application classes
 ├── tests/                        # Unit and integration tests
 │   └── OBSStudioForLogiPlugin.Tests/
+│       ├── Actions/              # Command/action integration tests
+│       └── *.cs                  # Service and business logic unit tests
+├── coverage-results/             # Code coverage reports (Cobertura XML)
 └── bin/                          # Build output (Debug/Release)
 ```
 
