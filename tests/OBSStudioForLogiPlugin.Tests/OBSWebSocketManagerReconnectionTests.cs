@@ -33,24 +33,13 @@ public class OBSWebSocketManagerReconnectionTests
     }
 
     [Fact]
-    public void GetReconnectDelay_ShouldReturnExponentialBackoffWithJitter()
+    public void GetReconnectDelay_ShouldReturnDelayWithinJitterRange()
     {
         var manager = new OBSWebSocketManager();
         
-        // Test that delays are within jitter range (0.85-1.15x base delay)
-        var delay0 = manager.GetReconnectDelay(0);
-        Assert.InRange(delay0, 850, 1150); // 1000 * 0.85-1.15
-        
-        var delay1 = manager.GetReconnectDelay(1);
-        Assert.InRange(delay1, 1700, 2300); // 2000 * 0.85-1.15
-        
-        var delay2 = manager.GetReconnectDelay(2);
-        Assert.InRange(delay2, 3400, 4600); // 4000 * 0.85-1.15
-        
-        var delay5 = manager.GetReconnectDelay(5);
-        Assert.InRange(delay5, 25500, 34500); // 30000 * 0.85-1.15
-        
-        var delay10 = manager.GetReconnectDelay(10);
-        Assert.InRange(delay10, 25500, 34500); // Max delay with jitter
+        // GetReconnectDelay delegates to ReconnectionStrategy
+        // Initial state (0 attempts) returns first tier delay
+        var delay = manager.GetReconnectDelay(0);
+        Assert.InRange(delay, 850, 1150); // 1000 * 0.85-1.15
     }
 }

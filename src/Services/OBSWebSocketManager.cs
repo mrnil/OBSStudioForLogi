@@ -14,9 +14,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly OBSWebsocket _obs;
         private readonly Timer _reconnectTimer;
         private readonly IPluginLog _log;
-        private readonly Int32[] _backoffDelays = { 1000, 2000, 4000, 8000, 15000, 30000 };
+        private readonly ReconnectionStrategy _reconnectionStrategy;
         private readonly Object _disposeLock = new Object();
-        private Int32 _reconnectAttempts = 0;
         private String _lastUrl;
         private String _lastPassword;
         private Boolean _shouldReconnect = false;
@@ -41,6 +40,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._log = log;
             this._obs = new OBSWebsocket();
+            this._reconnectionStrategy = new ReconnectionStrategy(log);
             this.Actions = new OBSActionExecutor(new OBSWebsocketAdapter(this._obs), log);
             this._reconnectTimer = new Timer();
             this._reconnectTimer.Elapsed += this.OnReconnectTimer;
@@ -90,16 +90,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public Int32 GetReconnectDelay(Int32 attempt)
         {
-            var index = Math.Min(attempt, this._backoffDelays.Length - 1);
-            var baseDelay = this._backoffDelays[index];
-            var jitter = Random.Shared.NextDouble() * 0.3 + 0.85; // 0.85-1.15x
-            return (Int32)(baseDelay * jitter);
+            return this._reconnectionStrategy.GetNextDelay();
         }
 
         private void OnConnected(Object sender, EventArgs e)
         {
             this._log.Info("WebSocket connection established");
-            this._reconnectAttempts = 0;
+            this._reconnectionStrategy.Reset();
             this._reconnectTimer?.Stop();
             
             // Raise plugin-level event
@@ -177,10 +174,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             
             if (this._shouldReconnect && !this._disposed)
             {
-                var delay = this.GetReconnectDelay(this._reconnectAttempts);
-                this._log.Info($"Scheduling reconnection attempt in {delay}ms");
-                this._reconnectTimer.Interval = delay;
-                this._reconnectTimer.Start();
+                this.ScheduleNextReconnect();
             }
         }
 
@@ -418,26 +412,21 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (this._disposed || !this._shouldReconnect)
                 return;
 
-            this._reconnectAttempts++;
-            this._log.Info($"Reconnection attempt {this._reconnectAttempts} to {this._lastUrl}");
-            
-            try
-            {
-                this._obs.ConnectAsync(this._lastUrl, this._lastPassword);
-            }
-            catch (Exception ex)
-            {
-                this._log.Warning($"Connection attempt failed: {ex.Message}");
-            }
-            
-            // Schedule next attempt if still not connected
+            this._reconnectionStrategy.TryReconnect(() =>
+                this._obs.ConnectAsync(this._lastUrl, this._lastPassword));
+
             if (!this.IsConnected && this._shouldReconnect && !this._disposed)
             {
-                var delay = this.GetReconnectDelay(this._reconnectAttempts);
-                this._log.Info($"Scheduling next reconnection attempt in {delay}ms");
-                this._reconnectTimer.Interval = delay;
-                this._reconnectTimer.Start();
+                this.ScheduleNextReconnect();
             }
+        }
+
+        private void ScheduleNextReconnect()
+        {
+            var delay = this._reconnectionStrategy.GetNextDelay();
+            this._log.Info($"Scheduling next reconnection attempt in {delay}ms");
+            this._reconnectTimer.Interval = delay;
+            this._reconnectTimer.Start();
         }
 
         public void Dispose()
