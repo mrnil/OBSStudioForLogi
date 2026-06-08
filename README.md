@@ -9,6 +9,13 @@
 
 Control OBS Studio directly from your Loupedeck/Logitech hardware device with dedicated buttons and real-time status displays.
 
+## NOTE
+
+This project is not supported by or affliated with OBS Project and is not listed in their community.
+Please note that this is not a plugin for OBS. It interacts with the websocket server using [obs-websocket-dotnet](https://github.com/BarRaider/obs-websocket-dotnet). 
+
+An AI Coding Assistant has been used to support the developer of this project and the understanding of associated technologies and libraries. The project uses strong engineering principles including [TDD](https://github.com/mrnil/OBSStudioForLogi/blob/main/.amazonq/rules/TestDrivenDevelopment.md), [secure coding principles] (https://github.com/mrnil/OBSStudioForLogi/blob/main/.amazonq/rules/SecureCoding.md) and [conventional commits](https://github.com/mrnil/OBSStudioForLogi/blob/main/.amazonq/rules/CodeCommits.md) to ensure every change is well understood, reliable and tested as appropriate.
+
 ## Features
 
 - **Automatic Connection**: Discovers OBS WebSocket settings automatically from OBS configuration

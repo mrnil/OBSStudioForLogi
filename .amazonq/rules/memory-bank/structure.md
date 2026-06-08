@@ -2,58 +2,28 @@
 
 ## High-Level Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Loupedeck Hardware                        │
-│                  (Physical Buttons/Displays)                 │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  Logi Plugin Service                         │
-│              (Plugin Host Environment)                       │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────┐
-│              OBSStudioForLogiPlugin                          │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │  Actions Layer (Commands)                            │   │
-│  │  - Recording/Streaming/Virtual Camera Controls       │   │
-│  │  - Scene/Profile/Source Management                   │   │
-│  │  - Audio Mixer/Volume Controls                       │   │
-│  │  - Display Commands (Status Indicators)              │   │
-│  └────────────────────┬─────────────────────────────────┘   │
-│                       │                                      │
-│  ┌────────────────────▼─────────────────────────────────┐   │
-│  │  Plugin Coordinator (OBSStudioForLogiPlugin.cs)      │   │
-│  │  - Lifecycle Management                              │   │
-│  │  - Event Routing                                     │   │
-│  │  - Command Coordination                              │   │
-│  └────────────────────┬─────────────────────────────────┘   │
-│                       │                                      │
-│  ┌────────────────────▼─────────────────────────────────┐   │
-│  │  Services Layer                                      │   │
-│  │  - OBSFacade (Simplified OBS Interface)              │   │
-│  │  - ConnectionManager (Connection Lifecycle)          │   │
-│  │  - CommandCoordinator (Event Distribution)           │   │
-│  │  - OBSWebSocketManager (Connection & Events)         │   │
-│  │  - OBSActionExecutor (Command Execution)             │   │
-│  │  - OBSConfigReader (Configuration Discovery)         │   │
-│  │  - OBSLifecycleManager (Port Monitoring)             │   │
-│  └────────────────────┬─────────────────────────────────┘   │
-│                       │                                      │
-│  ┌────────────────────▼─────────────────────────────────┐   │
-│  │  Adapter Layer                                       │   │
-│  │  - OBSWebsocketAdapter (IOBSWebsocket)               │   │
-│  └────────────────────┬─────────────────────────────────┘   │
-└───────────────────────┼──────────────────────────────────────┘
-                        │
-                        ▼ WebSocket (ws://127.0.0.1:4455)
-┌─────────────────────────────────────────────────────────────┐
-│                    OBS Studio                                │
-│              (obs-websocket v5.0+)                           │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    HW["Logitech Hardware<br/>(Physical Buttons/Displays)"]
+    LPS["Logi Plugin Service<br/>(Plugin Host Environment)"]
+
+    subgraph Plugin["OBSStudioForLogiPlugin"]
+        direction TB
+        Actions["Actions Layer<br/>Recording/Streaming/Virtual Camera Controls<br/>Scene/Profile/Source Management<br/>Audio Mixer/Volume Controls<br/>Display Commands"]
+        Coordinator["Plugin Coordinator<br/>Lifecycle Management<br/>Event Routing<br/>Command Coordination"]
+        Services["Services Layer<br/>OBSFacade · ConnectionManager · CommandCoordinator<br/>OBSWebSocketManager · OBSActionExecutor<br/>OBSConfigReader · OBSLifecycleManager"]
+        Adapter["Adapter Layer<br/>OBSWebsocketAdapter (IOBSWebsocket)"]
+
+        Actions --> Coordinator
+        Coordinator --> Services
+        Services --> Adapter
+    end
+
+    OBS["OBS Studio<br/>(obs-websocket v5.0+)"]
+
+    HW --> LPS
+    LPS --> Plugin
+    Adapter -- "WebSocket ws://127.0.0.1:4455" --> OBS
 ```
 
 ## Directory Organization
