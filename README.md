@@ -1,4 +1,4 @@
-# OBS Studio Plugin for Loupedeck/Logitech Devices
+# Logitech/Loupedeck Plugin for interacting with OBS Studio
 
 [![Dependency Check](https://github.com/mrnil/OBSStudioForLogi/actions/workflows/dependency-check.yml/badge.svg)](https://github.com/mrnil/OBSStudioForLogi/actions/workflows/dependency-check.yml)
 [![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
@@ -7,14 +7,15 @@
 [![Release](https://img.shields.io/github/v/release/mrnil/OBSStudioForLogi)](https://github.com/mrnil/OBSStudioForLogi/releases)
 [![Issues](https://img.shields.io/github/issues/mrnil/OBSStudioForLogi)](https://github.com/mrnil/OBSStudioForLogi/issues)
 
-Control OBS Studio directly from your Loupedeck/Logitech hardware device with dedicated buttons and real-time status displays.
+Control OBS Studio directly from your Logitech/Loupedeck hardware device with dedicated buttons and real-time status displays.
 
 ## NOTE
 
-This project is not supported by or affliated with OBS Project and is not listed in their community.
-Please note that this is not a plugin for OBS. It interacts with the websocket server using [obs-websocket-dotnet](https://github.com/BarRaider/obs-websocket-dotnet). 
+Please note that this is not a plugin or an extension for OBS. This project is not supported by or affliated with OBS Project and is not listed in their community.
 
-An AI Coding Assistant has been used to support the developer of this project and the understanding of associated technologies and libraries. The project uses strong engineering principles including [TDD](https://github.com/mrnil/OBSStudioForLogi/blob/main/.amazonq/rules/TestDrivenDevelopment.md), [secure coding principles] (https://github.com/mrnil/OBSStudioForLogi/blob/main/.amazonq/rules/SecureCoding.md) and [conventional commits](https://github.com/mrnil/OBSStudioForLogi/blob/main/.amazonq/rules/CodeCommits.md) to ensure every change is well understood, reliable and tested as appropriate.
+This project interacts with the websocket server using [obs-websocket-dotnet](https://github.com/BarRaider/obs-websocket-dotnet) and is a plugin for Logitech Option+ and Loupedeck software that utilise the underlying LogiPluginService and [Logi Actions SDK](https://logitech.github.io/actions-sdk-docs/). See [the project structure](https://github.com/mrnil/OBSStudioForLogi/blob/main/.amazonq/rules/memory-bank/structure.md) for further details.
+
+An AI Coding Assistant has been used to support the development of this project and the understanding of associated technologies and libraries. The project uses strong engineering principles including [TDD](https://github.com/mrnil/OBSStudioForLogi/blob/main/.amazonq/rules/TestDrivenDevelopment.md), [secure coding principles] (https://github.com/mrnil/OBSStudioForLogi/blob/main/.amazonq/rules/SecureCoding.md) and [conventional commits](https://github.com/mrnil/OBSStudioForLogi/blob/main/.amazonq/rules/CodeCommits.md) to ensure every change is well understood, reliable and tested as appropriate. Please do report any issues you find with the tests or code base that I may have missed.
 
 ## Features
 
