@@ -17,7 +17,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            return ButtonImageHelper.Icon("Reconnect.svg");
+            return ButtonImageHelper.Icon("Reconnect.png");
         }
     }
 }
