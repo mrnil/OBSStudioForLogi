@@ -127,8 +127,8 @@
     <EmbeddedResource Include="Resources\icons\AudioMixerUnmuted.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.AudioMixerUnmuted.svg</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\icons\Reconnect.png">
-      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.Reconnect.png</LogicalName>
+    <EmbeddedResource Include="Resources\icons\Reconnect.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.Reconnect.svg</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\icons\ReplayBufferToggleStart.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ReplayBufferToggleStart.svg</LogicalName>
