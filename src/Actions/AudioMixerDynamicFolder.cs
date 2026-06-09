@@ -20,7 +20,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         }
 
         public override IEnumerable<String> GetButtonPressActionNames(DeviceType deviceType) 
-            => this.AudioInputs.Select(this.CreateAdjustmentName);
+            => this.AudioInputs.Select(this.CreateCommandName);
 
         public void OnInputsChanged(String[] inputs) => this.UpdateInputs(inputs);
 
