@@ -9,6 +9,30 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             return PluginResources.ReadImage($"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconResourceName}");
         }
+
+        // For icon with coloured background
+        public static BitmapImage IconWithBackground(String iconResourceName, PluginImageSize imageSize, BitmapColor backgroundColor)
+        {
+            using (var builder = new BitmapBuilder(imageSize))
+            {
+                builder.Clear(backgroundColor);
+
+                try
+                {
+                    var iconImage = PluginResources.ReadImage($"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconResourceName}");
+                    if (iconImage != null)
+                    {
+                        builder.DrawImage(iconImage, 0, 0, builder.Width, builder.Height);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    PluginLog.Warning($"Failed to load icon '{iconResourceName}': {ex.Message}");
+                }
+
+                return builder.ToImage();
+            }
+        }
         
         // For state-based icons (on/off, active/inactive)
         public static BitmapImage StateIcon(Boolean isActive, String activeIcon, String inactiveIcon)
