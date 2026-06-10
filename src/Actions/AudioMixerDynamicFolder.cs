@@ -19,8 +19,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.Description = "Folder of audio inputs with mute/unmute controls";
         }
 
-        public override IEnumerable<String> GetButtonPressActionNames(DeviceType deviceType) 
-            => this.AudioInputs.Select(this.CreateCommandName);
+        public override IEnumerable<String> GetButtonPressActionNames(DeviceType deviceType) => this.AudioInputs.Select(this.CreateCommandName);
 
         public void OnInputsChanged(String[] inputs) => this.UpdateInputs(inputs);
 
@@ -41,11 +40,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             
             foreach (var input in this.AudioInputs)
             {
-                var kind = OBSStudioForLogiPlugin.Instance?.GetInputKind(input) ?? String.Empty;
-                var scenes = OBSStudioForLogiPlugin.Instance?.GetScenesForInput(input) ?? new String[0];
+                String kind = OBSStudioForLogiPlugin.Instance?.GetInputKind(input) ?? String.Empty;
+                String[] scenes = OBSStudioForLogiPlugin.Instance?.GetScenesForInput(input) ?? new String[0];
                 this._inputScenes[input] = scenes;
                 
-                var scenesText = scenes.Length > 0 ? String.Join(", ", scenes) : "(no scenes)";
+                String scenesText = scenes.Length > 0 ? String.Join(", ", scenes) : "(no scenes)";
                 PluginLog.Info($"  Input: '{input}' - Kind: '{kind}' - Scenes: {scenesText}");
             }
             
@@ -54,7 +53,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override void OnConnected()
         {
-            var inputs = OBSStudioForLogiPlugin.Instance?.GetInputList() ?? new String[0];
+            String[] inputs = OBSStudioForLogiPlugin.Instance?.GetInputList() ?? new String[0];
             this.UpdateInputs(inputs);
         }
 

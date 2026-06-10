@@ -49,18 +49,20 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (String.IsNullOrEmpty(actionParameter))
                 return;
 
+            PluginLog.Info($"[AudioFolder] RunCommand called - parameter: '{actionParameter}'");
+
             // Encoder press sends the command name from GetEncoderPressActionNames
             if (actionParameter == "cycle-monitor")
             {
                 var selected = AudioSelectionState.SelectedInput;
+                PluginLog.Info($"[AudioFolder] Encoder press: cycle-monitor, selected: '{selected ?? "(none)"}'");
                 if (!String.IsNullOrEmpty(selected))
                 {
-                    PluginLog.Info($"Cycling audio monitoring for '{selected}'");
                     OBSStudioForLogiPlugin.Instance?.CycleInputAudioMonitorType(selected);
                 }
                 else
                 {
-                    PluginLog.Warning("Cannot cycle monitoring - no source selected");
+                    PluginLog.Warning("[AudioFolder] Cannot cycle monitoring - no source selected");
                 }
                 return;
             }
@@ -69,7 +71,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._doubleTapHelper.OnTap(actionParameter,
                 onSingleTap: (input) =>
                 {
-                    HandleSingleTap(input);
+                    this.HandleSingleTap(input);
                 },
                 onDoubleTap: (input) =>
                 {
@@ -77,10 +79,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 });
         }
 
+
         private void HandleSingleTap(String inputName)
         {
-            PluginLog.Info($"Audio source '{inputName}' selected");
-            
             if (AudioSelectionState.IsSelected(inputName))
             {
                 AudioSelectionState.Deselect();
@@ -117,42 +118,77 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override IEnumerable<String> GetEncoderRotateActionNames(DeviceType deviceType)
         {
+            PluginLog.Info($"[AudioFolder] GetEncoderRotateActionNames called for device type: {deviceType}");
             return new[] { this.CreateAdjustmentName("volume-adjust") };
         }
-       
+
         public override IEnumerable<String> GetEncoderPressActionNames(DeviceType deviceType)
         {
+            PluginLog.Info($"[AudioFolder] GetEncoderPressActionNames called for device type: {deviceType}");
             return new[] { this.CreateCommandName("cycle-monitor") };
         }
 
         public override void ApplyAdjustment(String actionParameter, Int32 diff)
         {
+            PluginLog.Info($"[AudioFolder] ApplyAdjustment called - parameter: '{actionParameter}', diff: {diff}");
 
-            Single current = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
+            String selected = AudioSelectionState.SelectedInput;
+            PluginLog.Info($"[AudioFolder] Currently selected input: '{selected ?? "(none)"}'");
+
+            if (String.IsNullOrEmpty(selected))
+            {
+                PluginLog.Warning("[AudioFolder] Cannot adjust volume - no source selected");
+                return;
+            }
+
+            Single current = OBSStudioForLogiPlugin.Instance?.GetInputVolume(selected) ?? 1.0f;
             Single step = diff * 0.01f;
             Single target = Math.Clamp(current + step, 0.0f, 20.0f);
-            OBSStudioForLogiPlugin.Instance?.SetInputVolume(actionParameter, target);
-            PluginLog.Info($"Volume adjusted for '{actionParameter}': {(Int32)(target * 100)}%");
+            OBSStudioForLogiPlugin.Instance?.SetInputVolume(selected, target);
+            PluginLog.Info($"[AudioFolder] Adjusting volume for '{selected}': {(Int32)(current * 100)}% -> {(Int32)(target * 100)}%");
             this.AdjustmentValueChanged(actionParameter);
         }
 
         public override String GetAdjustmentDisplayName(String actionParameter, PluginImageSize imageSize)
         {
- //           var selectedInput = AudioSelectionState.SelectedInput;
-            
-            if (String.IsNullOrEmpty(actionParameter))
+            // For encoder display (volume-adjust), show selected input info
+            if (actionParameter == "volume-adjust")
             {
-                return "No source\nselected";
-            }
-            
-            var volume = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
-            var volumePercent = (Int32)(volume * 100);
-            String boostIndicator = volume > 1.0f ? "+" : "";
+                String selected = AudioSelectionState.SelectedInput;
+                if (String.IsNullOrEmpty(selected))
+                {
+                    return "No source\nselected";
+                }
 
-            return $"{boostIndicator}{volumePercent}%\n{actionParameter}";
+                var volume = OBSStudioForLogiPlugin.Instance?.GetInputVolume(selected) ?? 1.0f;
+                var volumePercent = (Int32)(volume * 100);
+                String boostIndicator = volume > 1.0f ? "+" : "";
+
+                return $"{boostIndicator}{volumePercent}%\n{selected}";
+            }
+
+            // For button adjustments, return empty - image handles display
+            return String.Empty;
         }
 
+        public override BitmapImage GetAdjustmentImage(String actionParameter, PluginImageSize imageSize)
+        {
+            if (actionParameter == "volume-adjust")
+            {
+                return null;
+            }
 
+            Boolean isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(actionParameter) ?? false;
+            Single volumeLevel = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
+
+            Int32 volumePercent = (Int32)(volumeLevel * 100);
+            String text = $"{actionParameter}\n\n{volumePercent}%";
+
+            Boolean isSelected = AudioSelectionState.IsSelected(actionParameter);
+
+            return ButtonImageHelper.StateTextWithBorder(text, imageSize, !isMuted,
+                BitmapColor.Green, BitmapColor.Red, isSelected);
+        }
 
     }
 }
