@@ -35,6 +35,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         String GetInputKind(String inputName);
         Boolean GetInputMute(String inputName);
         void ToggleInputMute(String inputName);
+        void SetInputMute(String inputName, Boolean muted);
         Single GetInputVolume(String inputName);
         void SetInputVolume(String inputName, Single volumeMul);
         String GetInputAudioMonitorType(String inputName);

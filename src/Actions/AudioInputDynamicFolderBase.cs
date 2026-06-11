@@ -27,19 +27,41 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
+            PluginLog.Info($"[AudioFolder] GetCommandDisplayName called - parameter: '{actionParameter}', imageSize: {imageSize}");
             return String.Empty;
         }
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
+            PluginLog.Info($"[AudioFolder] GetCommandImage action parameter: '{actionParameter}'");
+
+            String text = "";
             Boolean isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(actionParameter) ?? false;
-            Single volumeLevel = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
-            
-            Int32 volumePercent = (Int32)(volumeLevel * 100);
-            String text = $"{actionParameter}\n\n{volumePercent}%";
-            
             Boolean isSelected = AudioSelectionState.IsSelected(actionParameter);
-            
+            Single volumeLevel = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
+            Int32 volumePercent = (Int32)(volumeLevel * 100);
+            String monitorType = OBSStudioForLogiPlugin.Instance?.GetInputAudioMonitorType(actionParameter) ?? "Unknown";
+            String mode = "";
+
+            switch (monitorType)
+            {
+                case "OBS_MONITORING_TYPE_NONE":
+                    mode = "Monitor off";
+                    break;
+                case "OBS_MONITORING_TYPE_MONITOR_ONLY":
+                    mode = "Monitor only";
+                    break;
+                case "OBS_MONITORING_TYPE_MONITOR_AND_OUTPUT":
+                    mode = "Monitor & output";
+                    break;
+            }
+
+            text = $"{actionParameter}\n\n{volumePercent}%\n\n{mode}";
+            if (actionParameter == "cycle-monitor")
+            {
+                text = "Cycle Monitor";
+            }
+
             return ButtonImageHelper.StateTextWithBorder(text, imageSize, !isMuted, 
                 BitmapColor.Green, BitmapColor.Red, isSelected);
         }
@@ -54,7 +76,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             // Encoder press sends the command name from GetEncoderPressActionNames
             if (actionParameter == "cycle-monitor")
             {
-                var selected = AudioSelectionState.SelectedInput;
+                String selected = AudioSelectionState.SelectedInput;
                 PluginLog.Info($"[AudioFolder] Encoder press: cycle-monitor, selected: '{selected ?? "(none)"}'");
                 if (!String.IsNullOrEmpty(selected))
                 {

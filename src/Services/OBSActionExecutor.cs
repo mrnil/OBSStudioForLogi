@@ -930,6 +930,21 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     
                     this._log.Info($"Cycling audio monitor type for '{inputName}' from {current} to {next}");
                     this._obs.SetInputAudioMonitorType(inputName, next);
+                    if (next == "OBS_MONITORING_TYPE_MONITOR_ONLY")
+                    {
+                        this._obs.SetInputMute(inputName, true);
+                    }
+                    else
+                    {
+                        this._obs.SetInputMute(inputName, false);
+                    }
+                    if (next == "OBS_MONITORING_TYPE_MONITOR_ONLY")
+                    {
+                        this._obs.SetInputMute(inputName, true);
+                    } else
+                    {
+                        this._obs.SetInputMute(inputName, false);
+                    }
                 }
                 catch (Exception ex)
                 {
