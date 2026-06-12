@@ -18,7 +18,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.Name = "SourceVisibilityAdjustable";
             this.DisplayName = "Toggle Source Visibility (User defined)";
-            this.GroupName = "9. User Defined Actions";
+            this.GroupName = "99. User Defined Actions";
             this.Description = "Toggle visibility of one or more sources. Comma-separate multiple source names.";
 
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(SceneNameControlName, "Scene Name (optional, defaults to current scene)"));

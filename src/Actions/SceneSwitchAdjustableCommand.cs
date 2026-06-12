@@ -17,8 +17,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Instance = this;
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.Name = "SceneSwitchAdjustable";
-            this.DisplayName = "Switch to Scene (Adjustable)";
-            this.GroupName = "9. User Defined Actions";
+            this.DisplayName = "Switch to Scene (User Defined)";
+            this.GroupName = "99. User Defined Actions";
             this.Description = "Switch to a specific scene with optional profile and collection switching";
 
             PluginLog.Info("SceneSwitchAdjustableCommand: Constructor called");
