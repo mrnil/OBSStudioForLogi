@@ -55,6 +55,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
 
             this.CommandImageChanged(actionParameter);
+            AudioStatusDisplayCommand.Instance?.RefreshImage();
         }
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)

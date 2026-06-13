@@ -64,6 +64,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return ButtonTextRenderer.RenderTextWithBorder(text, imageWidth, imageHeight, !isMuted ? BitmapColor.Green : BitmapColor.Red, isSelected);
         }
 
+        public void RefreshImage()
+        {
+            try { this.ActionImageChanged(); } catch { }
+        }
+
         public void OnConnected()
         {
             try { this.ActionImageChanged(); } catch { }

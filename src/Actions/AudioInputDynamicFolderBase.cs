@@ -119,6 +119,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
             
             this.CommandImageChanged(inputName);
+            AudioStatusDisplayCommand.Instance?.RefreshImage();
         }
 
         public void OnInputMuteChanged(String inputName)

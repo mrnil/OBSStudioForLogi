@@ -42,6 +42,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 AudioSelectionState.Select(inputName);
             }
 
+            try { AudioStatusDisplayCommand.Instance?.RefreshImage(); } catch { }
+
             return true;
         }
 

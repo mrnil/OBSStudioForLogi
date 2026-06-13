@@ -38,6 +38,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 {
                     PluginLog.Info($"AudioMonitoringCycleAdjustableCommand: Cycling monitoring for '{inputName}'");
                     OBSStudioForLogiPlugin.Instance?.CycleInputAudioMonitorType(inputName);
+                    AudioStatusDisplayCommand.Instance?.RefreshImage();
                 }
                 catch (Exception ex)
                 {
