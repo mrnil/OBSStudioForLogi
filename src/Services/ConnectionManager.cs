@@ -48,10 +48,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 PluginLog.Info($"Using remote OBS connection: {settings.IpAddress}:{settings.Port}");
 
                 await Task.Delay(OBSTimings.ConnectionDelay);
+                PluginLog.Info($"Initiating connection to remote OBS at {settings.GetWebSocketUrl()}");
                 await this._obsManager.ConnectAsync(settings.GetWebSocketUrl(), settings.Password);
             }
             else
             {
+                PluginLog.Info($"Using local OBS connection (pluginConfig is {(this._pluginConfig == null ? "null" : "UseLocalObs=" + this._pluginConfig.UseLocalObs)})");
                 settings = this._configReader.ReadConfig();
                 if (settings == null)
                 {
@@ -65,7 +67,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 if (portReady)
                 {
                     await Task.Delay(OBSTimings.ConnectionDelay);
-                    PluginLog.Info("Initiating connection to local OBS");
+                    PluginLog.Info($"Initiating connection to local OBS at {settings.GetWebSocketUrl()}");
                     await this._obsManager.ConnectAsync(settings.GetWebSocketUrl(), settings.Password);
                 }
                 else
