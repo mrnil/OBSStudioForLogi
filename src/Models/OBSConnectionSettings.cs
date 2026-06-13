@@ -1,6 +1,7 @@
 namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
+    using System.Net;
 
     public class OBSConnectionSettings
     {
@@ -11,9 +12,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             get => this._ipAddress;
             set
             {
-                if (value != "127.0.0.1" && value != "::1")
+                if (String.IsNullOrEmpty(value))
                 {
-                    PluginLog.Warning($"Only localhost connections allowed, rejecting: {value}");
+                    PluginLog.Warning("IP address cannot be empty, using default localhost");
+                    this._ipAddress = "127.0.0.1";
+                }
+                else if (!IPAddress.TryParse(value, out _))
+                {
+                    PluginLog.Warning($"Invalid IP address format: {value}, using default localhost");
                     this._ipAddress = "127.0.0.1";
                 }
                 else
@@ -25,6 +31,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         
         public Int32 Port { get; set; } = 4455;
         public String Password { get; set; } = "";
+
+        public Boolean IsLocalhost => this._ipAddress == "127.0.0.1" || this._ipAddress == "::1";
 
         public String GetWebSocketUrl() => $"ws://{this.IpAddress}:{this.Port}";
     }

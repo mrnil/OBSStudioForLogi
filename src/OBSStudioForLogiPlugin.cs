@@ -2,6 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
     using System.Threading.Tasks;
+    using Loupedeck.OBSStudioForLogiPlugin.Models;
     using Loupedeck.OBSStudioForLogiPlugin.Services;
 
     public class OBSStudioForLogiPlugin : Plugin
@@ -10,6 +11,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly ConnectionManager _connectionManager;
         private readonly CommandCoordinator _commandCoordinator;
         private readonly OBSFacade _obsFacade;
+        private readonly OBSConfigReader _obsConfigReader;
         private OBSWebSocketManager _obsManager;
         public static String ScreenshotPath { get; private set; }
         
@@ -21,16 +23,18 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Instance = this;
             PluginLog.Init(this.Log);
             PluginResources.Init(this.Assembly);
-            LoadPluginConfiguration();
+            var pluginConfig = LoadPluginConfiguration();
             DiscoverScreenshotPath();
             
             this._obsManager = new OBSWebSocketManager();
-            this._connectionManager = new ConnectionManager(this._obsManager, new OBSConfigReader(), new OBSLifecycleManager());
+            this._obsConfigReader = new OBSConfigReader();
+            this._connectionManager = new ConnectionManager(this._obsManager, this._obsConfigReader, new OBSLifecycleManager());
+            this._connectionManager.SetPluginConfig(pluginConfig);
             this._commandCoordinator = new CommandCoordinator();
             this._obsFacade = new OBSFacade(this._obsManager);
         }
 
-        private static void LoadPluginConfiguration()
+        private static PluginConfig LoadPluginConfiguration()
         {
             var configReader = new PluginConfigReader();
             var config = configReader.ReadConfig();
@@ -39,12 +43,30 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             {
                 PluginLog.CurrentLevel = config.LogLevel;
                 PluginLog.Info($"Loaded configuration from file. Log level set to: {PluginLog.CurrentLevel}");
+                PluginLog.Info($"Connection mode: {(config.UseLocalObs ? "Local" : "Remote")} OBS");
             }
             else
             {
                 PluginLog.Info($"No configuration file found. Using default log level: {PluginLog.CurrentLevel}");
                 PluginLog.Info($"To customize settings, create: {configReader.ConfigPath}");
             }
+
+            return config;
+        }
+
+        public OBSConnectionSettings GetLocalOBSSettings()
+        {
+            return this._obsConfigReader?.ReadConfig();
+        }
+
+        public void ApplyConnectionConfig(PluginConfig config)
+        {
+            PluginLog.Info($"Applying connection config: UseLocal={config.UseLocalObs}, IP={config.RemoteIpAddress}, Port={config.RemotePort}");
+            this._connectionManager.SetPluginConfig(config);
+            
+            // Disconnect and reconnect with new settings
+            this._connectionManager.Disconnect();
+            Task.Run(() => this._connectionManager.ConnectAsync());
         }
 
         private static void DiscoverScreenshotPath()

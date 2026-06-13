@@ -6,7 +6,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
     using Loupedeck.OBSStudioForLogiPlugin.Models;
 
     /// <summary>
-    /// Reads plugin configuration from file.
+    /// Reads and writes plugin configuration from/to file.
     /// </summary>
     public class PluginConfigReader
     {
@@ -43,6 +43,37 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
             {
                 PluginLog.Warning($"Failed to read plugin config from '{this._configPath}': {ex.Message}");
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Saves the plugin configuration to file.
+        /// </summary>
+        public Boolean SaveConfig(PluginConfig config)
+        {
+            if (config == null)
+                return false;
+
+            try
+            {
+                var directory = Path.GetDirectoryName(this._configPath);
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                var json = JsonSerializer.Serialize(config, new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                });
+                File.WriteAllText(this._configPath, json);
+                PluginLog.Info($"Plugin config saved to '{this._configPath}'");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                PluginLog.Error($"Failed to save plugin config to '{this._configPath}': {ex.Message}");
+                return false;
             }
         }
 
