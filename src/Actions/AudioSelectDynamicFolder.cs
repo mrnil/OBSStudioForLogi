@@ -4,11 +4,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Collections.Generic;
     using System.Linq;
 
-    public class AudioSelectDynamicFolder : PluginDynamicFolder, IObsCommand, IInputMuteAwareCommand, IInputVolumeAwareCommand, IInputsListAwareCommand
+    public class AudioSelectDynamicFolder : AudioInputDynamicFolderBase, IObsCommand, IInputsListAwareCommand
     {
         public static AudioSelectDynamicFolder Instance { get; private set; }
-
-        private String[] _audioInputs = new String[0];
 
         public AudioSelectDynamicFolder()
         {
@@ -19,19 +17,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.Description = "Select an audio source for global use by other audio actions";
         }
 
-        public override PluginDynamicFolderNavigation GetNavigationArea(DeviceType _)
-        {
-            return PluginDynamicFolderNavigation.ButtonArea;
-        }
-
-        public override BitmapImage GetButtonImage(PluginImageSize imageSize)
-        {
-            return ButtonImageHelper.Icon("AudioMediaFolder.svg");
-        }
-
         public override IEnumerable<String> GetButtonPressActionNames(DeviceType deviceType)
         {
-            return this._audioInputs.Select(this.CreateCommandName);
+            return this.AudioInputs.Select(this.CreateCommandName);
         }
 
         public override void RunCommand(String actionParameter)
@@ -58,31 +46,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             AudioStatusDisplayCommand.Instance?.RefreshImage();
         }
 
-        public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
-        {
-            return AudioHelpers.RenderAudioStateImage(actionParameter, imageSize);
-        }
-
-        public void OnConnected()
-        {
-            String[] inputs = OBSStudioForLogiPlugin.Instance?.GetInputList() ?? new String[0];
-            this._audioInputs = inputs;
-            this.ButtonActionNamesChanged();
-        }
-
-        public void OnDisconnected()
-        {
-            this._audioInputs = new String[0];
-            AudioSelectionState.Deselect();
-            this.ButtonActionNamesChanged();
-        }
+        // No encoder support — selection only
+        public override IEnumerable<String> GetEncoderRotateActionNames(DeviceType deviceType) => Array.Empty<String>();
+        public override IEnumerable<String> GetEncoderPressActionNames(DeviceType deviceType) => Array.Empty<String>();
 
         public void OnInputsChanged(String[] inputs)
         {
             String previousSelection = AudioSelectionState.SelectedInput;
-            this._audioInputs = inputs ?? new String[0];
+            this.AudioInputs = inputs ?? new String[0];
 
-            if (!String.IsNullOrEmpty(previousSelection) && !this._audioInputs.Contains(previousSelection))
+            if (!String.IsNullOrEmpty(previousSelection) && !this.AudioInputs.Contains(previousSelection))
             {
                 AudioSelectionState.Deselect();
             }
@@ -90,20 +63,18 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.ButtonActionNamesChanged();
         }
 
-        public void OnInputMuteChanged(String inputName)
+        public override void OnConnected()
         {
-            if (this._audioInputs.Contains(inputName))
-            {
-                this.CommandImageChanged(inputName);
-            }
+            String[] inputs = OBSStudioForLogiPlugin.Instance?.GetInputList() ?? new String[0];
+            this.AudioInputs = inputs;
+            this.ButtonActionNamesChanged();
         }
 
-        public void OnInputVolumeChanged(String inputName)
+        public override void OnDisconnected()
         {
-            if (this._audioInputs.Contains(inputName))
-            {
-                this.CommandImageChanged(inputName);
-            }
+            this.AudioInputs = new String[0];
+            AudioSelectionState.Deselect();
+            this.ButtonActionNamesChanged();
         }
     }
 }
