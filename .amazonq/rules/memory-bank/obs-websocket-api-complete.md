@@ -357,8 +357,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 
 ### 🟡 Partially Implemented Categories
 
-1. **Audio Control** - Volume display ✅, Volume adjustment API exists but no UI ❌
-2. **Inputs** - Discovery ✅, Settings ❌, Creation ❌
+1. **Inputs** - Discovery ✅, Settings ❌, Creation ❌
 
 ### ❌ Not Implemented Categories
 
@@ -378,8 +377,8 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 
 ### High Priority (User-Requested Features)
 
-1. **Volume Adjustment Controls** - Faders/encoders or +/- buttons
-2. **Audio Monitoring Toggle** - None/Monitor Only/Monitor & Output
+1. **Volume Adjustment Controls** - ✅ Multiple approaches (WheelTool, AudioVolumeDynamicFolder, SelectedSourceVolumeAdjustment)
+2. **Audio Monitoring Toggle** - ✅ CycleInputAudioMonitorType implemented
 3. **Filter Enable/Disable** - Toggle audio/video filters
 
 ### Medium Priority (Professional Features)

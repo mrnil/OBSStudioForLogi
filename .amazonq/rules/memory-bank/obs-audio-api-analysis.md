@@ -300,7 +300,7 @@ void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enable
 
 ## Implementation Progress Summary
 
-### ✅ Completed (v1.0.1)
+### ✅ Completed (v1.2.0)
 
 - Audio input discovery and filtering
 - Mute/unmute controls with visual feedback (red/green text)
@@ -313,15 +313,21 @@ void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enable
 - Audio selection state for dial control (`AudioSelectionState`)
 - Double-tap to select/deselect audio source for wheel control
 - Audio monitoring type cycling (None → Monitor Only → Monitor & Output)
+- Audio Select folder (dedicated selection-only folder)
+- Audio Volume folder (MX big wheel-compatible adjustment tiles)
+- Standalone Selected Source Volume adjustment (PluginDynamicAdjustment for any wheel/dial)
+- User-defined audio mute toggle (ActionEditorCommand)
+- User-defined audio monitoring cycle (ActionEditorCommand)
+- User-defined audio source selection (ActionEditorCommand)
 
 ### 🟡 Partially Completed
 
-- Volume adjustment - wheel tool works but limited to devices with WheelTool support
-  - `GetInputVolume()` ✅ exists in `IOBSWebsocket`
-  - `SetInputVolume()` ✅ exists in `IOBSWebsocket`
-  - `AudioVolumeWheelTool` ✅ encoder-based volume adjustment
+- Volume adjustment — multiple approaches available:
+  - `AudioVolumeWheelTool` ✅ CT encoder-based volume adjustment
+  - `AudioVolumeDynamicFolder` ✅ MX big wheel via adjustment tiles
+  - `SelectedSourceVolumeAdjustment` ✅ standalone adjustment for any wheel/dial
   - `AudioSelectionState` ✅ tracks selected input for dial
-  - Needs: Broader device support, +/- button alternatives
+  - Needs: +/- button alternatives for devices without encoders/wheels
 
 ### ❌ Not Yet Implemented
 
@@ -335,10 +341,9 @@ void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enable
 
 ### Next Steps
 
-1. **High Priority**: Add volume adjustment UI (encoders/faders/buttons)
-2. **High Priority**: Implement audio monitoring toggle
-3. **Medium Priority**: Add audio level meters
-4. **Medium Priority**: Implement filter enable/disable controls
+1. **Medium Priority**: Add audio level meters
+2. **Medium Priority**: Implement filter enable/disable controls
+3. **Low Priority**: Add +/- button volume alternatives for devices without wheels
 
 ## Conclusion
 

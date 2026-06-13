@@ -80,7 +80,10 @@ Command classes that handle user interactions from Loupedeck hardware:
 - `AudioMixerDynamicFolder.cs`: Dynamic folder with all audio inputs (mute/unmute, volume display)
 - `SceneAudioSourcesDynamicFolder.cs`: Dynamic folder with audio inputs in current scene
 - `AudioInputDynamicFolderBase.cs`: Base class for audio folder implementations
-- `AudioVolumeWheelTool.cs`: Wheel/encoder tool for adjusting selected audio input volume
+- `AudioSelectDynamicFolder.cs`: Selection-only folder for setting global audio source
+- `AudioVolumeDynamicFolder.cs`: MX-compatible folder with adjustment tiles for wheel volume control
+- `AudioVolumeWheelTool.cs`: Wheel/encoder tool for adjusting selected audio input volume (CT)
+- `SelectedSourceVolumeAdjustment.cs`: Standalone adjustment for wheel/dial volume of selected source
 - `RecordingToggleCommand.cs`: Toggle recording on/off (uses ToggleCommandBase)
 - `RecordingStartCommand.cs`: Start recording (uses StartStopCommandBase)
 - `RecordingStopCommand.cs`: Stop recording (uses StartStopCommandBase)
@@ -97,6 +100,10 @@ Command classes that handle user interactions from Loupedeck hardware:
 - `StudioModeTransitionCommand.cs`: Trigger studio mode transition (preview to program)
 - `ReconnectCommand.cs`: Manually retry connection to OBS
 - `ScreenshotCommand.cs`: Capture screenshot via OBS
+- `SourceVisibilityAdjustableCommand.cs`: Toggle source visibility (user-configured, ActionEditorCommand)
+- `AudioMuteAdjustableCommand.cs`: Toggle mute for named audio source (ActionEditorCommand)
+- `AudioMonitoringCycleAdjustableCommand.cs`: Cycle audio monitoring type (ActionEditorCommand)
+- `AudioSelectAdjustableCommand.cs`: Toggle global audio source selection (ActionEditorCommand)
 
 ### Services Layer (`src/Services/`)
 
@@ -285,6 +292,8 @@ OBSStudioForLogiPlugin (main - 289 lines)
         ├── Replay Buffer Commands (Toggle, Save)
         ├── Virtual Camera Commands (Toggle, Start, Stop)
         ├── Studio Mode Commands (Toggle, Transition)
+        ├── Audio Commands (AudioMixer, SceneAudio, AudioSelect, AudioVolume, SelectedSourceVolume)
+        ├── User Defined Actions (SceneSwitch, SourceVisibility, AudioMute, AudioMonitoring, AudioSelect)
         └── Utility Commands (Screenshot, Reconnect)
 ```
 

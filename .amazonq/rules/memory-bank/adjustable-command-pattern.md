@@ -155,17 +155,35 @@ this.ActionEditor.AddControlEx(new ActionEditorTextbox(ProfileNameControlName, "
 - Single button switches entire OBS context
 - Useful for different show formats
 
+### Source Visibility Toggle
+
+- Configure source name(s) — comma-separated for multiple
+- Optional scene name (defaults to current scene)
+- Toggle visibility of overlays, cameras, alerts
+
+### Audio Mute Toggle
+
+- Configure audio source name
+- Single tap mutes/unmutes the source
+- No need to navigate audio folder
+
+### Audio Monitoring Cycle
+
+- Configure audio source name
+- Cycles: None → Monitor Only → Monitor & Output
+- Quick access to monitoring control
+
+### Audio Source Selection
+
+- Configure audio source name
+- Toggle global selection for wheel/dial volume control
+- Pairs with SelectedSourceVolumeAdjustment
+
 ### Audio Volume Adjustment
 
 - Configure audio input name
 - Encoder adjusts volume for that specific input
 - No need for dynamic folders
-
-### Parameterized Actions
-
-- Any action that needs user configuration
-- Reusable across different contexts
-- Configuration stored per button instance
 
 ## Implementation Checklist
 

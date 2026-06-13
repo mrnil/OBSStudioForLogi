@@ -4,7 +4,7 @@
 
 The project follows a TDD approach with 241 unit tests using xUnit + Moq. Overall line coverage is ~39.5% (Cobertura), branch coverage ~22.6%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage.
 
-## Test Count: 274
+## Test Count: 300
 
 ## Test Files
 
@@ -45,6 +45,13 @@ The project follows a TDD approach with 241 unit tests using xUnit + Moq. Overal
 | `Actions/SceneSwitchAdjustableCommandTests.cs` | Constructor, interface methods | ~6 |
 | `Actions/ScreenshotCommandTests.cs` | Constructor, properties | ~1 |
 | `Actions/StatusDisplayCommandTests.cs` | Display command construction | ~3 |
+| `Actions/SourceVisibilityAdjustableCommandTests.cs` | Constructor, interface methods | ~3 |
+| `Actions/AudioMuteAdjustableCommandTests.cs` | Constructor, interface methods | ~3 |
+| `Actions/AudioMonitoringCycleAdjustableCommandTests.cs` | Constructor, interface methods | ~3 |
+| `Actions/AudioSelectAdjustableCommandTests.cs` | Constructor, interface methods | ~3 |
+| `Actions/AudioSelectDynamicFolderTests.cs` | Constructor, interface methods, deselect on disconnect | ~6 |
+| `Actions/AudioVolumeDynamicFolderTests.cs` | Constructor, interface methods, event handlers | ~5 |
+| `Actions/SelectedSourceVolumeAdjustmentTests.cs` | Constructor, interface methods | ~3 |
 
 ## Coverage by Class (Key Classes)
 

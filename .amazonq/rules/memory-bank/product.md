@@ -56,6 +56,18 @@ OBSStudioForLogiPlugin is a Loupedeck/Logi Plugin Service integration that enabl
 - Double-tap to select/deselect audio inputs for encoder control
 - Audio Mixer folder showing all audio inputs
 - Scene Audio folder showing audio inputs in current scene
+- Audio Select folder for dedicated global source selection (single tap)
+- Audio Volume folder with MX big wheel-compatible adjustment tiles
+- Standalone Selected Source Volume adjustment for any wheel/dial
+
+### User Defined Actions
+
+- Configurable actions using ActionEditorCommand textboxes
+- Scene switching with optional profile and collection context
+- Source visibility toggle for named sources (supports comma-separated list)
+- Audio mute toggle for a named audio source
+- Audio monitoring cycle for a named audio source
+- Audio source selection toggle for a named audio source
 
 ### Replay Buffer
 
@@ -109,3 +121,6 @@ OBSStudioForLogiPlugin is a Loupedeck/Logi Plugin Service integration that enabl
 - Reads OBS configuration files to discover WebSocket connection settings
 - Supports both Windows and macOS platforms
 - Compatible with Logi Plugin Service infrastructure
+- MX Creative Console support: big wheel via adjustment tiles in dynamic folders
+- Loupedeck CT support: encoder rotation via GetEncoderRotateActionNames
+- Cross-device volume control via standalone PluginDynamicAdjustment

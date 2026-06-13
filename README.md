@@ -26,6 +26,9 @@ An AI Coding Assistant has been used to support the development of this project 
 - **Scene Management**: Switch scenes with dynamic folder and visual feedback
 - **Source Visibility**: Toggle visibility of sources in current scene
 - **Audio Mixer**: Mute/unmute audio inputs with visual feedback (red=muted, green=unmuted)
+- **Audio Volume Control**: Adjust volume via MX big wheel (folder tiles) or standalone dial adjustment
+- **Audio Source Selection**: Global audio source selection for wheel/dial volume control
+- **User Defined Actions**: Configurable actions for source visibility, audio mute, monitoring, and audio selection
 - **Profile Management**: Switch between OBS profiles with selection indicators and dynamic folder
 - **Scene Collections**: Switch between scene collections with selection indicators
 - **Screenshot Capture**: Take screenshots with automatic path detection
@@ -111,6 +114,33 @@ An AI Coding Assistant has been used to support the development of this project 
   - Shows only audio inputs present in the active scene
   - Same mute/unmute controls, volume display, and visual feedback as Audio Mixer
   - Updates automatically when switching scenes or changing volume
+- **Audio Select Folder**: Dynamic folder for selecting the global audio source
+  - Single tap selects/deselects an audio source
+  - Displays mute state, volume, and monitoring mode for each source
+  - Selection persists after folder is closed
+  - Selected source is used by volume wheel/dial controls
+- **Audio Volume Folder**: Dynamic folder with adjustment tiles for MX big wheel
+  - Tap a tile to arm the MX big wheel for that source's volume
+  - Displays volume percentage and mute state (green/red)
+  - Compatible with MX Creative Console Dialpad
+- **Selected Source Volume**: Standalone adjustment for wheel/dial
+  - Controls volume of the globally selected audio source
+  - Drag onto MX big wheel, CT wheel, or any dial
+  - Turn to adjust volume, press to reset to 100%
+
+### User Defined Actions (Group 99)
+
+- **Switch to Scene (Adjustable)**: Switch to a specific scene with optional profile and collection switching
+  - Configure profile name, collection name, and scene name via textboxes
+- **Toggle Source Visibility (User defined)**: Toggle visibility of one or more sources
+  - Comma-separate multiple source names
+  - Optional scene name (defaults to current active scene)
+- **Toggle Audio Mute (User defined)**: Toggle mute/unmute for a named audio source
+- **Cycle Audio Monitoring (User defined)**: Cycle monitoring type for a named audio source
+  - Cycles: None → Monitor Only → Monitor & Output
+- **Select Audio Source (User defined)**: Toggle global audio source selection
+  - Selects/deselects the named source as the globally selected audio source
+  - Used by Selected Source Volume adjustment and other audio controls
 
 ## Configuration
 
@@ -143,7 +173,7 @@ dotnet clean OBSStudioForLogiPlugin.sln
 
 ## Architecture
 
-- **TDD Approach**: Comprehensive test coverage with 140 unit tests
+- **TDD Approach**: Comprehensive test coverage with 300 unit tests
 - **Dependency Injection**: Interface-based design for testability
 - **Async Operations**: All OBS operations wrapped in Task.Run to prevent UI freezing
 - **Event-Driven**: Real-time updates via OBS WebSocket events

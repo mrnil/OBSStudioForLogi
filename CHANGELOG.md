@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-06-xx
+
+### Added
+
+- User Defined Actions group (Group 99) for user-configurable commands
+- SourceVisibilityAdjustableCommand: toggle source visibility with configurable source name(s) and optional scene name
+- AudioMuteAdjustableCommand: toggle mute for a named audio source
+- AudioMonitoringCycleAdjustableCommand: cycle monitoring type for a named audio source
+- AudioSelectAdjustableCommand: toggle global audio source selection for a named source
+- AudioSelectDynamicFolder: selection-only folder for setting global audio source
+- AudioVolumeDynamicFolder: MX-compatible folder with adjustment tiles for big wheel volume control
+- SelectedSourceVolumeAdjustment: standalone PluginDynamicAdjustment for wheel/dial volume control of selected source
+
+### Changed
+
+- SceneSwitchAdjustableCommand moved to User Defined Actions group
+- Audio source selection now accessible via dedicated folder (AudioSelectDynamicFolder) in addition to double-tap in Audio Mixer
+
 ## [1.1.0] - 2026-06-08
 
 ### Added
