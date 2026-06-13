@@ -25,9 +25,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var defaultIp = localSettings?.IpAddress ?? "127.0.0.1";
             var defaultPort = localSettings?.Port.ToString() ?? "4455";
 
-            this.ActionEditor.AddControlEx(new ActionEditorCheckbox(UseLocalObsControlName, "Use Local OBS"));
-            this.ActionEditor.AddControlEx(new ActionEditorTextbox(IpAddressControlName, $"IP Address (local: {defaultIp})").SetRequired());
-            this.ActionEditor.AddControlEx(new ActionEditorTextbox(PortControlName, $"Port (local: {defaultPort})").SetRequired());
+            this.ActionEditor.AddControlEx(new ActionEditorCheckbox(UseLocalObsControlName, "Use Local OBS").SetDefaultValue(true));
+            this.ActionEditor.AddControlEx(new ActionEditorTextbox(IpAddressControlName, $"IP Address (detected: {defaultIp})").SetRequired());
+            this.ActionEditor.AddControlEx(new ActionEditorTextbox(PortControlName, $"Port (detected: {defaultPort})").SetRequired());
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(PasswordControlName, "Password"));
 
             PluginLog.Info("ConnectionConfigureCommand: Initialized");
