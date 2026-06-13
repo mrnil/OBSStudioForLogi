@@ -17,7 +17,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.DisplayName = "Select Audio Source (User defined)";
             this.GroupName = "99. User Defined Actions";
             this.Description = "Toggle selection of a specific audio source as the globally selected source";
-            this.IsWidget = true;
 
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(InputNameControlName, "Audio Source Name (required)"));
         }
@@ -43,20 +42,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 AudioSelectionState.Select(inputName);
             }
 
-            this.ActionImageChanged();
             return true;
-        }
-
-        protected override BitmapImage GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
-        {
-            if (!actionParameters.TryGetString(InputNameControlName, out var inputName) || String.IsNullOrEmpty(inputName))
-                return null;
-
-            Boolean isSelected = AudioSelectionState.IsSelected(inputName);
-            String text = $"{this.DisplayName}\n\n{(isSelected ? "Selected" : "Not selected")}";
-
-            return ButtonImageHelper.StateTextWithBorder(text, imageWidth, imageHeight, isSelected,
-                BitmapColor.White, new BitmapColor(128, 128, 128), isSelected);
         }
 
         public void OnConnected()
