@@ -10,6 +10,20 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected AudioInputDynamicFolderBase()
         {
+            AudioSelectionState.SelectionChanged += this.OnSelectionChanged;
+        }
+
+        private void OnSelectionChanged(String previousInput, String newInput)
+        {
+            if (!String.IsNullOrEmpty(previousInput) && this.AudioInputs.Contains(previousInput))
+            {
+                this.CommandImageChanged(previousInput);
+            }
+
+            if (!String.IsNullOrEmpty(newInput) && this.AudioInputs.Contains(newInput))
+            {
+                this.CommandImageChanged(newInput);
+            }
         }
 
         public abstract void OnConnected();
@@ -98,7 +112,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
             
             this.CommandImageChanged(inputName);
-            AudioStatusDisplayCommand.Instance?.RefreshImage();
         }
 
         public void OnInputMuteChanged(String inputName)

@@ -43,7 +43,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
 
             this.CommandImageChanged(actionParameter);
-            AudioStatusDisplayCommand.Instance?.RefreshImage();
         }
 
         // No encoder support — selection only

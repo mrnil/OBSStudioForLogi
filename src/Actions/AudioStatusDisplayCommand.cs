@@ -20,6 +20,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.IsWidget = true;
 
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(InputNameControlName, "Audio Source Name (required)"));
+
+            AudioSelectionState.SelectionChanged += (previous, current) => this.RefreshImage();
         }
 
         protected override Boolean OnLoad() => true;
