@@ -35,34 +35,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             PluginLog.Info($"[AudioFolder] GetCommandImage action parameter: '{actionParameter}'");
 
-            String text = "";
-            Boolean isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(actionParameter) ?? false;
-            Boolean isSelected = AudioSelectionState.IsSelected(actionParameter);
-            Single volumeLevel = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
-            Int32 volumePercent = (Int32)(volumeLevel * 100);
-            String monitorType = OBSStudioForLogiPlugin.Instance?.GetInputAudioMonitorType(actionParameter) ?? "Unknown";
-            String mode = "";
-
-            switch (monitorType)
-            {
-                case "OBS_MONITORING_TYPE_NONE":
-                    mode = "Monitor off";
-                    break;
-                case "OBS_MONITORING_TYPE_MONITOR_ONLY":
-                    mode = "Monitor only";
-                    break;
-                case "OBS_MONITORING_TYPE_MONITOR_AND_OUTPUT":
-                    mode = "Monitor & output";
-                    break;
-            }
-
-            text = $"{actionParameter}\n\n{volumePercent}%\n\n{mode}";
             if (actionParameter == "cycle-monitor")
             {
-                text = "Cycle Monitor";
+                String text = "Cycle Monitor";
+                return ButtonTextRenderer.RenderTextWithBorder(text, imageSize, BitmapColor.White, false);
             }
 
-            return ButtonTextRenderer.RenderTextWithBorder(text, imageSize, !isMuted ? BitmapColor.Green : BitmapColor.Red, isSelected);
+            return AudioHelpers.RenderAudioStateImage(actionParameter, imageSize);
         }
 
         public override void RunCommand(String actionParameter)

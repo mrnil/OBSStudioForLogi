@@ -39,29 +39,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (!actionParameters.TryGetString(InputNameControlName, out var inputName) || String.IsNullOrEmpty(inputName))
                 return null;
 
-            Boolean isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(inputName) ?? false;
-            Single volumeLevel = OBSStudioForLogiPlugin.Instance?.GetInputVolume(inputName) ?? 1.0f;
-            Int32 volumePercent = (Int32)(volumeLevel * 100);
-            String monitorType = OBSStudioForLogiPlugin.Instance?.GetInputAudioMonitorType(inputName) ?? "OBS_MONITORING_TYPE_NONE";
-            String mode = "";
-
-            switch (monitorType)
-            {
-                case "OBS_MONITORING_TYPE_NONE":
-                    mode = "Monitor off";
-                    break;
-                case "OBS_MONITORING_TYPE_MONITOR_ONLY":
-                    mode = "Monitor only";
-                    break;
-                case "OBS_MONITORING_TYPE_MONITOR_AND_OUTPUT":
-                    mode = "Monitor & output";
-                    break;
-            }
-
-            String text = $"{inputName}\n\n{volumePercent}%\n\n{mode}";
-            Boolean isSelected = AudioSelectionState.IsSelected(inputName);
-
-            return ButtonTextRenderer.RenderTextWithBorder(text, imageWidth, imageHeight, !isMuted ? BitmapColor.Green : BitmapColor.Red, isSelected);
+            return AudioHelpers.RenderAudioStateImage(inputName, imageWidth, imageHeight);
         }
 
         public void RefreshImage()
