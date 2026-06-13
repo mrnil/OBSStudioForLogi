@@ -20,6 +20,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private String _lastPassword;
         private Boolean _shouldReconnect = false;
         private Boolean _disposed = false;
+        private Boolean _connectingInProgress = false;
 
         public Boolean IsConnected => this._obs?.IsConnected ?? false;
         public Boolean ShouldReconnect => this._shouldReconnect;
@@ -69,6 +70,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._lastUrl = url;
             this._lastPassword = password;
             this._shouldReconnect = true;
+            this._connectingInProgress = true;
 
             this._log.Info($"Connecting to OBS WebSocket at {url}");
             
@@ -96,6 +98,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private void OnConnected(Object sender, EventArgs e)
         {
             this._log.Info("WebSocket connection established");
+            this._connectingInProgress = false;
             this._reconnectionStrategy.Reset();
             this._reconnectTimer?.Stop();
             
@@ -152,6 +155,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private void OnDisconnected(Object sender, ObsDisconnectionInfo e)
         {
             this._log.Warning($"WebSocket disconnected: {e.DisconnectReason}");
+            this._connectingInProgress = false;
             
             // Raise plugin-level event
             this.ConnectionLost?.Invoke(this, EventArgs.Empty);
@@ -412,6 +416,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (this._disposed || !this._shouldReconnect)
                 return;
 
+            if (this.IsConnected || this._connectingInProgress)
+            {
+                this._log.Info("Already connected or connection in progress, skipping reconnection attempt");
+                return;
+            }
+
+            this._connectingInProgress = true;
             this._reconnectionStrategy.TryReconnect(() =>
                 this._obs.ConnectAsync(this._lastUrl, this._lastPassword));
 
