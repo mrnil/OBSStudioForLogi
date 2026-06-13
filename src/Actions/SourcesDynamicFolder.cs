@@ -48,7 +48,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             Boolean isVisible = OBSStudioForLogiPlugin.Instance?.GetSourceVisibility(this._currentScene, actionParameter) ?? false;
-            return ButtonImageHelper.StateIcon(isVisible, "SourceVisibilityOn.svg", "SourceVisibilityOff.svg");
+            return ButtonImageHelper.Icon(isVisible ? "SourceVisibilityOn.svg" : "SourceVisibilityOff.svg");
         }
 
         public override void RunCommand(String actionParameter)

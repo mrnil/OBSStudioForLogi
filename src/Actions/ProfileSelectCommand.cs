@@ -103,7 +103,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
             
             Boolean isSelected = stateIndex == PROFILE_SELECTED;
-            return ButtonImageHelper.StateIcon(isSelected, "ProfileSelected.svg", "ProfileUnselected.svg");
+            return ButtonImageHelper.Icon(isSelected ? "ProfileSelected.svg" : "ProfileUnselected.svg");
         }
     }
 }

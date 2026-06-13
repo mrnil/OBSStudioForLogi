@@ -62,8 +62,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 text = "Cycle Monitor";
             }
 
-            return ButtonImageHelper.StateTextWithBorder(text, imageSize, !isMuted, 
-                BitmapColor.Green, BitmapColor.Red, isSelected);
+            return ButtonTextRenderer.RenderTextWithBorder(text, imageSize, !isMuted ? BitmapColor.Green : BitmapColor.Red, isSelected);
         }
 
         public override void RunCommand(String actionParameter)
@@ -208,8 +207,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             Boolean isSelected = AudioSelectionState.IsSelected(actionParameter);
 
-            return ButtonImageHelper.StateTextWithBorder(text, imageSize, !isMuted,
-                BitmapColor.Green, BitmapColor.Red, isSelected);
+            return ButtonTextRenderer.RenderTextWithBorder(text, imageSize, !isMuted ? BitmapColor.Green : BitmapColor.Red, isSelected);
         }
 
     }

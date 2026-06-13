@@ -19,7 +19,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Boolean isConnected = OBSStudioForLogiPlugin.Instance?.IsConnected ?? false;
             String text = isConnected ? "Connected" : "Disconnected";
             BitmapColor bgColor = isConnected ? new BitmapColor(0, 128, 0) : new BitmapColor(128, 0, 0);
-            return ButtonImageHelper.Text(text, imageSize, bgColor, BitmapColor.White);
+            return ButtonTextRenderer.RenderText(text, imageSize, bgColor, BitmapColor.White);
         }
 
         protected override void RunCommand(String actionParameter)

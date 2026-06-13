@@ -60,8 +60,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             String text = $"{inputName}\n\n{volumePercent}%\n\n{mode}";
 
-            return ButtonImageHelper.StateTextWithBorder(text, imageWidth, imageHeight, !isMuted,
-                BitmapColor.Green, BitmapColor.Red, false);
+            return ButtonTextRenderer.RenderTextWithBorder(text, imageWidth, imageHeight, !isMuted ? BitmapColor.Green : BitmapColor.Red, false);
         }
 
         public void OnConnected()

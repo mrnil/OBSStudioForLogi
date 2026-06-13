@@ -50,7 +50,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             String boostIndicator = volumeLevel > 1.0f ? "+" : "";
             String text = $"{actionParameter}\n\n{boostIndicator}{volumePercent}%";
 
-            return ButtonImageHelper.StateText(text, imageSize, !isMuted, BitmapColor.Green, BitmapColor.Red);
+            return ButtonTextRenderer.RenderText(text, imageSize, BitmapColor.Black, !isMuted ? BitmapColor.Green : BitmapColor.Red);
         }
 
         public override void ApplyAdjustment(String actionParameter, Int32 diff)

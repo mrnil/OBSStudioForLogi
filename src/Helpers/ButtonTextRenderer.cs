@@ -50,17 +50,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
-        public static BitmapImage RenderConnectionStatus(Boolean isConnected, PluginImageSize imageSize)
-        {
-            var text = isConnected ? "Connected" : "Disconnected";
-            var bgColor = isConnected ? new BitmapColor(0, 128, 0) : new BitmapColor(128, 0, 0);
-            return RenderText(text, imageSize, bgColor, BitmapColor.White);
-        }
-
-        public static BitmapImage RenderNotConnected(PluginImageSize imageSize)
-        {
-            return RenderText("Not Connected", imageSize, BitmapColor.Black, new BitmapColor(128, 128, 128));
-        }
 
         public static BitmapImage RenderTextWithBorder(String text, PluginImageSize imageSize, BitmapColor textColor, Boolean showBorder)
         {

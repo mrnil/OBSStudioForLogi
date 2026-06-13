@@ -58,7 +58,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             BitmapColor backgroundColor = isConnected ? new BitmapColor(57, 180, 120) : BitmapColor.Black;
             BitmapColor textColor = isConnected ? BitmapColor.White : new BitmapColor(128, 128, 128);
             
-            return ButtonImageHelper.Text(displayText, imageSize, backgroundColor, textColor);
+            return ButtonTextRenderer.RenderText(displayText, imageSize, backgroundColor, textColor);
         }
 
         protected override void RunCommand(String actionParameter)

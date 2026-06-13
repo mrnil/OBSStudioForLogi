@@ -35,7 +35,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             Boolean isActive = this.GetState();
             Boolean shouldEnable = this._isStartCommand ? !isActive : isActive;
-            return ButtonImageHelper.StateIcon(shouldEnable, this.GetEnabledIcon(), this.GetDisabledIcon());
+            return ButtonImageHelper.Icon(shouldEnable ? this.GetEnabledIcon() : this.GetDisabledIcon());
         }
     }
 }

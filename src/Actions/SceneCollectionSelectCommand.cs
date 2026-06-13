@@ -103,7 +103,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
             
             Boolean isSelected = stateIndex == SCENE_COLLECTION_SELECTED;
-            return ButtonImageHelper.StateIcon(isSelected, "ScenesCollectionsSelected.svg", "ScenesCollectionsUnselected.svg");
+            return ButtonImageHelper.Icon(isSelected ? "ScenesCollectionsSelected.svg" : "ScenesCollectionsUnselected.svg");
         }
     }
 }
