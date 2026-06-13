@@ -47,6 +47,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return true;
         }
 
+        protected override String GetCommandDisplayName(ActionEditorActionParameters actionParameters)
+        {
+            return null;
+        }
+
         protected override BitmapImage GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
         {
             if (!actionParameters.TryGetString(InputNameControlName, out var inputName) || String.IsNullOrEmpty(inputName))
