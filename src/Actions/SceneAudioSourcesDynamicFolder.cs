@@ -14,9 +14,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             Instance = this;
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
-            this.DisplayName = "Scene Audio";
+            this.DisplayName = "Mixer for Scene Audio";
             this.GroupName = "8. Audio";
-            this.Description = "Audio sources in the current scene";
+            this.Description = "Folder of scene audio inputs with controls for mute, monitor and volume [Volume - Loupedeck only]";
         }
 
         public override IEnumerable<String> GetButtonPressActionNames(DeviceType deviceType)
