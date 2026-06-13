@@ -59,8 +59,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
 
             String text = $"{inputName}\n\n{volumePercent}%\n\n{mode}";
+            Boolean isSelected = AudioSelectionState.IsSelected(inputName);
 
-            return ButtonTextRenderer.RenderTextWithBorder(text, imageWidth, imageHeight, !isMuted ? BitmapColor.Green : BitmapColor.Red, false);
+            return ButtonTextRenderer.RenderTextWithBorder(text, imageWidth, imageHeight, !isMuted ? BitmapColor.Green : BitmapColor.Red, isSelected);
         }
 
         public void OnConnected()
