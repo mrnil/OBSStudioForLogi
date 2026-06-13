@@ -89,57 +89,62 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
-        private static Int32 GetFontSize(PluginImageSize imageSize)
+        public static BitmapImage RenderTextWithBorder(String text, Int32 imageWidth, Int32 imageHeight, BitmapColor textColor, Boolean showBorder)
         {
-            return imageSize == PluginImageSize.Width90 ? 13 : 11;
-        }
+            Int32 fontSize = GetDynamicFontSizeFromWidth(text, imageWidth);
 
-        private static Int32 GetLargeFontSize(PluginImageSize imageSize)
-        {
-            return imageSize == PluginImageSize.Width90 ? 16 : 14;
+            using (var builder = new BitmapBuilder(imageWidth, imageHeight))
+            {
+                builder.Clear(BitmapColor.Black);
+
+                if (showBorder)
+                {
+                    Int32 borderWidth = 3;
+                    BitmapColor borderColor = BitmapColor.White;
+
+                    builder.FillRectangle(0, 0, imageWidth, borderWidth, borderColor);
+                    builder.FillRectangle(0, imageHeight - borderWidth, imageWidth, borderWidth, borderColor);
+                    builder.FillRectangle(0, 0, borderWidth, imageHeight, borderColor);
+                    builder.FillRectangle(imageWidth - borderWidth, 0, borderWidth, imageHeight, borderColor);
+                }
+
+                builder.DrawText(text, textColor, fontSize);
+                return builder.ToImage();
+            }
         }
 
         private static Int32 GetDynamicFontSize(String text, PluginImageSize imageSize)
         {
+            Int32 width = imageSize == PluginImageSize.Width90 ? 90 : 60;
+            return GetDynamicFontSizeFromWidth(text, width);
+        }
+
+        private static Int32 GetDynamicFontSizeFromWidth(String text, Int32 width)
+        {
             if (String.IsNullOrEmpty(text))
             {
-                return GetLargeFontSize(imageSize);
+                return width >= 90 ? 18 : 16;
             }
 
             Int32 textLength = text.Length;
-            Int32 baseSize = imageSize == PluginImageSize.Width90 ? 90 : 60;
-            
-            // Count newlines to handle multi-line text
             Int32 lineCount = text.Split('\n').Length;
-            
-            // For single line text, scale based on length
+
             if (lineCount == 1)
             {
                 if (textLength <= 8)
-                {
-                    return imageSize == PluginImageSize.Width90 ? 18 : 16;
-                }
+                    return width >= 90 ? 18 : 16;
                 else if (textLength <= 12)
-                {
-                    return imageSize == PluginImageSize.Width90 ? 15 : 13;
-                }
+                    return width >= 90 ? 15 : 13;
                 else if (textLength <= 16)
-                {
-                    return imageSize == PluginImageSize.Width90 ? 13 : 11;
-                }
+                    return width >= 90 ? 13 : 11;
                 else if (textLength <= 20)
-                {
-                    return imageSize == PluginImageSize.Width90 ? 11 : 9;
-                }
+                    return width >= 90 ? 11 : 9;
                 else
-                {
-                    return imageSize == PluginImageSize.Width90 ? 9 : 8;
-                }
+                    return width >= 90 ? 9 : 8;
             }
             else
             {
-                // Multi-line text - use smaller font
-                return imageSize == PluginImageSize.Width90 ? 13 : 11;
+                return width >= 90 ? 13 : 11;
             }
         }
     }
