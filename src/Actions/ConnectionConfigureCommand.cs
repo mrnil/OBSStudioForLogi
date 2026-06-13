@@ -25,7 +25,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var defaultIp = localSettings?.IpAddress ?? "127.0.0.1";
             var defaultPort = localSettings?.Port.ToString() ?? "4455";
 
-            this.ActionEditor.AddControlEx(new ActionEditorTextbox(UseLocalObsControlName, "Use Local OBS (true/false)").SetRequired());
+            this.ActionEditor.AddControlEx(new ActionEditorCheckbox(UseLocalObsControlName, "Use Local OBS"));
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(IpAddressControlName, $"IP Address (local: {defaultIp})").SetRequired());
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(PortControlName, $"Port (local: {defaultPort})").SetRequired());
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(PasswordControlName, "Password"));
@@ -39,12 +39,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             PluginLog.Info("ConnectionConfigureCommand: RunCommand called - saving connection settings");
 
-            actionParameters.TryGetString(UseLocalObsControlName, out var useLocalStr);
+            actionParameters.TryGetBoolean(UseLocalObsControlName, out var useLocal);
             actionParameters.TryGetString(IpAddressControlName, out var ipAddress);
             actionParameters.TryGetString(PortControlName, out var portStr);
             actionParameters.TryGetString(PasswordControlName, out var password);
-
-            var useLocal = !String.Equals(useLocalStr?.Trim(), "false", StringComparison.OrdinalIgnoreCase);
 
             if (!Int32.TryParse(portStr?.Trim(), out var port) || port < 1 || port > 65535)
             {
