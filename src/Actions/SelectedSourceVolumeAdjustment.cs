@@ -7,7 +7,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public static SelectedSourceVolumeAdjustment Instance { get; private set; }
 
         public SelectedSourceVolumeAdjustment()
-            : base("Selected Source Volume", "Volume of the currently selected OBS audio source", "8. Audio", hasReset: true)
+            : base("Selected Source Volume", "Volume of the currently selected OBS audio source. Can be assigned to wheel, roller or dial. Assigning to wheel will override contextual controls.", "8. Audio", hasReset: true)
         {
             Instance = this;
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);

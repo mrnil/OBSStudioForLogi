@@ -16,7 +16,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.DisplayName = "Audio Volume";
             this.GroupName = "8. Audio";
-            this.Description = "Tap a source to arm the wheel, then turn to adjust volume";
+            this.Description = "Displays a folder of all audio soures. Tapping a source will arm the wheel, then turn to adjust volume. [MX Console / Loupedeck CT]";
         }
 
         public override PluginDynamicFolderNavigation GetNavigationArea(DeviceType _)
