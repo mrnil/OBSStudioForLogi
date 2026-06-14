@@ -4,7 +4,7 @@
 
 The project follows a TDD approach with 241 unit tests using xUnit + Moq. Overall line coverage is ~39.5% (Cobertura), branch coverage ~22.6%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage.
 
-## Test Count: 311
+## Test Count: 348
 
 ## Test Files
 

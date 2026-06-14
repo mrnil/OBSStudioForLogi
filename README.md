@@ -34,6 +34,10 @@ An AI Coding Assistant has been used to support the development of this project 
 - **Screenshot Capture**: Take screenshots with automatic path detection
 - **Status Displays**: Real-time display of current profile, scene collection, active scene, and connection status
 - **Resilient Connection**: Automatic reconnection with exponential backoff and jitter, manual reconnect button
+- **Remote OBS Support**: Connect to OBS on a remote device via configurable IP/port/password
+- **Performance Monitoring**: Real-time stats display (FPS, CPU, memory, dropped frames) with colour-coded thresholds
+- **Streaming Stats**: Live stream statistics (duration, bytes sent, congestion, skipped frames)
+- **Media Controls**: Play, pause, stop media sources with dynamic folder and user-defined actions
 
 ## Requirements
 
@@ -62,12 +66,19 @@ An AI Coding Assistant has been used to support the development of this project 
 - **Studio Mode Toggle**: Enable/disable OBS studio mode for preview/program workflow
 - **Studio Mode Transition**: Transition preview scene to program (only works when studio mode is enabled)
 - **Connection Status Display**: Shows "Connected" (green) or "Disconnected" (red)
+- **OBS Stats Summary**: Single button showing FPS, CPU%, and dropped frames (colour-coded)
+- **OBS Stats Folder**: Dynamic folder with individual tiles per stat (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped)
+- **Plugin Settings**: Configure OBS connection (local/remote) and stats polling interval
 
 ### Streaming (Group 2)
 
 - **Streaming Toggle**: Toggle streaming on/off
 - **Streaming Start**: Start streaming
 - **Streaming Stop**: Stop streaming
+- **Stream Stats Folder**: Dynamic folder showing live stream statistics
+  - Duration, Bytes Sent (MB/GB), Network Congestion, Skipped Frames, Total Frames
+  - Colour-coded: green=healthy, yellow=warning, red=problem
+  - Shows "Offline" when not streaming
 
 ### Recording (Group 3)
 
@@ -141,13 +152,33 @@ An AI Coding Assistant has been used to support the development of this project 
 - **Select Audio Source (User defined)**: Toggle global audio source selection
   - Selects/deselects the named source as the globally selected audio source
   - Used by Selected Source Volume adjustment and other audio controls
+- **Media Action (User defined)**: Trigger media actions on a named source
+  - Actions: Play, Pause, Stop, Restart, Next, Previous
+  - Source name textbox + action listbox
+
+### Media (Group 9)
+
+- **Media Controls Folder**: Dynamic folder of media sources (ffmpeg, VLC, slideshow, text)
+  - Single tap while stopped/paused: Play
+  - Single tap while playing: Pause
+  - Double tap: Stop (reset to beginning)
+  - Colour-coded: Green = Playing, Yellow = Paused, Grey = Stopped/Ended
+  - Real-time updates when media starts/finishes naturally
 
 ## Configuration
 
-No manual configuration required. The plugin automatically reads OBS WebSocket settings from:
+The plugin automatically reads OBS WebSocket settings from:
 
 - **Windows**: `%AppData%\obs-studio\plugin_config\obs-websocket\config.json`
 - **macOS**: `~/Library/Application Support/obs-studio/plugin_config/obs-websocket/config.json`
+
+For remote OBS connections or custom settings, use the **Plugin Settings** action to configure:
+
+- **Use Local OBS** (checkbox): When checked, auto-discovers local OBS. When unchecked, uses manual settings.
+- **IP Address**: Remote OBS machine IP
+- **Port**: WebSocket port (default 4455)
+- **Password**: WebSocket password
+- **Stats Polling Interval**: How often to refresh stats (2s, 5s, or 10s)
 
 ## Development
 
@@ -173,7 +204,7 @@ dotnet clean OBSStudioForLogiPlugin.sln
 
 ## Architecture
 
-- **TDD Approach**: Comprehensive test coverage with 300 unit tests
+- **TDD Approach**: Comprehensive test coverage with 348 unit tests
 - **Dependency Injection**: Interface-based design for testability
 - **Async Operations**: All OBS operations wrapped in Task.Run to prevent UI freezing
 - **Event-Driven**: Real-time updates via OBS WebSocket events
@@ -188,6 +219,7 @@ dotnet clean OBSStudioForLogiPlugin.sln
 - Ensure OBS Studio is running
 - Verify obs-websocket is enabled in OBS (Tools → WebSocket Server Settings)
 - Check logs in Logi Plugin Service
+- For remote OBS: verify IP address, port, and password in Plugin Settings
 
 **Commands disabled:**
 

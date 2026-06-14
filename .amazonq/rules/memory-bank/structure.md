@@ -107,6 +107,8 @@ Command classes that handle user interactions from Loupedeck hardware:
 - `StatsDisplay.cs`: Summary button showing FPS, CPU%, and dropped frames
 - `StatsDynamicFolder.cs`: Dynamic folder with individual tiles per stat (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped)
 - `PluginSettingsCommand.cs`: Configure plugin settings including OBS connection and stats polling interval (ActionEditorCommand)
+- `MediaDynamicFolder.cs`: Dynamic folder of media sources with play/pause/stop controls
+- `MediaActionCommand.cs`: Trigger media actions on named source (ActionEditorCommand)
 
 ### Services Layer (`src/Services/`)
 

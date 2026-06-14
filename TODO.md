@@ -17,10 +17,6 @@ No items.
 - [ ] Stereo balance controls
 - [ ] Audio quick presets ("Mute All", "Reset All Volumes")
 
-### Media
-
-- [ ] Media source controls (play/pause/stop/restart)
-
 ### Transitions
 
 - [ ] Transition selection (choose type and duration)
@@ -35,7 +31,6 @@ No items.
 - [ ] Get current preview scene (studio mode)
 - [ ] Trigger OBS hotkeys from hardware (fallback for third-party plugin actions)
 
-
 ## Events Not Yet Subscribed
 
 - [ ] `CurrentPreviewSceneChanged` — studio mode preview tracking
@@ -45,7 +40,6 @@ No items.
 - [ ] `InputAudioTracksChanged` — track assignment display
 - [ ] `SourceFilterCreated` / `SourceFilterRemoved` — filter list updates
 - [ ] `SourceFilterEnableStateChanged` — filter state display
-- [ ] `MediaInputPlaybackStarted` / `MediaInputPlaybackEnded` — media state
 - [ ] `CurrentSceneTransitionChanged` — transition display
 - [ ] `SceneTransitionStarted` / `SceneTransitionEnded` — transition progress
 
@@ -55,6 +49,9 @@ No items.
 
 ## Recently Completed
 
+- [x] Media source controls — dynamic folder + ActionEditorCommand (Play/Pause/Stop/Restart/Next/Previous)
+- [x] Subscribe to `MediaInputPlaybackStarted` / `MediaInputPlaybackEnded` — real-time media state updates
+- [x] Streaming stats folder (duration, bytes sent, congestion, skipped frames)
 - [x] +/- button volume alternatives (provided by MX Creative Console Dialpad)
 - [x] OBS Stats display — summary button + dynamic folder with colour-coded thresholds
 - [x] Stats polling service with configurable interval (2s/5s/10s via Plugin Settings)

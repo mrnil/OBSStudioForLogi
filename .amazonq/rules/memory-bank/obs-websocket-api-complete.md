@@ -311,6 +311,8 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 | SceneItemRemoved | ✅ | `OnSceneItemRemoved()` |
 | InputCreated | ✅ | `OnInputCreated()` |
 | InputRemoved | ✅ | `OnInputRemoved()` |
+| MediaInputPlaybackStarted | ✅ | `OnMediaInputPlaybackStarted()` |
+| MediaInputPlaybackEnded | ✅ | `OnMediaInputPlaybackEnded()` |
 
 ### Available But Not Subscribed
 
@@ -326,8 +328,6 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 | SourceFilterRemoved | ❌ | Filter list updates |
 | SourceFilterEnableStateChanged | ❌ | Filter state display |
 | SourceFilterListReindexed | ❌ | Filter order updates |
-| MediaInputPlaybackStarted | ❌ | Media playback state |
-| MediaInputPlaybackEnded | ❌ | Media playback state |
 | MediaInputActionTriggered | ❌ | Media control feedback |
 | CurrentSceneTransitionChanged | ❌ | Transition display |
 | CurrentSceneTransitionDurationChanged | ❌ | Transition duration display |

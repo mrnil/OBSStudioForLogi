@@ -75,6 +75,14 @@ OBSStudioForLogiPlugin is a Loupedeck/Logi Plugin Service integration that enabl
 - Save replay buffer to disk
 - Visual indicators for replay buffer state
 
+### Media Controls
+
+- Dynamic folder of media sources (ffmpeg, VLC, slideshow, text)
+- Single tap while stopped/paused: Play; single tap while playing: Pause; double tap: Stop
+- Colour-coded playback state (green=playing, yellow=paused, grey=stopped)
+- User-defined media action command (Play, Pause, Stop, Restart, Next, Previous)
+- Real-time updates via MediaInputPlaybackStarted/Ended events
+
 ### Studio Mode
 
 - Toggle studio mode on/off
