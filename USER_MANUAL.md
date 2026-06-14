@@ -24,7 +24,7 @@ This plugin is **not** an OBS extension — it communicates with OBS through its
 
 ### First Connection
 
-The plugin connects to OBS automatically — no configuration needed.
+The plugin connects to OBS automatically — no configuration needed for local OBS.
 
 1. **Open OBS Studio** — make sure OBS is running
 2. **Verify WebSocket is enabled** — in OBS, go to *Tools → WebSocket Server Settings* and ensure the server is enabled
@@ -34,6 +34,21 @@ The plugin connects to OBS automatically — no configuration needed.
 If OBS is already running when you install the plugin, it will connect immediately. If not, it will connect as soon as OBS starts.
 
 > **Tip:** The plugin reads your OBS password automatically from OBS's config file. You never need to enter it manually.
+
+### Connecting to Remote OBS
+
+To control OBS running on a different computer on your network:
+
+1. Drag **Plugin Settings** onto a button
+2. Configure:
+   - Uncheck **Use Local OBS**
+   - Enter the **IP Address** of the remote machine
+   - Enter the **Port** (default 4455)
+   - Enter the **Password** (set in OBS WebSocket Server Settings on the remote machine)
+   - Choose a **Stats Polling Interval** (2s, 5s, or 10s)
+3. Press the button to save and reconnect
+
+Settings persist between sessions. To switch back to local OBS, check "Use Local OBS" and press the button again.
 
 ---
 
@@ -86,6 +101,9 @@ For recording-focused workflows:
 | Studio Mode Toggle | Button | Enable/disable OBS studio mode. When enabled, you can preview scenes before sending them live. |
 | Studio Mode Transition | Button | Send the preview scene to program (live). Only works when studio mode is on. |
 | Connection Status | Display | Shows "Connected" (green) or "Disconnected" (red). Read-only. |
+| OBS Stats Summary | Display | Shows FPS, CPU%, and dropped frames. Green = healthy, red = problems. |
+| OBS Stats Folder | Folder | Individual tiles per stat: FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped. Colour-coded thresholds. |
+| Plugin Settings | Button | Configure OBS connection (local/remote), IP, port, password, and stats polling interval. Press to save. |
 
 ### Streaming (Group 2)
 
@@ -94,6 +112,7 @@ For recording-focused workflows:
 | Streaming Toggle | Button | Start streaming if stopped, stop if streaming. Single button for both. |
 | Streaming Start | Button | Start streaming only. Does nothing if already streaming. |
 | Streaming Stop | Button | Stop streaming only. Does nothing if not streaming. |
+| Stream Stats Folder | Folder | Live stream statistics: Duration, Bytes Sent, Network Congestion, Skipped Frames, Total Frames. Shows "Offline" when not streaming. |
 
 ### Recording (Group 3)
 
@@ -159,6 +178,39 @@ These actions are configurable — you type in the names of the OBS items you wa
 | Cycle Audio Monitoring | Audio source name (required) | Cycle: None → Monitor Only → Monitor & Output. |
 | Select Audio Source | Audio source name (required) | Toggle this source as the globally selected audio source for wheel/dial control. |
 | Audio Source Status | Audio source name (required) | Display-only. Shows mute state, volume %, monitoring mode, and selection border. Updates in real-time. |
+| Media Action | Source name (required), Action (required) | Trigger a media action on a named source. Actions: Play, Pause, Stop, Restart, Next, Previous. |
+
+---
+
+## Media Controls
+
+The **Media Controls Folder** (Group 9) shows all media sources in OBS (video clips, VLC sources, slideshows, text sources).
+
+### Tap Behaviour
+
+| Current State | Single Tap | Double Tap |
+|---------------|------------|------------|
+| Stopped/Ended | Play | Stop (no change) |
+| Paused | Play (resume) | Stop (reset to start) |
+| Playing | Pause | Stop (reset to start) |
+
+### Colour Coding
+
+- **Green** = Playing
+- **Yellow** = Paused
+- **Grey** = Stopped or Ended
+
+Buttons update in real-time when media finishes playing naturally.
+
+### User Defined Media Action
+
+For more granular control, use the **Media Action (User Defined)** command:
+1. Drag onto a button
+2. Type the exact media source name
+3. Select an action from the dropdown: Play, Pause, Stop, Restart, Next, Previous
+4. Press to trigger
+
+**Next/Previous** are for VLC playlist sources that contain multiple items.
 
 ---
 
@@ -314,7 +366,6 @@ To find the exact name of a source in OBS:
 - **No dynamic dropdowns** — User Defined Actions require you to type exact names. The SDK does not support populating dropdowns from OBS at runtime.
 - **Volume only via selection** — You must select a source before adjusting volume. There is no per-source dedicated volume knob.
 - **No audio level meters** — Real-time VU meters are not yet implemented.
-- **No media controls** — Play/pause/stop for media sources is not yet supported.
 - **No filter controls** — Toggling audio/video filters is not yet available.
 - **No transition selection** — Cannot choose or configure scene transitions from the device.
 - **Monitoring refresh** — After cycling audio monitoring mode via the user-defined action, the monitoring state updates on the status display but may not update in all dynamic folders until you re-open them.

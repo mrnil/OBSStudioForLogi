@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-06-13
+
+### Added
+
+- Remote OBS connection support: configure IP/port/password to control OBS on a remote device
+- Plugin Settings command (ActionEditorCommand): configure connection mode and stats polling interval
+- OBS Stats Summary display: single button showing FPS, CPU%, and dropped frames (colour-coded)
+- OBS Stats Folder: dynamic folder with individual tiles per stat (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped)
+- Stream Stats Folder: live streaming statistics (Duration, Bytes Sent, Congestion, Skipped Frames, Total Frames)
+- Media Controls Folder (Group 9): dynamic folder of media sources with play/pause/stop
+  - Single tap stopped/paused: Play; single tap playing: Pause; double tap: Stop
+  - Colour-coded: green=playing, yellow=paused, grey=stopped/ended
+- Media Action (User Defined): ActionEditorCommand with source name and action listbox (Play, Pause, Stop, Restart, Next, Previous)
+- StatsService: timer-based polling with configurable interval (2s, 5s, 10s)
+- Subscribe to InputAudioMonitorTypeChanged event: audio folders refresh when monitor type changes in OBS
+- Subscribe to SceneItemCreated/SceneItemRemoved events: Sources folder auto-refreshes
+- Subscribe to InputCreated/InputRemoved events: Audio Mixer auto-refreshes
+- Subscribe to MediaInputPlaybackStarted/MediaInputPlaybackEnded events: real-time media state updates
+- IInputMonitorAwareCommand interface for audio monitoring events
+- OBSStats and OBSStreamStats models with derived properties
+- PluginConfigReader.SaveConfig() for persistent configuration
+- 37 new unit tests (348 total)
+
+### Changed
+
+- ConnectionConfigureCommand renamed to PluginSettingsCommand (broader scope)
+- OBSConnectionSettings now accepts any valid IP address (previously localhost-only)
+- ConnectionManager branches between local auto-discovery and remote direct connection
+- StatsService starts on connect, stops on disconnect
+
+### Fixed
+
+- Reconnection race condition: added _connectingInProgress flag to prevent duplicate connection attempts when timer fires before initial connection completes
+
 ## [1.2.0] - 2026-06-13
 
 ### Added
