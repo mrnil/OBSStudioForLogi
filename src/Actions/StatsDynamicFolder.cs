@@ -31,6 +31,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return StatKeys.Select(key => this.CreateCommandName(key));
         }
 
+        public override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
+        {
+            return String.Empty;
+        }
+
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             var stats = OBSStudioForLogiPlugin.Instance?.GetCurrentStats();
