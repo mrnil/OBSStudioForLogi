@@ -96,6 +96,8 @@ OBSStudioForLogiPlugin is a Loupedeck/Logi Plugin Service integration that enabl
 - Continuous reconnection with exponential backoff (1s to 30s) and jitter (0.85-1.15x)
 - Manual reconnect button for user-initiated retry
 - Connection status display showing real-time connection state
+- Remote OBS support: configurable IP/port/password for network OBS instances
+- Persistent connection configuration via ActionEditorCommand
 
 ## Target Users
 

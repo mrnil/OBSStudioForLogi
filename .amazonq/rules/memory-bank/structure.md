@@ -104,6 +104,7 @@ Command classes that handle user interactions from Loupedeck hardware:
 - `AudioMuteAdjustableCommand.cs`: Toggle mute for named audio source (ActionEditorCommand)
 - `AudioMonitoringCycleAdjustableCommand.cs`: Cycle audio monitoring type (ActionEditorCommand)
 - `AudioSelectAdjustableCommand.cs`: Toggle global audio source selection (ActionEditorCommand)
+- `ConnectionConfigureCommand.cs`: Configure local/remote OBS connection settings (ActionEditorCommand)
 
 ### Services Layer (`src/Services/`)
 

@@ -38,13 +38,10 @@
 ## Events Not Yet Subscribed
 
 - [ ] `CurrentPreviewSceneChanged` — studio mode preview tracking
-- [ ] `SceneItemCreated` / `SceneItemRemoved` — dynamic source list updates
-- [ ] `InputCreated` / `InputRemoved` — dynamic input list updates
-- [ ] `InputNameChanged` — input list sync
+- [ ] `InputNameChanged` — input list sync when renamed in OBS
 - [ ] `InputAudioBalanceChanged` — audio balance display
 - [ ] `InputAudioSyncOffsetChanged` — audio sync display
 - [ ] `InputAudioTracksChanged` — track assignment display
-- [ ] `InputAudioMonitorTypeChanged` — monitor state display
 - [ ] `SourceFilterCreated` / `SourceFilterRemoved` — filter list updates
 - [ ] `SourceFilterEnableStateChanged` — filter state display
 - [ ] `MediaInputPlaybackStarted` / `MediaInputPlaybackEnded` — media state
@@ -57,6 +54,9 @@
 
 ## Recently Completed
 
+- [x] Subscribe to `InputAudioMonitorTypeChanged` — audio folders refresh when monitor type changes in OBS
+- [x] Subscribe to `SceneItemCreated` / `SceneItemRemoved` — Sources folder auto-refreshes
+- [x] Subscribe to `InputCreated` / `InputRemoved` — Audio Mixer auto-refreshes
 - [x] Remote OBS connection support (configurable IP/port/password via ActionEditorCommand)
 - [x] Reconnection race condition fix (`_connectingInProgress` flag)
 - [x] `OBSConnectionSettings` accepts any valid IP address

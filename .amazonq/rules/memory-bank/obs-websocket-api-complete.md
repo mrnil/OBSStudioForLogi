@@ -305,23 +305,23 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 | InputMuteStateChanged | ✅ | `OnInputMuteStateChanged()` |
 | InputVolumeChanged | ✅ | `OnInputVolumeChanged()` |
 | StudioModeStateChanged | ✅ | `OnStudioModeStateChanged()` |
+| SceneItemEnableStateChanged | ✅ | `OnSceneItemEnableStateChanged()` |
+| InputAudioMonitorTypeChanged | ✅ | `OnInputAudioMonitorTypeChanged()` |
+| SceneItemCreated | ✅ | `OnSceneItemCreated()` |
+| SceneItemRemoved | ✅ | `OnSceneItemRemoved()` |
+| InputCreated | ✅ | `OnInputCreated()` |
+| InputRemoved | ✅ | `OnInputRemoved()` |
 
 ### Available But Not Subscribed
 
 | Event | Status | Potential Use |
 |-------|--------|---------------|
 | CurrentPreviewSceneChanged | ❌ | Studio mode preview tracking |
-| SceneItemCreated | ❌ | Dynamic source list updates |
-| SceneItemRemoved | ❌ | Dynamic source list updates |
-| SceneItemEnableStateChanged | ❌ | Source visibility sync |
 | SceneItemTransformChanged | ❌ | Source position/scale tracking |
-| InputCreated | ❌ | Dynamic input list updates |
-| InputRemoved | ❌ | Dynamic input list updates |
 | InputNameChanged | ❌ | Input list sync |
 | InputAudioBalanceChanged | ❌ | Audio balance display |
 | InputAudioSyncOffsetChanged | ❌ | Audio sync display |
 | InputAudioTracksChanged | ❌ | Track assignment display |
-| InputAudioMonitorTypeChanged | ❌ | Monitor state display |
 | SourceFilterCreated | ❌ | Filter list updates |
 | SourceFilterRemoved | ❌ | Filter list updates |
 | SourceFilterEnableStateChanged | ❌ | Filter state display |
