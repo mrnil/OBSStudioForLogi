@@ -7,11 +7,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public static StatsDisplay Instance { get; private set; }
 
         public StatsDisplay()
-            : base(displayName: "OBS Stats", description: "Shows OBS performance stats (CPU, FPS, Dropped frames)", groupName: "1. OBS")
+            : base(displayName: "OBS Stats Summary", description: "Shows OBS performance summary (CPU, FPS, Dropped frames)", groupName: "1. OBS")
         {
             Instance = this;
             this.IsWidget = true;
-            this.AddParameter("", "OBS Stats", groupName: "1. OBS");
+            this.AddParameter("", "OBS Stats Summary", groupName: "1. OBS");
         }
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
