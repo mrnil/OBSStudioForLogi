@@ -4,7 +4,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using Loupedeck.OBSStudioForLogiPlugin.Models;
     using Loupedeck.OBSStudioForLogiPlugin.Services;
 
-    public class ConnectionConfigureCommand : ActionEditorCommand
+    public class PluginSettingsCommand : ActionEditorCommand
     {
         private const String UseLocalObsControlName = "UseLocalObs";
         private const String IpAddressControlName = "IpAddress";
@@ -12,9 +12,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private const String PasswordControlName = "Password";
         private const String PollingIntervalControlName = "PollingInterval";
 
-        public static ConnectionConfigureCommand Instance { get; private set; }
+        public static PluginSettingsCommand Instance { get; private set; }
 
-        public ConnectionConfigureCommand()
+        public PluginSettingsCommand()
         {
             Instance = this;
             this.Name = "PluginSettings";
@@ -36,7 +36,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             this.ActionEditor.ListboxItemsRequested += this.OnListboxItemsRequested;
 
-            PluginLog.Info("ConnectionConfigureCommand: Initialized");
+            PluginLog.Info("PluginSettingsCommand: Initialized");
         }
 
         private void OnListboxItemsRequested(Object sender, ActionEditorListboxItemsRequestedEventArgs e)
