@@ -61,6 +61,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.InputVolumeChanged += this.OnInputVolumeChanged;
             this._obs.StudioModeStateChanged += this.OnStudioModeStateChanged;
             this._obs.SceneItemEnableStateChanged += this.OnSceneItemEnableStateChanged;
+            this._obs.InputAudioMonitorTypeChanged += this.OnInputAudioMonitorTypeChanged;
+            this._obs.SceneItemCreated += this.OnSceneItemCreated;
+            this._obs.SceneItemRemoved += this.OnSceneItemRemoved;
+            this._obs.InputCreated += this.OnInputCreated;
+            this._obs.InputRemoved += this.OnInputRemoved;
             
             this._log.Info("OBSWebSocketManager initialized");
         }
@@ -411,6 +416,45 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             });
         }
 
+        private void OnInputAudioMonitorTypeChanged(Object sender, InputAudioMonitorTypeChangedEventArgs e)
+        {
+            if (String.IsNullOrEmpty(e?.InputName))
+                return;
+
+            this._log.Info($"Input '{e.InputName}' audio monitor type changed");
+            OBSStudioForLogiPlugin.Instance?.OnInputMonitorTypeChanged(e.InputName);
+        }
+
+        private void OnSceneItemCreated(Object sender, SceneItemCreatedEventArgs e)
+        {
+            if (String.IsNullOrEmpty(e?.SceneName))
+                return;
+
+            this._log.Info($"Scene item created in scene '{e.SceneName}'");
+            OBSStudioForLogiPlugin.Instance?.OnSceneItemsChanged(e.SceneName);
+        }
+
+        private void OnSceneItemRemoved(Object sender, SceneItemRemovedEventArgs e)
+        {
+            if (String.IsNullOrEmpty(e?.SceneName))
+                return;
+
+            this._log.Info($"Scene item removed from scene '{e.SceneName}'");
+            OBSStudioForLogiPlugin.Instance?.OnSceneItemsChanged(e.SceneName);
+        }
+
+        private void OnInputCreated(Object sender, InputCreatedEventArgs e)
+        {
+            this._log.Info($"Input created: '{e?.InputName}'");
+            OBSStudioForLogiPlugin.Instance?.OnInputListChanged();
+        }
+
+        private void OnInputRemoved(Object sender, InputRemovedEventArgs e)
+        {
+            this._log.Info($"Input removed: '{e?.InputName}'");
+            OBSStudioForLogiPlugin.Instance?.OnInputListChanged();
+        }
+
         private void OnReconnectTimer(Object sender, ElapsedEventArgs e)
         {
             if (this._disposed || !this._shouldReconnect)
@@ -476,6 +520,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._obs.InputVolumeChanged -= this.OnInputVolumeChanged;
                     this._obs.StudioModeStateChanged -= this.OnStudioModeStateChanged;
                     this._obs.SceneItemEnableStateChanged -= this.OnSceneItemEnableStateChanged;
+                    this._obs.InputAudioMonitorTypeChanged -= this.OnInputAudioMonitorTypeChanged;
+                    this._obs.SceneItemCreated -= this.OnSceneItemCreated;
+                    this._obs.SceneItemRemoved -= this.OnSceneItemRemoved;
+                    this._obs.InputCreated -= this.OnInputCreated;
+                    this._obs.InputRemoved -= this.OnInputRemoved;
                     
                     this._obs.Disconnect();
                     

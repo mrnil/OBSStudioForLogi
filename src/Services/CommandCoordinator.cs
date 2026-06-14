@@ -85,5 +85,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._registry.NotifyStudioModeStateChanged();
         }
+
+        public void NotifyInputMonitorTypeChanged(String inputName)
+        {
+            this._registry.NotifyInputMonitorTypeChanged(inputName);
+        }
     }
 }

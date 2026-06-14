@@ -1,123 +1,64 @@
 # TODO
 
+## In Progress
+
+- [ ] Validate remote OBS connection config is being picked up correctly (diagnostic logging added)
+
 ## High Priority
 
-- [ ] Add filter enable/disable controls for sources
-- [ ] Broader volume adjustment device support (+/- buttons for devices without WheelTool)
+- [ ] +/- button volume alternatives for devices without encoders/wheels
 
 ## Medium Priority
 
-- [ ] Add audio level meters (real-time VU meters with color coding)
-- [ ] Add audio sync offset controls (display and adjust)
-- [ ] Add audio track assignment controls (toggle tracks 1-6)
-- [ ] Add stereo balance controls for audio inputs
-- [ ] Add audio filter controls (list and toggle filters)
-- [ ] Add transition selection and duration controls
-- [ ] Add hotkey trigger commands
-- [ ] Implement media source controls (play/pause/restart)
+### Audio
+- [ ] Audio level meters (real-time VU meters)
+- [ ] Audio filter enable/disable toggle
+- [ ] Audio sync offset controls
+- [ ] Audio track assignment (multi-track recording)
+- [ ] Stereo balance controls
+- [ ] Audio quick presets ("Mute All", "Reset All Volumes")
+
+### Media
+- [ ] Media source controls (play/pause/stop/restart)
+
+### Transitions
+- [ ] Transition selection (choose type and duration)
+
+### Hotkeys
+- [ ] Trigger OBS hotkeys from hardware
 
 ## Low Priority
 
-- [ ] Add audio quick presets (Mute All, Reset All Volumes, custom macros)
-- [ ] Add statistics display (FPS, CPU usage, dropped frames)
-- [ ] Implement custom image overlays for scene buttons
-- [ ] Add scene item transform controls (position, scale, rotation)
-- [ ] Create preset configurations for common streaming setups
-- [ ] Add multi-language support for UI text
+- [ ] Statistics display (FPS, CPU, dropped frames)
+- [ ] Scene item transforms (position, scale, rotation)
+- [ ] Scene/source creation from hardware
+- [ ] Filter settings adjustment (not just toggle)
+- [ ] Get current preview scene (studio mode)
 
-## Technical Improvements
+## Events Not Yet Subscribed
 
-- [ ] Add configuration UI for manual WebSocket settings override
-- [ ] Add retry limit configuration for reconnection attempts
-- [ ] Create diagnostic logging toggle command
-- [ ] Add WebSocket protocol version detection and compatibility warnings
-- [ ] Implement graceful degradation for unsupported OBS versions
-- [ ] Add error recovery for transient WebSocket failures
+- [ ] `CurrentPreviewSceneChanged` — studio mode preview tracking
+- [ ] `SceneItemCreated` / `SceneItemRemoved` — dynamic source list updates
+- [ ] `InputCreated` / `InputRemoved` — dynamic input list updates
+- [ ] `InputNameChanged` — input list sync
+- [ ] `InputAudioBalanceChanged` — audio balance display
+- [ ] `InputAudioSyncOffsetChanged` — audio sync display
+- [ ] `InputAudioTracksChanged` — track assignment display
+- [ ] `InputAudioMonitorTypeChanged` — monitor state display
+- [ ] `SourceFilterCreated` / `SourceFilterRemoved` — filter list updates
+- [ ] `SourceFilterEnableStateChanged` — filter state display
+- [ ] `MediaInputPlaybackStarted` / `MediaInputPlaybackEnded` — media state
+- [ ] `CurrentSceneTransitionChanged` — transition display
+- [ ] `SceneTransitionStarted` / `SceneTransitionEnded` — transition progress
 
-## Testing
+## Architecture (Deferred)
 
-- [ ] Add integration tests with actual OBS instance
-- [ ] Create performance benchmarks for connection handling
-- [ ] Add UI automation tests for command state updates
-- [ ] Implement stress tests for rapid command execution
+- [ ] Multi-instance OBS support (see `.amazonq/rules/memory-bank/multi-instance-obs-design.md`)
 
-## Documentation
+## Recently Completed
 
-- [ ] Create video tutorial for setup and usage
-- [ ] Expand troubleshooting guide with more common issues
-- [ ] Document all available OBS WebSocket events (reference guide)
-
-## Completed
-
-### Features
-
-- [x] Add streaming controls (start/stop/toggle streaming)
-- [x] Add source visibility toggle commands
-- [x] Add virtual camera controls (start/stop/toggle)
-- [x] Add replay buffer controls (toggle/start/stop/save)
-- [x] Add studio mode toggle and transition controls
-- [x] Add manual reconnect command
-- [x] Add audio mixer controls (mute/unmute audio inputs)
-- [x] Add audio volume display (0-100% on buttons)
-- [x] Add audio volume adjustment via encoder/wheel tool
-- [x] Add audio monitoring type cycling (None/Monitor Only/Monitor & Output)
-- [x] Add audio source selection state for dial control
-- [x] Add scene audio sources folder (audio inputs in current scene)
-- [x] Implement recording controls (start/stop/toggle/pause)
-- [x] Implement scene management with dynamic folder
-- [x] Implement profile and scene collection selection
-- [x] Add profiles dynamic folder
-- [x] Add screenshot capture functionality
-- [x] Add connection status display
-- [x] Add current profile display
-- [x] Add current scene display
-- [x] Add current scene collection display
-
-### Technical
-
-- [x] Implement ToggleCommandBase and StartStopCommandBase to eliminate duplication
-- [x] Migrate all toggle and start/stop commands to use base classes
-- [x] Add SceneSwitchAdjustableCommand for encoder-based scene switching
-- [x] Implement comprehensive disposal pattern with thread safety
-- [x] Add exponential backoff with jitter for reconnection (0.85-1.15x)
-- [x] Implement continuous reconnection with auto-restart
-- [x] Implement automatic OBS configuration discovery
-- [x] Implement comprehensive logging with configurable levels
-- [x] Add test coverage for all core functionality (241 tests passing)
-- [x] Simplify image rendering with ButtonImageHelper (replaced Factory + Store + Data pattern)
-- [x] Eliminate Windows-only System.Drawing dependencies for macOS compatibility
-- [x] Achieve full cross-platform compatibility (Windows + macOS)
-- [x] Implement Command Registry pattern with interface-based self-registration
-- [x] Refactor main plugin class into focused components (SRP)
-- [x] Implement OBSFacade and ConnectionManager for separation of concerns
-
-### Documentation
-
-- [x] Create comprehensive memory bank documentation
-- [x] Document icon update patterns and best practices
-- [x] Document simplified image rendering system with ButtonImageHelper
-- [x] Create developer guide for extending the plugin (CONTRIBUTING.md)
-- [x] Add troubleshooting guide (README.md)
-- [x] Document release process
-- [x] Create installation guide (INSTALL.md)
-- [x] Maintain changelog with version history
-
-### UI/UX
-
-- [x] Simplify display commands to use BitmapBuilder for text rendering
-- [x] Ensure display buttons get initial state on connection
-- [x] Fix display commands to show "Not Connected" when disconnected
-- [x] Implement efficient image caching for all state-based and display commands
-- [x] Fix source visibility toggle to work bidirectionally
-- [x] Fix source visibility icon updates with delayed callback pattern
-- [x] Fix scene icon updates to use CommandImageChanged (not ButtonActionNamesChanged)
-- [x] Fix profile icon updates to use CommandImageChanged (not ButtonActionNamesChanged)
-- [x] Fix audio button color updates to use CommandImageChanged for individual buttons
-
-## Future Considerations
-
-- [ ] Support for multiple OBS instances
-- [ ] Cloud sync for plugin configurations
-- [ ] Custom scripting support for advanced automation
-- [ ] Integration with other streaming tools (Streamlabs, StreamElements)
-- [ ] Mobile companion app for remote control
+- [x] Remote OBS connection support (configurable IP/port/password via ActionEditorCommand)
+- [x] Reconnection race condition fix (`_connectingInProgress` flag)
+- [x] `OBSConnectionSettings` accepts any valid IP address
+- [x] Plugin config persistence (`PluginConfigReader.SaveConfig`)
+- [x] `ConnectionConfigureCommand` with checkbox and textboxes

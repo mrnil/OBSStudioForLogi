@@ -127,5 +127,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 command.OnStudioModeStateChanged();
             }
         }
+
+        public void NotifyInputMonitorTypeChanged(String inputName)
+        {
+            foreach (var command in this._commands.OfType<IInputMonitorAwareCommand>())
+            {
+                command.OnInputMonitorTypeChanged(inputName);
+            }
+        }
     }
 }

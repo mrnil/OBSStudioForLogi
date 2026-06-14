@@ -3,7 +3,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System;
     using System.Linq;
 
-    public abstract class AudioInputDynamicFolderBase : PluginDynamicFolder, IInputMuteAwareCommand, IInputVolumeAwareCommand
+    public abstract class AudioInputDynamicFolderBase : PluginDynamicFolder, IInputMuteAwareCommand, IInputVolumeAwareCommand, IInputMonitorAwareCommand
     {
         protected String[] AudioInputs = new String[0];
         private readonly DoubleTapHelper _doubleTapHelper = new DoubleTapHelper();
@@ -123,6 +123,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         }
 
         public void OnInputVolumeChanged(String inputName)
+        {
+            if (this.AudioInputs.Contains(inputName))
+            {
+                this.CommandImageChanged(inputName);
+            }
+        }
+
+        public void OnInputMonitorTypeChanged(String inputName)
         {
             if (this.AudioInputs.Contains(inputName))
             {

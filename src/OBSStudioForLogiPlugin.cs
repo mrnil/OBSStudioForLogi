@@ -412,6 +412,34 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._commandCoordinator.NotifySourceVisibilityChanged(sceneName, sourceName);
         }
 
+        public void OnInputMonitorTypeChanged(String inputName)
+        {
+            PluginLog.Info($"Plugin notified of monitor type change for '{inputName}'");
+            this._commandCoordinator.NotifyInputMonitorTypeChanged(inputName);
+        }
+
+        public void OnSceneItemsChanged(String sceneName)
+        {
+            var currentScene = this._obsFacade.CurrentScene;
+            if (sceneName != currentScene)
+            {
+                PluginLog.Info($"Plugin: scene items changed in '{sceneName}' but current scene is '{currentScene}', ignoring");
+                return;
+            }
+
+            PluginLog.Info($"Plugin notified of scene items change in '{sceneName}'");
+            this._obsFacade.UpdateSourcesForScene(sceneName,
+                (scene, sources) => SourcesDynamicFolder.Instance?.UpdateSources(scene, sources),
+                (scene, audioSources) => SceneAudioSourcesDynamicFolder.Instance?.UpdateAudioSources(scene, audioSources));
+        }
+
+        public void OnInputListChanged()
+        {
+            PluginLog.Info("Plugin notified of input list change");
+            var inputs = this._obsFacade.GetInputList();
+            this._commandCoordinator.NotifyInputsChanged(inputs);
+        }
+
         public void ToggleStudioMode()
         {
             this._obsFacade.ToggleStudioMode();

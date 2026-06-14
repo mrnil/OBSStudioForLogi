@@ -67,4 +67,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     {
         void OnStudioModeStateChanged();
     }
+
+    public interface IInputMonitorAwareCommand : IObsCommand
+    {
+        void OnInputMonitorTypeChanged(String inputName);
+    }
 }
