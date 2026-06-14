@@ -1114,5 +1114,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return null;
             }
         }
+
+        public Models.OBSStreamStats GetStreamStatus()
+        {
+            if (!this._obs.IsConnected)
+            {
+                return null;
+            }
+
+            try
+            {
+                return this._obs.GetStreamStatus();
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get stream status: {ex.Message}");
+                return null;
+            }
+        }
     }
 }

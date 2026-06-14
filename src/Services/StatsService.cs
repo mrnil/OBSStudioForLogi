@@ -11,6 +11,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
         private Boolean _disposed = false;
 
         public OBSStats CurrentStats { get; private set; }
+        public OBSStreamStats CurrentStreamStats { get; private set; }
         public event EventHandler StatsUpdated;
 
         public StatsService(Int32 intervalMs = 5000)
@@ -33,6 +34,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
         {
             this._pollTimer.Stop();
             this.CurrentStats = null;
+            this.CurrentStreamStats = null;
             PluginLog.Info("StatsService stopped");
         }
 
@@ -50,11 +52,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
             try
             {
                 var stats = OBSStudioForLogiPlugin.Instance?.GetStats();
+                var streamStats = OBSStudioForLogiPlugin.Instance?.GetStreamStatus();
                 if (stats != null)
                 {
                     lock (this._lock)
                     {
                         this.CurrentStats = stats;
+                        this.CurrentStreamStats = streamStats;
                     }
                     this.StatsUpdated?.Invoke(this, EventArgs.Empty);
                 }

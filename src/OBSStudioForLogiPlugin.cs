@@ -304,15 +304,26 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._obsFacade.GetStats();
         }
 
+        public Models.OBSStreamStats GetStreamStatus()
+        {
+            return this._obsFacade.GetStreamStatus();
+        }
+
         public Models.OBSStats GetCurrentStats()
         {
             return this._statsService.CurrentStats;
+        }
+
+        public Models.OBSStreamStats GetCurrentStreamStats()
+        {
+            return this._statsService.CurrentStreamStats;
         }
 
         private void OnStatsUpdated(Object sender, EventArgs e)
         {
             StatsDisplay.Instance?.UpdateDisplay();
             StatsDynamicFolder.Instance?.UpdateDisplay();
+            StreamStatsDynamicFolder.Instance?.UpdateDisplay();
         }
 
         public Boolean IsRecording => this._obsFacade.IsRecording;

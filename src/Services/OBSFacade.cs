@@ -242,6 +242,22 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
+        public Models.OBSStreamStats GetStreamStatus()
+        {
+            if (!this.IsConnected)
+                return null;
+
+            try
+            {
+                return this._obsManager?.Actions.GetStreamStatus();
+            }
+            catch (Exception ex)
+            {
+                PluginLog.Warning($"Failed to get stream status: {ex.Message}");
+                return null;
+            }
+        }
+
         public void UpdateSourcesForScene(String sceneName, Action<String, String[]> updateSourcesCallback, Action<String, String[]> updateAudioSourcesCallback)
         {
             if (String.IsNullOrEmpty(sceneName))

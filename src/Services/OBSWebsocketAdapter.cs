@@ -331,5 +331,22 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 OutputSkippedFrames = stats.OutputSkippedFrames
             };
         }
+
+        public Models.OBSStreamStats GetStreamStatus()
+        {
+            var status = this._obs?.GetStreamStatus();
+            if (status == null)
+                return null;
+
+            return new Models.OBSStreamStats
+            {
+                IsActive = status.IsActive,
+                BytesSent = status.BytesSent,
+                Duration = status.Duration,
+                Congestion = status.Congestion,
+                SkippedFrames = status.SkippedFrames,
+                TotalFrames = status.TotalFrames
+            };
+        }
     }
 }
