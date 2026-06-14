@@ -32,5 +32,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Models
         /// Remote OBS WebSocket password (used when UseLocalObs is false).
         /// </summary>
         public String RemotePassword { get; set; } = "";
+
+        /// <summary>
+        /// Stats polling interval in milliseconds (2000, 5000, or 10000).
+        /// </summary>
+        public Int32 StatsPollingInterval { get; set; } = 5000;
     }
 }

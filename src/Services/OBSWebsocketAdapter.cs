@@ -313,5 +313,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._obs?.TriggerStudioModeTransition();
         }
+
+        public Models.OBSStats GetStats()
+        {
+            var stats = this._obs?.GetStats();
+            if (stats == null)
+                return null;
+
+            return new Models.OBSStats
+            {
+                CpuUsage = stats.CpuUsage,
+                MemoryUsage = stats.MemoryUsage,
+                AverageFrameTime = stats.AverageFrameTime,
+                RenderTotalFrames = stats.RenderTotalFrames,
+                RenderMissedFrames = stats.RenderMissedFrames,
+                OutputTotalFrames = stats.OutputTotalFrames,
+                OutputSkippedFrames = stats.OutputSkippedFrames
+            };
+        }
     }
 }

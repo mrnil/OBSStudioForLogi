@@ -1096,5 +1096,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 }
             });
         }
+
+        public Models.OBSStats GetStats()
+        {
+            if (!this._obs.IsConnected)
+            {
+                return null;
+            }
+
+            try
+            {
+                return this._obs.GetStats();
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get stats: {ex.Message}");
+                return null;
+            }
+        }
     }
 }

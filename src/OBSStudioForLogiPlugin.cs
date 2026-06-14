@@ -12,6 +12,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly CommandCoordinator _commandCoordinator;
         private readonly OBSFacade _obsFacade;
         private readonly OBSConfigReader _obsConfigReader;
+        private readonly StatsService _statsService;
         private OBSWebSocketManager _obsManager;
         public static String ScreenshotPath { get; private set; }
         
@@ -32,6 +33,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._connectionManager.SetPluginConfig(pluginConfig);
             this._commandCoordinator = new CommandCoordinator();
             this._obsFacade = new OBSFacade(this._obsManager);
+            this._statsService = new StatsService(pluginConfig?.StatsPollingInterval ?? 5000);
+            this._statsService.StatsUpdated += this.OnStatsUpdated;
         }
 
         private static PluginConfig LoadPluginConfiguration()
@@ -61,8 +64,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void ApplyConnectionConfig(PluginConfig config)
         {
-            PluginLog.Info($"Applying connection config: UseLocal={config.UseLocalObs}, IP={config.RemoteIpAddress}, Port={config.RemotePort}");
+            PluginLog.Info($"Applying connection config: UseLocal={config.UseLocalObs}, IP={config.RemoteIpAddress}, Port={config.RemotePort}, Polling={config.StatsPollingInterval}ms");
             this._connectionManager.SetPluginConfig(config);
+            this._statsService.SetInterval(config.StatsPollingInterval);
             
             // Disconnect and reconnect with new settings
             this._connectionManager.Disconnect();
@@ -126,6 +130,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.ClientApplication.ApplicationStopped -= this.OnApplicationStopped;
             
             this._connectionManager?.Dispose();
+            this._statsService?.Dispose();
             PluginLog.Info("Plugin unloaded");
         }
 
@@ -149,12 +154,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             PluginLog.Info("OBS WebSocket connected");
             this.OnPluginStatusChanged(Loupedeck.PluginStatus.Normal, null);
+            this._statsService.Start();
         }
 
         private void OnOBSDisconnected(Object sender, EventArgs e)
         {
             PluginLog.Info("OBS WebSocket disconnected");
             this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning,"OBS is offline. Please launch OBS");
+            this._statsService.Stop();
         }
 
         public void RegisterCommand(IObsCommand command)
@@ -290,6 +297,22 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             PluginLog.Info("Manual reconnect requested");
             Task.Run(() => this._connectionManager.ConnectAsync());
+        }
+
+        public Models.OBSStats GetStats()
+        {
+            return this._obsFacade.GetStats();
+        }
+
+        public Models.OBSStats GetCurrentStats()
+        {
+            return this._statsService.CurrentStats;
+        }
+
+        private void OnStatsUpdated(Object sender, EventArgs e)
+        {
+            StatsDisplay.Instance?.UpdateDisplay();
+            StatsDynamicFolder.Instance?.UpdateDisplay();
         }
 
         public Boolean IsRecording => this._obsFacade.IsRecording;

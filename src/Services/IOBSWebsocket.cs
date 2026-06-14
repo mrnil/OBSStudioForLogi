@@ -46,5 +46,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         Boolean GetStudioModeEnabled();
         void SetStudioModeEnabled(Boolean enabled);
         void TriggerStudioModeTransition();
+        Models.OBSStats GetStats();
     }
 }

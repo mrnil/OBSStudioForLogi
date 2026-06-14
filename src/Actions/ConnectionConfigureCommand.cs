@@ -10,16 +10,17 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private const String IpAddressControlName = "IpAddress";
         private const String PortControlName = "Port";
         private const String PasswordControlName = "Password";
+        private const String PollingIntervalControlName = "PollingInterval";
 
         public static ConnectionConfigureCommand Instance { get; private set; }
 
         public ConnectionConfigureCommand()
         {
             Instance = this;
-            this.Name = "ConnectionConfigure";
-            this.DisplayName = "Configure OBS Connection";
+            this.Name = "PluginSettings";
+            this.DisplayName = "Plugin Settings";
             this.GroupName = "1. OBS";
-            this.Description = "Configure connection to local or remote OBS Studio. Press to save and reconnect.";
+            this.Description = "Configure plugin settings including OBS connection and stats polling. Press to save and apply.";
 
             var localSettings = OBSStudioForLogiPlugin.Instance?.GetLocalOBSSettings();
             var defaultIp = localSettings?.IpAddress ?? "127.0.0.1";
@@ -30,24 +31,46 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(PortControlName, $"Port (detected: {defaultPort})").SetRequired());
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(PasswordControlName, "Password"));
 
+            var pollingListbox = new ActionEditorListbox(PollingIntervalControlName, "Stats Polling Interval");
+            this.ActionEditor.AddControlEx(pollingListbox);
+
+            this.ActionEditor.ListboxItemsRequested += this.OnListboxItemsRequested;
+
             PluginLog.Info("ConnectionConfigureCommand: Initialized");
+        }
+
+        private void OnListboxItemsRequested(Object sender, ActionEditorListboxItemsRequestedEventArgs e)
+        {
+            if (e.ControlName.EqualsNoCase(PollingIntervalControlName))
+            {
+                e.AddItem("2000", "2 seconds", "Poll OBS stats every 2 seconds");
+                e.AddItem("5000", "5 seconds", "Poll OBS stats every 5 seconds");
+                e.AddItem("10000", "10 seconds", "Poll OBS stats every 10 seconds");
+                e.SetSelectedItemName("5000");
+            }
         }
 
         protected override Boolean OnLoad() => true;
 
         protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
         {
-            PluginLog.Info("ConnectionConfigureCommand: RunCommand called - saving connection settings");
+            PluginLog.Info("PluginSettings: RunCommand called - saving settings");
 
             actionParameters.TryGetBoolean(UseLocalObsControlName, out var useLocal);
             actionParameters.TryGetString(IpAddressControlName, out var ipAddress);
             actionParameters.TryGetString(PortControlName, out var portStr);
             actionParameters.TryGetString(PasswordControlName, out var password);
+            actionParameters.TryGetString(PollingIntervalControlName, out var pollingStr);
 
             if (!Int32.TryParse(portStr?.Trim(), out var port) || port < 1 || port > 65535)
             {
-                PluginLog.Warning($"ConnectionConfigureCommand: Invalid port '{portStr}', using default 4455");
+                PluginLog.Warning($"PluginSettings: Invalid port '{portStr}', using default 4455");
                 port = 4455;
+            }
+
+            if (!Int32.TryParse(pollingStr, out var pollingInterval) || (pollingInterval != 2000 && pollingInterval != 5000 && pollingInterval != 10000))
+            {
+                pollingInterval = 5000;
             }
 
             var config = new PluginConfig
@@ -56,18 +79,19 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 UseLocalObs = useLocal,
                 RemoteIpAddress = ipAddress?.Trim() ?? "127.0.0.1",
                 RemotePort = port,
-                RemotePassword = password ?? ""
+                RemotePassword = password ?? "",
+                StatsPollingInterval = pollingInterval
             };
 
             var configReader = new PluginConfigReader();
             if (configReader.SaveConfig(config))
             {
-                PluginLog.Info($"ConnectionConfigureCommand: Config saved - UseLocal={useLocal}, IP={config.RemoteIpAddress}, Port={port}");
+                PluginLog.Info($"PluginSettings: Config saved - UseLocal={useLocal}, IP={config.RemoteIpAddress}, Port={port}, Polling={pollingInterval}ms");
                 OBSStudioForLogiPlugin.Instance?.ApplyConnectionConfig(config);
             }
             else
             {
-                PluginLog.Error("ConnectionConfigureCommand: Failed to save config");
+                PluginLog.Error("PluginSettings: Failed to save config");
             }
 
             return true;
