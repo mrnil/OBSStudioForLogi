@@ -104,7 +104,9 @@ Command classes that handle user interactions from Loupedeck hardware:
 - `AudioMuteAdjustableCommand.cs`: Toggle mute for named audio source (ActionEditorCommand)
 - `AudioMonitoringCycleAdjustableCommand.cs`: Cycle audio monitoring type (ActionEditorCommand)
 - `AudioSelectAdjustableCommand.cs`: Toggle global audio source selection (ActionEditorCommand)
-- `ConnectionConfigureCommand.cs`: Configure local/remote OBS connection settings (ActionEditorCommand)
+- `StatsDisplay.cs`: Summary button showing FPS, CPU%, and dropped frames
+- `StatsDynamicFolder.cs`: Dynamic folder with individual tiles per stat (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped)
+- `PluginSettingsCommand.cs`: Configure plugin settings including OBS connection and stats polling interval (ActionEditorCommand)
 
 ### Services Layer (`src/Services/`)
 
@@ -148,7 +150,8 @@ Core business logic and OBS integration:
 - **OBSWebsocketAdapter.cs**: Adapter wrapping obs-websocket-dotnet library
 - **OBSConfigReader.cs**: Reads OBS configuration files to discover WebSocket settings (port, password)
 - **OBSLifecycleManager.cs**: Manages connection lifecycle, port availability checking
-- **PluginConfigReader.cs**: Reads plugin-specific configuration from AppData
+- **PluginConfigReader.cs**: Reads and writes plugin-specific configuration from AppData
+- **StatsService.cs**: Timer-based polling service for OBS performance statistics
 
 ### Helpers Layer (`src/Helpers/`)
 
@@ -165,7 +168,8 @@ Core business logic and OBS integration:
 ### Models Layer (`src/Models/`)
 
 - **OBSConnectionSettings.cs**: Data model for WebSocket connection configuration (URL, port, password)
-- **PluginConfig.cs**: Plugin configuration model (log level settings)
+- **PluginConfig.cs**: Plugin configuration model (log level, connection settings, stats polling interval)
+- **OBSStats.cs**: Data model for OBS performance statistics (CPU, memory, FPS, frame counts)
 
 ## Architectural Patterns
 

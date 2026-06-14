@@ -29,7 +29,6 @@
 
 ## Low Priority
 
-- [ ] Statistics display (FPS, CPU, dropped frames)
 - [ ] Scene item transforms (position, scale, rotation)
 - [ ] Scene/source creation from hardware
 - [ ] Filter settings adjustment (not just toggle)
@@ -54,11 +53,13 @@
 
 ## Recently Completed
 
-- [x] Subscribe to `InputAudioMonitorTypeChanged` — audio folders refresh when monitor type changes in OBS
+- [x] OBS Stats display — summary button + dynamic folder with colour-coded thresholds
+- [x] Stats polling service with configurable interval (2s/5s/10s via Plugin Settings)
+- [x] Plugin Settings command (renamed from ConnectionConfigureCommand)
+- [x] Subscribe to `InputAudioMonitorTypeChanged` — audio folders refresh when monitor type changes
 - [x] Subscribe to `SceneItemCreated` / `SceneItemRemoved` — Sources folder auto-refreshes
 - [x] Subscribe to `InputCreated` / `InputRemoved` — Audio Mixer auto-refreshes
 - [x] Remote OBS connection support (configurable IP/port/password via ActionEditorCommand)
 - [x] Reconnection race condition fix (`_connectingInProgress` flag)
 - [x] `OBSConnectionSettings` accepts any valid IP address
 - [x] Plugin config persistence (`PluginConfigReader.SaveConfig`)
-- [x] `ConnectionConfigureCommand` with checkbox and textboxes

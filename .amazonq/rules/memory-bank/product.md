@@ -88,6 +88,13 @@ OBSStudioForLogiPlugin is a Loupedeck/Logi Plugin Service integration that enabl
 - Trigger OBS screenshots directly from hardware
 - Automatic path detection (Pictures, Documents, or Desktop folders)
 
+### Performance Monitoring
+
+- Real-time OBS stats summary button (FPS, CPU%, dropped frames)
+- Stats folder with individual tiles per metric (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped)
+- Colour-coded thresholds (green=healthy, yellow=warning, red=problem)
+- Configurable polling interval (2s, 5s, 10s) via Plugin Settings
+
 ### Connection Management
 
 - Automatic connection to OBS WebSocket on application start
@@ -97,7 +104,7 @@ OBSStudioForLogiPlugin is a Loupedeck/Logi Plugin Service integration that enabl
 - Manual reconnect button for user-initiated retry
 - Connection status display showing real-time connection state
 - Remote OBS support: configurable IP/port/password for network OBS instances
-- Persistent connection configuration via ActionEditorCommand
+- Persistent plugin settings via ActionEditorCommand (connection + stats polling)
 
 ## Target Users
 

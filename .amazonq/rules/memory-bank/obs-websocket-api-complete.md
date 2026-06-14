@@ -276,13 +276,13 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 
 | Feature | Status | Implementation |
 |---------|--------|----------------|
-| Get Stats | ❌ | Not implemented |
-| - CPU Usage | ❌ | Not implemented |
-| - Memory Usage | ❌ | Not implemented |
-| - FPS | ❌ | Not implemented |
-| - Render Lag | ❌ | Not implemented |
-| - Dropped Frames | ❌ | Not implemented |
-| - Output Skipped Frames | ❌ | Not implemented |
+| Get Stats | ✅ | `StatsDisplay`, `StatsDynamicFolder` via polling |
+| - CPU Usage | ✅ | Displayed with colour thresholds |
+| - Memory Usage | ✅ | Displayed in MB |
+| - FPS | ✅ | Derived from AverageFrameTime |
+| - Render Lag | ✅ | RenderMissedFrames with percentage |
+| - Dropped Frames | ✅ | OutputSkippedFrames with percentage |
+| - Output Skipped Frames | ✅ | Combined total displayed |
 
 ---
 
@@ -354,6 +354,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 11. **Audio Volume Display** - Show volume percentage
 12. **Studio Mode** - Toggle, transition, status
 13. **Screenshots** - Capture to file
+14. **Statistics** - CPU, memory, FPS, render lag, encoding lag, dropped frames
 
 ### 🟡 Partially Implemented Categories
 
@@ -367,9 +368,8 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 4. **Audio Advanced** - Balance, sync offset, monitoring, track assignment
 5. **Scene Item Transforms** - Position, scale, rotation, crop
 6. **Hotkeys** - Trigger hotkeys
-7. **Statistics** - FPS, CPU, dropped frames
-8. **UI Dialogs** - Open properties, filters, projectors
-9. **Scene/Source Creation** - Create/remove scenes, sources, filters
+7. **UI Dialogs** - Open properties, filters, projectors
+8. **Scene/Source Creation** - Create/remove scenes, sources, filters
 
 ---
 
