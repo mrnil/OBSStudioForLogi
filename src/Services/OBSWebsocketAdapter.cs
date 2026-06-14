@@ -348,5 +348,41 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 TotalFrames = status.TotalFrames
             };
         }
+
+        public String GetMediaInputStatus(String inputName)
+        {
+            var status = this._obs?.GetMediaInputStatus(inputName);
+            if (status?.State == null)
+                return "OBS_MEDIA_STATE_NONE";
+
+            return status.State.ToString();
+        }
+
+        public void TriggerMediaInputAction(String inputName, String mediaAction)
+        {
+            this._obs?.TriggerMediaInputAction(inputName, mediaAction);
+        }
+
+        public String[] GetMediaInputList()
+        {
+            var inputs = this._obs?.GetInputList(null);
+            if (inputs == null)
+                return new String[0];
+
+            var mediaKinds = new[]
+            {
+                "ffmpeg_source",
+                "vlc_source",
+                "slideshow",
+                "text_gdiplus",
+                "text_gdiplus_v2",
+                "text_ft2_source",
+                "text_ft2_source_v2"
+            };
+
+            return inputs.Where(input => mediaKinds.Contains(input.InputKind))
+                         .Select(input => input.InputName)
+                         .ToArray();
+        }
     }
 }

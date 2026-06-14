@@ -277,6 +277,32 @@ public class CommandRegistryTests
         studioModeAware.Verify(x => x.OnStudioModeStateChanged(), Times.Once);
     }
 
+    // --- NotifyInputMonitorTypeChanged ---
+
+    [Fact]
+    public void NotifyInputMonitorTypeChanged_CallsOnlyIInputMonitorAwareCommands()
+    {
+        var monitorAware = new Mock<IInputMonitorAwareCommand>();
+        var nonAware = new Mock<IObsCommand>();
+        this._registry.Register(monitorAware.Object);
+        this._registry.Register(nonAware.Object);
+
+        this._registry.NotifyInputMonitorTypeChanged("Microphone");
+
+        monitorAware.Verify(x => x.OnInputMonitorTypeChanged("Microphone"), Times.Once);
+    }
+
+    [Fact]
+    public void NotifyInputMonitorTypeChanged_DoesNotCallNonMonitorAwareCommands()
+    {
+        var nonAware = new Mock<IObsCommand>();
+        this._registry.Register(nonAware.Object);
+
+        var exception = Record.Exception(() => this._registry.NotifyInputMonitorTypeChanged("Mic"));
+
+        Assert.Null(exception);
+    }
+
     // --- Multiple interface support ---
 
     [Fact]

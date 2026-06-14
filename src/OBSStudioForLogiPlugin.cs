@@ -309,6 +309,27 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._obsFacade.GetStreamStatus();
         }
 
+        public String GetMediaInputStatus(String inputName)
+        {
+            return this._obsFacade.GetMediaInputStatus(inputName);
+        }
+
+        public void TriggerMediaInputAction(String inputName, String mediaAction)
+        {
+            this._obsFacade.TriggerMediaInputAction(inputName, mediaAction);
+        }
+
+        public String[] GetMediaInputList()
+        {
+            return this._obsFacade.GetMediaInputList();
+        }
+
+        public void OnMediaPlaybackStateChanged(String inputName)
+        {
+            PluginLog.Info($"Media playback state changed for '{inputName}'");
+            MediaDynamicFolder.Instance?.OnMediaStateChanged(inputName);
+        }
+
         public Models.OBSStats GetCurrentStats()
         {
             return this._statsService.CurrentStats;

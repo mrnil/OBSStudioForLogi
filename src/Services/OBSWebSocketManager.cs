@@ -66,6 +66,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.SceneItemRemoved += this.OnSceneItemRemoved;
             this._obs.InputCreated += this.OnInputCreated;
             this._obs.InputRemoved += this.OnInputRemoved;
+            this._obs.MediaInputPlaybackStarted += this.OnMediaInputPlaybackStarted;
+            this._obs.MediaInputPlaybackEnded += this.OnMediaInputPlaybackEnded;
             
             this._log.Info("OBSWebSocketManager initialized");
         }
@@ -455,6 +457,24 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.OnInputListChanged();
         }
 
+        private void OnMediaInputPlaybackStarted(Object sender, MediaInputPlaybackStartedEventArgs e)
+        {
+            if (String.IsNullOrEmpty(e?.InputName))
+                return;
+
+            this._log.Info($"Media playback started: '{e.InputName}'");
+            OBSStudioForLogiPlugin.Instance?.OnMediaPlaybackStateChanged(e.InputName);
+        }
+
+        private void OnMediaInputPlaybackEnded(Object sender, MediaInputPlaybackEndedEventArgs e)
+        {
+            if (String.IsNullOrEmpty(e?.InputName))
+                return;
+
+            this._log.Info($"Media playback ended: '{e.InputName}'");
+            OBSStudioForLogiPlugin.Instance?.OnMediaPlaybackStateChanged(e.InputName);
+        }
+
         private void OnReconnectTimer(Object sender, ElapsedEventArgs e)
         {
             if (this._disposed || !this._shouldReconnect)
@@ -525,6 +545,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._obs.SceneItemRemoved -= this.OnSceneItemRemoved;
                     this._obs.InputCreated -= this.OnInputCreated;
                     this._obs.InputRemoved -= this.OnInputRemoved;
+                    this._obs.MediaInputPlaybackStarted -= this.OnMediaInputPlaybackStarted;
+                    this._obs.MediaInputPlaybackEnded -= this.OnMediaInputPlaybackEnded;
                     
                     this._obs.Disconnect();
                     

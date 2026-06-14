@@ -48,5 +48,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         void TriggerStudioModeTransition();
         Models.OBSStats GetStats();
         Models.OBSStreamStats GetStreamStatus();
+        String GetMediaInputStatus(String inputName);
+        void TriggerMediaInputAction(String inputName, String mediaAction);
+        String[] GetMediaInputList();
     }
 }

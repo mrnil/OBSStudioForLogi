@@ -258,6 +258,21 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
+        public String GetMediaInputStatus(String inputName)
+        {
+            return this._obsManager?.Actions.GetMediaInputStatus(inputName) ?? "OBS_MEDIA_STATE_NONE";
+        }
+
+        public void TriggerMediaInputAction(String inputName, String mediaAction)
+        {
+            this._obsManager?.Actions.TriggerMediaInputAction(inputName, mediaAction);
+        }
+
+        public String[] GetMediaInputList()
+        {
+            return this._obsManager?.Actions.GetMediaInputList() ?? new String[0];
+        }
+
         public void UpdateSourcesForScene(String sceneName, Action<String, String[]> updateSourcesCallback, Action<String, String[]> updateAudioSourcesCallback)
         {
             if (String.IsNullOrEmpty(sceneName))

@@ -1132,5 +1132,65 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return null;
             }
         }
+
+        public String GetMediaInputStatus(String inputName)
+        {
+            if (!this._obs.IsConnected || String.IsNullOrEmpty(inputName))
+                return "OBS_MEDIA_STATE_NONE";
+
+            try
+            {
+                return this._obs.GetMediaInputStatus(inputName);
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get media status for '{inputName}': {ex.Message}");
+                return "OBS_MEDIA_STATE_NONE";
+            }
+        }
+
+        public void TriggerMediaInputAction(String inputName, String mediaAction)
+        {
+            Task.Run(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning($"Cannot trigger media action for '{inputName}' - not connected");
+                    return;
+                }
+
+                if (String.IsNullOrEmpty(inputName) || String.IsNullOrEmpty(mediaAction))
+                {
+                    this._log.Warning("Cannot trigger media action - input name or action is empty");
+                    return;
+                }
+
+                try
+                {
+                    this._log.Info($"Triggering media action '{mediaAction}' on '{inputName}'");
+                    this._obs.TriggerMediaInputAction(inputName, mediaAction);
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to trigger media action '{mediaAction}' on '{inputName}': {ex.Message}");
+                }
+            });
+        }
+
+        public String[] GetMediaInputList()
+        {
+            if (!this._obs.IsConnected)
+                return new String[0];
+
+            try
+            {
+                return this._obs.GetMediaInputList();
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get media input list: {ex.Message}");
+                return new String[0];
+            }
+        }
     }
 }
