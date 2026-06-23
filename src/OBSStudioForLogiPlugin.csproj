@@ -30,6 +30,9 @@
   <ItemGroup>
     <Reference Include="PluginApi">
       <HintPath>$(PluginApiDir)PluginApi.dll</HintPath>
+      <Private>false</Private>
+      <CopyLocal>false</CopyLocal>
+      <ExcludeFromPackaging>true</ExcludeFromPackaging>
     </Reference>
   </ItemGroup>
 

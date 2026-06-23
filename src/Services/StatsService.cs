@@ -55,6 +55,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
                 var streamStats = OBSStudioForLogiPlugin.Instance?.GetStreamStatus();
                 if (stats != null)
                 {
+                    PluginLog.Trace($"StatsService: Raw AverageFrameTime={stats.AverageFrameTime}, derived FPS={stats.Fps:F2}");
                     lock (this._lock)
                     {
                         this.CurrentStats = stats;
