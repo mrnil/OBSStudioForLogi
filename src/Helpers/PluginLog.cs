@@ -66,6 +66,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
     public class PluginLogAdapter : IPluginLog
     {
+        public void Debug(String message) => PluginLog.Debug(message);
         public void Info(String message) => PluginLog.Info(message);
         public void Warning(String message) => PluginLog.Warning(message);
         public void Error(String message) => PluginLog.Error(message);

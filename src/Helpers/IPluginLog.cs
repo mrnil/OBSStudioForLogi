@@ -4,6 +4,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
     public interface IPluginLog
     {
+        void Debug(String message);
         void Info(String message);
         void Warning(String message);
         void Error(String message);
