@@ -132,7 +132,7 @@ dotnet restore OBSStudioForLogiPlugin.sln
 - **Framework**: xUnit 2.9.3 with Moq 4.20.72
 - **Coverage Tool**: coverlet.collector 10.0.1
 - **Test Runner**: xunit.runner.visualstudio 3.1.5
-- **Test Count**: 241 tests
+- **Test Count**: 348 tests
 - **Test Categories**:
   - `OBSActionExecutorTests.cs`: Core action execution logic
   - `OBSActionExecutorReplayBufferTests.cs`: Replay buffer operations
@@ -140,6 +140,7 @@ dotnet restore OBSStudioForLogiPlugin.sln
   - `OBSActionExecutorSceneSwitchingTests.cs`: Studio mode scene switching
   - `OBSActionExecutorStudioModeTests.cs`: Studio mode toggle/state
   - `OBSActionExecutorStudioModeTransitionTests.cs`: Studio mode transitions
+  - `OBSActionExecutorStatsAndMediaTests.cs`: Stats, stream status, media methods
   - `OBSFacadeTests.cs`: Facade disconnected state and validation
   - `CommandRegistryTests.cs`: Interface-based command dispatch
   - `OBSConfigReaderTests.cs`: Configuration file parsing
@@ -149,9 +150,13 @@ dotnet restore OBSStudioForLogiPlugin.sln
   - `OBSWebSocketManagerStateTests.cs`: State property delegation
   - `OBSWebSocketManagerReconnectionTests.cs`: Reconnection logic
   - `OBSWebSocketManagerLoggingTests.cs`: Logging behavior
+  - `OBSWebSocketManagerEventDispatchTests.cs`: Event state propagation
+  - `ReconnectionStrategyTests.cs`: Backoff delays and retry logic
   - `SourceVisibilityTests.cs`: Source visibility operations
   - `VirtualCameraCommandTests.cs`: Virtual camera state
   - `ManualReconnectTests.cs`: Manual reconnection
+  - `OBSStatsModelTests.cs`: Stats and stream stats model tests
+  - `PluginConfigReaderTests.cs`: Config persistence tests
   - `Actions/` subdirectory: Integration tests for command construction
 
 ## Embedded Resources

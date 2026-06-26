@@ -75,12 +75,14 @@ Thank you for your interest in contributing! This document provides guidelines f
    - `PluginDynamicCommand` for simple actions
    - `PluginMultistateDynamicCommand` for multi-state buttons
    - `PluginDynamicFolder` for dynamic folders
-3. Implement required methods (RunCommand, GetCommandImage, etc.)
-4. Use ButtonImageHelper for all image rendering
-5. Add icon resources to `src/Icons/`
-6. Update `.csproj` with embedded resources
-7. Add tests in `tests/OBSStudioForLogiPlugin.Tests/`
-8. Update README and TODO
+   - `ActionEditorCommand` for user-configurable actions
+3. Implement `IObsCommand` interface for connection state awareness
+4. Register with `OBSStudioForLogiPlugin.Instance?.RegisterCommand(this)` in constructor
+5. Use ButtonImageHelper for all image rendering
+6. Add icon resources to `src/Resources/icons/`
+7. Update `.csproj` with embedded resources
+8. Add tests in `tests/OBSStudioForLogiPlugin.Tests/`
+9. Update README, TODO, and memory bank
 
 ### Adding OBS Integration
 
@@ -113,13 +115,18 @@ dotnet test --filter "FullyQualifiedName~OBSActionExecutorTests"
 - Use Moq for mocking dependencies
 - Follow Arrange-Act-Assert pattern
 - Name tests: `MethodName_Condition_ExpectedBehavior`
-- Add `Thread.Sleep(100)` when testing `Task.Run` fire-and-forget methods
+- Add `Thread.Sleep(OBSTimings.TestAsyncDelay)` when testing `Task.Run` fire-and-forget methods
+- Use `OBSTimings.TestAsyncDelayExtended` for error-path tests that may be slower under load
+- Current test count: 348
 
 ## Documentation
 
 ### Update These Files
 
 - `README.md`: User-facing features and usage
+- `USER_MANUAL.md`: End-user guide with detailed instructions
+- `INSTALL.md`: Installation and verification steps
+- `CONFIGURATION.md`: All plugin configuration options
 - `TODO.md`: Roadmap and completed items
 - `CHANGELOG.md`: Version history
 - `.amazonq/rules/memory-bank/*.md`: Architecture and patterns

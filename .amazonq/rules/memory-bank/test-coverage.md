@@ -32,6 +32,9 @@ The project follows a TDD approach with 241 unit tests using xUnit + Moq. Overal
 | `SourceVisibilityTests.cs` | Source visibility toggle and query | ~5 |
 | `VirtualCameraCommandTests.cs` | Virtual camera state and toggle | ~5 |
 | `ManualReconnectTests.cs` | Manual reconnect trigger | ~1 |
+| `OBSActionExecutorStatsAndMediaTests.cs` | Stats, stream status, media input methods | 17 |
+| `OBSStatsModelTests.cs` | OBSStats and OBSStreamStats derived properties | 12 |
+| `PluginConfigReaderTests.cs` | Save/read config, round-trip, invalid JSON | 6 |
 
 ### Actions Layer (Integration Tests for Critical Paths)
 

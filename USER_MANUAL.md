@@ -102,7 +102,7 @@ For recording-focused workflows:
 | Studio Mode Transition | Button | Send the preview scene to program (live). Only works when studio mode is on. |
 | Connection Status | Display | Shows "Connected" (green) or "Disconnected" (red). Read-only. |
 | OBS Stats Summary | Display | Shows FPS, CPU%, and dropped frames. Green = healthy, red = problems. |
-| OBS Stats Folder | Folder | Individual tiles per stat: FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped. Colour-coded thresholds. |
+| OBS Stats Folder | Folder | Individual tiles: FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped, Disk Space, Render Time. Colour-coded thresholds. |
 | Plugin Settings | Button | Configure OBS connection (local/remote), IP, port, password, and stats polling interval. Press to save. |
 
 ### Streaming (Group 2)

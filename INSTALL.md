@@ -79,16 +79,18 @@ metadata/               # Plugin metadata and icon
 ### 4. Verify Installation
 
 - Open Loupedeck software
-- Check for "OBS Studio Assistant" plugin in available plugins
+- Check for "Streaming Assistant" plugin in available plugins
 - Commands should appear in groups:
-  - **1. OBS**: Screenshot, Reconnect, Studio Mode, Connection Status
-  - **2. Streaming**: Start, Stop, Toggle streaming
+  - **1. OBS**: Screenshot, Reconnect, Studio Mode, Connection Status, OBS Stats, Plugin Settings
+  - **2. Streaming**: Start, Stop, Toggle streaming, Stream Stats
   - **3. Recording**: Start, Stop, Toggle, Pause/Resume recording
   - **4. Replay Buffer**: Toggle, Save replay buffer
   - **5. Virtual Camera**: Start, Stop, Toggle virtual camera
   - **6. Profiles**: Profile selection and folder
   - **7. Scenes**: Scene collections, scenes folder, sources folder
-  - **8. Audio**: Audio Mixer folder, Scene Audio folder
+  - **8. Audio**: Audio Mixer folder, Scene Audio folder, Audio Select, Audio Volume
+  - **9. Media**: Media Controls folder
+  - **99. User Defined Actions**: Scene switch, source visibility, audio mute/monitoring/select, media action
 
 ## Requirements
 
@@ -102,9 +104,19 @@ metadata/               # Plugin metadata and icon
 ### Connection Management
 
 - Automatic connection discovery from OBS configuration
+- Remote OBS support: connect to OBS on another machine via IP/port/password
 - Resilient reconnection with exponential backoff (1s to 30s)
 - Manual reconnect button
 - Real-time connection status display
+- Persistent plugin settings via Plugin Settings action
+
+### Performance Monitoring
+
+- OBS Stats Summary button (FPS, CPU%, dropped frames)
+- OBS Stats Folder with individual tiles (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped, Disk Space, Render Time)
+- Stream Stats Folder (Duration, Bytes Sent, Congestion, Skipped Frames, Total Frames)
+- Colour-coded thresholds (green/yellow/red)
+- Configurable polling interval (2s, 5s, 10s)
 
 ### Streaming & Recording
 
@@ -120,15 +132,27 @@ metadata/               # Plugin metadata and icon
 - Dynamic scenes folder with all available scenes
 - Studio mode support (preview/program workflow)
 - Source visibility toggle
-- Scene-specific audio controls
+- Auto-refresh when sources added/removed in OBS
 
 ### Audio Control
 
 - Audio Mixer folder with all audio inputs
 - Scene Audio folder with scene-specific audio
+- Audio Select folder for global source selection
+- Audio Volume folder for MX big wheel
+- Standalone volume adjustment for any wheel/dial
 - Mute/unmute toggle with visual feedback (green=unmuted, red=muted)
 - Real-time volume display (0-100%)
-- Automatic updates when volume or mute changes
+- Audio monitoring cycle (None/Monitor Only/Monitor & Output)
+- Auto-refresh when inputs added/removed or monitoring changed in OBS
+
+### Media Controls
+
+- Media Controls folder (ffmpeg, VLC, slideshow, text sources)
+- Single tap: Play/Pause toggle; Double tap: Stop
+- Colour-coded state (green=playing, yellow=paused, grey=stopped)
+- User-defined media action command (Play, Pause, Stop, Restart, Next, Previous)
+- Real-time updates when media starts/finishes
 
 ### Profile Management
 
@@ -136,39 +160,41 @@ metadata/               # Plugin metadata and icon
 - Dynamic profiles folder
 - Current profile display
 
-### Advanced Features
+### User Defined Actions
 
-- Studio mode toggle and transition
-- Screenshot capture with automatic path detection
-- Adjustable scene switching (profile → collection → scene)
+- Scene switching with profile/collection context
+- Source visibility toggle (comma-separated)
+- Audio mute/monitoring/selection toggles
+- Media actions on named sources
 
 ## Configuration
 
-No manual configuration required. The plugin automatically:
-
-- Discovers OBS WebSocket settings from OBS configuration files
-- Connects when OBS Studio launches
-- Reconnects automatically if connection is lost
+The plugin auto-discovers local OBS settings. For remote OBS or custom settings, use the **Plugin Settings** action or edit the config file manually.
 
 **OBS WebSocket Config Locations:**
 
 - **Windows**: `%AppData%\obs-studio\plugin_config\obs-websocket\config.json`
 - **macOS**: `~/Library/Application Support/obs-studio/plugin_config/obs-websocket/config.json`
 
-**Optional Plugin Configuration:**
+**Plugin Configuration:**
 
 - **Windows**: `%AppData%\Loupedeck\OBSStudioForLogiPlugin\config.json`
 - **macOS**: `~/Library/Application Support/Loupedeck/OBSStudioForLogiPlugin/config.json`
+
+See `CONFIGURATION.md` for full details and examples.
 
 Example config.json:
 
 ```json
 {
-  "logLevel": "Info"
+  "logLevel": "Info",
+  "useLocalObs": true,
+  "remoteIpAddress": "127.0.0.1",
+  "remotePort": 4455,
+  "remotePassword": "",
+  "statsPollingInterval": 5000
 }
 ```
-
-Available log levels: `Trace`, `Debug`, `Info`, `Warning`, `Error`
 
 ## Troubleshooting
 
@@ -189,6 +215,7 @@ Available log levels: `Trace`, `Debug`, `Info`, `Warning`, `Error`
 - Verify OBS WebSocket is enabled: Tools → WebSocket Server Settings
 - Check OBS WebSocket port (default 4455)
 - Ensure firewall isn't blocking localhost connections
+- For remote OBS: verify IP, port, and password in Plugin Settings
 - Review plugin logs for connection errors
 - Try manual reconnect button in plugin
 
