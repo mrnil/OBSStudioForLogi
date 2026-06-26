@@ -118,7 +118,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnConnected()
         {
             this._mediaInputs = OBSStudioForLogiPlugin.Instance?.GetMediaInputList() ?? new String[0];
-            PluginLog.Info($"MediaDynamicFolder: Loaded {this._mediaInputs.Length} media inputs");
+            PluginLog.Debug($"MediaDynamicFolder: Loaded {this._mediaInputs.Length} media inputs");
             this.ButtonActionNamesChanged();
         }
 

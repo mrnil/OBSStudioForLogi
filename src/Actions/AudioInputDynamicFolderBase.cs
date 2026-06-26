@@ -63,13 +63,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (String.IsNullOrEmpty(actionParameter))
                 return;
 
-            PluginLog.Info($"[AudioFolder] RunCommand called - parameter: '{actionParameter}'");
+            PluginLog.Debug($"[AudioFolder] RunCommand called - parameter: '{actionParameter}'");
 
             // Encoder press sends the command name from GetEncoderPressActionNames
             if (actionParameter == "cycle-monitor")
             {
                 String selected = AudioSelectionState.SelectedInput;
-                PluginLog.Info($"[AudioFolder] Encoder press: cycle-monitor, selected: '{selected ?? "(none)"}'");
+                PluginLog.Debug($"[AudioFolder] Encoder press: cycle-monitor, selected: '{selected ?? "(none)"}'");
                 if (!String.IsNullOrEmpty(selected))
                 {
                     OBSStudioForLogiPlugin.Instance?.CycleInputAudioMonitorType(selected);
@@ -152,10 +152,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override void ApplyAdjustment(String actionParameter, Int32 diff)
         {
-            PluginLog.Info($"[AudioFolder] ApplyAdjustment called - parameter: '{actionParameter}', diff: {diff}");
+            PluginLog.Debug($"[AudioFolder] ApplyAdjustment called - parameter: '{actionParameter}', diff: {diff}");
 
             String selected = AudioSelectionState.SelectedInput;
-            PluginLog.Info($"[AudioFolder] Currently selected input: '{selected ?? "(none)"}'");
+            PluginLog.Debug($"[AudioFolder] Currently selected input: '{selected ?? "(none)"}'");
 
             if (String.IsNullOrEmpty(selected))
             {
@@ -167,7 +167,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Single step = diff * 0.01f;
             Single target = Math.Clamp(current + step, 0.0f, 20.0f);
             OBSStudioForLogiPlugin.Instance?.SetInputVolume(selected, target);
-            PluginLog.Info($"[AudioFolder] Adjusting volume for '{selected}': {(Int32)(current * 100)}% -> {(Int32)(target * 100)}%");
+            PluginLog.Debug($"[AudioFolder] Adjusting volume for '{selected}': {(Int32)(current * 100)}% -> {(Int32)(target * 100)}%");
             this.AdjustmentValueChanged(actionParameter);
         }
 

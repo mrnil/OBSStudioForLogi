@@ -37,7 +37,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._profiles = profiles ?? new String[0];
             this._currentProfile = currentProfile ?? String.Empty;
-            PluginLog.Info($"ProfilesDynamicFolder updated with {this._profiles.Length} profiles, current: '{this._currentProfile}'");
+            PluginLog.Debug($"ProfilesDynamicFolder updated with {this._profiles.Length} profiles, current: '{this._currentProfile}'");
             this.ButtonActionNamesChanged();
         }
 

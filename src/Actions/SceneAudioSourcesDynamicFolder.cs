@@ -35,7 +35,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 AudioSelectionState.Deselect();
             }
             
-            PluginLog.Info($"SceneAudioSourcesDynamicFolder updated with {this.AudioInputs.Length} audio sources for scene '{this._currentScene}'");
+            PluginLog.Debug($"SceneAudioSourcesDynamicFolder updated with {this.AudioInputs.Length} audio sources for scene '{this._currentScene}'");
             this.ButtonActionNamesChanged();
         }
 

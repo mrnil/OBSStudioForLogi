@@ -18,7 +18,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public static void Select(String inputName)
         {
             var previous = _selectedInput;
-            PluginLog.Info($"AudioSelectionState: Selecting '{inputName}' for dial control");
+            PluginLog.Debug($"AudioSelectionState: Selecting '{inputName}' for dial control");
             _selectedInput = inputName;
             SelectionChanged?.Invoke(previous, inputName);
         }
@@ -26,7 +26,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public static void Deselect()
         {
             var previous = _selectedInput;
-            PluginLog.Info($"AudioSelectionState: Deselecting '{_selectedInput}' from dial control");
+            PluginLog.Debug($"AudioSelectionState: Deselecting '{_selectedInput}' from dial control");
             _selectedInput = null;
             SelectionChanged?.Invoke(previous, null);
         }

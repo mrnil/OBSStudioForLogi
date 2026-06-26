@@ -41,7 +41,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return;
             }
 
-            PluginLog.Info($"Updating profile display to '{profileName}'");
+            PluginLog.Debug($"Updating profile display to '{profileName}'");
             this._currentProfile = profileName;
             this.ActionImageChanged("");
         }

@@ -36,7 +36,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 AudioSelectionState.Deselect();
             }
             
-            PluginLog.Info($"=== AudioMixerDynamicFolder updated with {this.AudioInputs.Length} inputs ===");
+            PluginLog.Debug($"=== AudioMixerDynamicFolder updated with {this.AudioInputs.Length} inputs ===");
             
             foreach (var input in this.AudioInputs)
             {
@@ -45,7 +45,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 this._inputScenes[input] = scenes;
                 
                 String scenesText = scenes.Length > 0 ? String.Join(", ", scenes) : "(no scenes)";
-                PluginLog.Info($"  Input: '{input}' - Kind: '{kind}' - Scenes: {scenesText}");
+                PluginLog.Debug($"  Input: '{input}' - Kind: '{kind}' - Scenes: {scenesText}");
             }
             
             this.ButtonActionNamesChanged();

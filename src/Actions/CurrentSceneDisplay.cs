@@ -41,7 +41,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return;
             }
 
-            PluginLog.Info($"Updating scene display to '{sceneName}'");
+            PluginLog.Debug($"Updating scene display to '{sceneName}'");
             this._currentScene = sceneName;
             this.ActionImageChanged("");
         }

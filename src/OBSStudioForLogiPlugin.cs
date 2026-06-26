@@ -325,7 +325,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnMediaPlaybackStateChanged(String inputName)
         {
-            PluginLog.Info($"Media playback state changed for '{inputName}'");
+            PluginLog.Debug($"Media playback state changed for '{inputName}'");
             MediaDynamicFolder.Instance?.OnMediaStateChanged(inputName);
         }
 
@@ -468,7 +468,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnInputMonitorTypeChanged(String inputName)
         {
-            PluginLog.Info($"Plugin notified of monitor type change for '{inputName}'");
+            PluginLog.Debug($"Plugin notified of monitor type change for '{inputName}'");
             this._commandCoordinator.NotifyInputMonitorTypeChanged(inputName);
         }
 
@@ -477,11 +477,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var currentScene = this._obsFacade.CurrentScene;
             if (sceneName != currentScene)
             {
-                PluginLog.Info($"Plugin: scene items changed in '{sceneName}' but current scene is '{currentScene}', ignoring");
+                PluginLog.Debug($"Plugin: scene items changed in '{sceneName}' but current scene is '{currentScene}', ignoring");
                 return;
             }
 
-            PluginLog.Info($"Plugin notified of scene items change in '{sceneName}'");
+            PluginLog.Debug($"Plugin notified of scene items change in '{sceneName}'");
             this._obsFacade.UpdateSourcesForScene(sceneName,
                 (scene, sources) => SourcesDynamicFolder.Instance?.UpdateSources(scene, sources),
                 (scene, audioSources) => SceneAudioSourcesDynamicFolder.Instance?.UpdateAudioSources(scene, audioSources));
@@ -489,7 +489,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnInputListChanged()
         {
-            PluginLog.Info("Plugin notified of input list change");
+            PluginLog.Debug("Plugin notified of input list change");
             var inputs = this._obsFacade.GetInputList();
             this._commandCoordinator.NotifyInputsChanged(inputs);
         }

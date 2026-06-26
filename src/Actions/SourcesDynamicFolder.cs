@@ -34,7 +34,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._currentScene = sceneName ?? String.Empty;
             this._sources = sources ?? new String[0];
-            PluginLog.Info($"SourcesDynamicFolder updated with {this._sources.Length} sources for scene '{this._currentScene}'");
+            PluginLog.Debug($"SourcesDynamicFolder updated with {this._sources.Length} sources for scene '{this._currentScene}'");
             this.ButtonActionNamesChanged();
         }
 

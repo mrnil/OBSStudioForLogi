@@ -12,14 +12,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var sel = AudioSelectionState.SelectedInput;
             if (String.IsNullOrEmpty(sel))
             {
-                PluginLog.Info("Wheel tool: No audio source selected");
+                PluginLog.Debug("Wheel tool: No audio source selected");
                 return;
             }
 
             var cur = OBSStudioForLogiPlugin.Instance?.GetInputVolume(sel) ?? 1.0f;
             var target = Math.Clamp(cur + e.Clicks * 0.01f, 0f, 20f);
             OBSStudioForLogiPlugin.Instance?.SetInputVolume(sel, target);
-            PluginLog.Info($"Wheel tool adjusted volume for '{sel}': {(Int32)(target * 100)}%");
+            PluginLog.Debug($"Wheel tool adjusted volume for '{sel}': {(Int32)(target * 100)}%");
             this.DrawDelayed();
         }
 

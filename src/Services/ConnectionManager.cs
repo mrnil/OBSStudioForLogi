@@ -69,7 +69,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
             else
             {
-                PluginLog.Info($"Using local OBS connection (pluginConfig is {(this._pluginConfig == null ? "null" : "UseLocalObs=" + this._pluginConfig.UseLocalObs)})");
+                PluginLog.Debug($"Using local OBS connection (pluginConfig is {(this._pluginConfig == null ? "null" : "UseLocalObs=" + this._pluginConfig.UseLocalObs)})");
                 settings = this._configReader.ReadConfig();
                 if (settings == null)
                 {

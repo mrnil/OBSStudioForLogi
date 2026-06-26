@@ -21,24 +21,24 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.GroupName = "99. User Defined Actions";
             this.Description = "Switch to a specific scene with optional profile and collection switching";
 
-            PluginLog.Info("SceneSwitchAdjustableCommand: Constructor called");
+            PluginLog.Debug("SceneSwitchAdjustableCommand: Constructor called");
 
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(ProfileNameControlName, "Profile Name (optional)"));
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(CollectionNameControlName, "Collection Name (optional)"));
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(SceneNameControlName, "Scene Name (required)"));
 
-            PluginLog.Info("SceneSwitchAdjustableCommand: ActionEditor controls added");
+            PluginLog.Debug("SceneSwitchAdjustableCommand: ActionEditor controls added");
         }
 
         protected override Boolean OnLoad()
         {
-            PluginLog.Info("SceneSwitchAdjustableCommand: OnLoad called");
+            PluginLog.Debug("SceneSwitchAdjustableCommand: OnLoad called");
             return true;
         }
 
         protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
         {
-            PluginLog.Info("SceneSwitchAdjustableCommand: RunCommand called");
+            PluginLog.Debug("SceneSwitchAdjustableCommand: RunCommand called");
 
             if (!actionParameters.TryGetString(SceneNameControlName, out var sceneName) || String.IsNullOrEmpty(sceneName))
             {
@@ -49,7 +49,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             actionParameters.TryGetString(ProfileNameControlName, out var profileName);
             actionParameters.TryGetString(CollectionNameControlName, out var collectionName);
 
-            PluginLog.Info($"SceneSwitchAdjustableCommand: Requested - Profile='{profileName}', Collection='{collectionName}', Scene='{sceneName}'");
+            PluginLog.Debug($"SceneSwitchAdjustableCommand: Requested - Profile='{profileName}', Collection='{collectionName}', Scene='{sceneName}'");
 
             Task.Run(async () =>
             {
@@ -59,7 +59,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     var currentCollection = OBSStudioForLogiPlugin.Instance?.CurrentSceneCollection ?? String.Empty;
                     var currentScene = OBSStudioForLogiPlugin.Instance?.GetCurrentScene() ?? String.Empty;
 
-                    PluginLog.Info($"SceneSwitchAdjustableCommand: Current state - Profile='{currentProfile}', Collection='{currentCollection}', Scene='{currentScene}'");
+                    PluginLog.Debug($"SceneSwitchAdjustableCommand: Current state - Profile='{currentProfile}', Collection='{currentCollection}', Scene='{currentScene}'");
 
                     // Handle profile switching
                     if (!String.IsNullOrEmpty(profileName))
@@ -69,14 +69,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                             var availableProfiles = OBSStudioForLogiPlugin.Instance?.GetProfileList() ?? new String[0];
                             if (availableProfiles.Contains(profileName))
                             {
-                                PluginLog.Info($"SceneSwitchAdjustableCommand: Profile '{profileName}' found, switching from '{currentProfile}'");
+                                PluginLog.Debug($"SceneSwitchAdjustableCommand: Profile '{profileName}' found, switching from '{currentProfile}'");
                                 OBSStudioForLogiPlugin.Instance?.SwitchProfile(profileName);
                                 await Task.Delay(OBSTimings.ProfileSwitchDelay);
                                 
                                 // Update current state after switch
                                 currentProfile = OBSStudioForLogiPlugin.Instance?.CurrentProfile ?? String.Empty;
                                 currentCollection = OBSStudioForLogiPlugin.Instance?.CurrentSceneCollection ?? String.Empty;
-                                PluginLog.Info($"SceneSwitchAdjustableCommand: After profile switch - Profile='{currentProfile}', Collection='{currentCollection}'");
+                                PluginLog.Debug($"SceneSwitchAdjustableCommand: After profile switch - Profile='{currentProfile}', Collection='{currentCollection}'");
                             }
                             else
                             {
@@ -86,12 +86,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                         }
                         else
                         {
-                            PluginLog.Info($"SceneSwitchAdjustableCommand: Profile '{profileName}' is already active");
+                            PluginLog.Debug($"SceneSwitchAdjustableCommand: Profile '{profileName}' is already active");
                         }
                     }
                     else
                     {
-                        PluginLog.Info("SceneSwitchAdjustableCommand: No profile specified, using current profile");
+                        PluginLog.Debug("SceneSwitchAdjustableCommand: No profile specified, using current profile");
                     }
 
                     // Handle collection switching
@@ -102,14 +102,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                             var availableCollections = OBSStudioForLogiPlugin.Instance?.GetSceneCollectionList() ?? new String[0];
                             if (availableCollections.Contains(collectionName))
                             {
-                                PluginLog.Info($"SceneSwitchAdjustableCommand: Collection '{collectionName}' found, switching from '{currentCollection}'");
+                                PluginLog.Debug($"SceneSwitchAdjustableCommand: Collection '{collectionName}' found, switching from '{currentCollection}'");
                                 OBSStudioForLogiPlugin.Instance?.SwitchSceneCollection(collectionName);
                                 await Task.Delay(OBSTimings.CollectionSwitchDelay);
                                 
                                 // Update current state after switch
                                 currentCollection = OBSStudioForLogiPlugin.Instance?.CurrentSceneCollection ?? String.Empty;
                                 currentScene = OBSStudioForLogiPlugin.Instance?.GetCurrentScene() ?? String.Empty;
-                                PluginLog.Info($"SceneSwitchAdjustableCommand: After collection switch - Collection='{currentCollection}', Scene='{currentScene}'");
+                                PluginLog.Debug($"SceneSwitchAdjustableCommand: After collection switch - Collection='{currentCollection}', Scene='{currentScene}'");
                             }
                             else
                             {
@@ -119,12 +119,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                         }
                         else
                         {
-                            PluginLog.Info($"SceneSwitchAdjustableCommand: Collection '{collectionName}' is already active");
+                            PluginLog.Debug($"SceneSwitchAdjustableCommand: Collection '{collectionName}' is already active");
                         }
                     }
                     else
                     {
-                        PluginLog.Info("SceneSwitchAdjustableCommand: No collection specified, using current collection");
+                        PluginLog.Debug("SceneSwitchAdjustableCommand: No collection specified, using current collection");
                     }
 
                     // Handle scene switching
@@ -133,17 +133,17 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     {
                         if (sceneName != currentScene)
                         {
-                            PluginLog.Info($"SceneSwitchAdjustableCommand: Scene '{sceneName}' found, switching from '{currentScene}'");
+                            PluginLog.Debug($"SceneSwitchAdjustableCommand: Scene '{sceneName}' found, switching from '{currentScene}'");
                             OBSStudioForLogiPlugin.Instance?.SwitchScene(sceneName);
                             
                             // Update current state after switch
                             await Task.Delay(OBSTimings.SceneSwitchDelay);
                             currentScene = OBSStudioForLogiPlugin.Instance?.GetCurrentScene() ?? String.Empty;
-                            PluginLog.Info($"SceneSwitchAdjustableCommand: After scene switch - Scene='{currentScene}'");
+                            PluginLog.Debug($"SceneSwitchAdjustableCommand: After scene switch - Scene='{currentScene}'");
                         }
                         else
                         {
-                            PluginLog.Info($"SceneSwitchAdjustableCommand: Scene '{sceneName}' is already active");
+                            PluginLog.Debug($"SceneSwitchAdjustableCommand: Scene '{sceneName}' is already active");
                         }
                     }
                     else
@@ -152,7 +152,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                         return;
                     }
 
-                    PluginLog.Info($"SceneSwitchAdjustableCommand: Switch completed successfully - Final state: Profile='{currentProfile}', Collection='{currentCollection}', Scene='{currentScene}'");
+                    PluginLog.Debug($"SceneSwitchAdjustableCommand: Switch completed successfully - Final state: Profile='{currentProfile}', Collection='{currentCollection}', Scene='{currentScene}'");
                 }
                 catch (Exception ex)
                 {
@@ -165,12 +165,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnConnected()
         {
-            PluginLog.Info("SceneSwitchAdjustableCommand: OnConnected called");
+            PluginLog.Debug("SceneSwitchAdjustableCommand: OnConnected called");
         }
 
         public void OnDisconnected()
         {
-            PluginLog.Info("SceneSwitchAdjustableCommand: OnDisconnected called");
+            PluginLog.Debug("SceneSwitchAdjustableCommand: OnDisconnected called");
         }
 
         public void OnProfileChanged(String oldProfile, String newProfile)

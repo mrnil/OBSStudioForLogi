@@ -36,7 +36,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             this.ActionEditor.ListboxItemsRequested += this.OnListboxItemsRequested;
 
-            PluginLog.Info("PluginSettingsCommand: Initialized");
+            PluginLog.Debug("PluginSettingsCommand: Initialized");
         }
 
         private void OnListboxItemsRequested(Object sender, ActionEditorListboxItemsRequestedEventArgs e)
