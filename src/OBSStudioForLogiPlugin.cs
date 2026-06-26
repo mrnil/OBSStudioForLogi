@@ -431,7 +431,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void SetInputVolume(String inputName, Single volumeMul)
         {
-            PluginLog.Info($"Plugin: Setting input volume for '{inputName}' to {(Int32)(volumeMul * 100)}%");
             this._obsFacade.SetInputVolume(inputName, volumeMul);
         }
 
@@ -442,7 +441,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void CycleInputAudioMonitorType(String inputName)
         {
-            PluginLog.Info($"Plugin: Cycling audio monitoring for '{inputName}'");
             this._obsFacade.CycleInputAudioMonitorType(inputName);
         }
 
