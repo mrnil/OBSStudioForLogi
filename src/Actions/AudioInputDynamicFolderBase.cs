@@ -41,13 +41,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
-            PluginLog.Info($"[AudioFolder] GetCommandDisplayName called - parameter: '{actionParameter}', imageSize: {imageSize}");
+            PluginLog.Trace($"[AudioFolder] GetCommandDisplayName called - parameter: '{actionParameter}', imageSize: {imageSize}");
             return String.Empty;
         }
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            PluginLog.Info($"[AudioFolder] GetCommandImage action parameter: '{actionParameter}'");
+            PluginLog.Trace($"[AudioFolder] GetCommandImage action parameter: '{actionParameter}'");
 
             if (actionParameter == "cycle-monitor")
             {
@@ -140,13 +140,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override IEnumerable<String> GetEncoderRotateActionNames(DeviceType deviceType)
         {
-            PluginLog.Info($"[AudioFolder] GetEncoderRotateActionNames called for device type: {deviceType}");
+            PluginLog.Trace($"[AudioFolder] GetEncoderRotateActionNames called for device type: {deviceType}");
             return new[] { this.CreateAdjustmentName("volume-adjust") };
         }
 
         public override IEnumerable<String> GetEncoderPressActionNames(DeviceType deviceType)
         {
-            PluginLog.Info($"[AudioFolder] GetEncoderPressActionNames called for device type: {deviceType}");
+            PluginLog.Trace($"[AudioFolder] GetEncoderPressActionNames called for device type: {deviceType}");
             return new[] { this.CreateCommandName("cycle-monitor") };
         }
 
