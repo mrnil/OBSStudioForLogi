@@ -1,9 +1,5 @@
 # TODO
 
-## In Progress
-
-- [ ] Validate remote OBS connection config is being picked up correctly (diagnostic logging added)
-
 ## High Priority
 
 No items.
@@ -46,20 +42,33 @@ No items.
 ## Architecture (Deferred)
 
 - [ ] Multi-instance OBS support (see `.amazonq/rules/memory-bank/multi-instance-obs-design.md`)
+- [ ] Dependency injection for StatsService (inject Func<OBSStats> instead of static singleton)
 
-## Recently Completed
+## Recently Completed (v1.4.0)
 
-- [x] Media source controls — dynamic folder + ActionEditorCommand (Play/Pause/Stop/Restart/Next/Previous)
-- [x] Subscribe to `MediaInputPlaybackStarted` / `MediaInputPlaybackEnded` — real-time media state updates
+- [x] FPS fix — use direct `stats.FPS` property instead of deriving from AverageFrameTime
+- [x] Disk Space tile in OBS Stats Folder
+- [x] Render Time tile in OBS Stats Folder
+- [x] Logging refactoring — Trace/Debug/Info levels properly separated
+- [x] IPluginLog.Debug added to interface
+- [x] Duplicate cross-layer logging removed
+- [x] ConnectionManager event relay (removed _obsManager from main plugin)
+- [x] PluginSettingsCommand renamed from ConnectionConfigureCommand
+- [x] Flaky test fix (extended delay for error-path tests)
+
+## Previously Completed (v1.3.x)
+
+- [x] Media source controls — dynamic folder + ActionEditorCommand
+- [x] Subscribe to `MediaInputPlaybackStarted` / `MediaInputPlaybackEnded`
 - [x] Streaming stats folder (duration, bytes sent, congestion, skipped frames)
-- [x] +/- button volume alternatives (provided by MX Creative Console Dialpad)
 - [x] OBS Stats display — summary button + dynamic folder with colour-coded thresholds
-- [x] Stats polling service with configurable interval (2s/5s/10s via Plugin Settings)
-- [x] Plugin Settings command (renamed from ConnectionConfigureCommand)
-- [x] Subscribe to `InputAudioMonitorTypeChanged` — audio folders refresh when monitor type changes
-- [x] Subscribe to `SceneItemCreated` / `SceneItemRemoved` — Sources folder auto-refreshes
-- [x] Subscribe to `InputCreated` / `InputRemoved` — Audio Mixer auto-refreshes
-- [x] Remote OBS connection support (configurable IP/port/password via ActionEditorCommand)
+- [x] Stats polling service with configurable interval (2s/5s/10s)
+- [x] Plugin Settings command
+- [x] Subscribe to `InputAudioMonitorTypeChanged`
+- [x] Subscribe to `SceneItemCreated` / `SceneItemRemoved`
+- [x] Subscribe to `InputCreated` / `InputRemoved`
+- [x] Remote OBS connection support (configurable IP/port/password)
 - [x] Reconnection race condition fix (`_connectingInProgress` flag)
 - [x] `OBSConnectionSettings` accepts any valid IP address
 - [x] Plugin config persistence (`PluginConfigReader.SaveConfig`)
+- [x] +/- button volume alternatives (MX Creative Console Dialpad)
