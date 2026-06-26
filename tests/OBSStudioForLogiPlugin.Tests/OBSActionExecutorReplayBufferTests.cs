@@ -116,7 +116,7 @@ public class OBSActionExecutorReplayBufferTests
         this._executor.SetReplayBufferState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
 
         this._executor.StartReplayBuffer();
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
+        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelayExtended);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("start replay buffer") && s.Contains("OBS error"))), Times.Once);
     }
