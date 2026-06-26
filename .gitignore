@@ -17,5 +17,8 @@ obj/
 *.lplug4
 *.zip
 
+# Test artifacts
+test_output.txt
+
 # OS
 .DS_Store
