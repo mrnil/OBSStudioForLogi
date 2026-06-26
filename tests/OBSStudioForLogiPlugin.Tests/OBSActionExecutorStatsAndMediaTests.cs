@@ -23,11 +23,12 @@ public class OBSActionExecutorStatsAndMediaTests
     public void GetStats_WhenConnected_ReturnsStats()
     {
         this._mockObs.Setup(x => x.IsConnected).Returns(true);
-        this._mockObs.Setup(x => x.GetStats()).Returns(new OBSStats { CpuUsage = 5.0, MemoryUsage = 512 });
+        this._mockObs.Setup(x => x.GetStats()).Returns(new OBSStats { Fps = 60.0, CpuUsage = 5.0, MemoryUsage = 512 });
 
         var result = this._executor.GetStats();
 
         Assert.NotNull(result);
+        Assert.Equal(60.0, result.Fps);
         Assert.Equal(5.0, result.CpuUsage);
         Assert.Equal(512, result.MemoryUsage);
     }

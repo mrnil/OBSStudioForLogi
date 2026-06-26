@@ -5,17 +5,17 @@ using Loupedeck.OBSStudioForLogiPlugin.Models;
 public class OBSStatsModelTests
 {
     [Fact]
-    public void Fps_WhenAverageFrameTimeIsPositive_ReturnsDerivedFps()
+    public void Fps_ReturnsSetValue()
     {
-        var stats = new OBSStats { AverageFrameTime = 16.67 };
+        var stats = new OBSStats { Fps = 60.0 };
 
-        Assert.InRange(stats.Fps, 59.9, 60.1);
+        Assert.Equal(60.0, stats.Fps);
     }
 
     [Fact]
-    public void Fps_WhenAverageFrameTimeIsZero_ReturnsZero()
+    public void Fps_DefaultsToZero()
     {
-        var stats = new OBSStats { AverageFrameTime = 0 };
+        var stats = new OBSStats();
 
         Assert.Equal(0, stats.Fps);
     }

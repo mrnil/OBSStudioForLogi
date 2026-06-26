@@ -322,9 +322,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             return new Models.OBSStats
             {
+                Fps = stats.FPS,
                 CpuUsage = stats.CpuUsage,
                 MemoryUsage = stats.MemoryUsage,
                 AverageFrameTime = stats.AverageFrameTime,
+                FreeDiskSpace = stats.FreeDiskSpace,
                 RenderTotalFrames = stats.RenderTotalFrames,
                 RenderMissedFrames = stats.RenderMissedFrames,
                 OutputTotalFrames = stats.OutputTotalFrames,
