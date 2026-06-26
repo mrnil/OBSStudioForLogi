@@ -10,7 +10,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         private static readonly String[] StatKeys = new[]
         {
-            "fps", "cpu", "memory", "render_missed", "output_skipped", "total_dropped"
+            "fps", "cpu", "memory", "render_missed", "output_skipped", "total_dropped", "disk_space", "frame_time"
         };
 
         public StatsDynamicFolder()
@@ -82,6 +82,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     color = total > 0 ? new BitmapColor(255, 80, 80) : new BitmapColor(80, 255, 80);
                     text = $"Total\nDropped\n{total}";
                     break;
+                case "disk_space":
+                    var diskGb = stats.FreeDiskSpace / 1024.0;
+                    color = diskGb < 1 ? new BitmapColor(255, 80, 80) : diskGb < 10 ? new BitmapColor(255, 200, 0) : new BitmapColor(180, 180, 255);
+                    text = $"Disk\n{diskGb:F1} GB";
+                    break;
+                case "frame_time":
+                    var ft = stats.AverageFrameTime;
+                    color = ft > 10 ? new BitmapColor(255, 80, 80) : ft > 5 ? new BitmapColor(255, 200, 0) : new BitmapColor(80, 255, 80);
+                    text = $"Render\nTime\n{ft:F2}ms";
+                    break;
                 default:
                     text = actionParameter;
                     color = BitmapColor.White;
@@ -114,6 +124,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 case "render_missed": return "Render\nMissed";
                 case "output_skipped": return "Encode\nSkipped";
                 case "total_dropped": return "Total\nDropped";
+                case "disk_space": return "Disk";
+                case "frame_time": return "Render\nTime";
                 default: return key;
             }
         }
