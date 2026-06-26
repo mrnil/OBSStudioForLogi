@@ -12,14 +12,30 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly OBSLifecycleManager _lifecycleManager;
         private PluginConfig _pluginConfig;
 
+        public event EventHandler Connected;
+        public event EventHandler Disconnected;
+
         public ConnectionManager(OBSWebSocketManager obsManager, OBSConfigReader configReader, OBSLifecycleManager lifecycleManager)
         {
             this._obsManager = obsManager;
             this._configReader = configReader;
             this._lifecycleManager = lifecycleManager;
+
+            this._obsManager.ConnectionEstablished += this.OnConnectionEstablished;
+            this._obsManager.ConnectionLost += this.OnConnectionLost;
         }
 
         public Boolean IsConnected => this._obsManager?.IsConnected ?? false;
+
+        private void OnConnectionEstablished(Object sender, EventArgs e)
+        {
+            this.Connected?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnConnectionLost(Object sender, EventArgs e)
+        {
+            this.Disconnected?.Invoke(this, EventArgs.Empty);
+        }
 
         public void SetPluginConfig(PluginConfig config)
         {
@@ -84,6 +100,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void Dispose()
         {
+            this._obsManager.ConnectionEstablished -= this.OnConnectionEstablished;
+            this._obsManager.ConnectionLost -= this.OnConnectionLost;
             this._obsManager?.Dispose();
         }
     }

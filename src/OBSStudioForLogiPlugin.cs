@@ -13,7 +13,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly OBSFacade _obsFacade;
         private readonly OBSConfigReader _obsConfigReader;
         private readonly StatsService _statsService;
-        private OBSWebSocketManager _obsManager;
         public static String ScreenshotPath { get; private set; }
         
         public override Boolean UsesApplicationApiOnly => true;
@@ -27,12 +26,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var pluginConfig = LoadPluginConfiguration();
             DiscoverScreenshotPath();
             
-            this._obsManager = new OBSWebSocketManager();
+            var obsManager = new OBSWebSocketManager();
             this._obsConfigReader = new OBSConfigReader();
-            this._connectionManager = new ConnectionManager(this._obsManager, this._obsConfigReader, new OBSLifecycleManager());
+            this._connectionManager = new ConnectionManager(obsManager, this._obsConfigReader, new OBSLifecycleManager());
             this._connectionManager.SetPluginConfig(pluginConfig);
             this._commandCoordinator = new CommandCoordinator();
-            this._obsFacade = new OBSFacade(this._obsManager);
+            this._obsFacade = new OBSFacade(obsManager);
             this._statsService = new StatsService(pluginConfig?.StatsPollingInterval ?? 5000);
             this._statsService.StatsUpdated += this.OnStatsUpdated;
         }
@@ -96,8 +95,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.Info.Icon256x256 = EmbeddedResources.ReadImage("Loupedeck.OBSStudioForLogiPlugin.metadata.Icon256x256.png");
 
             // Subscribe to connection events for status reporting
-            this._obsManager.ConnectionEstablished += this.OnOBSConnected;
-            this._obsManager.ConnectionLost += this.OnOBSDisconnected;
+            this._connectionManager.Connected += this.OnOBSConnected;
+            this._connectionManager.Disconnected += this.OnOBSDisconnected;
 
             this.ClientApplication.ApplicationStarted += this.OnApplicationStarted;
             this.ClientApplication.ApplicationStopped += this.OnApplicationStopped;
@@ -123,8 +122,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             PluginLog.Info("Plugin unloading...");
             
             // Unsubscribe from connection events
-            this._obsManager.ConnectionEstablished -= this.OnOBSConnected;
-            this._obsManager.ConnectionLost -= this.OnOBSDisconnected;
+            this._connectionManager.Connected -= this.OnOBSConnected;
+            this._connectionManager.Disconnected -= this.OnOBSDisconnected;
             
             this.ClientApplication.ApplicationStarted -= this.OnApplicationStarted;
             this.ClientApplication.ApplicationStopped -= this.OnApplicationStopped;
