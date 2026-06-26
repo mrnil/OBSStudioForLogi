@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-06-26
+
+### Added
+
+- Disk Space tile in OBS Stats Folder (colour-coded: red <1GB, yellow <10GB)
+- Render Time tile in OBS Stats Folder (colour-coded: red >10ms, yellow >5ms)
+- FreeDiskSpace property to OBSStats model
+- Debug method to IPluginLog interface for services layer logging
+
+### Fixed
+
+- FPS display showing incorrect value (3200 instead of 60) — now uses direct `stats.FPS` property from OBS instead of deriving from AverageFrameTime
+- Flaky test timing for StartReplayBuffer error-path test (extended delay)
+
+### Changed
+
+- Logging levels refined across entire codebase:
+  - Render/UI calls (GetCommandImage, GetEncoderNames) downgraded to Trace
+  - Operational detail (folder updates, selection state, intermediate steps) downgraded to Debug
+  - Duplicate cross-layer logging removed (volume/monitoring logged once in executor)
+- ConnectionManager now owns and relays Connected/Disconnected events (main plugin no longer holds direct OBSWebSocketManager reference)
+- PluginSettingsCommand renamed from ConnectionConfigureCommand (file + class)
+
+### Documentation
+
+- Updated INSTALL.md, CONTRIBUTING.md, CONFIGURATION.md, config.sample.json
+- Updated USER_MANUAL.md, README.md with all current features
+- Updated memory bank (test-coverage.md, tech.md, structure.md, product.md, obs-websocket-api-complete.md)
+
 ## [1.3.1] - 2026-06-23
 
 ### Fixed
