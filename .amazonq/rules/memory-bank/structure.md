@@ -35,7 +35,8 @@ OBSStudioForLogiPlugin/
 │   ├── Services/                 # Core business logic and OBS integration
 │   ├── Helpers/                  # Utility classes (logging, resources)
 │   ├── Models/                   # Data models and configuration structures
-│   ├── Icons/                    # Embedded SVG/PNG resources for UI
+│   ├── Resources/                # Embedded resources (icons, images)
+│   │   └── icons/                # SVG/PNG icon files for UI
 │   ├── package/metadata/         # Plugin metadata and packaging
 │   └── *.cs                      # Root plugin and application classes
 ├── tests/                        # Unit and integration tests

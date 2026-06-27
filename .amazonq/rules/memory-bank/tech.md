@@ -171,7 +171,7 @@ dotnet restore OBSStudioForLogiPlugin.sln
 
 ```csharp
 // Example from csproj
-<EmbeddedResource Include="Icons\RecordingOn.svg">
+<EmbeddedResource Include="Resources\icons\RecordingOn.svg">
   <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOn.svg</LogicalName>
 </EmbeddedResource>
 ```
