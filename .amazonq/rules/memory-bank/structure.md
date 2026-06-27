@@ -165,6 +165,7 @@ Core business logic and OBS integration:
 - **ButtonImageHelper.cs**: Static helper for all button image rendering (icons, text, state-based)
 - **ButtonTextRenderer.cs**: Text rendering with dynamic font sizing and layout
 - **AudioSelectionState.cs**: Static state tracker for which audio input is selected for dial control
+- **VolumeConverter.cs**: Static helper for volume multiplier to dB conversion and formatting
 - **PressTimingHelper.cs**: DoubleTapHelper for distinguishing single/double tap on buttons
 
 ### Models Layer (`src/Models/`)

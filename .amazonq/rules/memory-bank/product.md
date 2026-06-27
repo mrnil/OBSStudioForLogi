@@ -50,7 +50,8 @@ OBSStudioForLogiPlugin is a Loupedeck/Logi Plugin Service integration that enabl
 ### Audio Control
 
 - Mute/unmute audio inputs with visual feedback (red=muted, green=unmuted)
-- Volume percentage display (0-100%) on all audio buttons
+- Volume display in dB format (e.g., "+6.0 dB", "0.0 dB", "-∞ dB") on all audio buttons
+- Full OBS volume range support (0% to ~2000% / +26 dB)
 - Volume adjustment via encoder/wheel tool for selected input
 - Audio source selection state for dial control
 - Double-tap to select/deselect audio inputs for encoder control
@@ -73,6 +74,7 @@ OBSStudioForLogiPlugin is a Loupedeck/Logi Plugin Service integration that enabl
 
 - Start/stop replay buffer with dedicated toggle
 - Save replay buffer to disk
+- Visual save confirmation (green icon flash for 2 seconds)
 - Visual indicators for replay buffer state
 
 ### Media Controls

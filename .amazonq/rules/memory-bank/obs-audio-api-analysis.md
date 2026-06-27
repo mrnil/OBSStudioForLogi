@@ -304,7 +304,8 @@ void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enable
 
 - Audio input discovery and filtering
 - Mute/unmute controls with visual feedback (red/green text)
-- Volume display (0-100%) on all audio buttons
+- Volume display in dB format (e.g., "+6.0 dB", "0.0 dB", "-∞ dB") on all audio buttons
+- Full OBS volume range support (0.0-20.0 multiplier, ~+26 dB max)
 - Real-time updates via events (mute and volume changes)
 - Audio Mixer folder (all audio inputs)
 - Scene Audio folder (audio inputs in current scene)
@@ -327,6 +328,7 @@ void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enable
   - `AudioVolumeDynamicFolder` ✅ MX big wheel via adjustment tiles
   - `SelectedSourceVolumeAdjustment` ✅ standalone adjustment for any wheel/dial
   - `AudioSelectionState` ✅ tracks selected input for dial
+  - `VolumeConverter` ✅ dB display format with full OBS range (0-20x)
   - Needs: +/- button alternatives for devices without encoders/wheels
 
 ### ❌ Not Yet Implemented

@@ -4,7 +4,7 @@
 
 The project follows a TDD approach with 241 unit tests using xUnit + Moq. Overall line coverage is ~39.5% (Cobertura), branch coverage ~22.6%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage.
 
-## Test Count: 348
+## Test Count: 359
 
 ## Test Files
 
@@ -14,7 +14,7 @@ The project follows a TDD approach with 241 unit tests using xUnit + Moq. Overal
 |-----------|--------|-------|
 | `OBSActionExecutorTests.cs` | Core executor: profiles, scenes, recording, streaming, mute, screenshots, error handling | ~50 |
 | `OBSActionExecutorReplayBufferTests.cs` | Replay buffer: toggle, start, stop, save, state tracking | 17 |
-| `OBSActionExecutorAudioTests.cs` | Audio: volume get/set, monitor type cycling, input kind, scenes for input | 28 |
+| `OBSActionExecutorAudioTests.cs` | Audio: volume get/set, monitor type cycling, input kind, scenes for input | 27 |
 | `OBSActionExecutorSceneSwitchingTests.cs` | Scene switching with studio mode behavior | ~6 |
 | `OBSActionExecutorStudioModeTests.cs` | Studio mode toggle, state management | ~8 |
 | `OBSActionExecutorStudioModeTransitionTests.cs` | Studio mode transition command | ~6 |
@@ -28,7 +28,8 @@ The project follows a TDD approach with 241 unit tests using xUnit + Moq. Overal
 | `OBSConnectionSettingsTests.cs` | Connection settings model, localhost validation | ~5 |
 | `OBSLifecycleManagerTests.cs` | Port checking, wait logic | ~3 |
 | `OBSFacadeTests.cs` | Facade disconnected state, safe defaults, connection validation | 36 |
-| `CommandRegistryTests.cs` | Registration, interface-based dispatch, deduplication | 19 |
+| `CommandRegistryTests.cs` | Registration, interface-based dispatch, deduplication | 20 |
+| `VolumeConverterTests.cs` | Volume mul→dB conversion and formatting | 10 |
 | `SourceVisibilityTests.cs` | Source visibility toggle and query | ~5 |
 | `VirtualCameraCommandTests.cs` | Virtual camera state and toggle | ~5 |
 | `ManualReconnectTests.cs` | Manual reconnect trigger | ~1 |

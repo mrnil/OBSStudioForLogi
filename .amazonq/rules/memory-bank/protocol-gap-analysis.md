@@ -16,12 +16,12 @@ The `SetInputMute` call appeared twice in `OBSActionExecutor.CycleInputAudioMoni
 
 | Priority | Feature | Effort | Impact | Notes |
 |----------|---------|--------|--------|-------|
-| 1 | Volume range >100% support | Low | Medium | Protocol allows volumeMul 0.0-20.0; current clamps to 0.0-1.0 (0-100%) |
+| ~~1~~ | ~~Volume range >100% support~~ | ~~Low~~ | ~~Medium~~ | ✅ Done — displays dB, allows 0.0-20.0 |
 | 2 | Transition selection + T-bar encoder | Medium | High | `GetSceneTransitionList`, `SetCurrentSceneTransition`, `SetTBarPosition` — uniquely suited to hardware dials |
 | 3 | Source filter toggle folder | Medium | High | `GetSourceFilterList`, `SetSourceFilterEnabled` — high demand from streamers |
 | 4 | Hotkey trigger (ActionEditorCommand) | Low | Medium | `TriggerHotkeyByName` — power user feature |
 | 5 | Media duration/cursor display | Low | Medium | `GetMediaInputStatus` returns `mediaDuration` and `mediaCursor` — not extracted |
-| 6 | Subscribe to `ReplayBufferSaved` event | Trivial | Low | Better UX feedback on save |
+| ~~6~~ | ~~Subscribe to `ReplayBufferSaved` event~~ | ~~Trivial~~ | ~~Low~~ | ✅ Done — green icon flash for 2s on save |
 | 7 | Subscribe to `ProfileListChanged` + `SceneCollectionListChanged` | Low | Medium | Avoid stale lists when profiles/collections created/removed |
 | 8 | Recording status/duration display | Low | Medium | `GetRecordStatus` returns timecode and bytes |
 | 9 | Broader audio input detection | Medium | Medium | Current filter list misses `browser_source`, `game_capture`, `monitor_capture` |
@@ -32,7 +32,7 @@ The `SetInputMute` call appeared twice in `OBSActionExecutor.CycleInputAudioMoni
 | Event | Value | Use Case |
 |-------|-------|----------|
 | `CurrentPreviewSceneChanged` | High (studio mode users) | Show preview scene, update preview folder |
-| `ReplayBufferSaved` | Medium | Show notification/path of saved replay |
+| ~~`ReplayBufferSaved`~~ | ~~Medium~~ | ✅ Done — shows green save confirmation icon |
 | `SceneCollectionListChanged` | Medium | Keep collection list current without reconnect |
 | `ProfileListChanged` | Medium | Keep profile list current without reconnect |
 | `SceneTransitionStarted` / `SceneTransitionEnded` | Medium | Visual feedback during transitions |

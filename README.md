@@ -27,6 +27,7 @@ An AI Coding Assistant has been used to support the development of this project 
 - **Source Visibility**: Toggle visibility of sources in current scene
 - **Audio Mixer**: Mute/unmute audio inputs with visual feedback (red=muted, green=unmuted)
 - **Audio Volume Control**: Adjust volume via MX big wheel (folder tiles) or standalone dial adjustment
+- **Audio Display**: Volume shown in dB format with full OBS range support (up to +26 dB)
 - **Audio Source Selection**: Global audio source selection for wheel/dial volume control
 - **User Defined Actions**: Configurable actions for source visibility, audio mute, monitoring, and audio selection
 - **Profile Management**: Switch between OBS profiles with selection indicators and dynamic folder
@@ -90,7 +91,7 @@ An AI Coding Assistant has been used to support the development of this project 
 ### Replay Buffer (Group 4)
 
 - **Replay Buffer Toggle**: Start/stop replay buffer
-- **Save Replay Buffer**: Save the current replay buffer to disk
+- **Save Replay Buffer**: Save the current replay buffer to disk (green confirmation flash on success)
 
 ### Virtual Camera (Group 5)
 
@@ -204,7 +205,7 @@ dotnet clean OBSStudioForLogiPlugin.sln
 
 ## Architecture
 
-- **TDD Approach**: Comprehensive test coverage with 348 unit tests
+- **TDD Approach**: Comprehensive test coverage with 359 unit tests
 - **Dependency Injection**: Interface-based design for testability
 - **Async Operations**: All OBS operations wrapped in Task.Run to prevent UI freezing
 - **Event-Driven**: Real-time updates via OBS WebSocket events
