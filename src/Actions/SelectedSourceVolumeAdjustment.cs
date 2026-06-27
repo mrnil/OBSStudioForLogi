@@ -42,7 +42,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return "—";
 
             Single vol = OBSStudioForLogiPlugin.Instance?.GetInputVolume(sel) ?? 1.0f;
-            return $"{(Int32)(vol * 100)}%\n{sel}";
+            return $"{VolumeConverter.FormatDb(vol)}\n{sel}";
         }
 
         public void OnConnected()

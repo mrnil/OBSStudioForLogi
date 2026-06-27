@@ -19,7 +19,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var cur = OBSStudioForLogiPlugin.Instance?.GetInputVolume(sel) ?? 1.0f;
             var target = Math.Clamp(cur + e.Clicks * 0.01f, 0f, 20f);
             OBSStudioForLogiPlugin.Instance?.SetInputVolume(sel, target);
-            PluginLog.Debug($"Wheel tool adjusted volume for '{sel}': {(Int32)(target * 100)}%");
+            PluginLog.Debug($"Wheel tool adjusted volume for '{sel}': {VolumeConverter.FormatDb(target)}");
             this.DrawDelayed();
         }
 
@@ -30,7 +30,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 bb.Clear(BitmapColor.Black);
                 var sel = AudioSelectionState.SelectedInput;
                 var vol = OBSStudioForLogiPlugin.Instance?.GetInputVolume(sel) ?? 1.0f;
-                bb.DrawText(String.IsNullOrEmpty(sel) ? "No source" : $"{sel}\n{(Int32)(vol * 100)}%", BitmapColor.White);
+                bb.DrawText(String.IsNullOrEmpty(sel) ? "No source" : $"{sel}\n{VolumeConverter.FormatDb(vol)}", BitmapColor.White);
                 return bb.ToImage();
             }
         }

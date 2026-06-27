@@ -22,11 +22,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Boolean isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(inputName) ?? false;
             Boolean isSelected = AudioSelectionState.IsSelected(inputName);
             Single volumeLevel = OBSStudioForLogiPlugin.Instance?.GetInputVolume(inputName) ?? 1.0f;
-            Int32 volumePercent = (Int32)(volumeLevel * 100);
+            String volumeDb = VolumeConverter.FormatDb(volumeLevel);
             String monitorType = OBSStudioForLogiPlugin.Instance?.GetInputAudioMonitorType(inputName) ?? "OBS_MONITORING_TYPE_NONE";
             String mode = GetMonitoringDisplayText(monitorType);
 
-            String text = $"{inputName}\n\n{volumePercent}%\n\n{mode}";
+            String text = $"{inputName}\n\n{volumeDb}\n\n{mode}";
 
             return ButtonTextRenderer.RenderTextWithBorder(text, imageSize,
                 !isMuted ? BitmapColor.Green : BitmapColor.Red, isSelected);
@@ -37,11 +37,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Boolean isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(inputName) ?? false;
             Boolean isSelected = AudioSelectionState.IsSelected(inputName);
             Single volumeLevel = OBSStudioForLogiPlugin.Instance?.GetInputVolume(inputName) ?? 1.0f;
-            Int32 volumePercent = (Int32)(volumeLevel * 100);
+            String volumeDb = VolumeConverter.FormatDb(volumeLevel);
             String monitorType = OBSStudioForLogiPlugin.Instance?.GetInputAudioMonitorType(inputName) ?? "OBS_MONITORING_TYPE_NONE";
             String mode = GetMonitoringDisplayText(monitorType);
 
-            String text = $"{inputName}\n\n{volumePercent}%\n\n{mode}";
+            String text = $"{inputName}\n\n{volumeDb}\n\n{mode}";
 
             return ButtonTextRenderer.RenderTextWithBorder(text, imageWidth, imageHeight,
                 !isMuted ? BitmapColor.Green : BitmapColor.Red, isSelected);

@@ -183,10 +183,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 }
 
                 var volume = OBSStudioForLogiPlugin.Instance?.GetInputVolume(selected) ?? 1.0f;
-                var volumePercent = (Int32)(volume * 100);
-                String boostIndicator = volume > 1.0f ? "+" : "";
-
-                return $"{boostIndicator}{volumePercent}%\n{selected}";
+                return $"{VolumeConverter.FormatDb(volume)}\n{selected}";
             }
 
             // For button adjustments, return empty - image handles display
@@ -202,9 +199,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             Boolean isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(actionParameter) ?? false;
             Single volumeLevel = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
-
-            Int32 volumePercent = (Int32)(volumeLevel * 100);
-            String text = $"{actionParameter}\n\n{volumePercent}%";
+            String text = $"{actionParameter}\n\n{VolumeConverter.FormatDb(volumeLevel)}";
 
             Boolean isSelected = AudioSelectionState.IsSelected(actionParameter);
 

@@ -37,18 +37,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public override String GetAdjustmentDisplayName(String actionParameter, PluginImageSize imageSize)
         {
             Single vol = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
-            Int32 volumePercent = (Int32)(vol * 100);
-            String boostIndicator = vol > 1.0f ? "+" : "";
-            return $"{actionParameter}\n{boostIndicator}{volumePercent}%";
+            return $"{actionParameter}\n{VolumeConverter.FormatDb(vol)}";
         }
 
         public override BitmapImage GetAdjustmentImage(String actionParameter, PluginImageSize imageSize)
         {
             Boolean isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(actionParameter) ?? false;
             Single volumeLevel = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
-            Int32 volumePercent = (Int32)(volumeLevel * 100);
-            String boostIndicator = volumeLevel > 1.0f ? "+" : "";
-            String text = $"{actionParameter}\n\n{boostIndicator}{volumePercent}%";
+            String text = $"{actionParameter}\n\n{VolumeConverter.FormatDb(volumeLevel)}";
 
             return ButtonTextRenderer.RenderText(text, imageSize, BitmapColor.Black, !isMuted ? BitmapColor.Green : BitmapColor.Red);
         }
