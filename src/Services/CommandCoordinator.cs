@@ -81,6 +81,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._registry.NotifyReplayBufferStateChanged();
         }
 
+        public void NotifyReplayBufferSaved(String savedReplayPath)
+        {
+            this._registry.NotifyReplayBufferSaved(savedReplayPath);
+        }
+
         public void NotifyStudioModeStateChanged()
         {
             this._registry.NotifyStudioModeStateChanged();

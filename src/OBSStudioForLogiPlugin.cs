@@ -399,6 +399,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._commandCoordinator.NotifyReplayBufferStateChanged();
         }
 
+        public void OnReplayBufferSaved(String savedReplayPath)
+        {
+            this._commandCoordinator.NotifyReplayBufferSaved(savedReplayPath);
+        }
+
         public String[] GetInputList()
         {
             return this._obsFacade.GetInputList();

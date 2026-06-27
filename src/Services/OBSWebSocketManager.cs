@@ -68,6 +68,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.InputRemoved += this.OnInputRemoved;
             this._obs.MediaInputPlaybackStarted += this.OnMediaInputPlaybackStarted;
             this._obs.MediaInputPlaybackEnded += this.OnMediaInputPlaybackEnded;
+            this._obs.ReplayBufferSaved += this.OnReplayBufferSaved;
             
             this._log.Info("OBSWebSocketManager initialized");
         }
@@ -475,6 +476,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.OnMediaPlaybackStateChanged(e.InputName);
         }
 
+        private void OnReplayBufferSaved(Object sender, ReplayBufferSavedEventArgs e)
+        {
+            var path = e?.SavedReplayPath ?? String.Empty;
+            this._log.Info($"Replay buffer saved: '{path}'");
+            OBSStudioForLogiPlugin.Instance?.OnReplayBufferSaved(path);
+        }
+
         private void OnReconnectTimer(Object sender, ElapsedEventArgs e)
         {
             if (this._disposed || !this._shouldReconnect)
@@ -547,6 +555,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._obs.InputRemoved -= this.OnInputRemoved;
                     this._obs.MediaInputPlaybackStarted -= this.OnMediaInputPlaybackStarted;
                     this._obs.MediaInputPlaybackEnded -= this.OnMediaInputPlaybackEnded;
+                    this._obs.ReplayBufferSaved -= this.OnReplayBufferSaved;
                     
                     this._obs.Disconnect();
                     

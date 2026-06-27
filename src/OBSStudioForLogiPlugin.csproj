@@ -142,6 +142,9 @@
     <EmbeddedResource Include="Resources\icons\ReplayBufferSave.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ReplayBufferSave.svg</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\icons\ReplayBufferSaved.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.ReplayBufferSaved.svg</LogicalName>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\icons\StudioModeOn.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.StudioModeOn.svg</LogicalName>
     </EmbeddedResource>

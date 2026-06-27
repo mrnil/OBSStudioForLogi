@@ -303,6 +303,21 @@ public class CommandRegistryTests
         Assert.Null(exception);
     }
 
+    // --- NotifyReplayBufferSaved ---
+
+    [Fact]
+    public void NotifyReplayBufferSaved_CallsOnlyIReplayBufferSavedAwareCommands()
+    {
+        var savedAware = new Mock<IReplayBufferSavedAwareCommand>();
+        var nonAware = new Mock<IObsCommand>();
+        this._registry.Register(savedAware.Object);
+        this._registry.Register(nonAware.Object);
+
+        this._registry.NotifyReplayBufferSaved("/path/to/replay.mkv");
+
+        savedAware.Verify(x => x.OnReplayBufferSaved("/path/to/replay.mkv"), Times.Once);
+    }
+
     // --- Multiple interface support ---
 
     [Fact]

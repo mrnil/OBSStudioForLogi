@@ -63,6 +63,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         void OnReplayBufferStateChanged();
     }
 
+    public interface IReplayBufferSavedAwareCommand : IObsCommand
+    {
+        void OnReplayBufferSaved(String savedReplayPath);
+    }
+
     public interface IStudioModeAwareCommand : IObsCommand
     {
         void OnStudioModeStateChanged();

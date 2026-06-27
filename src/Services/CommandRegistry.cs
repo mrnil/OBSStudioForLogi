@@ -120,6 +120,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
+        public void NotifyReplayBufferSaved(String savedReplayPath)
+        {
+            foreach (var command in this._commands.OfType<IReplayBufferSavedAwareCommand>())
+            {
+                command.OnReplayBufferSaved(savedReplayPath);
+            }
+        }
+
         public void NotifyStudioModeStateChanged()
         {
             foreach (var command in this._commands.OfType<IStudioModeAwareCommand>())
