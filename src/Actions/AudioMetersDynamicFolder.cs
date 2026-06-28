@@ -55,6 +55,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
 
             var (peakL, peakR) = meterService.GetLevels(actionParameter);
+            PluginLog.Trace($"[Meters] {actionParameter}: L={peakL:F3} R={peakR:F3}");
             return VuMeterRenderer.Render(peakL, peakR, actionParameter, imageSize);
         }
 

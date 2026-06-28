@@ -519,14 +519,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     continue;
                 }
 
+                // Each channel: [magnitude, peak, inputPeak]
                 var ch0 = channelLevels[0] as JArray;
-                Single peakL = ch0?[0]?.Value<Single>() ?? 0f;
+                Single peakL = ch0 != null && ch0.Count > 1 ? ch0[1].Value<Single>() : 0f;
 
                 Single peakR = peakL;
                 if (channelLevels.Count > 1)
                 {
                     var ch1 = channelLevels[1] as JArray;
-                    peakR = ch1?[0]?.Value<Single>() ?? 0f;
+                    peakR = ch1 != null && ch1.Count > 1 ? ch1[1].Value<Single>() : 0f;
                 }
 
                 levels[name] = (peakL, peakR);
