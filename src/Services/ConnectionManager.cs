@@ -98,6 +98,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsManager?.Disconnect();
         }
 
+        public void SubscribeToVolumeMeters(Boolean subscribe)
+        {
+            this._obsManager?.SubscribeToVolumeMeters(subscribe);
+        }
+
         public void Dispose()
         {
             this._obsManager.ConnectionEstablished -= this.OnConnectionEstablished;
