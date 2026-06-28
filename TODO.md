@@ -8,7 +8,7 @@ No items.
 
 ### Audio
 
-- [ ] Audio level meters (real-time VU meters)
+- [ ] Audio level meters (real-time VU meters) — **deferred** until obs-websocket-dotnet supports InputVolumeMeters high-volume event subscription
 - [ ] Audio filter enable/disable toggle
 - [ ] Stereo balance controls
 - [ ] Audio quick presets ("Mute All", "Reset All Volumes")

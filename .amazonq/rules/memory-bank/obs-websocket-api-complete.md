@@ -320,6 +320,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 | Event | Status | Potential Use |
 |-------|--------|---------------|
 | CurrentPreviewSceneChanged | ❌ | Studio mode preview tracking |
+| InputVolumeMeters | ❌ | Real-time VU meters (**deferred** — high-volume event, requires library Reidentify support; see vu-meters-learnings.md) |
 | SceneItemTransformChanged | ❌ | Source position/scale tracking |
 | InputNameChanged | ❌ | Input list sync |
 | InputAudioBalanceChanged | ❌ | Audio balance display |
@@ -387,7 +388,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 ### Medium Priority (Professional Features)
 
 1. **Media Source Controls** - Play/pause/stop pre-recorded content
-2. **Audio Level Meters** - Real-time VU meters
+2. **Audio Level Meters** - Real-time VU meters (**deferred** - requires obs-websocket-dotnet to support InputVolumeMeters high-volume event; see vu-meters-learnings.md)
 3. **Audio Sync Offset** - Fix audio/video sync
 4. **Audio Track Assignment** - Multi-track recording
 5. **Transition Selection** - Choose transition and duration

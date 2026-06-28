@@ -333,8 +333,8 @@ void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enable
 
 ### ❌ Not Yet Implemented
 
+- Audio level meters (VU meters) — **deferred** until obs-websocket-dotnet supports high-volume event subscription (see vu-meters-learnings.md)
 - Audio monitoring controls
-- Audio level meters (VU meters)
 - Audio sync offset controls
 - Audio track assignment
 - Stereo balance controls
@@ -343,7 +343,7 @@ void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enable
 
 ### Next Steps
 
-1. **Medium Priority**: Add audio level meters
+1. **Medium Priority**: Add audio level meters (deferred — requires obs-websocket-dotnet library modifications, see vu-meters-learnings.md)
 2. **Medium Priority**: Implement filter enable/disable controls
 3. **Low Priority**: Add +/- button volume alternatives for devices without wheels
 
