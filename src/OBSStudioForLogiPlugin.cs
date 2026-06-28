@@ -1,7 +1,6 @@
 namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Loupedeck.OBSStudioForLogiPlugin.Models;
     using Loupedeck.OBSStudioForLogiPlugin.Services;
@@ -14,7 +13,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly OBSFacade _obsFacade;
         private readonly OBSConfigReader _obsConfigReader;
         private readonly StatsService _statsService;
-        private readonly AudioMeterService _meterService;
         public static String ScreenshotPath { get; private set; }
         
         public override Boolean UsesApplicationApiOnly => true;
@@ -36,8 +34,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsFacade = new OBSFacade(obsManager);
             this._statsService = new StatsService(pluginConfig?.StatsPollingInterval ?? 5000);
             this._statsService.StatsUpdated += this.OnStatsUpdated;
-            this._meterService = new AudioMeterService();
-            this._meterService.MetersUpdated += this.OnMetersUpdated;
         }
 
         private static PluginConfig LoadPluginConfiguration()
@@ -134,7 +130,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             
             this._connectionManager?.Dispose();
             this._statsService?.Dispose();
-            this._meterService?.Dispose();
             PluginLog.Info("Plugin unloaded");
         }
 
@@ -349,33 +344,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             StatsDisplay.Instance?.UpdateDisplay();
             StatsDynamicFolder.Instance?.UpdateDisplay();
             StreamStatsDynamicFolder.Instance?.UpdateDisplay();
-        }
-
-        public AudioMeterService GetMeterService() => this._meterService;
-
-        public void StartMetering()
-        {
-            if (!this._meterService.IsActive)
-            {
-                this._meterService.Start();
-                this._connectionManager.SubscribeToVolumeMeters(true);
-            }
-        }
-
-        public void StopMetering()
-        {
-            this._meterService.Stop();
-            this._connectionManager.SubscribeToVolumeMeters(false);
-        }
-
-        public void OnVolumeMetersReceived(Dictionary<String, (Single peakL, Single peakR)> levels)
-        {
-            this._meterService.UpdateLevels(levels);
-        }
-
-        private void OnMetersUpdated(Object sender, EventArgs e)
-        {
-            AudioMetersDynamicFolder.Instance?.RefreshMeters();
         }
 
         public Boolean IsRecording => this._obsFacade.IsRecording;

@@ -1,11 +1,9 @@
 namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using System.Timers;
-    using Newtonsoft.Json.Linq;
     using OBSWebsocketDotNet;
     using OBSWebsocketDotNet.Communication;
     using OBSWebsocketDotNet.Types;
@@ -483,69 +481,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var path = e?.SavedReplayPath ?? String.Empty;
             this._log.Info($"Replay buffer saved: '{path}'");
             OBSStudioForLogiPlugin.Instance?.OnReplayBufferSaved(path);
-        }
-
-        public void SubscribeToVolumeMeters(Boolean subscribe)
-        {
-            if (subscribe)
-            {
-                this._obs.InputVolumeMeters += this.OnInputVolumeMeters;
-                this._log.Info("Subscribed to InputVolumeMeters");
-            }
-            else
-            {
-                this._obs.InputVolumeMeters -= this.OnInputVolumeMeters;
-                this._log.Info("Unsubscribed from InputVolumeMeters");
-            }
-        }
-
-        private void OnInputVolumeMeters(Object sender, InputVolumeMetersEventArgs e)
-        {
-            if (e?.inputs == null)
-                return;
-
-            var levels = new Dictionary<String, (Single peakL, Single peakR)>();
-            var logFirst = true;
-
-            foreach (var input in e.inputs)
-            {
-                var name = input["inputName"]?.ToString();
-                if (String.IsNullOrEmpty(name))
-                    continue;
-
-                var channelLevels = input["inputLevelsMul"] as JArray;
-                if (channelLevels == null || channelLevels.Count == 0)
-                {
-                    if (logFirst)
-                    {
-                        this._log.Info($"[Meters] '{name}' has no inputLevelsMul data. Raw keys: {String.Join(", ", input.Properties().Select(p => p.Name))}");
-                        logFirst = false;
-                    }
-                    levels[name] = (0f, 0f);
-                    continue;
-                }
-
-                // Each channel: [magnitude, peak, inputPeak]
-                var ch0 = channelLevels[0] as JArray;
-                Single peakL = ch0 != null && ch0.Count > 1 ? ch0[1].Value<Single>() : 0f;
-
-                Single peakR = peakL;
-                if (channelLevels.Count > 1)
-                {
-                    var ch1 = channelLevels[1] as JArray;
-                    peakR = ch1 != null && ch1.Count > 1 ? ch1[1].Value<Single>() : 0f;
-                }
-
-                if (logFirst)
-                {
-                    this._log.Info($"[Meters] '{name}' ch0={ch0} channels={channelLevels.Count} peakL={peakL:F4} peakR={peakR:F4}");
-                    logFirst = false;
-                }
-
-                levels[name] = (peakL, peakR);
-            }
-
-            OBSStudioForLogiPlugin.Instance?.OnVolumeMetersReceived(levels);
         }
 
         private void OnReconnectTimer(Object sender, ElapsedEventArgs e)
