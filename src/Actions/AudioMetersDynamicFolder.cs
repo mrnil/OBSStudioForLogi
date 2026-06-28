@@ -5,7 +5,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Linq;
     using Loupedeck.OBSStudioForLogiPlugin.Services;
 
-    public class AudioMetersDynamicFolder : PluginDynamicFolder, IObsCommand, IInputsListAwareCommand
+    public class AudioMetersDynamicFolder : PluginDynamicFolder, IObsCommand, IInputsListAwareCommand, ISceneAwareCommand
     {
         public static AudioMetersDynamicFolder Instance { get; private set; }
 
@@ -80,6 +80,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnInputsChanged(String[] inputs)
         {
             this._audioInputs = inputs ?? new String[0];
+            this.ButtonActionNamesChanged();
+        }
+
+        public void OnSceneChanged(String sceneName)
+        {
+            // Refresh input list in case scene change brings new audio sources
+            this._audioInputs = OBSStudioForLogiPlugin.Instance?.GetInputList() ?? new String[0];
             this.ButtonActionNamesChanged();
         }
 

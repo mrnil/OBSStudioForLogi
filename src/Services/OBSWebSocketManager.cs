@@ -505,6 +505,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return;
 
             var levels = new Dictionary<String, (Single peakL, Single peakR)>();
+            var logFirst = true;
 
             foreach (var input in e.inputs)
             {
@@ -515,6 +516,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 var channelLevels = input["inputLevelsMul"] as JArray;
                 if (channelLevels == null || channelLevels.Count == 0)
                 {
+                    if (logFirst)
+                    {
+                        this._log.Info($"[Meters] '{name}' has no inputLevelsMul data. Raw keys: {String.Join(", ", input.Properties().Select(p => p.Name))}");
+                        logFirst = false;
+                    }
                     levels[name] = (0f, 0f);
                     continue;
                 }
@@ -528,6 +534,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 {
                     var ch1 = channelLevels[1] as JArray;
                     peakR = ch1 != null && ch1.Count > 1 ? ch1[1].Value<Single>() : 0f;
+                }
+
+                if (logFirst)
+                {
+                    this._log.Info($"[Meters] '{name}' ch0={ch0} channels={channelLevels.Count} peakL={peakL:F4} peakR={peakR:F4}");
+                    logFirst = false;
                 }
 
                 levels[name] = (peakL, peakR);

@@ -55,23 +55,28 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 Int32 heightL = GetBarHeight(peakL, meterHeight);
                 Int32 heightR = GetBarHeight(peakR, meterHeight);
 
+                PluginLog.Debug($"[VuMeter] '{inputName}' peakL={peakL:F4} peakR={peakR:F4} heightL={heightL} heightR={heightR} meterH={meterHeight} barW={barWidth} imgW={width} imgH={height}");
+
                 if (heightL > 0)
                 {
                     BitmapColor colorL = GetBarColor(peakL);
-                    builder.FillRectangle(barLeftX, meterTop + meterHeight - heightL, barWidth, heightL, colorL);
+                    Int32 yL = meterTop + meterHeight - heightL;
+                    PluginLog.Debug($"[VuMeter] L: FillRect({barLeftX}, {yL}, {barWidth}, {heightL}, RGB({colorL.R},{colorL.G},{colorL.B}))");
+                    builder.FillRectangle(barLeftX, yL, barWidth, heightL, colorL);
                 }
 
                 if (heightR > 0)
                 {
                     BitmapColor colorR = GetBarColor(peakR);
-                    builder.FillRectangle(barRightX, meterTop + meterHeight - heightR, barWidth, heightR, colorR);
+                    Int32 yR = meterTop + meterHeight - heightR;
+                    PluginLog.Debug($"[VuMeter] R: FillRect({barRightX}, {yR}, {barWidth}, {heightR}, RGB({colorR.R},{colorR.G},{colorR.B}))");
+                    builder.FillRectangle(barRightX, yR, barWidth, heightR, colorR);
                 }
 
                 // Draw input name at bottom
                 if (!String.IsNullOrEmpty(inputName))
                 {
-                    // Truncate long names
-                    String displayName = inputName.Length > 10 ? inputName.Substring(0, 9) + "…" : inputName;
+                    String displayName = inputName.Length > 10 ? inputName.Substring(0, 9) + "\u2026" : inputName;
                     builder.DrawText(displayName, 0, height - textHeight, width, textHeight, BitmapColor.White, 10);
                 }
 
