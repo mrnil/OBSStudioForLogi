@@ -21,9 +21,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return Path.Combine(appData, "obs-studio", "plugin_config", "obs-websocket", "config.json");
         }
 
+        public Boolean IsServerDisabled { get; private set; }
+
         public OBSConnectionSettings ReadConfig()
         {
             PluginLog.Info("Reading OBS config from AppData");
+            this.IsServerDisabled = false;
             
             if (!this.ConfigExists)
             {
@@ -41,6 +44,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 if (!serverEnabled)
                 {
                     PluginLog.Warning("OBS WebSocket server is disabled in config");
+                    this.IsServerDisabled = true;
                     return null;
                 }
 

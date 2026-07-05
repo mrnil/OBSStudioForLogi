@@ -14,6 +14,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public event EventHandler Connected;
         public event EventHandler Disconnected;
+        public event EventHandler WebSocketServerDisabled;
 
         public ConnectionManager(OBSWebSocketManager obsManager, OBSConfigReader configReader, OBSLifecycleManager lifecycleManager)
         {
@@ -26,6 +27,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         }
 
         public Boolean IsConnected => this._obsManager?.IsConnected ?? false;
+
+        public Boolean IsWebSocketServerDisabled => this._configReader?.IsServerDisabled ?? false;
+
+        private void OnWebSocketServerDisabled()
+        {
+            this.WebSocketServerDisabled?.Invoke(this, EventArgs.Empty);
+        }
 
         private void OnConnectionEstablished(Object sender, EventArgs e)
         {
@@ -73,7 +81,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 settings = this._configReader.ReadConfig();
                 if (settings == null)
                 {
-                    PluginLog.Warning("No valid OBS configuration found");
+                    if (this._configReader.IsServerDisabled)
+                    {
+                        PluginLog.Warning("OBS WebSocket server is disabled in config");
+                        this.OnWebSocketServerDisabled();
+                    }
+                    else
+                    {
+                        PluginLog.Warning("No valid OBS configuration found");
+                    }
                     return;
                 }
 

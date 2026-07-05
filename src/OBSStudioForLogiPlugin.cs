@@ -97,6 +97,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             // Subscribe to connection events for status reporting
             this._connectionManager.Connected += this.OnOBSConnected;
             this._connectionManager.Disconnected += this.OnOBSDisconnected;
+            this._connectionManager.WebSocketServerDisabled += this.OnWebSocketServerDisabled;
 
             this.ClientApplication.ApplicationStarted += this.OnApplicationStarted;
             this.ClientApplication.ApplicationStopped += this.OnApplicationStopped;
@@ -124,6 +125,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             // Unsubscribe from connection events
             this._connectionManager.Connected -= this.OnOBSConnected;
             this._connectionManager.Disconnected -= this.OnOBSDisconnected;
+            this._connectionManager.WebSocketServerDisabled -= this.OnWebSocketServerDisabled;
             
             this.ClientApplication.ApplicationStarted -= this.OnApplicationStarted;
             this.ClientApplication.ApplicationStopped -= this.OnApplicationStopped;
@@ -154,13 +156,22 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             PluginLog.Info("OBS WebSocket connected");
             this.OnPluginStatusChanged(Loupedeck.PluginStatus.Normal, null);
             this._statsService.Start();
+            ConnectionStatusDisplay.Instance?.UpdateStatus();
         }
 
         private void OnOBSDisconnected(Object sender, EventArgs e)
         {
             PluginLog.Info("OBS WebSocket disconnected");
-            this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning,"OBS is offline. Please launch OBS");
+            this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "OBS is offline. Please launch OBS");
             this._statsService.Stop();
+            ConnectionStatusDisplay.Instance?.UpdateStatus();
+        }
+
+        private void OnWebSocketServerDisabled(Object sender, EventArgs e)
+        {
+            PluginLog.Warning("OBS WebSocket server is disabled");
+            this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "OBS WebSocket server is disabled. Enable it in OBS Tools menu.");
+            ConnectionStatusDisplay.Instance?.UpdateStatus();
         }
 
         public void RegisterCommand(IObsCommand command)
@@ -353,6 +364,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Boolean IsReplayBufferActive => this._obsFacade.IsReplayBufferActive;
         public Boolean IsStudioModeEnabled => this._obsFacade.IsStudioModeEnabled;
         public Boolean IsConnected => this._obsFacade.IsConnected;
+        public Boolean IsWebSocketServerDisabled => this._connectionManager?.IsWebSocketServerDisabled ?? false;
 
         public void ToggleVirtualCamera()
         {

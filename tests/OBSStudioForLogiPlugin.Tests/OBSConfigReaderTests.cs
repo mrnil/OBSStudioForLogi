@@ -65,6 +65,56 @@ public class OBSConfigReaderTests
     }
 
     [Fact]
+    public void ReadConfig_WhenServerDisabled_SetsIsServerDisabled()
+    {
+        var tempFile = Path.GetTempFileName();
+        File.WriteAllText(tempFile, @"{
+            ""server_enabled"": false,
+            ""auth_required"": true,
+            ""server_port"": 4455,
+            ""server_password"": ""test123""
+        }");
+
+        var reader = new OBSConfigReader();
+        reader.ConfigPath = tempFile;
+        reader.ReadConfig();
+
+        Assert.True(reader.IsServerDisabled);
+
+        File.Delete(tempFile);
+    }
+
+    [Fact]
+    public void ReadConfig_WhenServerEnabled_IsServerDisabledIsFalse()
+    {
+        var tempFile = Path.GetTempFileName();
+        File.WriteAllText(tempFile, @"{
+            ""server_enabled"": true,
+            ""auth_required"": true,
+            ""server_port"": 4455,
+            ""server_password"": ""test123""
+        }");
+
+        var reader = new OBSConfigReader();
+        reader.ConfigPath = tempFile;
+        reader.ReadConfig();
+
+        Assert.False(reader.IsServerDisabled);
+
+        File.Delete(tempFile);
+    }
+
+    [Fact]
+    public void ReadConfig_WhenFileNotExists_IsServerDisabledIsFalse()
+    {
+        var reader = new OBSConfigReader();
+        reader.ConfigPath = "nonexistent.json";
+        reader.ReadConfig();
+
+        Assert.False(reader.IsServerDisabled);
+    }
+
+    [Fact]
     public void ReadConfig_WhenFileNotExists_ReturnsNull()
     {
         var reader = new OBSConfigReader();
