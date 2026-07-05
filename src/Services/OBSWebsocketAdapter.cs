@@ -12,6 +12,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             "wasapi_input_capture",
             "wasapi_output_capture",
+            "wasapi_process_output_capture",
             "coreaudio_input_capture",
             "coreaudio_output_capture",
             "pulse_input_capture",
