@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-07-05
+
+### Added
+
+- WebSocket Disabled state on connection status button (orange background) when OBS config has `server_enabled=false`
+- Three distinct connection states: Connected (green), Disconnected (red), WebSocket Disabled (orange)
+- Plugin status message for disabled state: "OBS WebSocket server is disabled. Enable it in OBS Tools menu."
+- `IsServerDisabled` property on OBSConfigReader
+- `WebSocketServerDisabled` event on ConnectionManager
+- 3 new unit tests for IsServerDisabled property (362 total)
+
+### Changed
+
+- Connection status display now refreshes on connect, disconnect, and server-disabled events
+
+### Documentation
+
+- Updated release-process.md with correct LogiPluginTool location (dotnet global tool)
+
 ## [1.4.1] - 2026-06-27
 
 ### Fixed

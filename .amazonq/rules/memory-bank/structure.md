@@ -65,7 +65,7 @@ Command classes that handle user interactions from Loupedeck hardware:
 
 **Display Commands** (read-only status indicators):
 
-- `ConnectionStatusDisplay.cs`: Shows connection status (Connected/Disconnected)
+- `ConnectionStatusDisplay.cs`: Shows connection status (Connected/Disconnected/WebSocket Disabled)
 - `CurrentProfileDisplay.cs`: Shows active OBS profile name
 - `CurrentSceneCollectionDisplay.cs`: Shows active scene collection name
 - `CurrentSceneDisplay.cs`: Shows current active scene
@@ -117,10 +117,11 @@ Core business logic and OBS integration:
 
 **Connection Management:**
 
-- **ConnectionManager.cs**: Manages OBS connection lifecycle (52 lines)
+- **ConnectionManager.cs**: Manages OBS connection lifecycle
   - Encapsulates OBSWebSocketManager, OBSConfigReader, OBSLifecycleManager
-  - Handles ConnectAsync(), Disconnect(), IsConnected
+  - Handles ConnectAsync(), Disconnect(), IsConnected, IsWebSocketServerDisabled
   - Reads configuration, waits for port, connects to WebSocket
+  - Raises Connected, Disconnected, and WebSocketServerDisabled events
 
 **Command Coordination:**
 
@@ -151,7 +152,7 @@ Core business logic and OBS integration:
   - Profile management, source visibility, audio control
 - **IOBSWebsocket.cs**: Interface abstraction for OBS WebSocket operations (enables testing/mocking)
 - **OBSWebsocketAdapter.cs**: Adapter wrapping obs-websocket-dotnet library
-- **OBSConfigReader.cs**: Reads OBS configuration files to discover WebSocket settings (port, password)
+- **OBSConfigReader.cs**: Reads OBS configuration files to discover WebSocket settings (port, password, server enabled state)
 - **OBSLifecycleManager.cs**: Manages connection lifecycle, port availability checking
 - **PluginConfigReader.cs**: Reads and writes plugin-specific configuration from AppData
 - **StatsService.cs**: Timer-based polling service for OBS performance statistics

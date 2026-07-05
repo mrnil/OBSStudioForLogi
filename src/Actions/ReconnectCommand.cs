@@ -19,7 +19,22 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             Boolean isConnected = OBSStudioForLogiPlugin.Instance?.IsConnected ?? false;
-            var backgroundColor = isConnected ? new BitmapColor(0, 128, 0) : new BitmapColor(128, 0, 0);
+            Boolean isServerDisabled = OBSStudioForLogiPlugin.Instance?.IsWebSocketServerDisabled ?? false;
+
+            BitmapColor backgroundColor;
+            if (isConnected)
+            {
+                backgroundColor = new BitmapColor(0, 128, 0);
+            }
+            else if (isServerDisabled)
+            {
+                backgroundColor = new BitmapColor(200, 120, 0);
+            }
+            else
+            {
+                backgroundColor = new BitmapColor(128, 0, 0);
+            }
+
             return ButtonImageHelper.IconWithBackground("Reconnect.svg", imageSize, backgroundColor);
         }
 
