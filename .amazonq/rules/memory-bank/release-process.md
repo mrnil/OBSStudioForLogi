@@ -63,25 +63,27 @@ git tag -a v{VERSION} -m "Release v{VERSION} - {TITLE}
 
 ### 6. Create .lplug4 Package
 
-Use LogiPluginTool from Logi Plugin Service directory:
+Use LogiPluginTool (installed as dotnet global tool):
 
 ```bash
-cd "C:\Program Files\Logi\LogiPluginService"
-LogiPluginTool.exe pack "b:\development\OBSStudioForLogiPlugin\bin\Release" "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
+LogiPluginTool pack "b:\development\OBSStudioForLogiPlugin\bin\Release" "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
 ```
+
+**Note:** LogiPluginTool is available as:
+- dotnet global tool: `C:\Users\steph\.dotnet\tools\logiplugintool.exe` (preferred, callable as `LogiPluginTool` from any directory)
+- SDK tools copy: `B:\development\LogitechBeta\LogiPluginSdkTools\LogiPluginTool.exe`
+- ❌ `C:\Program Files\Logi\LogiPluginService\LogiPluginTool.exe` — BROKEN (missing companion DLL, do NOT use)
 
 ### 7. Verify Package
 
 ```bash
-cd "C:\Program Files\Logi\LogiPluginService"
-LogiPluginTool.exe verify "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
+LogiPluginTool verify "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
 ```
 
 ### 8. Check Package Metadata
 
 ```bash
-cd "C:\Program Files\Logi\LogiPluginService"
-LogiPluginTool.exe metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
+LogiPluginTool metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
 ```
 
 Verify:
@@ -113,7 +115,7 @@ git push origin v{VERSION}
 ### Pack Plugin
 
 ```bash
-LogiPluginTool.exe pack <InputDirectoryPath> <OutputPackagePath>
+LogiPluginTool pack <InputDirectoryPath> <OutputPackagePath>
 ```
 
 - `<InputDirectoryPath>`: Path to `bin/Release` directory
@@ -122,7 +124,7 @@ LogiPluginTool.exe pack <InputDirectoryPath> <OutputPackagePath>
 ### Verify Plugin
 
 ```bash
-LogiPluginTool.exe verify <PackagePath>
+LogiPluginTool verify <PackagePath>
 ```
 
 - Unpacks and verifies the plugin package
@@ -131,7 +133,7 @@ LogiPluginTool.exe verify <PackagePath>
 ### Show Metadata
 
 ```bash
-LogiPluginTool.exe metadata <PackagePath>
+LogiPluginTool metadata <PackagePath>
 ```
 
 - Displays plugin metadata in JSON format
@@ -140,7 +142,7 @@ LogiPluginTool.exe metadata <PackagePath>
 ### Install Plugin
 
 ```bash
-LogiPluginTool.exe install <PackagePath>
+LogiPluginTool install <PackagePath>
 ```
 
 - Installs plugin to Logi Plugin Service
@@ -149,7 +151,7 @@ LogiPluginTool.exe install <PackagePath>
 ### Uninstall Plugin
 
 ```bash
-LogiPluginTool.exe uninstall <PluginName>
+LogiPluginTool uninstall <PluginName>
 ```
 
 - Removes plugin from Logi Plugin Service
@@ -248,7 +250,9 @@ After publishing:
 - **Metadata**: `src/package/metadata/LoupedeckPackage.yaml`
 - **Release Package**: `OBSStudioForLogiPlugin-v{VERSION}.lplug4`
 - **Release Notes**: `RELEASE_NOTES_v{VERSION}.md`
-- **LogiPluginTool**: `C:\Program Files\Logi\LogiPluginService\LogiPluginTool.exe`
+- **LogiPluginTool**: `C:\Users\steph\.dotnet\tools\logiplugintool.exe` (dotnet global tool, callable as `LogiPluginTool` from any directory)
+- **LogiPluginTool (alt)**: `B:\development\LogitechBeta\LogiPluginSdkTools\LogiPluginTool.exe`
+- ❌ **NOT**: `C:\Program Files\Logi\LogiPluginService\LogiPluginTool.exe` (broken, missing DLL)
 
 ## Example Release Commands
 
@@ -269,15 +273,14 @@ git commit -m "docs: add release notes for v0.9.1"
 # 5. Create tag
 git tag -a v0.9.1 -m "Release v0.9.1 - Bug Fixes and Icon Updates"
 
-# 6. Create package
-cd "C:\Program Files\Logi\LogiPluginService"
-LogiPluginTool.exe pack "b:\development\OBSStudioForLogiPlugin\bin\Release" "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v0.9.1.lplug4"
+# 6. Create package (LogiPluginTool is a dotnet global tool, callable from any directory)
+LogiPluginTool pack "b:\development\OBSStudioForLogiPlugin\bin\Release" "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v0.9.1.lplug4"
 
 # 7. Verify package
-LogiPluginTool.exe verify "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v0.9.1.lplug4"
+LogiPluginTool verify "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v0.9.1.lplug4"
 
 # 8. Check metadata
-LogiPluginTool.exe metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v0.9.1.lplug4"
+LogiPluginTool metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v0.9.1.lplug4"
 
 # 9. Push to git
 git push origin main
