@@ -29,7 +29,7 @@ An AI Coding Assistant has been used to support the development of this project 
 - **Audio Volume Control**: Adjust volume via MX big wheel (folder tiles) or standalone dial adjustment
 - **Audio Display**: Volume shown in dB format with full OBS range support (up to +26 dB)
 - **Audio Source Selection**: Global audio source selection for wheel/dial volume control
-- **User Defined Actions**: Configurable actions for source visibility, audio mute, monitoring, and audio selection
+- **User Defined Actions**: Configurable actions for source visibility, audio mute, monitoring, audio selection, and audio status display
 - **Profile Management**: Switch between OBS profiles with selection indicators and dynamic folder
 - **Scene Collections**: Switch between scene collections with selection indicators
 - **Screenshot Capture**: Take screenshots with automatic path detection
@@ -153,18 +153,22 @@ An AI Coding Assistant has been used to support the development of this project 
 - **Select Audio Source (User defined)**: Toggle global audio source selection
   - Selects/deselects the named source as the globally selected audio source
   - Used by Selected Source Volume adjustment and other audio controls
-- **Media Action (User defined)**: Trigger media actions on a named source
-  - Actions: Play, Pause, Stop, Restart, Next, Previous
-  - Source name textbox + action listbox
+- **Audio Source Status (User defined)**: Display-only widget showing mute state, volume, and monitoring mode
+  - Configure audio source name via textbox
+  - Shows real-time volume (dB), mute state (colour-coded), and monitoring type
+  - Updates automatically when state changes in OBS
 
 ### Media (Group 9)
 
 - **Media Controls Folder**: Dynamic folder of media sources (ffmpeg, VLC, slideshow, text)
-  - Single tap while stopped/paused: Play
+  - Single tap while stopped/paused: Play (uses Restart for stopped/ended sources)
   - Single tap while playing: Pause
   - Double tap: Stop (reset to beginning)
   - Colour-coded: Green = Playing, Yellow = Paused, Grey = Stopped/Ended
   - Real-time updates when media starts/finishes naturally
+- **Media Action (User defined)**: Trigger media actions on a named source
+  - Actions: Play, Pause, Stop, Restart, Next, Previous
+  - Source name textbox + action listbox
 
 ## Configuration
 
@@ -205,7 +209,7 @@ dotnet clean OBSStudioForLogiPlugin.sln
 
 ## Architecture
 
-- **TDD Approach**: Comprehensive test coverage with 359 unit tests
+- **TDD Approach**: Comprehensive test coverage with 362 unit tests
 - **Dependency Injection**: Interface-based design for testability
 - **Async Operations**: All OBS operations wrapped in Task.Run to prevent UI freezing
 - **Event-Driven**: Real-time updates via OBS WebSocket events

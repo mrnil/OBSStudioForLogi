@@ -18,6 +18,8 @@ OBSStudioForLogiPlugin is a Loupedeck/Logi Plugin Service integration that enabl
 - Start/stop streaming with dedicated commands
 - Toggle streaming on/off
 - Visual indicators for streaming state (on/off)
+- Live stream statistics folder (duration, bytes sent, congestion, skipped frames, total frames)
+- Colour-coded stats: green=healthy, yellow=warning, red=problem
 
 ### Recording Control
 
@@ -69,6 +71,8 @@ OBSStudioForLogiPlugin is a Loupedeck/Logi Plugin Service integration that enabl
 - Audio mute toggle for a named audio source
 - Audio monitoring cycle for a named audio source
 - Audio source selection toggle for a named audio source
+- Audio source status display (mute, volume dB, monitoring mode) for a named source
+- Media action trigger (Play, Pause, Stop, Restart, Next, Previous) for a named media source
 
 ### Replay Buffer
 

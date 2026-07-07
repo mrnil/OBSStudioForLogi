@@ -346,6 +346,7 @@ void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enable
 1. **Medium Priority**: Add audio level meters (deferred — requires obs-websocket-dotnet library modifications, see vu-meters-learnings.md)
 2. **Medium Priority**: Implement filter enable/disable controls
 3. **Low Priority**: Add +/- button volume alternatives for devices without wheels
+4. **Low Priority**: Transition selection and T-bar encoder control
 
 ## Conclusion
 

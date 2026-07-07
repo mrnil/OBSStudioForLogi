@@ -105,8 +105,10 @@ Command classes that handle user interactions from Loupedeck hardware:
 - `AudioMuteAdjustableCommand.cs`: Toggle mute for named audio source (ActionEditorCommand)
 - `AudioMonitoringCycleAdjustableCommand.cs`: Cycle audio monitoring type (ActionEditorCommand)
 - `AudioSelectAdjustableCommand.cs`: Toggle global audio source selection (ActionEditorCommand)
+- `AudioStatusDisplayCommand.cs`: Display-only widget showing mute/volume/monitoring for a named audio source (ActionEditorCommand)
 - `StatsDisplay.cs`: Summary button showing FPS, CPU%, and dropped frames
-- `StatsDynamicFolder.cs`: Dynamic folder with individual tiles per stat (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped)
+- `StatsDynamicFolder.cs`: Dynamic folder with individual tiles per stat (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped, Disk Space, Render Time)
+- `StreamStatsDynamicFolder.cs`: Dynamic folder showing live stream statistics (Duration, Bytes Sent, Congestion, Skipped Frames, Total Frames)
 - `PluginSettingsCommand.cs`: Configure plugin settings including OBS connection and stats polling interval (ActionEditorCommand)
 - `MediaDynamicFolder.cs`: Dynamic folder of media sources with play/pause/stop controls
 - `MediaActionCommand.cs`: Trigger media actions on named source (ActionEditorCommand)
@@ -169,6 +171,7 @@ Core business logic and OBS integration:
 - **AudioSelectionState.cs**: Static state tracker for which audio input is selected for dial control
 - **VolumeConverter.cs**: Static helper for volume multiplier to dB conversion and formatting
 - **PressTimingHelper.cs**: DoubleTapHelper for distinguishing single/double tap on buttons
+- **AudioHelpers.cs**: Shared rendering logic for audio source status display (mute, volume, monitoring)
 
 ### Models Layer (`src/Models/`)
 

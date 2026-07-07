@@ -226,16 +226,16 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 
 | Feature | Status | Implementation |
 |---------|--------|----------------|
-| Get Media Input Status | ❌ | Not implemented |
+| Get Media Input Status | ✅ | `GetMediaInputStatus()` |
 | Set Media Input Cursor | ❌ | Not implemented |
 | Offset Media Input Cursor | ❌ | Not implemented |
-| Trigger Media Input Action | ❌ | Not implemented |
-| - Play | ❌ | Not implemented |
-| - Pause | ❌ | Not implemented |
-| - Stop | ❌ | Not implemented |
-| - Restart | ❌ | Not implemented |
-| - Next | ❌ | Not implemented |
-| - Previous | ❌ | Not implemented |
+| Trigger Media Input Action | ✅ | `TriggerMediaInputAction()` |
+| - Play | ✅ | `MediaDynamicFolder`, `MediaActionCommand` |
+| - Pause | ✅ | `MediaDynamicFolder`, `MediaActionCommand` |
+| - Stop | ✅ | `MediaDynamicFolder`, `MediaActionCommand` |
+| - Restart | ✅ | `MediaDynamicFolder`, `MediaActionCommand` |
+| - Next | ✅ | `MediaActionCommand` |
+| - Previous | ✅ | `MediaActionCommand` |
 
 ---
 
@@ -283,6 +283,14 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 | - Render Lag | ✅ | RenderMissedFrames with percentage |
 | - Dropped Frames | ✅ | OutputSkippedFrames with percentage |
 | - Output Skipped Frames | ✅ | Combined total displayed |
+| - Disk Space | ✅ | Displayed in GB |
+| - Frame Time | ✅ | Displayed in ms |
+| Get Stream Status | ✅ | `StreamStatsDynamicFolder` via polling |
+| - Duration | ✅ | Formatted HH:MM:SS |
+| - Bytes Sent | ✅ | Displayed in MB/GB |
+| - Congestion | ✅ | Colour-coded percentage |
+| - Skipped Frames | ✅ | Count with percentage |
+| - Total Frames | ✅ | Frame count |
 
 ---
 
@@ -346,7 +354,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 ### ✅ Fully Implemented Categories
 
 1. **Connection Management** - Auto-connect, reconnect, authentication
-2. **Streaming Controls** - Start, stop, toggle, status
+2. **Streaming Controls** - Start, stop, toggle, status, live stats
 3. **Recording Controls** - Start, stop, toggle, pause/resume, status
 4. **Virtual Camera** - Start, stop, toggle, status
 5. **Replay Buffer** - Start, stop, toggle, save, status
@@ -358,22 +366,22 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 11. **Audio Volume Display** - Show volume percentage
 12. **Studio Mode** - Toggle, transition, status
 13. **Screenshots** - Capture to file
-14. **Statistics** - CPU, memory, FPS, render lag, encoding lag, dropped frames
+14. **Statistics** - CPU, memory, FPS, render lag, encoding lag, dropped frames, stream stats
+15. **Media Controls** - Play, pause, stop, restart, next, previous, status display
 
 ### 🟡 Partially Implemented Categories
 
-1. **Inputs** - Discovery ✅, Settings ❌, Creation ❌
+1. **Inputs** - Discovery ✅, Audio Control ✅, Settings ❌, Creation ❌
 
 ### ❌ Not Implemented Categories
 
-1. **Media Source Controls** - Play, pause, stop, seek
-2. **Filters** - List, enable/disable, settings
-3. **Transitions** - List, select, duration, settings
-4. **Audio Advanced** - Balance, sync offset, monitoring, track assignment
-5. **Scene Item Transforms** - Position, scale, rotation, crop
-6. **Hotkeys** - Trigger hotkeys
-7. **UI Dialogs** - Open properties, filters, projectors
-8. **Scene/Source Creation** - Create/remove scenes, sources, filters
+1. **Filters** - List, enable/disable, settings
+2. **Transitions** - List, select, duration, settings
+3. **Audio Advanced** - Balance, sync offset, track assignment
+4. **Scene Item Transforms** - Position, scale, rotation, crop
+5. **Hotkeys** - Trigger hotkeys
+6. **UI Dialogs** - Open properties, filters, projectors
+7. **Scene/Source Creation** - Create/remove scenes, sources, filters
 
 ---
 
@@ -383,24 +391,23 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 
 1. **Volume Adjustment Controls** - ✅ Multiple approaches (WheelTool, AudioVolumeDynamicFolder, SelectedSourceVolumeAdjustment)
 2. **Audio Monitoring Toggle** - ✅ CycleInputAudioMonitorType implemented
-3. **Filter Enable/Disable** - Toggle audio/video filters
+3. **Media Source Controls** - ✅ Play/pause/stop/restart with dynamic folder and user-defined actions
+4. **Filter Enable/Disable** - Toggle audio/video filters
 
 ### Medium Priority (Professional Features)
 
-1. **Media Source Controls** - Play/pause/stop pre-recorded content
-2. **Audio Level Meters** - Real-time VU meters (**deferred** - requires obs-websocket-dotnet to support InputVolumeMeters high-volume event; see vu-meters-learnings.md)
+1. **Audio Level Meters** - Real-time VU meters (**deferred** - requires obs-websocket-dotnet to support InputVolumeMeters high-volume event; see vu-meters-learnings.md)
+2. **Transition Selection** - Choose transition and duration, T-bar encoder
 3. **Audio Sync Offset** - Fix audio/video sync
 4. **Audio Track Assignment** - Multi-track recording
-5. **Transition Selection** - Choose transition and duration
-6. **Hotkey Triggers** - Execute OBS hotkeys from hardware
+5. **Hotkey Triggers** - Execute OBS hotkeys from hardware
 
 ### Low Priority (Advanced Features)
 
-1. **Statistics Display** - FPS, CPU, dropped frames
-2. **Scene Item Transforms** - Position, scale, rotation
-3. **Audio Balance** - Stereo balance control
-4. **Scene/Source Creation** - Create new scenes/sources
-5. **Filter Settings** - Adjust filter parameters
+1. **Scene Item Transforms** - Position, scale, rotation
+2. **Audio Balance** - Stereo balance control
+3. **Scene/Source Creation** - Create new scenes/sources
+4. **Filter Settings** - Adjust filter parameters
 
 ---
 

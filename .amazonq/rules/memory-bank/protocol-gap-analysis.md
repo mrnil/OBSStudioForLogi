@@ -50,17 +50,16 @@ The protocol uses `sceneItemId` (Int32) for all scene item operations. The adapt
 
 - Protocol: `inputVolumeMul` range is 0.0 to ~20.0 (0% to ~2000%)
 - Protocol: `inputVolumeDb` range is -inf to +26.0 dB
-- Current: Treats volume as 0.0-1.0 (0-100%)
-- Impact: Users cannot boost audio above 100% via the plugin
+- ✅ **Resolved**: Plugin now supports full 0.0-20.0 range, displays in dB format
 
 ### 3. Media Input Status
 
 Protocol `GetMediaInputStatus` returns:
-- `mediaState` (string) ✅ extracted
+- `mediaState` (string) ✅ extracted — used by `MediaDynamicFolder` for play/pause/stop logic
 - `mediaDuration` (int, ms) ❌ not extracted
 - `mediaCursor` (int, ms) ❌ not extracted
 
-These could display elapsed/total time on media buttons.
+Duration/cursor could display elapsed/total time on media buttons.
 
 ### 4. Audio Input Detection
 
