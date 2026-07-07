@@ -100,7 +100,7 @@ For recording-focused workflows:
 | Reconnect | Button | Manually retry connection to OBS if it disconnects. |
 | Studio Mode Toggle | Button | Enable/disable OBS studio mode. When enabled, you can preview scenes before sending them live. |
 | Studio Mode Transition | Button | Send the preview scene to program (live). Only works when studio mode is on. |
-| Connection Status | Display | Shows "Connected" (green) or "Disconnected" (red). Read-only. |
+| Connection Status | Display | Shows "Connected" (green), "Disconnected" (red), or "WebSocket Disabled" (orange). Read-only. |
 | OBS Stats Summary | Display | Shows FPS, CPU%, and dropped frames. Green = healthy, red = problems. |
 | OBS Stats Folder | Folder | Individual tiles: FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped, Disk Space, Render Time. Colour-coded thresholds. |
 | Plugin Settings | Button | Configure OBS connection (local/remote), IP, port, password, and stats polling interval. Press to save. |
@@ -128,7 +128,7 @@ For recording-focused workflows:
 | Action | Type | Description |
 |--------|------|-------------|
 | Replay Buffer Toggle | Button | Start/stop the replay buffer. |
-| Save Replay Buffer | Button | Save the last N seconds to disk (configured in OBS). Great for capturing highlights. |
+| Save Replay Buffer | Button | Save the last N seconds to disk (configured in OBS). Button flashes green on successful save. Great for capturing highlights. |
 
 ### Virtual Camera (Group 5)
 
@@ -243,7 +243,7 @@ All audio buttons use colour coding:
 - **Green text** = unmuted
 - **Red text** = muted
 - **White border** = currently selected for wheel/dial control
-- Volume shown as percentage (0-100%, can exceed 100% with boost)
+- Volume shown in dB format (e.g., "0.0 dB", "+6.0 dB", "-∞ dB")
 
 ### Audio Monitoring
 
@@ -329,7 +329,7 @@ To find the exact name of a source in OBS:
 ### Plugin doesn't connect
 
 - **Is OBS running?** The plugin needs OBS to be open
-- **Is WebSocket enabled?** In OBS: *Tools → WebSocket Server Settings* — ensure "Enable WebSocket server" is checked
+- **Is WebSocket enabled?** In OBS: *Tools → WebSocket Server Settings* — ensure "Enable WebSocket server" is checked. If it's disabled, the Connection Status button will show "WebSocket Disabled" (orange).
 - **Firewall blocking?** The plugin connects to localhost (127.0.0.1) only — it should not be blocked
 - **Try Reconnect button** — tap the Reconnect action to force a retry
 - **Restart Logi Plugin Service** — sometimes a fresh restart resolves connection issues

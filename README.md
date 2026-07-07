@@ -66,7 +66,7 @@ An AI Coding Assistant has been used to support the development of this project 
 - **Reconnect**: Manually retry connection to OBS
 - **Studio Mode Toggle**: Enable/disable OBS studio mode for preview/program workflow
 - **Studio Mode Transition**: Transition preview scene to program (only works when studio mode is enabled)
-- **Connection Status Display**: Shows "Connected" (green) or "Disconnected" (red)
+- **Connection Status Display**: Shows "Connected" (green), "Disconnected" (red), or "WebSocket Disabled" (orange)
 - **OBS Stats Summary**: Single button showing FPS, CPU%, and dropped frames (colour-coded)
 - **OBS Stats Folder**: Dynamic folder with individual tiles per stat (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped, Disk Space, Render Time)
 - **Plugin Settings**: Configure OBS connection (local/remote) and stats polling interval
