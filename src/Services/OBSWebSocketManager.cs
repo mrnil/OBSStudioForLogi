@@ -150,6 +150,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     ProfileSelectCommand.Instance?.OnConnected();
                     SceneCollectionSelectCommand.Instance?.OnConnected();
                     AudioMixerDynamicFolder.Instance?.OnConnected();
+                    AudioSelectDynamicFolder.Instance?.OnConnected();
+                    AudioVolumeDynamicFolder.Instance?.OnConnected();
+                    MediaDynamicFolder.Instance?.OnConnected();
                     SceneSwitchAdjustableCommand.Instance?.OnConnected();
                     ConnectionStatusDisplay.Instance?.UpdateStatus();
                 }
@@ -178,6 +181,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             SourcesDynamicFolder.Instance?.OnDisconnected();
             ProfilesDynamicFolder.Instance?.OnDisconnected();
             AudioMixerDynamicFolder.Instance?.OnDisconnected();
+            AudioSelectDynamicFolder.Instance?.OnDisconnected();
+            AudioVolumeDynamicFolder.Instance?.OnDisconnected();
+            MediaDynamicFolder.Instance?.OnDisconnected();
             SceneAudioSourcesDynamicFolder.Instance?.OnDisconnected();
             CurrentProfileDisplay.Instance?.UpdateDisplay();
             CurrentSceneDisplay.Instance?.UpdateDisplay();

@@ -85,9 +85,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     {
                         OBSStudioForLogiPlugin.Instance?.TriggerMediaInputAction(input, "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE");
                     }
-                    else
+                    else if (state == "OBS_MEDIA_STATE_PAUSED")
                     {
                         OBSStudioForLogiPlugin.Instance?.TriggerMediaInputAction(input, "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY");
+                    }
+                    else
+                    {
+                        OBSStudioForLogiPlugin.Instance?.TriggerMediaInputAction(input, "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART");
                     }
                     this.RefreshAfterDelay(input);
                 },
