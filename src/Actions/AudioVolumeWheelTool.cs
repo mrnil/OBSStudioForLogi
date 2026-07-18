@@ -3,6 +3,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System;
     using Loupedeck.Devices.Loupedeck2Devices;
 
+    // TODO: Review whether WheelTool sub-group naming can be made consistent with
+    // other 8. Audio actions (base constructor takes (name, groupName) not GroupName property).
     public class AudioVolumeWheelTool : WheelTool
     {
         public AudioVolumeWheelTool() : base("OBS Volume", "OBS Studio") { }
