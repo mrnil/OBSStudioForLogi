@@ -147,14 +147,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this.UpdateProfileList();
                     this.UpdateInputList();
                     this.UpdateStudioModeState();
-                    ProfileSelectCommand.Instance?.OnConnected();
-                    SceneCollectionSelectCommand.Instance?.OnConnected();
-                    AudioMixerDynamicFolder.Instance?.OnConnected();
-                    AudioSelectDynamicFolder.Instance?.OnConnected();
-                    AudioVolumeDynamicFolder.Instance?.OnConnected();
-                    MediaDynamicFolder.Instance?.OnConnected();
-                    SceneSwitchAdjustableCommand.Instance?.OnConnected();
-                    ConnectionStatusDisplay.Instance?.UpdateStatus();
                 }
                 catch (Exception ex)
                 {
@@ -177,18 +169,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.Actions.SetReplayBufferState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             this.Actions.SetStudioModeState(false);
             
-            ScenesDynamicFolder.Instance?.OnDisconnected();
-            SourcesDynamicFolder.Instance?.OnDisconnected();
-            ProfilesDynamicFolder.Instance?.OnDisconnected();
-            AudioMixerDynamicFolder.Instance?.OnDisconnected();
-            AudioSelectDynamicFolder.Instance?.OnDisconnected();
-            AudioVolumeDynamicFolder.Instance?.OnDisconnected();
-            MediaDynamicFolder.Instance?.OnDisconnected();
-            SceneAudioSourcesDynamicFolder.Instance?.OnDisconnected();
-            CurrentProfileDisplay.Instance?.UpdateDisplay();
-            CurrentSceneDisplay.Instance?.UpdateDisplay();
-            CurrentSceneCollectionDisplay.Instance?.UpdateDisplay();
-            ConnectionStatusDisplay.Instance?.UpdateStatus();
+            // NotifyDisconnected is called via OBSStudioForLogiPlugin.OnOBSDisconnected → CommandCoordinator
             
             if (this._shouldReconnect && !this._disposed)
             {

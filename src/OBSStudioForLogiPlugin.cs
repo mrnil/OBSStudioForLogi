@@ -156,6 +156,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             PluginLog.Info("OBS WebSocket connected");
             this.OnPluginStatusChanged(Loupedeck.PluginStatus.Normal, null);
             this._statsService.Start();
+            this._commandCoordinator.NotifyConnected();
             ConnectionStatusDisplay.Instance?.UpdateStatus();
         }
 
@@ -164,6 +165,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             PluginLog.Info("OBS WebSocket disconnected");
             this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "OBS is offline. Please launch OBS");
             this._statsService.Stop();
+            this._commandCoordinator.NotifyDisconnected();
             ConnectionStatusDisplay.Instance?.UpdateStatus();
         }
 
