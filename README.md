@@ -108,6 +108,7 @@ An AI Coding Assistant has been used to support the development of this project 
 ### Scenes (Group 7)
 
 - **Scene Collection Select**: Switch between scene collections (multi-state buttons)
+- **Scene Collections Folder**: Dynamic folder with all available scene collections
 - **Scenes Folder**: Dynamic folder with all available scenes
   - When studio mode is disabled: Switches scene to program (live)
   - When studio mode is enabled: Switches scene to preview (not live yet)
