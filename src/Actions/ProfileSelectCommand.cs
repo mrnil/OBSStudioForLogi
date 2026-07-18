@@ -14,7 +14,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Instance = this;
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.Description = "Switches to a specific profile in OBS Studio";
-            this.GroupName = "6. Profiles";
+            this.GroupName = "6. Profiles###Available Profiles";
             this.AddState("", "Profile unselected");
             this.AddState("", "Profile selected");
         }
