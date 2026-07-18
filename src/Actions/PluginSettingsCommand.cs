@@ -29,7 +29,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.ActionEditor.AddControlEx(new ActionEditorCheckbox(UseLocalObsControlName, "Use Local OBS").SetDefaultValue(true));
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(IpAddressControlName, $"IP Address (detected: {defaultIp})").SetRequired());
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(PortControlName, $"Port (detected: {defaultPort})").SetRequired());
-            this.ActionEditor.AddControlEx(new ActionEditorTextbox(PasswordControlName, "Password"));
+            this.ActionEditor.AddControlEx(new ActionEditorTextbox(PasswordControlName, "Password (sensitive)"));
 
             var pollingListbox = new ActionEditorListbox(PollingIntervalControlName, "Stats Polling Interval");
             this.ActionEditor.AddControlEx(pollingListbox);

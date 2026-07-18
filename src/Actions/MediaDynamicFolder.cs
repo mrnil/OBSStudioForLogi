@@ -4,7 +4,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Collections.Generic;
     using System.Linq;
 
-    public class MediaDynamicFolder : PluginDynamicFolder, IObsCommand
+    public class MediaDynamicFolder : PluginDynamicFolder, IObsCommand, IInputsListAwareCommand
     {
         public static MediaDynamicFolder Instance { get; private set; }
 
@@ -117,6 +117,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             {
                 this.CommandImageChanged(inputName);
             }
+        }
+
+        public void OnInputsChanged(String[] inputs)
+        {
+            this._mediaInputs = OBSStudioForLogiPlugin.Instance?.GetMediaInputList() ?? new String[0];
+            PluginLog.Debug($"MediaDynamicFolder: Input list changed, reloaded {this._mediaInputs.Length} media inputs");
+            this.ButtonActionNamesChanged();
         }
 
         public void OnConnected()
