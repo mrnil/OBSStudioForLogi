@@ -22,57 +22,69 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return;
 
             DateTime now = DateTime.UtcNow;
-            
-            if (this._tapStates.TryGetValue(actionParameter, out TapState state))
-            {
-                Double elapsed = (now - state.LastTapTime).TotalMilliseconds;
-                
-                if (elapsed < DoubleTapThreshold)
-                {
-                    // Double tap detected
-                    state.Cancellation?.Cancel();
-                    this._tapStates.Remove(actionParameter);
-                    onDoubleTap?.Invoke(actionParameter);
-                    return;
-                }
-            }
-            
-            // First tap or too long since last tap
-            var cancellation = new CancellationTokenSource();
-            this._tapStates[actionParameter] = new TapState
-            {
-                LastTapTime = now,
-                Cancellation = cancellation
-            };
+            CancellationTokenSource cancellationToDispose = null;
 
-            // Wait to see if a second tap comes
-            Task.Run(async () =>
+            lock (this._tapStates)
             {
-                try
+                if (this._tapStates.TryGetValue(actionParameter, out TapState state))
                 {
-                    await Task.Delay(DoubleTapThreshold, cancellation.Token);
-                    
-                    if (!cancellation.Token.IsCancellationRequested)
+                    Double elapsed = (now - state.LastTapTime).TotalMilliseconds;
+
+                    if (elapsed < DoubleTapThreshold)
                     {
-                        // No second tap came - execute single tap
+                        state.Cancellation.Cancel();
+                        cancellationToDispose = state.Cancellation;
                         this._tapStates.Remove(actionParameter);
-                        onSingleTap?.Invoke(actionParameter);
+                        onDoubleTap?.Invoke(actionParameter);
+                        cancellationToDispose.Dispose();
+                        return;
                     }
                 }
-                catch (TaskCanceledException)
+
+                var cancellation = new CancellationTokenSource();
+                this._tapStates[actionParameter] = new TapState
                 {
-                    // Expected when double tap occurs
-                }
-            });
+                    LastTapTime = now,
+                    Cancellation = cancellation
+                };
+
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        await Task.Delay(DoubleTapThreshold, cancellation.Token);
+
+                        lock (this._tapStates)
+                        {
+                            this._tapStates.Remove(actionParameter);
+                        }
+
+                        onSingleTap?.Invoke(actionParameter);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        // Expected when double tap occurs
+                    }
+                    finally
+                    {
+                        cancellation.Dispose();
+                    }
+                });
+            }
         }
 
         public void Reset()
         {
-            foreach (var state in this._tapStates.Values)
+            lock (this._tapStates)
             {
-                state.Cancellation?.Cancel();
+                foreach (var state in this._tapStates.Values)
+                {
+                    state.Cancellation.Cancel();
+                    state.Cancellation.Dispose();
+                }
+
+                this._tapStates.Clear();
             }
-            this._tapStates.Clear();
         }
     }
 }
