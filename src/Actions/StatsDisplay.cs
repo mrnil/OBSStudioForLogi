@@ -1,6 +1,7 @@
 namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
+    using Loupedeck.OBSStudioForLogiPlugin.Models;
 
     public class StatsDisplay : PluginDynamicCommand
     {
@@ -16,12 +17,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            var stats = OBSStudioForLogiPlugin.Instance?.GetCurrentStats();
-
-            if (stats == null)
-            {
-                return ButtonTextRenderer.RenderText("Stats\nN/A", imageSize, BitmapColor.Black, new BitmapColor(128, 128, 128));
-            }
+            var stats = OBSStudioForLogiPlugin.Instance?.GetCurrentStats() ?? Models.OBSStats.Empty;
 
             var fps = stats.Fps;
             var cpu = stats.CpuUsage;

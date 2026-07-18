@@ -59,6 +59,23 @@ public class OBSStatsModelTests
 
         Assert.Equal(8, stats.TotalDroppedFrames);
     }
+
+    [Fact]
+    public void Empty_ReturnsInstanceWithAllZeroValues()
+    {
+        var empty = OBSStats.Empty;
+
+        Assert.Equal(0, empty.Fps);
+        Assert.Equal(0, empty.CpuUsage);
+        Assert.Equal(0, empty.MemoryUsage);
+        Assert.Equal(0, empty.TotalDroppedFrames);
+    }
+
+    [Fact]
+    public void Empty_ReturnsNewInstanceEachCall()
+    {
+        Assert.NotSame(OBSStats.Empty, OBSStats.Empty);
+    }
 }
 
 public class OBSStreamStatsModelTests
@@ -101,5 +118,21 @@ public class OBSStreamStatsModelTests
         var stats = new OBSStreamStats { Duration = 0 };
 
         Assert.Equal("0:00", stats.DurationFormatted);
+    }
+
+    [Fact]
+    public void Empty_ReturnsInstanceWithIsActiveFalse()
+    {
+        var empty = OBSStreamStats.Empty;
+
+        Assert.False(empty.IsActive);
+        Assert.Equal(0, empty.BytesSent);
+        Assert.Equal(0, empty.SkippedFrames);
+    }
+
+    [Fact]
+    public void Empty_ReturnsNewInstanceEachCall()
+    {
+        Assert.NotSame(OBSStreamStats.Empty, OBSStreamStats.Empty);
     }
 }

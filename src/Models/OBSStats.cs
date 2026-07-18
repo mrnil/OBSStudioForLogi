@@ -17,5 +17,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Models
         public Double RenderLagPercent => this.RenderTotalFrames > 0 ? (Double)this.RenderMissedFrames / this.RenderTotalFrames * 100 : 0;
         public Double EncodingLagPercent => this.OutputTotalFrames > 0 ? (Double)this.OutputSkippedFrames / this.OutputTotalFrames * 100 : 0;
         public Int64 TotalDroppedFrames => this.RenderMissedFrames + this.OutputSkippedFrames;
+
+        public static OBSStats Empty => new OBSStats();
     }
 }

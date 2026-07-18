@@ -220,6 +220,24 @@ public class OBSFacadeTests
         Assert.False(called);
     }
 
+    [Fact]
+    public void GetStats_WhenDisconnected_ReturnsEmpty()
+    {
+        var result = this._facade.GetStats();
+
+        Assert.NotNull(result);
+        Assert.Equal(0, result.Fps);
+    }
+
+    [Fact]
+    public void GetStreamStatus_WhenDisconnected_ReturnsEmpty()
+    {
+        var result = this._facade.GetStreamStatus();
+
+        Assert.NotNull(result);
+        Assert.False(result.IsActive);
+    }
+
     // --- Null facade (null manager) ---
 
     [Fact]

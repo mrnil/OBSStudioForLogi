@@ -226,33 +226,27 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public Models.OBSStats GetStats()
         {
-            if (!this.IsConnected)
-                return null;
-
             try
             {
-                return this._obsManager?.Actions.GetStats();
+                return this._obsManager?.Actions.GetStats() ?? Models.OBSStats.Empty;
             }
             catch (Exception ex)
             {
                 PluginLog.Warning($"Failed to get stats: {ex.Message}");
-                return null;
+                return Models.OBSStats.Empty;
             }
         }
 
         public Models.OBSStreamStats GetStreamStatus()
         {
-            if (!this.IsConnected)
-                return null;
-
             try
             {
-                return this._obsManager?.Actions.GetStreamStatus();
+                return this._obsManager?.Actions.GetStreamStatus() ?? Models.OBSStreamStats.Empty;
             }
             catch (Exception ex)
             {
                 PluginLog.Warning($"Failed to get stream status: {ex.Message}");
-                return null;
+                return Models.OBSStreamStats.Empty;
             }
         }
 

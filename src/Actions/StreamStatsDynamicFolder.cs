@@ -3,6 +3,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Loupedeck.OBSStudioForLogiPlugin.Models;
 
     public class StreamStatsDynamicFolder : PluginDynamicFolder
     {
@@ -38,9 +39,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            var stats = OBSStudioForLogiPlugin.Instance?.GetCurrentStreamStats();
+            var stats = OBSStudioForLogiPlugin.Instance?.GetCurrentStreamStats() ?? Models.OBSStreamStats.Empty;
 
-            if (stats == null || !stats.IsActive)
+            if (!stats.IsActive)
             {
                 return ButtonTextRenderer.RenderText(GetLabel(actionParameter) + "\nOffline", imageSize, BitmapColor.Black, new BitmapColor(128, 128, 128));
             }

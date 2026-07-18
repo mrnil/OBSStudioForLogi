@@ -13,6 +13,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Models
 
         public Double SkippedPercent => this.TotalFrames > 0 ? (Double)this.SkippedFrames / this.TotalFrames * 100 : 0;
 
+        public static OBSStreamStats Empty => new OBSStreamStats();
+
         public String DurationFormatted
         {
             get

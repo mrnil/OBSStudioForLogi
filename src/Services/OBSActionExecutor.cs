@@ -1088,7 +1088,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             if (!this._obs.IsConnected)
             {
-                return null;
+                return Models.OBSStats.Empty;
             }
 
             try
@@ -1098,7 +1098,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             catch (Exception ex)
             {
                 this._log.Error($"Failed to get stats: {ex.Message}");
-                return null;
+                return Models.OBSStats.Empty;
             }
         }
 
@@ -1106,7 +1106,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             if (!this._obs.IsConnected)
             {
-                return null;
+                return Models.OBSStreamStats.Empty;
             }
 
             try
@@ -1116,7 +1116,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             catch (Exception ex)
             {
                 this._log.Error($"Failed to get stream status: {ex.Message}");
-                return null;
+                return Models.OBSStreamStats.Empty;
             }
         }
 

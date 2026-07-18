@@ -34,24 +34,26 @@ public class OBSActionExecutorStatsAndMediaTests
     }
 
     [Fact]
-    public void GetStats_WhenNotConnected_ReturnsNull()
+    public void GetStats_WhenNotConnected_ReturnsEmpty()
     {
         this._mockObs.Setup(x => x.IsConnected).Returns(false);
 
         var result = this._executor.GetStats();
 
-        Assert.Null(result);
+        Assert.NotNull(result);
+        Assert.Equal(0, result.Fps);
     }
 
     [Fact]
-    public void GetStats_WhenOBSThrows_ReturnsNull()
+    public void GetStats_WhenOBSThrows_ReturnsEmpty()
     {
         this._mockObs.Setup(x => x.IsConnected).Returns(true);
         this._mockObs.Setup(x => x.GetStats()).Throws(new Exception("OBS error"));
 
         var result = this._executor.GetStats();
 
-        Assert.Null(result);
+        Assert.NotNull(result);
+        Assert.Equal(0, result.Fps);
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Failed to get stats"))), Times.Once);
     }
 
@@ -71,24 +73,26 @@ public class OBSActionExecutorStatsAndMediaTests
     }
 
     [Fact]
-    public void GetStreamStatus_WhenNotConnected_ReturnsNull()
+    public void GetStreamStatus_WhenNotConnected_ReturnsEmpty()
     {
         this._mockObs.Setup(x => x.IsConnected).Returns(false);
 
         var result = this._executor.GetStreamStatus();
 
-        Assert.Null(result);
+        Assert.NotNull(result);
+        Assert.False(result.IsActive);
     }
 
     [Fact]
-    public void GetStreamStatus_WhenOBSThrows_ReturnsNull()
+    public void GetStreamStatus_WhenOBSThrows_ReturnsEmpty()
     {
         this._mockObs.Setup(x => x.IsConnected).Returns(true);
         this._mockObs.Setup(x => x.GetStreamStatus()).Throws(new Exception("OBS error"));
 
         var result = this._executor.GetStreamStatus();
 
-        Assert.Null(result);
+        Assert.NotNull(result);
+        Assert.False(result.IsActive);
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Failed to get stream status"))), Times.Once);
     }
 
