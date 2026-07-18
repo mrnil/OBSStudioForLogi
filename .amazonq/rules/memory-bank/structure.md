@@ -1,338 +1,206 @@
 # Project Structure
 
-## High-Level Architecture
-
-```mermaid
-flowchart TD
-    HW["Logitech Hardware<br/>(Physical Buttons/Displays)"]
-    LPS["Logi Plugin Service<br/>(Plugin Host Environment)"]
-
-    subgraph Plugin["OBSStudioForLogiPlugin"]
-        direction TB
-        Actions["Actions Layer<br/>Recording/Streaming/Virtual Camera Controls<br/>Scene/Profile/Source Management<br/>Audio Mixer/Volume Controls<br/>Display Commands"]
-        Coordinator["Plugin Coordinator<br/>Lifecycle Management<br/>Event Routing<br/>Command Coordination"]
-        Services["Services Layer<br/>OBSFacade · ConnectionManager · CommandCoordinator<br/>OBSWebSocketManager · OBSActionExecutor<br/>OBSConfigReader · OBSLifecycleManager"]
-        Adapter["Adapter Layer<br/>OBSWebsocketAdapter (IOBSWebsocket)"]
-
-        Actions --> Coordinator
-        Coordinator --> Services
-        Services --> Adapter
-    end
-
-    OBS["OBS Studio<br/>(obs-websocket v5.0+)"]
-
-    HW --> LPS
-    LPS --> Plugin
-    Adapter -- "WebSocket ws://127.0.0.1:4455" --> OBS
-```
-
-## Directory Organization
+## Repository Layout
 
 ```
 OBSStudioForLogiPlugin/
-├── src/                          # Main plugin source code
-│   ├── Actions/                  # Command implementations for hardware controls
-│   ├── Services/                 # Core business logic and OBS integration
-│   ├── Helpers/                  # Utility classes (logging, resources)
-│   ├── Models/                   # Data models and configuration structures
-│   ├── Resources/                # Embedded resources (icons, images)
-│   │   └── icons/                # SVG/PNG icon files for UI
-│   ├── package/metadata/         # Plugin metadata and packaging
-│   └── *.cs                      # Root plugin and application classes
-├── tests/                        # Unit and integration tests
+├── src/                          # Plugin source code
+│   ├── Actions/                  # Loupedeck SDK command/folder classes (44 files)
+│   ├── Helpers/                  # Utility classes (11 files)
+│   ├── Models/                   # Data models (4 files)
+│   ├── Services/                 # Business logic and OBS integration (14 files)
+│   ├── Resources/icons/          # Embedded SVG/PNG icons (50 files)
+│   ├── package/metadata/         # LoupedeckPackage.yaml + plugin icon
+│   ├── OBSStudioForLogiPlugin.cs # Main plugin class (orchestration)
+│   ├── OBSStudioForLogiApplication.cs
+│   └── OBSStudioForLogiPlugin.csproj
+├── tests/
 │   └── OBSStudioForLogiPlugin.Tests/
-│       ├── Actions/              # Command/action integration tests
-│       └── *.cs                  # Service and business logic unit tests
-├── coverage-results/             # Code coverage reports (Cobertura XML)
-└── bin/                          # Build output (Debug/Release)
+│       ├── Actions/              # Action-layer integration tests (16 files)
+│       └── *.cs                  # Services-layer unit tests (25 files)
+├── tools/
+│   └── InspectSdk/               # SDK inspection utility
+├── .amazonq/rules/               # AI coding rules and memory bank
+├── .github/workflows/            # CI: dependency-check.yml
+├── bin/                          # Build output (Debug/Release)
+├── ci/                           # CI-only PluginApi.dll stub
+├── OBSStudioForLogiPlugin.sln
+├── CHANGELOG.md
+├── README.md
+├── USER_MANUAL.md
+└── TODO.md
 ```
 
-## Core Components
+## Source Layer Breakdown
 
-### Plugin Entry Points
+### `src/Services/` — Business Logic (testable, no SDK dependency)
 
-- **OBSStudioForLogiPlugin.cs**: Main plugin class, singleton instance, manages lifecycle and coordinates all subsystems
-- **OBSStudioForLogiApplication.cs**: Defines OBS application detection (process name: obs64.exe, bundle: com.obsproject.obs-studio)
+| File | Responsibility |
+|------|---------------|
+| `OBSWebSocketManager.cs` | WebSocket lifecycle, event subscription, reconnection timer |
+| `OBSActionExecutor.cs` | All OBS operations with state tracking and error handling |
+| `OBSWebsocketAdapter.cs` | Thin wrapper over obs-websocket-dotnet library |
+| `IOBSWebsocket.cs` | Interface for testability (mocked in all tests) |
+| `OBSFacade.cs` | Simplified public interface over OBSWebSocketManager |
+| `ConnectionManager.cs` | Connection lifecycle: config discovery, connect/disconnect |
+| `CommandCoordinator.cs` | Pass-through to CommandRegistry (thin delegation layer) |
+| `CommandRegistry.cs` | Interface-based event dispatch to registered commands |
+| `IObsCommand.cs` | 14 notification interfaces (IObsCommand + 13 specialised) |
+| `OBSConfigReader.cs` | Reads OBS WebSocket config from disk |
+| `OBSLifecycleManager.cs` | Port availability checking |
+| `PluginConfigReader.cs` | Read/write plugin config JSON |
+| `ReconnectionStrategy.cs` | Exponential backoff with jitter |
+| `StatsService.cs` | Timer-based stats polling |
 
-### Actions Layer (`src/Actions/`)
+### `src/Actions/` — Loupedeck SDK Commands (SDK-dependent, exempt from strict TDD)
 
-Command classes that handle user interactions from Loupedeck hardware:
+**Base classes:**
+- `ToggleCommandBase` — shared logic for all toggle commands
+- `StartStopCommandBase` — shared logic for start/stop command pairs
+- `AudioInputDynamicFolderBase` — shared audio folder logic (mute, volume, selection, encoder)
 
-**Base Classes** (reusable patterns):
+**Dynamic Folders (PluginDynamicFolder):**
+- `ScenesDynamicFolder`, `SourcesDynamicFolder`, `ProfilesDynamicFolder`
+- `AudioMixerDynamicFolder`, `SceneAudioSourcesDynamicFolder`
+- `AudioSelectDynamicFolder`, `AudioVolumeDynamicFolder`
+- `MediaDynamicFolder`
+- `StatsDynamicFolder`, `StreamStatsDynamicFolder`
 
-- `ToggleCommandBase.cs`: Base class for toggle commands (on/off states)
-- `StartStopCommandBase.cs`: Base class for start/stop command pairs
+**Toggle Commands (PluginDynamicCommand via ToggleCommandBase):**
+- `StreamingToggleCommand`, `RecordingToggleCommand`, `VirtualCameraToggleCommand`
+- `ReplayBufferToggleCommand`, `StudioModeToggleCommand`
 
-**Display Commands** (read-only status indicators):
+**Start/Stop Commands (via StartStopCommandBase):**
+- `StreamingStartCommand`, `StreamingStopCommand`
+- `RecordingStartCommand`, `RecordingStopCommand`
+- `VirtualCameraStartCommand`, `VirtualCameraStopCommand`
 
-- `ConnectionStatusDisplay.cs`: Shows connection status (Connected/Disconnected/WebSocket Disabled)
-- `CurrentProfileDisplay.cs`: Shows active OBS profile name
-- `CurrentSceneCollectionDisplay.cs`: Shows active scene collection name
-- `CurrentSceneDisplay.cs`: Shows current active scene
+**User-Defined (ActionEditorCommand):**
+- `SceneSwitchAdjustableCommand`, `SourceVisibilityAdjustableCommand`
+- `AudioMuteAdjustableCommand`, `AudioMonitoringCycleAdjustableCommand`
+- `AudioSelectAdjustableCommand`, `MediaActionCommand`
+- `PluginSettingsCommand`
 
-**Interactive Commands** (user-triggered actions):
+**Adjustments (PluginDynamicAdjustment):**
+- `SelectedSourceVolumeAdjustment`, `AudioVolumeWheelTool`
 
-- `ProfileSelectCommand.cs`: Multi-state command for switching OBS profiles
-- `ProfilesDynamicFolder.cs`: Dynamic folder containing all available profiles
-- `SceneCollectionSelectCommand.cs`: Multi-state command for switching scene collections
-- `ScenesDynamicFolder.cs`: Dynamic folder containing all available scenes as buttons
-- `SceneSwitchAdjustableCommand.cs`: Encoder-based scene switching (next/previous)
-- `SourcesDynamicFolder.cs`: Dynamic folder showing sources in current scene with visibility toggle
-- `AudioMixerDynamicFolder.cs`: Dynamic folder with all audio inputs (mute/unmute, volume display)
-- `SceneAudioSourcesDynamicFolder.cs`: Dynamic folder with audio inputs in current scene
-- `AudioInputDynamicFolderBase.cs`: Base class for audio folder implementations
-- `AudioSelectDynamicFolder.cs`: Selection-only folder for setting global audio source
-- `AudioVolumeDynamicFolder.cs`: MX-compatible folder with adjustment tiles for wheel volume control
-- `AudioVolumeWheelTool.cs`: Wheel/encoder tool for adjusting selected audio input volume (CT)
-- `SelectedSourceVolumeAdjustment.cs`: Standalone adjustment for wheel/dial volume of selected source
-- `RecordingToggleCommand.cs`: Toggle recording on/off (uses ToggleCommandBase)
-- `RecordingStartCommand.cs`: Start recording (uses StartStopCommandBase)
-- `RecordingStopCommand.cs`: Stop recording (uses StartStopCommandBase)
-- `RecordingPauseToggleCommand.cs`: Pause/resume recording
-- `StreamingToggleCommand.cs`: Toggle streaming on/off (uses ToggleCommandBase)
-- `StreamingStartCommand.cs`: Start streaming (uses StartStopCommandBase)
-- `StreamingStopCommand.cs`: Stop streaming (uses StartStopCommandBase)
-- `VirtualCameraToggleCommand.cs`: Toggle virtual camera on/off (uses ToggleCommandBase)
-- `VirtualCameraStartCommand.cs`: Start virtual camera (uses StartStopCommandBase)
-- `VirtualCameraStopCommand.cs`: Stop virtual camera (uses StartStopCommandBase)
-- `ReplayBufferToggleCommand.cs`: Toggle replay buffer on/off (uses ToggleCommandBase)
-- `ReplayBufferSaveCommand.cs`: Save replay buffer to disk
-- `StudioModeToggleCommand.cs`: Toggle studio mode on/off (uses ToggleCommandBase)
-- `StudioModeTransitionCommand.cs`: Trigger studio mode transition (preview to program)
-- `ReconnectCommand.cs`: Manually retry connection to OBS
-- `ScreenshotCommand.cs`: Capture screenshot via OBS
-- `SourceVisibilityAdjustableCommand.cs`: Toggle source visibility (user-configured, ActionEditorCommand)
-- `AudioMuteAdjustableCommand.cs`: Toggle mute for named audio source (ActionEditorCommand)
-- `AudioMonitoringCycleAdjustableCommand.cs`: Cycle audio monitoring type (ActionEditorCommand)
-- `AudioSelectAdjustableCommand.cs`: Toggle global audio source selection (ActionEditorCommand)
-- `AudioStatusDisplayCommand.cs`: Display-only widget showing mute/volume/monitoring for a named audio source (ActionEditorCommand)
-- `StatsDisplay.cs`: Summary button showing FPS, CPU%, and dropped frames
-- `StatsDynamicFolder.cs`: Dynamic folder with individual tiles per stat (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped, Disk Space, Render Time)
-- `StreamStatsDynamicFolder.cs`: Dynamic folder showing live stream statistics (Duration, Bytes Sent, Congestion, Skipped Frames, Total Frames)
-- `PluginSettingsCommand.cs`: Configure plugin settings including OBS connection and stats polling interval (ActionEditorCommand)
-- `MediaDynamicFolder.cs`: Dynamic folder of media sources with play/pause/stop controls
-- `MediaActionCommand.cs`: Trigger media actions on named source (ActionEditorCommand)
+**Display Commands:**
+- `ConnectionStatusDisplay`, `CurrentSceneDisplay`, `CurrentProfileDisplay`
+- `CurrentSceneCollectionDisplay`, `StatsDisplay`, `AudioStatusDisplayCommand`
 
-### Services Layer (`src/Services/`)
+### `src/Helpers/`
 
-Core business logic and OBS integration:
+| File | Purpose |
+|------|---------|
+| `ButtonImageHelper.cs` | Static factory: Icon, StateIcon, Text, StateText, TextWithIcon, StateTextWithIcon |
+| `ButtonTextRenderer.cs` | BitmapBuilder-based text rendering with border support |
+| `AudioHelpers.cs` | Shared audio button image rendering |
+| `AudioSelectionState.cs` | Static singleton: global selected audio source for wheel/dial |
+| `VolumeConverter.cs` | volumeMul ↔ dB conversion and formatting |
+| `PressTimingHelper.cs` | DoubleTapHelper: 500ms window single/double tap detection |
+| `OBSTimings.cs` | Centralised timing constants (delays, test timeouts) |
+| `PluginLog.cs` | Static logging facade with configurable level |
+| `IPluginLog.cs` | Interface for injectable logging in services |
+| `PluginResources.cs` | Embedded resource access helper |
+| `LogLevel.cs` | Log level enum |
 
-**Connection Management:**
+### `src/Models/`
 
-- **ConnectionManager.cs**: Manages OBS connection lifecycle
-  - Encapsulates OBSWebSocketManager, OBSConfigReader, OBSLifecycleManager
-  - Handles ConnectAsync(), Disconnect(), IsConnected, IsWebSocketServerDisabled
-  - Reads configuration, waits for port, connects to WebSocket
-  - Raises Connected, Disconnected, and WebSocketServerDisabled events
-
-**Command Coordination:**
-
-- **CommandRegistry.cs**: Manages command registration and event distribution
-  - Stores registered commands implementing IObsCommand interfaces
-  - Provides notification methods for all event types
-- **CommandCoordinator.cs**: Facade for CommandRegistry (93 lines)
-  - RegisterCommand() for command self-registration
-  - 13 notification methods (NotifyConnected, NotifyProfileChanged, etc.)
-  - Delegates to CommandRegistry
-- **IObsCommand.cs**: Interface hierarchy for command registration
-  - Base IObsCommand with OnConnected/OnDisconnected
-  - 11 specialized interfaces (IProfileAwareCommand, ISceneAwareCommand, etc.)
-
-**OBS Integration:**
-
-- **OBSFacade.cs**: Single point of access to OBS functionality (227 lines)
-  - 7 state properties (IsRecording, IsStreaming, CurrentProfile, etc.)
-  - 10 query methods (GetProfileList, GetSceneList, GetInputList, etc.)
-  - 20+ action methods (ToggleRecording, SwitchScene, ToggleInputMute, etc.)
-  - Connection validation and error handling
-- **OBSWebSocketManager.cs**: Primary WebSocket connection manager
-  - Handles connect/disconnect/reconnect with exponential backoff and jitter
-  - Event routing, timer-based continuous reconnection
-- **OBSActionExecutor.cs**: Executes OBS commands
-  - Scene switching, recording control, streaming control
-  - Virtual camera, replay buffer, studio mode
-  - Profile management, source visibility, audio control
-- **IOBSWebsocket.cs**: Interface abstraction for OBS WebSocket operations (enables testing/mocking)
-- **OBSWebsocketAdapter.cs**: Adapter wrapping obs-websocket-dotnet library
-- **OBSConfigReader.cs**: Reads OBS configuration files to discover WebSocket settings (port, password, server enabled state)
-- **OBSLifecycleManager.cs**: Manages connection lifecycle, port availability checking
-- **PluginConfigReader.cs**: Reads and writes plugin-specific configuration from AppData
-- **StatsService.cs**: Timer-based polling service for OBS performance statistics
-
-### Helpers Layer (`src/Helpers/`)
-
-- **PluginLog.cs**: Centralized logging wrapper (implements IPluginLog)
-- **IPluginLog.cs**: Logging interface for dependency injection
-- **LogLevel.cs**: Enum defining log levels (Trace, Debug, Info, Warning, Error)
-- **PluginResources.cs**: Embedded resource loader for icons and images
-- **OBSTimings.cs**: Centralized timing constants for OBS operations and tests
-- **ButtonImageHelper.cs**: Static helper for all button image rendering (icons, text, state-based)
-- **ButtonTextRenderer.cs**: Text rendering with dynamic font sizing and layout
-- **AudioSelectionState.cs**: Static state tracker for which audio input is selected for dial control
-- **VolumeConverter.cs**: Static helper for volume multiplier to dB conversion and formatting
-- **PressTimingHelper.cs**: DoubleTapHelper for distinguishing single/double tap on buttons
-- **AudioHelpers.cs**: Shared rendering logic for audio source status display (mute, volume, monitoring)
-
-### Models Layer (`src/Models/`)
-
-- **OBSConnectionSettings.cs**: Data model for WebSocket connection configuration (URL, port, password)
-- **PluginConfig.cs**: Plugin configuration model (log level, connection settings, stats polling interval)
-- **OBSStats.cs**: Data model for OBS performance statistics (CPU, memory, FPS, frame counts)
+| File | Contents |
+|------|---------|
+| `OBSConnectionSettings.cs` | IP, port, password — with localhost validation |
+| `OBSStats.cs` | Stats model with derived properties (FPS, CPU%, render lag %) |
+| `OBSStreamStats.cs` | Stream stats model (duration, bytes, congestion, frames) |
+| `PluginConfig.cs` | Persisted plugin config (UseLocalObs, RemoteIP, Port, Password, StatsPollingInterval, LogLevel) |
 
 ## Architectural Patterns
 
-### Single Responsibility Principle
+### 1. Layered Architecture
 
-The codebase follows SRP by splitting concerns into focused classes:
+```
+Loupedeck SDK (Actions layer)
+        ↓ calls
+OBSStudioForLogiPlugin (orchestration)
+        ↓ delegates to
+OBSFacade → OBSWebSocketManager → OBSActionExecutor → IOBSWebsocket
+                                                              ↓
+                                                   OBSWebsocketAdapter → obs-websocket-dotnet
+```
 
-- **ConnectionManager** - Connection lifecycle only
-- **CommandCoordinator** - Command coordination only
-- **OBSFacade** - OBS interface only
-- **OBSStudioForLogiPlugin** - Orchestration and event routing only
+### 2. Command Registry / Self-Registration Pattern
 
-This separation improves:
-
-- **Testability** - Mock only what you need
-- **Maintainability** - Changes are isolated
-- **Understandability** - Each class has clear purpose
-- **Reusability** - Components can be used independently
-
-### Command Registry Pattern
-
-Commands self-register with the plugin via interfaces:
-
+Commands register themselves in their constructor:
 ```csharp
-public class ScenesDynamicFolder : PluginDynamicFolder, IObsCommand, ISceneAwareCommand
+public ScenesDynamicFolder()
 {
-    public ScenesDynamicFolder()
-    {
-        Instance = this;
-        OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
-    }
-    
-    public void OnConnected() { }
-    public void OnDisconnected() { }
-    public void OnSceneChanged(String sceneName) { }
+    Instance = this;
+    OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
 }
 ```
-
-Benefits:
-
-- No manual registration needed in main plugin
-- Compile-time safety via interfaces
-- Automatic notification routing
-
-### Facade Pattern
-
-OBSFacade provides simplified interface to complex OBS subsystem:
-
+`CommandRegistry` dispatches events via interface type-filtering:
 ```csharp
-public class OBSFacade
-{
-    private readonly OBSWebSocketManager _obsManager;
-    
-    // Simple interface
-    public Boolean IsRecording { get; }
-    public void ToggleRecording() { }
-    public String[] GetSceneList() { }
-    
-    // Hides complexity of:
-    // - Connection validation
-    // - Null checking
-    // - Error handling
-    // - OBSWebSocketManager → OBSActionExecutor delegation
-}
+foreach (var command in this._commands.OfType<ISceneAwareCommand>())
+    command.OnSceneChanged(sceneName);
 ```
 
-### Singleton Pattern
-
-Most command classes use singleton instances accessed via static `Instance` property:
-
-```csharp
-public static SceneCollectionSelectCommand Instance { get; private set; }
-```
-
-This allows the main plugin to notify commands of state changes without maintaining explicit references.
-
-### Event-Driven Architecture
-
-- Plugin subscribes to Loupedeck ClientApplication events (ApplicationStarted, ApplicationStopped)
-- OBSWebSocketManager raises events for OBS state changes (scene changes, profile changes, recording state)
-- Commands subscribe to relevant events and update their UI state accordingly
-
-### Adapter Pattern
-
-`OBSWebsocketAdapter` wraps the third-party `obs-websocket-dotnet` library, providing:
-
-- Abstraction layer for easier testing
-- Consistent error handling
-- Event translation to plugin-specific formats
-
-### Command Pattern
-
-Each action inherits from Loupedeck base classes:
-
-- `PluginMultistateDynamicCommand`: Commands with multiple states (selected/unselected)
-- `PluginDynamicCommand`: Simple action commands
-- Commands implement `RunCommand(String actionParameter)` for execution
-
-### Dependency Injection (Partial)
-
-- Services use interface abstractions (IOBSWebsocket) for testability
-- PluginLog uses IPluginLog interface
-- Main plugin instantiates concrete implementations
-
-## Component Relationships
+### 3. Notification Interface Hierarchy
 
 ```
-OBSStudioForLogiPlugin (main - 289 lines)
-    ├── ConnectionManager (connection lifecycle - 52 lines)
-    │   ├── OBSWebSocketManager
-    │   ├── OBSConfigReader
-    │   └── OBSLifecycleManager
-    ├── CommandCoordinator (command coordination - 93 lines)
-    │   └── CommandRegistry
-    ├── OBSFacade (OBS interface - 227 lines)
-    │   └── OBSWebSocketManager
-    │       ├── OBSWebsocketAdapter (library wrapper)
-    │       └── OBSActionExecutor (command execution)
-    └── Commands (Actions/)
-        ├── Display Commands (ConnectionStatus, CurrentProfile, CurrentScene, CurrentSceneCollection)
-        ├── Profile Commands (ProfileSelect, ProfilesDynamicFolder)
-        ├── Scene Commands (SceneCollectionSelect, ScenesDynamicFolder, SourcesDynamicFolder)
-        ├── Recording Commands (Toggle, Start, Stop, Pause)
-        ├── Streaming Commands (Toggle, Start, Stop)
-        ├── Replay Buffer Commands (Toggle, Save)
-        ├── Virtual Camera Commands (Toggle, Start, Stop)
-        ├── Studio Mode Commands (Toggle, Transition)
-        ├── Audio Commands (AudioMixer, SceneAudio, AudioSelect, AudioVolume, SelectedSourceVolume)
-        ├── User Defined Actions (SceneSwitch, SourceVisibility, AudioMute, AudioMonitoring, AudioSelect)
-        └── Utility Commands (Screenshot, Reconnect)
+IObsCommand (OnConnected, OnDisconnected)
+    ├── ISceneAwareCommand          (OnSceneChanged)
+    ├── IScenesListAwareCommand     (OnScenesChanged)
+    ├── IProfileAwareCommand        (OnProfileChanged)
+    ├── IProfilesListAwareCommand   (OnProfilesChanged)
+    ├── ISceneCollectionAwareCommand(OnSceneCollectionChanged)
+    ├── ISourceVisibilityAwareCommand(OnSourceVisibilityChanged)
+    ├── IInputMuteAwareCommand      (OnInputMuteChanged)
+    ├── IInputVolumeAwareCommand    (OnInputVolumeChanged)
+    ├── IInputsListAwareCommand     (OnInputsChanged)
+    ├── IVirtualCameraAwareCommand  (OnVirtualCameraStateChanged)
+    ├── IReplayBufferAwareCommand   (OnReplayBufferStateChanged)
+    ├── IReplayBufferSavedAwareCommand(OnReplayBufferSaved)
+    ├── IStudioModeAwareCommand     (OnStudioModeStateChanged)
+    └── IInputMonitorAwareCommand   (OnInputMonitorTypeChanged)
 ```
 
-### Data Flow
+### 4. Singleton Instance Pattern
 
-1. **Startup**: Plugin loads → ConnectionManager.ConnectAsync() → reads OBS config → waits for port → connects to WebSocket
-2. **User Action**: Hardware button press → Command.RunCommand() → Plugin delegates to OBSFacade → OBSActionExecutor → WebSocket request
-3. **OBS Event**: WebSocket event → OBSWebSocketManager → Plugin callback → CommandCoordinator.Notify*() → Commands update UI
-4. **Command Registration**: Command constructor → OBSStudioForLogiPlugin.RegisterCommand() → CommandCoordinator.RegisterCommand() → CommandRegistry stores command
+Every command exposes a static `Instance` property set in its constructor. This enables direct access from `OBSWebSocketManager` and `OBSStudioForLogiPlugin` for cases not yet routed through the registry.
 
-## Build Configuration
+### 5. Facade Pattern
 
-### Project Structure
+`OBSFacade` provides a single, null-safe access point to all OBS state and actions, hiding the `OBSWebSocketManager`/`OBSActionExecutor` chain from the main plugin class.
 
-- **Target Framework**: .NET 8.0
-- **Root Namespace**: Loupedeck.OBSStudioForLogiPlugin
-- **Output**: Custom paths to Logi Plugin Service directories
-- **Platform**: Cross-platform (Windows/macOS with conditional compilation)
+### 6. Event Flow
 
-### Build Targets
+```
+OBS fires event
+    → obs-websocket-dotnet raises C# event
+    → OBSWebSocketManager handler
+    → OBSStudioForLogiPlugin.OnXxx() callback
+    → CommandCoordinator.NotifyXxx()
+    → CommandRegistry dispatches to registered commands via interface
+    → Command calls CommandImageChanged(parameter)
+    → Loupedeck framework calls GetCommandImage()
+    → Button icon updates
+```
 
-- **CopyPackage**: Copies metadata and package files to output
-- **PostBuild**: Creates .link file in plugin directory, triggers hot-reload via loupedeck:// protocol
-- **PluginClean**: Removes link files and output directories
+## Known Architectural Inconsistency
 
-### Dependencies
+`OBSWebSocketManager.OnConnected` and `OnDisconnected` contain ~10 hardcoded singleton calls each that bypass the `CommandRegistry`. The `CommandCoordinator.NotifyConnected()` / `NotifyDisconnected()` methods exist but are never called from `OBSStudioForLogiPlugin.OnOBSConnected` / `OnOBSDisconnected`. This means new commands that self-register will not receive `OnConnected`/`OnDisconnected` unless also added as hardcoded calls in `OBSWebSocketManager`.
 
-- **PluginApi.dll**: Loupedeck SDK (referenced from system installation)
-- **obs-websocket-dotnet** (v5.0.1): NuGet package for OBS WebSocket communication
+## Build Output
+
+```
+bin/
+├── Debug/bin/     ← DLL + all dependencies (hot-reload via .link file)
+├── Debug/metadata/
+├── Release/bin/
+└── Release/metadata/
+```
+
+Post-build: writes a `.link` file to `%LocalAppData%\Logi\LogiPluginService\Plugins\` and triggers `loupedeck:plugin/OBSStudioForLogi/reload`.
+
+## Package Format
+
+`.lplug4` — created with `LogiPluginTool pack`. Verified with `LogiPluginTool verify`. Metadata defined in `src/package/metadata/LoupedeckPackage.yaml`.

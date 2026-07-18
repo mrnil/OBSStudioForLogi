@@ -1,201 +1,142 @@
 # Technology Stack
 
-## Programming Languages
+## Runtime and Language
 
-- **C# 11**: Primary language (with implicit usings enabled)
-- **.NET 8.0**: Target framework
-- **Nullable Reference Types**: Disabled (`<Nullable>disable</Nullable>`)
+| Item | Value |
+|------|-------|
+| Language | C# |
+| Target Framework | .NET 8.0 (`net8.0`) |
+| Nullable Reference Types | Disabled in plugin project; Enabled in test project |
+| Implicit Usings | Enabled |
+| Root Namespace | `Loupedeck.OBSStudioForLogiPlugin` |
 
-## Core Dependencies
+## Key Dependencies
 
-### Loupedeck SDK
+### Plugin Project (`src/OBSStudioForLogiPlugin.csproj`)
 
-- **PluginApi.dll**: Proprietary SDK for Loupedeck/Logi hardware integration
-- **Location (Windows)**: `C:\Program Files\Logi\LogiPluginService\`
-- **Location (macOS)**: `/Applications/Utilities/LogiPluginService.app/Contents/MonoBundle/`
-- Provides base classes: `Plugin`, `PluginDynamicCommand`, `PluginMultistateDynamicCommand`, `ClientApplication`
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `PluginApi.dll` | (runtime-provided) | Logi Actions SDK — base classes for Plugin, PluginDynamicCommand, PluginDynamicFolder, ActionEditorCommand, BitmapBuilder, etc. |
+| `obs-websocket-dotnet` | 5.0.1 | OBS WebSocket 5.x client library |
+| `Microsoft.Extensions.Logging.Abstractions` | 10.0.9 | Logging abstractions |
+| `System.Drawing.Common` | 10.0.9 | Image rendering support |
 
-### NuGet Packages
+### Test Project (`tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj`)
 
-- **obs-websocket-dotnet** (v5.0.1): Official OBS WebSocket client library
-  - Provides WebSocket communication with OBS Studio
-  - Supports OBS WebSocket protocol v5.0+
-  - Handles authentication, event subscriptions, and request/response patterns
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `xunit` | 2.9.3 | Test framework |
+| `xunit.runner.visualstudio` | 3.1.5 | VS/IDE test runner |
+| `Moq` | 4.20.72 | Mocking framework |
+| `Microsoft.NET.Test.Sdk` | 18.7.0 | Test SDK |
+| `coverlet.collector` | 10.0.1 | Code coverage collection |
+| `obs-websocket-dotnet` | 5.0.1 | Required for type references in tests |
 
-## Build System
+## Loupedeck SDK Base Classes Used
 
-### MSBuild Configuration
+| SDK Class | Used By |
+|-----------|---------|
+| `Plugin` | `OBSStudioForLogiPlugin` |
+| `PluginDynamicCommand` | All toggle/start/stop/display commands |
+| `PluginDynamicFolder` | All dynamic folder commands |
+| `PluginDynamicAdjustment` | `SelectedSourceVolumeAdjustment`, `AudioVolumeWheelTool` |
+| `ActionEditorCommand` | All user-defined (Group 99) commands + `PluginSettingsCommand` |
+| `BitmapBuilder` | `ButtonTextRenderer` |
+| `BitmapImage` | Return type of all `GetCommandImage` overrides |
+| `BitmapColor` | Colour constants and custom colours |
+| `EmbeddedResources` | Icon loading |
+| `PluginImageSize` | Image size parameter in GetCommandImage |
+| `DeviceType` | Device-specific folder navigation |
 
-- **SDK**: Microsoft.NET.Sdk
-- **Build Tool**: MSBuild (via Visual Studio or dotnet CLI)
-- **Solution File**: OBSStudioForLogiPlugin.sln (Visual Studio 2022 format)
+## SDK Plugin API Location
 
-### Build Properties
+- **Windows**: `C:\Program Files\Logi\LogiPluginService\PluginApi.dll`
+- **macOS**: `/Applications/Utilities/LogiPluginService.app/Contents/MonoBundle/PluginApi.dll`
+- **CI**: `ci/PluginApi.dll` (stub for build validation without installed service)
 
-```xml
-<TargetFramework>net8.0</TargetFramework>
-<ImplicitUsings>enable</ImplicitUsings>
-<Nullable>disable</Nullable>
-<RootNamespace>Loupedeck.OBSStudioForLogiPlugin</RootNamespace>
-<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-```
+## Code Style — EditorConfig Enforced Rules
 
-### Custom Build Paths
+The `.editorconfig` in `src/` enforces the following (warnings, not errors):
 
-- **Base Output**: `[ProjectRoot]/../bin/`
-- **Binary Output**: `bin/[Configuration]/bin/`
-- **Plugin Link File**: `%LocalAppData%\Logi\LogiPluginService\Plugins\OBSStudioForLogiPlugin.link` (Windows)
-- **Plugin Link File**: `~/Library/Application Support/Logi/LogiPluginService/Plugins/` (macOS)
+- **`this.` qualification required** for all fields, methods, properties, events
+- **No `var`** — explicit types always (`csharp_style_var_*` = false)
+- **BCL type keywords forbidden** — use `String`, `Int32`, `Boolean`, `Single` not `string`, `int`, `bool`, `float`
+- **Braces always required** (`csharp_prefer_braces = true`)
+- **`using` directives inside namespace** (`csharp_using_directive_placement = inside_namespace`)
+- **Allman brace style** — opening brace on new line (`csharp_new_line_before_open_brace = all`)
+- **4-space indentation**, CRLF line endings
+- **Readonly fields** preferred (`dotnet_style_readonly_field = true`)
+- **Null propagation** preferred (`dotnet_style_null_propagation = true`)
+- **Private fields**: `_camelCase` with underscore prefix (enforced by SX1309/SX1309S)
+- **Interfaces**: `I` prefix (PascalCase)
+- **Types, methods, properties**: PascalCase
 
-### Build Targets
-
-1. **CopyPackage** (AfterTargets: PostBuildEvent)
-   - Copies `package/**/*` to output directory
-   - Includes metadata and icon files
-
-2. **PostBuild** (AfterTargets: PostBuildEvent)
-   - Creates `.link` file pointing to build output
-   - Triggers plugin hot-reload: `loupedeck:plugin/OBSStudioForLogi/reload`
-
-3. **PluginClean** (AfterTargets: CoreClean)
-   - Removes `.link` file
-   - Cleans output directories
-
-## Development Commands
-
-### Build
+## Build Commands
 
 ```bash
-# Build Debug configuration
+# Development build (triggers hot-reload via .link file)
 dotnet build src/OBSStudioForLogiPlugin.csproj
 
-# Build Release configuration
+# Release build (for packaging)
 dotnet build src/OBSStudioForLogiPlugin.csproj -c Release
 
-# Build entire solution
-dotnet build OBSStudioForLogiPlugin.sln
-```
-
-### Clean
-
-```bash
-# Clean build artifacts
-dotnet clean src/OBSStudioForLogiPlugin.csproj
-
-# Clean entire solution
-dotnet clean OBSStudioForLogiPlugin.sln
-```
-
-### Test
-
-```bash
 # Run all tests
 dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj
 
-# Run tests with verbosity
-dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj -v normal
+# Run tests with coverage
+dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj --collect:"XPlat Code Coverage"
+
+# Run specific test class
+dotnet test --filter "FullyQualifiedName~OBSActionExecutorAudioTests"
+
+# Clean
+dotnet clean OBSStudioForLogiPlugin.sln
 ```
 
-### Restore Dependencies
+## Packaging and Release
 
 ```bash
-# Restore NuGet packages
-dotnet restore OBSStudioForLogiPlugin.sln
+# Create .lplug4 package (use dotnet global tool)
+LogiPluginTool pack "b:\development\OBSStudioForLogiPlugin\bin\Release" "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
+
+# Verify package
+LogiPluginTool verify "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
+
+# Check metadata
+LogiPluginTool metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
 ```
 
-## Development Environment
+**LogiPluginTool locations:**
+- Preferred: `C:\Users\steph\.dotnet\tools\logiplugintool.exe` (dotnet global tool, callable as `LogiPluginTool`)
+- Alternative: `B:\development\LogitechBeta\LogiPluginSdkTools\LogiPluginTool.exe`
+- ❌ Do NOT use: `C:\Program Files\Logi\LogiPluginService\LogiPluginTool.exe` (broken — missing companion DLL)
 
-### IDE Support
+## Version Management
 
-- **Visual Studio 2022** (v17.8+): Primary IDE with full solution support
-- **Visual Studio Code**: Supported via .vscode configuration
-  - `launch.json`: Debug configurations
-  - `tasks.json`: Build tasks
+Version is defined in two places — both must be updated for a release:
+1. `src/OBSStudioForLogiPlugin.csproj` — `<Version>`, `<AssemblyVersion>`, `<FileVersion>`
+2. `src/package/metadata/LoupedeckPackage.yaml` — `version:`
 
-### Platform Requirements
+## CI/CD
 
-- **Windows**: Windows 10/11 with .NET 8.0 SDK
-- **macOS**: macOS 10.15+ with .NET 8.0 SDK
-- **Logi Plugin Service**: Must be installed for plugin deployment and testing
+- **GitHub Actions**: `.github/workflows/dependency-check.yml` — dependency vulnerability scanning + build validation
+- **Tests**: Run locally only (not in CI — fire-and-forget Task.Run patterns cause timing issues in CI)
+- **Dependabot**: `.github/dependabot.yml` — automated dependency update PRs
 
-### Editor Configuration
+## OBS WebSocket Protocol
 
-- **.editorconfig**: Code style and formatting rules (located in `src/.editorconfig`)
-- **Directory.Build.props**: Shared MSBuild properties (located in `src/Directory.Build.props`)
+- **Protocol version**: OBS WebSocket 5.x
+- **Library**: obs-websocket-dotnet 5.0.1
+- **Required OBS version**: 28.0+ (with obs-websocket 5.0+ built-in)
+- **Default port**: 4455
+- **Authentication**: SHA256 challenge-response (handled by library)
+- **Connection**: ws:// (unencrypted — note for remote connections)
 
-## Testing Framework
+## Test Architecture
 
-### Test Project
-
-- **Project**: OBSStudioForLogiPlugin.Tests
-- **Framework**: xUnit 2.9.3 with Moq 4.20.72
-- **Coverage Tool**: coverlet.collector 10.0.1
-- **Test Runner**: xunit.runner.visualstudio 3.1.5
-- **Test Count**: 348 tests
-- **Test Categories**:
-  - `OBSActionExecutorTests.cs`: Core action execution logic
-  - `OBSActionExecutorReplayBufferTests.cs`: Replay buffer operations
-  - `OBSActionExecutorAudioTests.cs`: Audio volume, monitoring, input queries
-  - `OBSActionExecutorSceneSwitchingTests.cs`: Studio mode scene switching
-  - `OBSActionExecutorStudioModeTests.cs`: Studio mode toggle/state
-  - `OBSActionExecutorStudioModeTransitionTests.cs`: Studio mode transitions
-  - `OBSActionExecutorStatsAndMediaTests.cs`: Stats, stream status, media methods
-  - `OBSFacadeTests.cs`: Facade disconnected state and validation
-  - `CommandRegistryTests.cs`: Interface-based command dispatch
-  - `OBSConfigReaderTests.cs`: Configuration file parsing
-  - `OBSConnectionSettingsTests.cs`: Connection settings model
-  - `OBSLifecycleManagerTests.cs`: Port availability/lifecycle
-  - `OBSWebSocketManagerTests.cs`: WebSocket management
-  - `OBSWebSocketManagerStateTests.cs`: State property delegation
-  - `OBSWebSocketManagerReconnectionTests.cs`: Reconnection logic
-  - `OBSWebSocketManagerLoggingTests.cs`: Logging behavior
-  - `OBSWebSocketManagerEventDispatchTests.cs`: Event state propagation
-  - `ReconnectionStrategyTests.cs`: Backoff delays and retry logic
-  - `SourceVisibilityTests.cs`: Source visibility operations
-  - `VirtualCameraCommandTests.cs`: Virtual camera state
-  - `ManualReconnectTests.cs`: Manual reconnection
-  - `OBSStatsModelTests.cs`: Stats and stream stats model tests
-  - `PluginConfigReaderTests.cs`: Config persistence tests
-  - `Actions/` subdirectory: Integration tests for command construction
-
-## Embedded Resources
-
-### Resource Types
-
-- **Icons**: SVG and PNG files embedded as resources
-- **Metadata**: Plugin icon (Icon256x256.png)
-- **Logical Names**: Resources use fully qualified names (e.g., `Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOn.svg`)
-
-### Resource Loading
-
-```csharp
-// Example from csproj
-<EmbeddedResource Include="Resources\icons\RecordingOn.svg">
-  <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOn.svg</LogicalName>
-</EmbeddedResource>
-```
-
-## Version Control
-
-- **Git**: Source control system
-- **.gitignore**: Standard Visual Studio ignore patterns
-  - Excludes: bin/, obj/, .vs/, user-specific files
-  - Includes: .vscode/settings.json, .vscode/tasks.json, .vscode/launch.json
-
-## Deployment
-
-### Plugin Installation
-
-1. Build creates `.link` file in Logi Plugin Service plugins directory
-2. Link file contains path to build output
-3. Plugin Service loads plugin from linked directory
-4. Hot-reload triggered automatically via `loupedeck:plugin/OBSStudioForLogi/reload` protocol
-
-### Distribution
-
-- Plugin distributed as directory structure containing:
-  - Compiled DLL (OBSStudioForLogiPlugin.dll)
-  - Dependencies (obs-websocket-dotnet.dll)
-  - Metadata files (package/metadata/)
-  - Icon resources (embedded in DLL)
+- **Framework**: xUnit 2.9.3
+- **Mocking**: Moq 4.20.72 — `IOBSWebsocket` and `IPluginLog` are the primary mock targets
+- **Pattern**: Arrange-Act-Assert
+- **Async testing**: `Thread.Sleep(OBSTimings.TestAsyncDelay)` (500ms) after fire-and-forget operations
+- **Test count**: 362 unit tests
+- **Coverage**: ~39.5% line (Cobertura) — services layer 80-100%, actions layer exempt from strict TDD
