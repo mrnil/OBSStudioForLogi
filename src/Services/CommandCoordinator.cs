@@ -95,5 +95,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._registry.NotifyInputMonitorTypeChanged(inputName);
         }
+
+        public void NotifySceneSourcesChanged(String sceneName, String[] sources, String[] audioSources)
+        {
+            this._registry.NotifySceneSourcesChanged(sceneName, sources, audioSources);
+        }
     }
 }

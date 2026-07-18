@@ -4,7 +4,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Collections.Generic;
     using System.Linq;
 
-    public class SourcesDynamicFolder : PluginDynamicFolder, IObsCommand, ISourceVisibilityAwareCommand
+    public class SourcesDynamicFolder : PluginDynamicFolder, IObsCommand, ISourceVisibilityAwareCommand, ISceneSourcesAwareCommand
     {
         public static SourcesDynamicFolder Instance { get; private set; }
 
@@ -62,6 +62,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnConnected()
         {
             this.ButtonActionNamesChanged();
+        }
+
+        public void OnSceneSourcesChanged(String sceneName, String[] sources, String[] audioSources)
+        {
+            this.UpdateSources(sceneName, sources);
         }
 
         public void OnSourceVisibilityChanged(String sceneName, String sourceName)

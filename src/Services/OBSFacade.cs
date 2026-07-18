@@ -271,7 +271,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._obsManager?.Actions.GetMediaInputList() ?? new String[0];
         }
 
-        public void UpdateSourcesForScene(String sceneName, Action<String, String[]> updateSourcesCallback, Action<String, String[]> updateAudioSourcesCallback)
+        public void UpdateSourcesForScene(String sceneName, Action<String, String[], String[]> callback)
         {
             if (String.IsNullOrEmpty(sceneName))
             {
@@ -280,13 +280,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
 
             var sources = this._obsManager?.Actions.GetSceneItemList(sceneName) ?? new String[0];
-            updateSourcesCallback?.Invoke(sceneName, sources);
-            
+
             var audioSourcesInScene = this._obsManager?.Actions.GetAudioSourcesInScene(sceneName) ?? new String[0];
             var audioInputsNotInAnyScene = this._obsManager?.Actions.GetAudioInputsNotInAnyScene() ?? new String[0];
             var allSceneAudioSources = audioSourcesInScene.Concat(audioInputsNotInAnyScene).ToArray();
-            
-            updateAudioSourcesCallback?.Invoke(sceneName, allSceneAudioSources);
+
+            callback?.Invoke(sceneName, sources, allSceneAudioSources);
         }
     }
 }

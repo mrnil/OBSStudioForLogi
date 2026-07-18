@@ -303,6 +303,34 @@ public class CommandRegistryTests
         Assert.Null(exception);
     }
 
+    // --- NotifySceneSourcesChanged ---
+
+    [Fact]
+    public void NotifySceneSourcesChanged_CallsOnlyISceneSourcesAwareCommands()
+    {
+        var sceneSourcesAware = new Mock<ISceneSourcesAwareCommand>();
+        var nonAware = new Mock<IObsCommand>();
+        this._registry.Register(sceneSourcesAware.Object);
+        this._registry.Register(nonAware.Object);
+
+        var sources = new[] { "Camera", "Screen" };
+        var audioSources = new[] { "Mic", "Desktop" };
+        this._registry.NotifySceneSourcesChanged("Scene 1", sources, audioSources);
+
+        sceneSourcesAware.Verify(x => x.OnSceneSourcesChanged("Scene 1", sources, audioSources), Times.Once);
+    }
+
+    [Fact]
+    public void NotifySceneSourcesChanged_DoesNotCallNonSceneSourcesAwareCommands()
+    {
+        var nonAware = new Mock<IObsCommand>();
+        this._registry.Register(nonAware.Object);
+
+        var exception = Record.Exception(() => this._registry.NotifySceneSourcesChanged("Scene 1", new String[0], new String[0]));
+
+        Assert.Null(exception);
+    }
+
     // --- NotifyReplayBufferSaved ---
 
     [Fact]

@@ -143,5 +143,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 command.OnInputMonitorTypeChanged(inputName);
             }
         }
+
+        public void NotifySceneSourcesChanged(String sceneName, String[] sources, String[] audioSources)
+        {
+            foreach (var command in this._commands.OfType<ISceneSourcesAwareCommand>())
+            {
+                command.OnSceneSourcesChanged(sceneName, sources, audioSources);
+            }
+        }
     }
 }

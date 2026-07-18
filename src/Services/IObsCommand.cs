@@ -77,4 +77,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     {
         void OnInputMonitorTypeChanged(String inputName);
     }
+
+    public interface ISceneSourcesAwareCommand : IObsCommand
+    {
+        void OnSceneSourcesChanged(String sceneName, String[] sources, String[] audioSources);
+    }
 }

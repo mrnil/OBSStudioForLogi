@@ -203,23 +203,21 @@ public class OBSFacadeTests
     [Fact]
     public void UpdateSourcesForScene_WhenSceneNameEmpty_DoesNotCallCallbacks()
     {
-        var sourcesCalled = false;
-        var audioCalled = false;
+        var called = false;
 
-        this._facade.UpdateSourcesForScene("", (s, items) => sourcesCalled = true, (s, items) => audioCalled = true);
+        this._facade.UpdateSourcesForScene("", (s, sources, audio) => called = true);
 
-        Assert.False(sourcesCalled);
-        Assert.False(audioCalled);
+        Assert.False(called);
     }
 
     [Fact]
     public void UpdateSourcesForScene_WhenSceneNameNull_DoesNotCallCallbacks()
     {
-        var sourcesCalled = false;
+        var called = false;
 
-        this._facade.UpdateSourcesForScene(null, (s, items) => sourcesCalled = true, (s, items) => { });
+        this._facade.UpdateSourcesForScene(null, (s, sources, audio) => called = true);
 
-        Assert.False(sourcesCalled);
+        Assert.False(called);
     }
 
     // --- Null facade (null manager) ---

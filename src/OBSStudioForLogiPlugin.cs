@@ -288,9 +288,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             PluginLog.Info($"Plugin notified of scene change: '{sceneName}'");
             this._commandCoordinator.NotifySceneChanged(sceneName);
-            this._obsFacade.UpdateSourcesForScene(sceneName, 
-                (scene, sources) => SourcesDynamicFolder.Instance?.UpdateSources(scene, sources),
-                (scene, audioSources) => SceneAudioSourcesDynamicFolder.Instance?.UpdateAudioSources(scene, audioSources));
+            this._obsFacade.UpdateSourcesForScene(sceneName,
+                (scene, sources, audioSources) => this.OnSceneSourcesChanged(scene, sources, audioSources));
+        }
+
+        public void OnSceneSourcesChanged(String sceneName, String[] sources, String[] audioSources)
+        {
+            this._commandCoordinator.NotifySceneSourcesChanged(sceneName, sources, audioSources);
         }
 
 
@@ -500,8 +504,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             PluginLog.Debug($"Plugin notified of scene items change in '{sceneName}'");
             this._obsFacade.UpdateSourcesForScene(sceneName,
-                (scene, sources) => SourcesDynamicFolder.Instance?.UpdateSources(scene, sources),
-                (scene, audioSources) => SceneAudioSourcesDynamicFolder.Instance?.UpdateAudioSources(scene, audioSources));
+                (scene, sources, audioSources) => this.OnSceneSourcesChanged(scene, sources, audioSources));
         }
 
         public void OnInputListChanged()
