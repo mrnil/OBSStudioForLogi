@@ -14,7 +14,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Instance = this;
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.Description = "Switches to a specific scene collection in OBS Studio";
-            this.GroupName = "7. Scenes";
+            this.GroupName = "7. Scenes###Collections";
             this.AddState("", "Scene collection unselected");
             this.AddState("", "Scene collection selected");
         }
