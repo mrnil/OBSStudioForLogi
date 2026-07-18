@@ -14,11 +14,7 @@
 
 - [ ] Add per-command exception isolation in each `Notify*` method so one failing command does not break others
 
-### Assessment: OBSStats Null Propagation (#7)
-
-- [ ] Add `OBSStats.Empty` static property returning a zero-value instance
-- [ ] Return `OBSStats.Empty` instead of `null` from disconnected/error paths in `OBSActionExecutor` and `OBSFacade`
-- [ ] Remove null guards from display commands (`StatsDisplay`, `StatsDynamicFolder`, `StreamStatsDynamicFolder`)
+### Assessment: OBSStats Null Propagation (#7) ✅ Done
 
 ### Audio
 
@@ -40,12 +36,12 @@
 
 ### Assessment: MediaDynamicFolder Doesn't Respond to Input List Changes (#10)
 
-- [ ] Implement `IInputsListAwareCommand` in `MediaDynamicFolder`
-- [ ] Filter incoming inputs list to media kinds in `OnInputsChanged`
+- [x] ~~Implement `IInputsListAwareCommand` in `MediaDynamicFolder`~~ ✅ Done
+- [x] ~~Filter incoming inputs list to media kinds in `OnInputsChanged`~~ ✅ Done
 
 ### Assessment: Password Field Has No Sensitivity Indication (#11)
 
-- [ ] Add `(sensitive)` to the password field label in `PluginSettingsCommand`
+- [x] ~~Add `(sensitive)` to the password field label in `PluginSettingsCommand`~~ ✅ Done
 
 ### Other
 
@@ -77,6 +73,9 @@
 
 ## Recently Completed (v1.5.x)
 
+- [x] Assessment #10 — `MediaDynamicFolder` now implements `IInputsListAwareCommand`; `OnInputsChanged` reloads media list via `GetMediaInputList()` and calls `ButtonActionNamesChanged()`
+- [x] Assessment #11 — Password field label updated to `"Password (sensitive)"` in `PluginSettingsCommand`
+- [x] Assessment #7 — `OBSStats.Empty` and `OBSStreamStats.Empty` null-object pattern added; `OBSActionExecutor` and `OBSFacade` return `Empty` instead of `null`; null guards removed from `StatsDisplay`, `StatsDynamicFolder`, `StreamStatsDynamicFolder`
 - [x] Assessment #4 — `DoubleTapHelper` race condition and `CancellationTokenSource` leak fixed: `lock(_tapStates)` added around all dictionary access; `CancellationTokenSource.Dispose()` called in `finally` on single-tap path, immediately on double-tap path, and in `Reset()`; 7 unit tests added
 - [x] Assessment #1 — CommandRegistry bypass fixed: `NotifyConnected`/`NotifyDisconnected` now called through `CommandCoordinator` in `OnOBSConnected`/`OnOBSDisconnected`
 - [x] Assessment #2 — Scene sources registry bypass fixed: `ISceneSourcesAwareCommand` interface added; `OnCurrentSceneChanged` and `OnSceneItemsChanged` route through `CommandCoordinator` → `CommandRegistry` instead of direct singleton calls

@@ -164,8 +164,8 @@ public void OnInputsChanged(String[] inputs)
 | 4 | ~~Medium~~ | ~~Code Quality~~ | ~~`DoubleTapHelper` race condition and `CancellationTokenSource` leak~~ ✅ Fixed |
 | 5 | Medium | Usability | Double-tap unreliable on MX Console; 500ms delay on audio selection |
 | 6 | Medium | Code Quality | `CommandCoordinator` is a valueless pass-through — no error isolation |
-| 7 | Medium | Code Quality | `OBSStats` null propagation — null-object pattern would clean up display commands |
+| 7 | ~~Medium~~ | ~~Code Quality~~ | ~~`OBSStats` null propagation — null-object pattern would clean up display commands~~ ✅ Fixed |
 | 8 | Low | Feature | `ProfileListChanged`/`SceneCollectionListChanged` events not subscribed |
 | 9 | Low | Feature | Recording duration display (parity with streaming stats) |
-| 10 | Low | Feature | `MediaDynamicFolder` doesn't respond to input list changes |
-| 11 | Low | Security | Password field has no masking or sensitivity indication |
+| 10 | ~~Low~~ | ~~Feature~~ | ~~`MediaDynamicFolder` doesn't respond to input list changes~~ ✅ Fixed |
+| 11 | ~~Low~~ | ~~Security~~ | ~~Password field has no masking or sensitivity indication~~ ✅ Fixed |
