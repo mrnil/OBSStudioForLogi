@@ -158,10 +158,10 @@ public void OnInputsChanged(String[] inputs)
 
 | # | Priority | Area | Issue |
 |---|----------|------|-------|
-| 1 | High | Architecture | `CommandRegistry` bypass — `NotifyConnected`/`NotifyDisconnected` never called through registry |
-| 2 | High | Architecture | `OnCurrentSceneChanged` bypasses registry for `SourcesDynamicFolder` and `SceneAudioSourcesDynamicFolder` |
+| 1 | ~~High~~ | ~~Architecture~~ | ~~`CommandRegistry` bypass — `NotifyConnected`/`NotifyDisconnected` never called through registry~~ ✅ Fixed |
+| 2 | ~~High~~ | ~~Architecture~~ | ~~`OnCurrentSceneChanged` bypasses registry for `SourcesDynamicFolder` and `SceneAudioSourcesDynamicFolder`~~ ✅ Fixed |
 | 3 | High | Usability | Scene/source/profile buttons show no text — unusable without memorisation |
-| 4 | Medium | Code Quality | `DoubleTapHelper` race condition and `CancellationTokenSource` leak |
+| 4 | ~~Medium~~ | ~~Code Quality~~ | ~~`DoubleTapHelper` race condition and `CancellationTokenSource` leak~~ ✅ Fixed |
 | 5 | Medium | Usability | Double-tap unreliable on MX Console; 500ms delay on audio selection |
 | 6 | Medium | Code Quality | `CommandCoordinator` is a valueless pass-through — no error isolation |
 | 7 | Medium | Code Quality | `OBSStats` null propagation — null-object pattern would clean up display commands |

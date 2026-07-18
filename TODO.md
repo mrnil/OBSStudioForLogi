@@ -2,9 +2,23 @@
 
 ## High Priority
 
-No items.
+### Assessment: Scene/Source/Profile Buttons Show No Text (#3)
+
+- [ ] `ScenesDynamicFolder.GetCommandImage` — render scene name alongside selected/unselected icon using `ButtonImageHelper.StateTextWithIcon`
+- [ ] `SourcesDynamicFolder.GetCommandImage` — render source name alongside visibility icon
+- [ ] `ProfilesDynamicFolder.GetCommandImage` — render profile name alongside selected/unselected icon
 
 ## Medium Priority
+
+### Assessment: CommandCoordinator Has No Error Isolation (#6)
+
+- [ ] Add per-command exception isolation in each `Notify*` method so one failing command does not break others
+
+### Assessment: OBSStats Null Propagation (#7)
+
+- [ ] Add `OBSStats.Empty` static property returning a zero-value instance
+- [ ] Return `OBSStats.Empty` instead of `null` from disconnected/error paths in `OBSActionExecutor` and `OBSFacade`
+- [ ] Remove null guards from display commands (`StatsDisplay`, `StatsDynamicFolder`, `StreamStatsDynamicFolder`)
 
 ### Audio
 
@@ -19,6 +33,23 @@ No items.
 
 ## Low Priority
 
+### Assessment: ProfileListChanged / SceneCollectionListChanged Not Subscribed (#8)
+
+- [ ] Subscribe to `ProfileListChanged` event in `OBSWebSocketManager` and call `UpdateProfileList()`
+- [ ] Subscribe to `SceneCollectionListChanged` event in `OBSWebSocketManager` and call `UpdateSceneCollectionList()`
+
+### Assessment: MediaDynamicFolder Doesn't Respond to Input List Changes (#10)
+
+- [ ] Implement `IInputsListAwareCommand` in `MediaDynamicFolder`
+- [ ] Filter incoming inputs list to media kinds in `OnInputsChanged`
+
+### Assessment: Password Field Has No Sensitivity Indication (#11)
+
+- [ ] Add `(sensitive)` to the password field label in `PluginSettingsCommand`
+
+### Other
+
+- [ ] Recording duration display (parity with streaming stats — `GetRecordStatus` returns timecode and bytes)
 - [ ] Audio sync offset controls (set-and-forget, rarely adjusted mid-stream)
 - [ ] Audio track assignment (multi-track recording)
 - [ ] Scene item transforms (position, scale, rotation)
@@ -43,6 +74,14 @@ No items.
 
 - [ ] Multi-instance OBS support (see `.amazonq/rules/memory-bank/multi-instance-obs-design.md`)
 - [ ] Dependency injection for StatsService (inject Func<OBSStats> instead of static singleton)
+
+## Recently Completed (v1.5.x)
+
+- [x] Assessment #4 — `DoubleTapHelper` race condition and `CancellationTokenSource` leak fixed: `lock(_tapStates)` added around all dictionary access; `CancellationTokenSource.Dispose()` called in `finally` on single-tap path, immediately on double-tap path, and in `Reset()`; 7 unit tests added
+- [x] Assessment #1 — CommandRegistry bypass fixed: `NotifyConnected`/`NotifyDisconnected` now called through `CommandCoordinator` in `OnOBSConnected`/`OnOBSDisconnected`
+- [x] Assessment #2 — Scene sources registry bypass fixed: `ISceneSourcesAwareCommand` interface added; `OnCurrentSceneChanged` and `OnSceneItemsChanged` route through `CommandCoordinator` → `CommandRegistry` instead of direct singleton calls
+- [x] `SceneCollectionsDynamicFolder` — dynamic folder for scene collections (consistent with `ProfilesDynamicFolder` and `ScenesDynamicFolder`)
+- [x] Build error fix — reverted to `net8.0`, pointed `PluginApiDir` at `ci\PluginApi.dll`
 
 ## Recently Completed (v1.4.0)
 
