@@ -15,7 +15,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.Name = "AudioStatusDisplay";
             this.DisplayName = "Audio Source Status (User defined)";
-            this.GroupName = "99. User Defined Actions";
+            this.GroupName = "8. Audio###User Defined";
             this.Description = "Display mute state, volume, and monitoring mode for a specific audio source";
             this.IsWidget = true;
 

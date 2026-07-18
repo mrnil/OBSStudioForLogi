@@ -16,7 +16,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.Name = "AudioMonitoringCycleAdjustable";
             this.DisplayName = "Cycle Audio Monitoring (User defined)";
-            this.GroupName = "99. User Defined Actions";
+            this.GroupName = "8. Audio###User Defined";
             this.Description = "Cycle audio monitoring type: None → Monitor Only → Monitor & Output";
 
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(InputNameControlName, "Audio Source Name (required)"));

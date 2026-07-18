@@ -15,7 +15,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.Name = "AudioSelectAdjustable";
             this.DisplayName = "Select Audio Source (User defined)";
-            this.GroupName = "99. User Defined Actions";
+            this.GroupName = "8. Audio###User Defined";
             this.Description = "Toggle selection of a specific audio source as the globally selected source";
 
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(InputNameControlName, "Audio Source Name (required)"));
