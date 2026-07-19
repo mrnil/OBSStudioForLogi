@@ -19,7 +19,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Instance = this;
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.DisplayName = "OBS Profiles";
-            this.GroupName = "6. Profiles###Available Profiles";
+            this.GroupName = "6. Profiles";
             this.Description = "Folder of available OBS profiles";
         }
 

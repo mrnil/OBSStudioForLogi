@@ -16,7 +16,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Instance = this;
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.DisplayName = "OBS Scene Collections";
-            this.GroupName = "7. Scenes###Available Collections";
+            this.GroupName = "7. Scenes";
             this.Description = "Folder of available OBS scene collections";
         }
 
