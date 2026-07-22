@@ -22,7 +22,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             "ffmpeg_source",
             "dshow_input",
             "window_capture",
-            "audio_capture"
+            "audio_capture",
+            "game_capture",
+            "browser_source"
         };
 
         public OBSWebsocketAdapter(OBSWebsocket obs)
