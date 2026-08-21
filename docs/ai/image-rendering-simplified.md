@@ -1,63 +1,70 @@
-# Image Rendering System
+# Image Rendering System - Simplified
 
 ## Overview
 
-The plugin renders all button images through two static helper classes — no factory/store/data-cache pattern. The Loupedeck framework caches images itself, so neither helper does its own caching.
+The plugin uses a simple, consistent helper class for all button image rendering. No complex factory/store/data patterns needed.
 
-- **`ButtonImageHelper`** (`src/Helpers/ButtonImageHelper.cs`) — icon-only buttons.
-- **`ButtonTextRenderer`** (`src/Helpers/ButtonTextRenderer.cs`) — anything showing text (name, value, status), with or without a border to indicate selection.
+## ButtonImageHelper API
 
-There is no combined "state icon" or "state text with icon" method on either class — state (on/off, selected/unselected) is expressed by branching inline at the call site to pick which icon, color, or border to use. This is deliberate: see "History" below for why an earlier design considered otherwise.
+All button images are created using the static `ButtonImageHelper` class:
 
-## ButtonImageHelper — Icons
+### Methods
 
-### Icon(iconResourceName)
+#### Icon(iconResourceName)
 
 Returns a static SVG icon from embedded resources.
 
 ```csharp
-return ButtonImageHelper.Icon("Screenshot.svg");
+return ButtonImageHelper.Icon("Reconnect.svg");
 ```
 
-For a state-based icon, branch inline — this is the actual pattern used throughout `src/Actions/` (`ToggleCommandBase`, `StartStopCommandBase`, `SceneSelectCommand`, etc.):
+#### StateIcon(isActive, activeIcon, inactiveIcon)
+
+Returns different icons based on boolean state.
 
 ```csharp
 Boolean isRecording = OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
-return ButtonImageHelper.Icon(isRecording ? "RecordingOn.svg" : "RecordingOff.svg");
+return ButtonImageHelper.StateIcon(isRecording, "RecordingOn.svg", "RecordingOff.svg");
 ```
 
-### IconWithBackground(iconResourceName, imageSize, backgroundColor)
+#### Text(text, imageSize, backgroundColor, textColor)
 
-Renders an icon over a solid background color. Used by `ReconnectCommand` to color-code connection state behind the icon.
+Renders text-only button with optional colors.
 
 ```csharp
-return ButtonImageHelper.IconWithBackground("Reconnect.svg", imageSize, backgroundColor);
+return ButtonImageHelper.Text("Connected", imageSize, BitmapColor.Green, BitmapColor.White);
 ```
 
-## ButtonTextRenderer — Text
+#### StateText(text, imageSize, isActive, activeColor, inactiveColor)
 
-### RenderText(text, imageSize, backgroundColor?, textColor?)
-
-Text-only button; font size is auto-scaled to fit the text length and image size. Used by `ConnectionStatusDisplay`, `CurrentSceneDisplay`, `CurrentProfileDisplay`, `CurrentSceneCollectionDisplay`, `StatsDisplay`, `StatsDynamicFolder`, `StreamStatsDynamicFolder`, `AudioVolumeDynamicFolder`, `MediaDynamicFolder`.
+Renders text with color based on boolean state.
 
 ```csharp
-return ButtonTextRenderer.RenderText("Connected", imageSize, BitmapColor.Black, BitmapColor.Green);
+Boolean isMuted = GetMuteState();
+String text = $"{inputName}\n\n{volume}%";
+return ButtonImageHelper.StateText(text, imageSize, !isMuted, BitmapColor.Green, BitmapColor.Red);
 ```
 
-### RenderTextWithBorder(text, imageSize, textColor, showBorder)
+#### TextWithIcon(text, imageSize, iconResourceName, textColor)
 
-Text with an optional 3px white border — the border is how "currently selected" is shown alongside a state color. Used by `AudioInputDynamicFolderBase`, `AudioHelpers`, and `ScenesDynamicFolder`/`SourcesDynamicFolder`/`ProfilesDynamicFolder` (name-on-button fix, Assessment #3).
+Renders text with a background icon.
 
 ```csharp
-Boolean isSelected = actionParameter == this._currentScene;
-return ButtonTextRenderer.RenderTextWithBorder(actionParameter, imageSize, isSelected ? BitmapColor.Green : BitmapColor.White, isSelected);
+String text = $"{inputName}\n\n{volume}%";
+return ButtonImageHelper.TextWithIcon(text, imageSize, "AudioMixerUnmuted.svg", BitmapColor.Green);
 ```
 
-An overload takes explicit `imageWidth`/`imageHeight` instead of `PluginImageSize`, for non-standard sizes (used by `AudioHelpers`).
+#### StateTextWithIcon(text, imageSize, isActive, activeIcon, inactiveIcon, activeColor, inactiveColor)
 
-### RenderTextWithIcon(text, imageSize, iconResourceName, textColor?)
+Renders text with state-based background icon and color.
 
-Draws an icon then overlays text on top. Exists on the helper but is not currently called anywhere in `src/` — `RenderTextWithBorder` has covered every case that's come up so far where text needs a state indicator.
+```csharp
+Boolean isMuted = GetMuteState();
+String text = $"{inputName}\n\n{volume}%";
+return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted,
+    "AudioMixerUnmuted.svg", "AudioMixerMuted.svg",
+    BitmapColor.Green, BitmapColor.Red);
+```
 
 ## Usage Examples
 
@@ -76,31 +83,56 @@ public class ScreenshotCommand : PluginDynamicCommand
 ### State-Based Icon Button
 
 ```csharp
-public class RecordingToggleCommand : ToggleCommandBase, IObsCommand
+public class RecordingToggleCommand : PluginDynamicCommand
 {
-    protected override String GetActiveIcon() => "RecordingOn.svg";
-    protected override String GetInactiveIcon() => "RecordingOff.svg";
-    // ToggleCommandBase.GetCommandImage branches on GetState() to pick between them
+    protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+    {
+        Boolean isRecording = OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
+        return ButtonImageHelper.StateIcon(isRecording, "RecordingOn.svg", "RecordingOff.svg");
+    }
 }
 ```
 
 ### Text Display Button
 
 ```csharp
-public class ConnectionStatusDisplay : PluginDynamicCommand
+public class CurrentSceneDisplay : PluginDynamicCommand
 {
+    private String _currentScene = "Not Connected";
+
     protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
         Boolean isConnected = OBSStudioForLogiPlugin.Instance?.IsConnected ?? false;
-        String text = isConnected ? "Connected" : "Disconnected";
-        BitmapColor bgColor = isConnected ? BitmapColor.Green : BitmapColor.Red;
+        String displayText = isConnected ? this._currentScene : "Not Connected";
+        BitmapColor bgColor = isConnected ? new BitmapColor(57, 180, 120) : BitmapColor.Black;
+        BitmapColor textColor = isConnected ? BitmapColor.White : new BitmapColor(128, 128, 128);
 
-        return ButtonTextRenderer.RenderText(text, imageSize, bgColor, BitmapColor.White);
+        return ButtonImageHelper.Text(displayText, imageSize, bgColor, textColor);
     }
 }
 ```
 
-### Text With Selection Border
+### State-Based Text Button
+
+```csharp
+public class AudioInputDynamicFolderBase : PluginDynamicFolder
+{
+    public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+    {
+        Boolean isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(actionParameter) ?? false;
+        Single volumeLevel = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
+
+        Int32 volumePercent = (Int32)(volumeLevel * 100);
+        String text = $"{actionParameter}\n\n{volumePercent}%";
+
+        return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted,
+            "AudioMixerUnmuted.svg", "AudioMixerMuted.svg",
+            BitmapColor.Green, BitmapColor.Red);
+    }
+}
+```
+
+### Dynamic Folder with State Icons
 
 ```csharp
 public class ScenesDynamicFolder : PluginDynamicFolder
@@ -110,10 +142,19 @@ public class ScenesDynamicFolder : PluginDynamicFolder
     public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
         Boolean isSelected = actionParameter == this._currentScene;
-        return ButtonTextRenderer.RenderTextWithBorder(actionParameter, imageSize, isSelected ? BitmapColor.Green : BitmapColor.White, isSelected);
+        return ButtonImageHelper.StateIcon(isSelected, "ScenesSelected.svg", "ScenesUnselected.svg");
     }
 }
 ```
+
+## Benefits
+
+1. **Simple** - One helper class, six methods
+2. **Consistent** - All buttons use same API
+3. **Clear** - Method names describe what they do
+4. **Minimal** - No boilerplate code needed
+5. **Efficient** - Loupedeck framework handles caching
+6. **Flexible** - Supports text-only, icon-only, and text-with-icon combinations
 
 ## Icon Resource Naming
 
@@ -132,10 +173,51 @@ The Loupedeck framework calls `GetCommandImage()`:
 - When you call `CommandImageChanged(actionParameter)`
 - When you call `ActionImageChanged()`
 
-The framework handles caching internally — you don't need to implement your own caching logic.
+The framework handles caching internally - you don't need to implement your own caching logic.
 
-## History
+## Migration from Old System
 
-Earlier versions of this plugin (pre-v1.1.0) used a more complex `ActionImageStore<StateImageData>` factory/cache pattern (`StateImageFactory`, `TextImageFactory`, `SimpleIconImageFactory` plus matching `*Data` model classes) — removed in v1.1.0 in favor of static helpers (see `CHANGELOG.md`).
+**Before (complex):**
 
-**Note on this file's accuracy**: an earlier revision of this document described the replacement as a single consolidated `ButtonImageHelper` class with six methods (`Icon`, `StateIcon`, `Text`, `StateText`, `TextWithIcon`, `StateTextWithIcon`). That consolidation was never actually implemented — none of the `State*`/`TextWithIcon`/`StateTextWithIcon` methods exist in the codebase. What was actually built is the two-class split documented above (`ButtonImageHelper` for icons, `ButtonTextRenderer` for text), discovered and corrected while implementing Assessment #3, which had inherited the same inaccurate method names into its proposed fix. If you're reading older context (chat history, a cached version of this file, etc.) that references `ButtonImageHelper.StateIcon` or similar — it's wrong; use the real API above.
+```csharp
+private readonly ActionImageStore<StateImageData> imageStore;
+
+public RecordingToggleCommand()
+{
+    this.imageStore = new ActionImageStore<StateImageData>(new StateImageFactory());
+}
+
+protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+{
+    Boolean isRecording = OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
+
+    StateImageData imageData = new StateImageData
+    {
+        Id = "recording-toggle",
+        IsActive = isRecording,
+        ActiveIconPath = "Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOn.svg",
+        InactiveIconPath = "Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOff.svg"
+    };
+
+    this.imageStore.UpdateImage(imageData.Id, imageData);
+
+    if (this.imageStore.TryGetImage(imageData.Id, imageSize, out BitmapImage image))
+    {
+        return image;
+    }
+
+    return EmbeddedResources.ReadImage(imageData.InactiveIconPath);
+}
+```
+
+**After (simple):**
+
+```csharp
+protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+{
+    Boolean isRecording = OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
+    return ButtonImageHelper.StateIcon(isRecording, "RecordingOn.svg", "RecordingOff.svg");
+}
+```
+
+**Result:** ~80% reduction in code, same functionality.

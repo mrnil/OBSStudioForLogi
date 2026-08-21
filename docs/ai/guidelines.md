@@ -259,7 +259,7 @@ Always query live state from the plugin; never cache state in the command:
 protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
 {
     Boolean isRecording = OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
-    return ButtonImageHelper.Icon(isRecording ? "RecordingOn.svg" : "RecordingOff.svg");
+    return ButtonImageHelper.StateIcon(isRecording, "RecordingOn.svg", "RecordingOff.svg");
 }
 ```
 
@@ -385,25 +385,30 @@ public class MyAdjustableCommand : ActionEditorCommand, IObsCommand
 
 ## Image Rendering Patterns
 
-### ButtonImageHelper (icons) and ButtonTextRenderer (text) — Preferred APIs
+### ButtonImageHelper — Preferred API
 
-Two static helpers, not one — see `docs/ai/image-rendering-simplified.md` for the full reference. `ButtonImageHelper` is icon-only; `ButtonTextRenderer` is for anything showing text. Neither has a combined "state" method — branch inline at the call site to pick the icon/color/border for the current state:
+Use `ButtonImageHelper` static methods for all button images:
 
 ```csharp
 // Static icon
 return ButtonImageHelper.Icon("Screenshot.svg");
 
-// State-based icon — branch inline, there's no StateIcon() method
-return ButtonImageHelper.Icon(isActive ? "RecordingOn.svg" : "RecordingOff.svg");
-
-// Icon over a solid background color
-return ButtonImageHelper.IconWithBackground("Reconnect.svg", imageSize, backgroundColor);
+// State-based icon
+return ButtonImageHelper.StateIcon(isActive, "RecordingOn.svg", "RecordingOff.svg");
 
 // Text only
-return ButtonTextRenderer.RenderText("Connected", imageSize, BitmapColor.Black, BitmapColor.Green);
+return ButtonImageHelper.Text("Connected", imageSize, BitmapColor.Green, BitmapColor.White);
 
-// Text with a border to indicate selection/state, alongside a state-based color
-return ButtonTextRenderer.RenderTextWithBorder(text, imageSize, !isMuted ? BitmapColor.Green : BitmapColor.Red, isSelected);
+// State-based text
+return ButtonImageHelper.StateText(text, imageSize, isActive, BitmapColor.Green, BitmapColor.Red);
+
+// Text with background icon
+return ButtonImageHelper.TextWithIcon(text, imageSize, "AudioMixerUnmuted.svg", BitmapColor.Green);
+
+// State-based text with icon
+return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted,
+    "AudioMixerUnmuted.svg", "AudioMixerMuted.svg",
+    BitmapColor.Green, BitmapColor.Red);
 ```
 
 ### Icon Resource Names — Short Form

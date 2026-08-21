@@ -5,7 +5,7 @@
 Assessment conducted against v1.5.1. Covers code quality, architecture, usability, and feature gaps.
 Items are ordered by priority within each category.
 
-Items #1, #2, #4, #7, #10, #11 shipped in v1.6.0; v1.6.1 was a maintenance release (audio input-kind filter fix, default profiles, action-picker grouping) with no assessment items addressed. #6, #12, and #13 were fixed post-v1.6.1, shipping in v1.6.2. #3 and #14 were fixed post-v1.6.2 (not yet released). As of now, the remaining open items are #5, #8, #9, #15, #16.
+Items #1, #2, #4, #7, #10, #11 shipped in v1.6.0; v1.6.1 was a maintenance release (audio input-kind filter fix, default profiles, action-picker grouping) with no assessment items addressed. #6, #12, and #13 were fixed post-v1.6.1, shipping in v1.6.2. #14 was fixed post-v1.6.2 (not yet released). As of now, the remaining open items are #3, #5, #8, #9, #15.
 
 ---
 
@@ -43,21 +43,22 @@ These folders implement `IObsCommand` and `ISceneAwareCommand` but their scene-c
 
 ---
 
-### 3. Scene/Source/Profile Buttons Show No Text (Usability) ✅ Fixed
+### 3. Scene/Source/Profile Buttons Show No Text (Usability)
 
-**Problem**: `ScenesDynamicFolder`, `SourcesDynamicFolder`, and `ProfilesDynamicFolder` displayed only a selected/unselected icon — no name text. On the MX Console's small tiles, users had to memorise button positions to know which scene or source each button represents.
+**Problem**: `ScenesDynamicFolder`, `SourcesDynamicFolder`, and `ProfilesDynamicFolder` display only a selected/unselected icon — no name text. On the MX Console's small tiles, users must memorise button positions to know which scene or source each button represents.
 
-**Fix applied**: Switched `GetCommandImage` in all three to `ButtonTextRenderer.RenderTextWithBorder`, rendering the item name as text with color + border indicating state, replacing the icon entirely:
+**Fix**: Use `ButtonTextRenderer.RenderTextWithBorder` or `ButtonImageHelper.StateTextWithIcon` to render the item name alongside the selection indicator. Example for scenes:
 
 ```csharp
 public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
 {
     Boolean isSelected = actionParameter == this._currentScene;
-    return ButtonTextRenderer.RenderTextWithBorder(actionParameter, imageSize, isSelected ? BitmapColor.Green : BitmapColor.White, isSelected);
+    String icon = isSelected ? "ScenesSelected.svg" : "ScenesUnselected.svg";
+    return ButtonImageHelper.StateTextWithIcon(actionParameter, imageSize, isSelected,
+        "ScenesSelected.svg", "ScenesUnselected.svg",
+        BitmapColor.Green, BitmapColor.White);
 }
 ```
-
-`SourcesDynamicFolder` uses Green/Red for visible/hidden instead (no border — visibility isn't a "selection" concept). The originally-proposed `ButtonImageHelper.StateTextWithIcon` doesn't exist anywhere in the codebase — that was inherited documentation drift, corrected here and in `docs/ai/image-rendering-simplified.md`/`guidelines.md`/`sdk-quick-reference.md`/`structure.md` while implementing this fix. `SourceVisibilityOn.svg`/`SourceVisibilityOff.svg` were removed (no longer used by anything); `ScenesSelected/Unselected.svg` and `ProfileSelected/Unselected.svg` are kept — still used by `SceneSelectCommand`/`ProfileSelectCommand`, which have the identical no-text problem but are out of this item's original scope (see #16).
 
 ---
 
@@ -184,21 +185,13 @@ Found while migrating to .NET 10.0 (`5d04506`) and refreshing this memory bank. 
 
 ---
 
-### 16. `SceneSelectCommand`/`ProfileSelectCommand`/`SceneCollectionSelectCommand`/`AudioSourceSelectCommand` Have the Same No-Text Problem as #3 (Usability)
-
-**Problem**: Fixing #3 only covers the three `*DynamicFolder` classes. The four newer multi-state `*SelectCommand` classes (added in v1.6.0, see `docs/ai/structure.md`'s "Multi-State Select Commands") have the identical problem — `GetCommandImage` returns a plain `ButtonImageHelper.Icon(...)` selected/unselected icon with no name text, e.g. `SceneSelectCommand.GetCommandImage`. `AudioSourceSelectCommand` is the exception — it already renders name/volume/mute state as text, so it's not affected.
-
-**Fix**: Same pattern as #3 — switch `GetCommandImage` to `ButtonTextRenderer.RenderTextWithBorder(actionParameter, imageSize, isSelected ? BitmapColor.Green : BitmapColor.White, isSelected)` in `SceneSelectCommand`, `ProfileSelectCommand`, and `SceneCollectionSelectCommand`. `PluginMultistateDynamicCommand`'s `GetCommandImage` signature takes an extra `stateIndex` parameter instead of reading instance state directly — check the disconnected-state early return in each (e.g. `SceneSelectCommand` returns a bare icon when `!isConnected`) still makes sense as text or reverts to an icon-only fallback.
-
----
-
 ## Summary Table
 
 | # | Priority | Area | Issue |
 |---|----------|------|-------|
 | 1 | ~~High~~ | ~~Architecture~~ | ~~`CommandRegistry` bypass — `NotifyConnected`/`NotifyDisconnected` never called through registry~~ ✅ Fixed |
 | 2 | ~~High~~ | ~~Architecture~~ | ~~`OnCurrentSceneChanged` bypasses registry for `SourcesDynamicFolder` and `SceneAudioSourcesDynamicFolder`~~ ✅ Fixed |
-| 3 | ~~High~~ | ~~Usability~~ | ~~Scene/source/profile buttons show no text — unusable without memorisation~~ ✅ Fixed |
+| 3 | High | Usability | Scene/source/profile buttons show no text — unusable without memorisation |
 | 4 | ~~Medium~~ | ~~Code Quality~~ | ~~`DoubleTapHelper` race condition and `CancellationTokenSource` leak~~ ✅ Fixed |
 | 5 | Medium | Usability | Double-tap unreliable on MX Console; 500ms delay on audio selection |
 | 6 | ~~Medium~~ | ~~Code Quality~~ | ~~`CommandCoordinator` is a valueless pass-through — no error isolation~~ ✅ Fixed |
@@ -211,4 +204,3 @@ Found while migrating to .NET 10.0 (`5d04506`) and refreshing this memory bank. 
 | 13 | ~~Medium~~ | ~~Build/DX~~ | ~~`obj/` location depended on invocation method, causing spurious `CS0579` errors~~ ✅ Fixed |
 | 14 | ~~Low-Medium~~ | ~~Test Reliability~~ | ~~`DoubleTapHelperTests` flaky under full-suite/coverage load~~ ✅ Fixed |
 | 15 | Low-Medium | Test Reliability | Same fixed-sleep race broadly across `OBSActionExecutor*` tests — dozens of call sites, dominant flakiness source now that #14 is fixed |
-| 16 | Low | Usability | `SceneSelectCommand`/`ProfileSelectCommand`/`SceneCollectionSelectCommand` have the same no-text problem #3 fixed, out of its original scope |

@@ -2,15 +2,11 @@
 
 ## High Priority
 
-### Assessment: Scene/Source/Profile Buttons Show No Text (#3) ✅ Done
+### Assessment: Scene/Source/Profile Buttons Show No Text (#3)
 
-- [x] ~~`ScenesDynamicFolder.GetCommandImage` — render scene name via `ButtonTextRenderer.RenderTextWithBorder`~~ ✅ Done
-- [x] ~~`SourcesDynamicFolder.GetCommandImage` — render source name, Green/Red for visible/hidden~~ ✅ Done
-- [x] ~~`ProfilesDynamicFolder.GetCommandImage` — render profile name via `ButtonTextRenderer.RenderTextWithBorder`~~ ✅ Done
-
-### Assessment: Same No-Text Problem in the Newer Select Commands (#16)
-
-- [ ] `SceneSelectCommand`, `ProfileSelectCommand`, `SceneCollectionSelectCommand` — same fix as #3, out of its original scope
+- [ ] `ScenesDynamicFolder.GetCommandImage` — render scene name alongside selected/unselected icon using `ButtonImageHelper.StateTextWithIcon`
+- [ ] `SourcesDynamicFolder.GetCommandImage` — render source name alongside visibility icon
+- [ ] `ProfilesDynamicFolder.GetCommandImage` — render profile name alongside selected/unselected icon
 
 ### Assessment: Verify net10.0 Runtime Compatibility (#12) ✅ Done
 
@@ -91,12 +87,6 @@
 
 - [ ] Multi-instance OBS support (see `docs/ai/multi-instance-obs-design.md`)
 - [ ] Dependency injection for StatsService (inject `Func<OBSStats>` instead of static singleton)
-
-## Recently Completed (post-v1.6.2, unreleased)
-
-- [x] Assessment #14 — replaced fixed `Thread.Sleep` waits in `DoubleTapHelperTests` with a bounded poll; verified with 5 consecutive full-suite runs, zero failures from this class
-- [x] Assessment #3 — `ScenesDynamicFolder`/`SourcesDynamicFolder`/`ProfilesDynamicFolder` now render item names via `ButtonTextRenderer.RenderTextWithBorder`; removed now-unused `SourceVisibilityOn/Off.svg`
-- [x] Corrected documentation drift discovered while implementing #3 — `ButtonImageHelper.StateIcon`/`StateText`/`TextWithIcon`/`StateTextWithIcon` never existed in the codebase; fixed inaccurate examples across `docs/ai/guidelines.md`, `structure.md`, `sdk-quick-reference.md`, and rewrote `image-rendering-simplified.md`
 
 ## Recently Completed (v1.6.2)
 
