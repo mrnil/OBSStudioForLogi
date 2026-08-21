@@ -20,7 +20,7 @@ public class PluginConfigReaderTests : IDisposable
         // Use reflection to set the private config path for testing
         this._reader = new PluginConfigReader();
         var field = typeof(PluginConfigReader).GetField("_configPath", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        field.SetValue(this._reader, this._configPath);
+        field!.SetValue(this._reader, this._configPath);
     }
 
     public void Dispose()
@@ -94,7 +94,7 @@ public class PluginConfigReaderTests : IDisposable
         var subDir = Path.Combine(this._tempDir, "sub", "dir");
         var subPath = Path.Combine(subDir, "config.json");
         var field = typeof(PluginConfigReader).GetField("_configPath", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        field.SetValue(this._reader, subPath);
+        field!.SetValue(this._reader, subPath);
 
         var config = new PluginConfig { UseLocalObs = true };
         var result = this._reader.SaveConfig(config);

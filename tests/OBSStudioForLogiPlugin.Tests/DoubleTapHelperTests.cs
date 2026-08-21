@@ -37,7 +37,7 @@ public class DoubleTapHelperTests
     [Fact]
     public void OnTap_SingleTap_FiresSingleAfterThreshold()
     {
-        String received = null;
+        String? received = null;
 
         this._helper.OnTap("input1", p => received = p, _ => received = "double");
 
@@ -49,7 +49,7 @@ public class DoubleTapHelperTests
     public void OnTap_DoubleTap_FiresDoubleNotSingle()
     {
         Boolean singleFired = false;
-        String doubleReceived = null;
+        String? doubleReceived = null;
 
         this._helper.OnTap("input1", _ => singleFired = true, p => doubleReceived = p);
         this._helper.OnTap("input1", _ => singleFired = true, p => doubleReceived = p);
@@ -62,8 +62,8 @@ public class DoubleTapHelperTests
     [Fact]
     public void OnTap_TwoDistinctParameters_FireIndependently()
     {
-        String single1 = null;
-        String single2 = null;
+        String? single1 = null;
+        String? single2 = null;
 
         this._helper.OnTap("a", p => single1 = p, null);
         this._helper.OnTap("b", p => single2 = p, null);
