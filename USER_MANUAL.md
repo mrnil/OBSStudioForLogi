@@ -205,6 +205,7 @@ Buttons update in real-time when media finishes playing naturally.
 ### User Defined Media Action
 
 For more granular control, use the **Media Action (User Defined)** command:
+
 1. Drag onto a button
 2. Type the exact media source name
 3. Select an action from the dropdown: Play, Pause, Stop, Restart, Next, Previous
@@ -228,11 +229,13 @@ The plugin offers several ways to control audio, each suited to different workfl
 Volume requires two steps: **select** a source, then **adjust** with a wheel/dial.
 
 **Selecting a source:**
+
 - Single-tap in Audio Mixer or Scene Audio folders
 - Tap in Audio Select folder
 - Use "Select Audio Source" user-defined action
 
 **Adjusting volume:**
+
 - **MX Creative Console** — use Audio Volume folder (tap tile, turn big wheel)
 - **Loupedeck CT** — use the encoder wheel while in Audio Mixer/Scene Audio folders
 - **Any device** — drag "Selected Source Volume" onto any wheel or dial
@@ -240,6 +243,7 @@ Volume requires two steps: **select** a source, then **adjust** with a wheel/dia
 ### Visual Feedback
 
 All audio buttons use colour coding:
+
 - **Green text** = unmuted
 - **Red text** = muted
 - **White border** = currently selected for wheel/dial control
@@ -248,6 +252,7 @@ All audio buttons use colour coding:
 ### Audio Monitoring
 
 Monitoring controls whether you hear a source in your headphones:
+
 - **None** — source goes to stream/recording only
 - **Monitor Only** — source plays in your headphones only (not stream)
 - **Monitor & Output** — source plays in headphones AND goes to stream
@@ -275,6 +280,7 @@ User Defined Actions let you create custom buttons tailored to your specific OBS
 ### Finding Source Names
 
 To find the exact name of a source in OBS:
+
 1. Open OBS Studio
 2. Look in the **Sources** panel at the bottom
 3. The name shown there is exactly what you type into the configuration

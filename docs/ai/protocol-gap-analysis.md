@@ -2,7 +2,7 @@
 
 ## Overview
 
-Comparison of the OBS WebSocket 5.x protocol specification (https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md) against the current plugin implementation. Analysis performed against obs-websocket-dotnet v5.0.1.
+Comparison of the OBS WebSocket 5.x protocol specification (<https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md>) against the current plugin implementation. Analysis performed against obs-websocket-dotnet v5.0.1.
 
 ## Bugs Fixed
 
@@ -55,6 +55,7 @@ The protocol uses `sceneItemId` (Int32) for all scene item operations. The adapt
 ### 3. Media Input Status
 
 Protocol `GetMediaInputStatus` returns:
+
 - `mediaState` (string) ✅ extracted — used by `MediaDynamicFolder` for play/pause/stop logic
 - `mediaDuration` (int, ms) ❌ not extracted
 - `mediaCursor` (int, ms) ❌ not extracted
@@ -64,6 +65,7 @@ Duration/cursor could display elapsed/total time on media buttons.
 ### 4. Audio Input Detection
 
 Current `AudioInputKinds` filter may miss sources that have audio:
+
 - `browser_source` — has audio output
 - `game_capture` — captures game audio
 - `monitor_capture` — can capture desktop audio on some platforms
@@ -74,6 +76,7 @@ A more robust approach: attempt `GetInputVolume` on each input; non-audio source
 ### 5. GetVersion / Capability Negotiation
 
 Protocol `GetVersion` returns:
+
 - `obsVersion` — OBS Studio version
 - `obsWebSocketVersion` — WebSocket plugin version
 - `rpcVersion` — protocol version
@@ -103,6 +106,7 @@ SetTBarPosition(position, release) — position 0.0-1.0
 ```
 
 Implementation approach:
+
 - **Transition folder**: Dynamic folder listing available transitions, tap to select
 - **T-bar adjustment**: `PluginDynamicAdjustment` mapped to encoder, calls `SetTBarPosition`
 - **Duration adjustment**: ActionEditorCommand with duration textbox or encoder
@@ -117,6 +121,7 @@ SetSourceFilterSettings(sourceName, filterName, filterSettings, overlay)
 ```
 
 Implementation approach:
+
 - **Filter folder per source**: ActionEditorCommand with source name textbox, opens folder of filters
 - **Filter toggle**: Each button in folder toggles filterEnabled
 - **Visual feedback**: Green = enabled, grey = disabled

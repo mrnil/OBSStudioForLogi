@@ -12,13 +12,13 @@ public class StatusDisplay : PluginDynamicCommand
     {
         // Do NOT set IsWidget
     }
-    
+
     // Override ONLY this method
     protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
     {
         return $"Status\r\n{GetStatus()}";
     }
-    
+
     // Do NOT override GetCommandImage
 }
 ```
@@ -33,13 +33,13 @@ public class ToggleCommand : PluginDynamicCommand
     {
         this.IsWidget = true; // REQUIRED for icon-only
     }
-    
+
     // Override ONLY this method
     protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
         return ButtonImageHelper.StateIcon(isActive, "On.svg", "Off.svg");
     }
-    
+
     // Do NOT override GetCommandDisplayName
 }
 ```
@@ -54,7 +54,7 @@ public class DataDisplay : PluginDynamicCommand
     {
         this.IsWidget = true; // Icon-only mode
     }
-    
+
     protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
         // Render text on icon using BitmapBuilder or ButtonImageHelper
@@ -72,25 +72,25 @@ public class DataDisplay : PluginDynamicCommand
 public class VolumeAdjustment : PluginDynamicAdjustment
 {
     private Int32 _volume = 50;
-    
+
     public VolumeAdjustment()
         : base("Volume Control", "Adjust volume", "Audio", hasReset: true)
     {
     }
-    
+
     protected override void ApplyAdjustment(String actionParameter, Int32 diff)
     {
         _volume = Math.Clamp(_volume + diff, 0, 100);
         this.AdjustmentValueChanged(); // Trigger UI update
     }
-    
+
     protected override void RunCommand(String actionParameter)
     {
         // Reset on dial press (when hasReset: true)
         _volume = 50;
         this.AdjustmentValueChanged();
     }
-    
+
     protected override String GetAdjustmentValue(String actionParameter)
     {
         return $"{_volume}%";
@@ -107,18 +107,18 @@ public class ItemsDynamicFolder : PluginDynamicFolder
         : base("Items Folder", "Browse items", "Folders")
     {
     }
-    
+
     protected override Boolean OnLoad()
     {
         this.IsEnabled = false;
         this.ResetParameters(false);
         return true;
     }
-    
+
     private void ResetParameters(Boolean loadData)
     {
         this.RemoveAllParameters();
-        
+
         if (loadData)
         {
             var items = GetItems();
@@ -128,19 +128,19 @@ public class ItemsDynamicFolder : PluginDynamicFolder
                     .Description = $"Select {item.Name}";
             }
         }
-        
+
         this.ParametersChanged();
         this.ActionImageChanged();
     }
-    
+
     public override void RunCommand(String actionParameter)
     {
         if (String.IsNullOrEmpty(actionParameter))
             return;
-            
+
         ProcessItem(actionParameter);
     }
-    
+
     public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
         Boolean isSelected = actionParameter == GetCurrentItem();
@@ -156,34 +156,34 @@ public class MyPlugin : Plugin
 {
     public override Boolean UsesApplicationApiOnly => true;
     public override Boolean HasNoApplication => true;
-    
+
     public MyPlugin()
     {
         // Initialize helpers FIRST
         PluginLog.Init(this.Log);
         PluginResources.Init(this.Assembly);
-        
+
         // Then initialize services
         InitializeServices();
     }
-    
+
     public override void Load()
     {
         // Subscribe to events
         SubscribeToEvents();
-        
+
         // Start services
         StartServices();
     }
-    
+
     public override void Unload()
     {
         // Unsubscribe from events
         UnsubscribeFromEvents();
-        
+
         // Stop services
         StopServices();
-        
+
         // Dispose resources
         DisposeResources();
     }
@@ -199,7 +199,7 @@ private void OnStateChanged()
 {
     // Refresh specific parameter
     this.ActionImageChanged(parameter);
-    
+
     // OR refresh all instances
     this.ActionImageChanged();
 }
@@ -215,7 +215,7 @@ protected override void RunCommand(String actionParameter)
         PluginLog.Warning("No parameter provided");
         return;
     }
-    
+
     ProcessCommand(actionParameter);
 }
 ```

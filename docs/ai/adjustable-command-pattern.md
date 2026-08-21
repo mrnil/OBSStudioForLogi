@@ -58,7 +58,7 @@ public class SceneSwitchAdjustableCommand : ActionEditorCommand, IObsCommand
     {
         Instance = this;
         OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
-        
+
         this.Name = "SceneSwitchAdjustable";
         this.DisplayName = "Switch to Scene (Adjustable)";
         this.GroupName = "7. Scenes";

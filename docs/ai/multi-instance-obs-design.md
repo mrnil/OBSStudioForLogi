@@ -9,6 +9,7 @@ This document records the analysis of supporting two or more OBS Studio instance
 ## Current Limitation
 
 The plugin assumes a single OBS instance:
+
 - Single `OBSWebSocketManager` → single `OBSActionExecutor`
 - `OBSFacade` delegates to one manager
 - `ConnectionManager` reads one config file, connects to one port
@@ -24,14 +25,17 @@ Each OBS instance gets a named connection (e.g., "Main", "Preview"). Users confi
 
 1. **ConnectionRegistry** — replaces single `ConnectionManager`, holds `Dictionary<String, OBSWebSocketManager>`
 2. **Per-instance configuration** — plugin config file (`%AppData%/Logi/LogiPluginService/OBSStudioForLogiPlugin/connections.json`):
+
    ```json
    [
      { "name": "Main", "host": "127.0.0.1", "port": 4455, "password": "abc" },
      { "name": "Preview", "host": "127.0.0.1", "port": 4456, "password": "xyz" }
    ]
    ```
+
 3. **ActionEditorCommand pattern** — commands get optional "Instance" dropdown/textbox targeting a specific OBS instance (default: primary)
 4. **OBSFacade becomes instance-aware** — methods accept optional instance name:
+
    ```csharp
    public void ToggleRecording(String instanceName = null)
    ```

@@ -83,7 +83,7 @@
 ## Architecture (Deferred)
 
 - [ ] Multi-instance OBS support (see `docs/ai/multi-instance-obs-design.md`)
-- [ ] Dependency injection for StatsService (inject Func<OBSStats> instead of static singleton)
+- [ ] Dependency injection for StatsService (inject `Func<OBSStats>` instead of static singleton)
 
 ## Recently Completed (post-v1.6.1, unreleased)
 

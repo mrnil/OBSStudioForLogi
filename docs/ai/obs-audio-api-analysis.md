@@ -10,7 +10,7 @@
   - Filters for audio input types: wasapi, coreaudio, pulse, alsa, jack, ffmpeg, dshow, window_capture, audio_capture
   - Returns input names only
   - Implemented in `OBSWebsocketAdapter.GetInputList()`
-  
+
 - **GetInputKind(inputName)** - ✅ Returns the kind/type of an input
   - Used to identify audio input types
   - Implemented in `OBSWebsocketAdapter.GetInputKind()`
@@ -29,19 +29,19 @@
 - **GetInputMute(inputName)** - ✅ Returns mute state (Boolean)
   - Implemented in `IOBSWebsocket` interface
   - Used by `AudioMixerDynamicFolder` and `SceneAudioSourcesDynamicFolder`
-  
+
 - **ToggleInputMute(inputName)** - ✅ Toggles mute on/off
   - Implemented in `IOBSWebsocket` interface
   - Used by audio folder buttons
-  
+
 - **GetInputVolume(inputName)** - ✅ Returns volume level (0.0-1.0)
   - Implemented in `IOBSWebsocket` interface
   - Displays volume percentage (0-100%) on audio buttons
-  
+
 - **SetInputVolume(inputName, volumeMul)** - ✅ Sets volume level
   - API implemented in `IOBSWebsocket` interface
   - ⚠️ No UI controls yet (faders/buttons needed)
-  
+
 - **Visual Feedback**:
   - Red text = muted
   - Green text = unmuted
@@ -69,7 +69,7 @@ Based on the obs-websocket-dotnet library and OBS WebSocket 5.x protocol, here a
   - Returns: volumeMul (float 0.0-20.0), volumeDb (float -100.0 to 26.0)
   - volumeMul: Linear volume multiplier (1.0 = 100%)
   - volumeDb: Decibel volume level
-  
+
 - **SetInputVolume(inputName, volumeMul, volumeDb)**
   - Set volume using either multiplier or dB
   - Can specify one or both parameters
@@ -85,7 +85,7 @@ Based on the obs-websocket-dotnet library and OBS WebSocket 5.x protocol, here a
 - **GetInputAudioMonitorType(inputName)**
   - Returns: "OBS_MONITORING_TYPE_NONE", "OBS_MONITORING_TYPE_MONITOR_ONLY", "OBS_MONITORING_TYPE_MONITOR_AND_OUTPUT"
   - Controls whether you hear the audio source in your headphones
-  
+
 - **SetInputAudioMonitorType(inputName, monitorType)**
   - Set monitoring type
 
@@ -94,7 +94,7 @@ Based on the obs-websocket-dotnet library and OBS WebSocket 5.x protocol, here a
 - **GetInputAudioSyncOffset(inputName)**
   - Returns: offset in milliseconds (Int64)
   - Used to sync audio with video
-  
+
 - **SetInputAudioSyncOffset(inputName, offset)**
   - Set audio sync offset in milliseconds
 
@@ -102,7 +102,7 @@ Based on the obs-websocket-dotnet library and OBS WebSocket 5.x protocol, here a
 
 - **GetInputAudioBalance(inputName)**
   - Returns: balance (float 0.0-1.0, where 0.5 = center)
-  
+
 - **SetInputAudioBalance(inputName, balance)**
   - Set stereo balance
 
@@ -111,7 +111,7 @@ Based on the obs-websocket-dotnet library and OBS WebSocket 5.x protocol, here a
 - **GetInputAudioTracks(inputName)**
   - Returns: Object with track1-track6 Boolean values
   - Controls which recording/streaming tracks the audio goes to
-  
+
 - **SetInputAudioTracks(inputName, tracks)**
   - Set which tracks the audio is sent to
 
@@ -121,7 +121,7 @@ Based on the obs-websocket-dotnet library and OBS WebSocket 5.x protocol, here a
 
 - **GetInputList(inputKind)** - Already implemented
   - Can filter by specific input kind
-  
+
 #### Audio Meters (Real-time)
 
 - **Event: InputVolumeMeters**
@@ -136,13 +136,13 @@ Based on the obs-websocket-dotnet library and OBS WebSocket 5.x protocol, here a
 - **GetSourceFilterList(sourceName)**
   - Returns list of filters on an audio source
   - Includes: Compressor, Expander, Gain, Limiter, Noise Gate, Noise Suppression, VST plugins
-  
+
 - **GetSourceFilter(sourceName, filterName)**
   - Get specific filter settings
-  
+
 - **SetSourceFilterEnabled(sourceName, filterName, enabled)**
   - Enable/disable audio filters
-  
+
 - **SetSourceFilterSettings(sourceName, filterName, settings)**
   - Modify filter parameters
 
@@ -204,7 +204,7 @@ Based on the obs-websocket-dotnet library and OBS WebSocket 5.x protocol, here a
   - List filters for each audio input
   - Toggle filters on/off
   - Examples: Noise Gate, Compressor, Noise Suppression
-  
+
 #### 8. Quick Presets
 
 - **Volume Presets** for common scenarios

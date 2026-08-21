@@ -19,6 +19,7 @@
 **Root Cause**: The play action used `OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY` for all non-playing states. However, `PLAY` only works to resume from a `PAUSED` state. For `STOPPED`, `ENDED`, or `NONE` states, OBS requires `OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART`.
 
 **Fix**: Updated single-tap logic:
+
 - **Playing** → Pause
 - **Paused** → Play (resume)
 - **Stopped/Ended/None** → Restart (start from beginning)

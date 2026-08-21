@@ -27,13 +27,13 @@ public void OnCurrentSceneChanged(String sceneName)
 {
     var oldScene = this._currentScene;
     this._currentScene = sceneName ?? String.Empty;
-    
+
     // Update old scene icon to unselected
     if (!String.IsNullOrEmpty(oldScene) && oldScene != this._currentScene)
     {
         this.CommandImageChanged(oldScene);
     }
-    
+
     // Update new scene icon to selected
     if (!String.IsNullOrEmpty(this._currentScene))
     {
@@ -136,10 +136,10 @@ public void ToggleSourceVisibility(String sceneName, String sourceName)
             var currentState = this._obs.GetSceneItemEnabled(sceneName, sourceName);
             this._log.Info($"Toggling source '{sourceName}' visibility from {currentState} to {!currentState}");
             this._obs.SetSceneItemEnabled(sceneName, sourceName, !currentState);
-            
+
             // Wait for OBS to process the change
             await Task.Delay(100);
-            
+
             // Notify plugin to refresh icon
             OBSStudioForLogiPlugin.Instance?.OnSourceVisibilityChanged(sceneName, sourceName);
         }
@@ -182,10 +182,10 @@ public void OnCurrentSceneChanged(String sceneName)
 {
     var oldScene = this._currentScene;
     this._currentScene = sceneName;
-    
+
     if (!String.IsNullOrEmpty(oldScene))
         this.CommandImageChanged(oldScene); // ✅ Update old
-    
+
     if (!String.IsNullOrEmpty(this._currentScene))
         this.CommandImageChanged(this._currentScene); // ✅ Update new
 }
@@ -218,7 +218,7 @@ public void OnSourceVisibilityChanged(String sceneName, String sourceName)
 {
     if (sceneName != this._currentScene)
         return;
-    
+
     this.CommandImageChanged(sourceName); // ✅ Refreshes after delay
 }
 ```

@@ -17,6 +17,7 @@ The OBS WebSocket 5.x protocol categorises `InputVolumeMeters` as a **high-volum
 - To receive meter events: must send `eventSubscriptions: 66047` (511 | 65536) during Identify or via Reidentify (OpCode 3)
 
 The obs-websocket-dotnet library v5.0.1:
+
 - Has only `ConnectAsync(String url, String password)` — no subscription parameter
 - Does NOT expose a `Reidentify` method
 - Does NOT have an `EventSubscription` enum
@@ -41,11 +42,11 @@ To receive `InputVolumeMeters` events, the obs-websocket-dotnet library needs:
 
 4. **Strongly-typed `InputVolumeMeter` model**:
    - `InputName` (string)
-   - `InputLevelsMul` (List<List<float>>) — per-channel [magnitude, peak, inputPeak]
+   - `InputLevelsMul` (`List<List<float>>`) — per-channel [magnitude, peak, inputPeak]
 
 5. **Updated `InputVolumeMetersEventArgs`**:
-   - New `Inputs` property (List<InputVolumeMeter>) for typed access
-   - Keep deprecated `inputs` (List<JObject>) for backward compatibility
+   - New `Inputs` property (`List<InputVolumeMeter>`) for typed access
+   - Keep deprecated `inputs` (`List<JObject>`) for backward compatibility
 
 6. **Updated event parsing in `Events.cs`**:
    - Parse `body["inputs"]` as JArray (not string — the old code used `(string)body["inputs"]` which was wrong)
@@ -120,6 +121,7 @@ GetCommandImage() → VuMeterRenderer.Render(peakL, peakR, inputName, imageSize)
 Located at: `b:\development\obs-websocket-dotnet\obs-websocket-dotnet\`
 
 Key files:
+
 - `OBSWebsocket.cs` — main class, `ConnectAsync`, `SendIdentify`, `HandleHello`, `WebsocketMessageHandler`
 - `Events.cs` — `ProcessEventType` switch statement, all event handlers
 - `Communication/MessageTypes.cs` — OpCodes (Hello=0, Identify=1, Identified=2, ReIdentify=3, Event=5, Request=6)
@@ -131,6 +133,7 @@ Key files:
 ### 9. Project Reference Switch
 
 To use modified library source instead of NuGet:
+
 ```xml
 <!-- Replace in .csproj -->
 <!-- Old: <PackageReference Include="obs-websocket-dotnet" Version="5.0.1" /> -->

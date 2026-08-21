@@ -55,11 +55,13 @@ OBSStudioForLogiPlugin/
 ### `src/Actions/` — Loupedeck SDK Commands (SDK-dependent, exempt from strict TDD)
 
 **Base classes:**
+
 - `ToggleCommandBase` — shared logic for all toggle commands
 - `StartStopCommandBase` — shared logic for start/stop command pairs
 - `AudioInputDynamicFolderBase` — shared audio folder logic (mute, volume, selection, encoder)
 
 **Dynamic Folders (PluginDynamicFolder):**
+
 - `ScenesDynamicFolder`, `SourcesDynamicFolder`, `ProfilesDynamicFolder`, `SceneCollectionsDynamicFolder` (added v1.6.0)
 - `AudioMixerDynamicFolder`, `SceneAudioSourcesDynamicFolder`
 - `AudioSelectDynamicFolder`, `AudioVolumeDynamicFolder`
@@ -67,27 +69,33 @@ OBSStudioForLogiPlugin/
 - `StatsDynamicFolder`, `StreamStatsDynamicFolder`
 
 **Toggle Commands (PluginDynamicCommand via ToggleCommandBase):**
+
 - `StreamingToggleCommand`, `RecordingToggleCommand`, `VirtualCameraToggleCommand`
 - `ReplayBufferToggleCommand`, `StudioModeToggleCommand`
 
 **Start/Stop Commands (via StartStopCommandBase):**
+
 - `StreamingStartCommand`, `StreamingStopCommand`
 - `RecordingStartCommand`, `RecordingStopCommand`, `RecordingPauseToggleCommand`
 - `VirtualCameraStartCommand`, `VirtualCameraStopCommand`
 
 **Multi-State Select Commands:**
+
 - `ProfileSelectCommand`, `SceneSelectCommand` (added v1.6.0), `SceneCollectionSelectCommand`, `AudioSourceSelectCommand` (added v1.6.0)
 
 **User-Defined (ActionEditorCommand):**
+
 - `SceneSwitchAdjustableCommand`, `SourceVisibilityAdjustableCommand`
 - `AudioMuteAdjustableCommand`, `AudioMonitoringCycleAdjustableCommand`
 - `AudioSelectAdjustableCommand`, `MediaActionCommand`
 - `PluginSettingsCommand`
 
 **Adjustments (PluginDynamicAdjustment):**
+
 - `SelectedSourceVolumeAdjustment`, `AudioVolumeWheelTool`
 
 **Display Commands:**
+
 - `ConnectionStatusDisplay`, `CurrentSceneDisplay`, `CurrentProfileDisplay`
 - `CurrentSceneCollectionDisplay`, `StatsDisplay`, `AudioStatusDisplayCommand`
 - `ReconnectCommand`, `ReplayBufferSaveCommand`, `StudioModeTransitionCommand`, `ScreenshotCommand`
@@ -136,6 +144,7 @@ OBSFacade → OBSWebSocketManager → OBSActionExecutor → IOBSWebsocket
 ### 2. Command Registry / Self-Registration Pattern
 
 Commands register themselves in their constructor:
+
 ```csharp
 public ScenesDynamicFolder()
 {
@@ -143,7 +152,9 @@ public ScenesDynamicFolder()
     OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
 }
 ```
+
 `CommandCoordinator` dispatches events via interface type-filtering, with per-command exception isolation so one throwing command doesn't block the rest:
+
 ```csharp
 this.NotifyEach<ISceneAwareCommand>(nameof(ISceneAwareCommand.OnSceneChanged), c => c.OnSceneChanged(sceneName));
 // NotifyEach iterates this._registry.GetCommands<T>(), try/catching each call individually

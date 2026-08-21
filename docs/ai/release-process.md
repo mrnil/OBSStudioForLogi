@@ -74,6 +74,7 @@ LogiPluginTool pack "b:\development\OBSStudioForLogiPlugin\bin\Release" "b:\deve
 ```
 
 **Note:** LogiPluginTool is available as:
+
 - dotnet global tool: `C:\Users\steph\.dotnet\tools\logiplugintool.exe` (preferred, callable as `LogiPluginTool` from any directory)
 - SDK tools copy: `B:\development\LogitechBeta\LogiPluginSdkTools\LogiPluginTool.exe`
 - ❌ `C:\Program Files\Logi\LogiPluginService\LogiPluginTool.exe` — BROKEN (missing companion DLL, do NOT use)

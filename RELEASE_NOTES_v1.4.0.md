@@ -47,6 +47,7 @@ Production logs are now significantly cleaner:
 ## Documentation
 
 All markdown files updated to reflect current state:
+
 - INSTALL.md, CONTRIBUTING.md, CONFIGURATION.md, config.sample.json
 - USER_MANUAL.md, README.md
 - Memory bank (test-coverage, tech, structure, product, obs-websocket-api-complete)

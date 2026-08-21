@@ -44,13 +44,13 @@ Thank you for your interest in contributing! This document provides guidelines f
 
   ```
   feat: add audio mixer mute/unmute controls
-  
+
   Implemented AudioMixerMuteCommand and AudioMixerUnmuteCommand to control
   audio source muting in OBS Studio. Commands use multi-state buttons to
   show muted/unmuted state with visual indicators.
-  
+
   Added 6 unit tests covering mute/unmute operations and state management.
-  
+
   Why: Users need quick access to mute audio sources during live streams
   without switching to OBS window.
   ```

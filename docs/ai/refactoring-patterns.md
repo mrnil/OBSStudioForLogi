@@ -104,7 +104,7 @@ public class ScenesDynamicFolder : PluginDynamicFolder, IObsCommand, ISceneAware
         Instance = this;
         OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
     }
-    
+
     public void OnConnected() { }
     public void OnDisconnected() { }
     public void OnSceneChanged(String sceneName) { }
@@ -157,15 +157,15 @@ OBSFacade provides simplified interface:
 public class OBSFacade
 {
     private readonly OBSWebSocketManager _obsManager;
-    
+
     // Simple interface
     public Boolean IsRecording => this._obsManager?.IsRecording ?? false;
-    
+
     public void ToggleRecording()
     {
         this._obsManager?.Actions.ToggleRecording();
     }
-    
+
     public void SwitchScene(String sceneName)
     {
         if (!this._obsManager.IsConnected)

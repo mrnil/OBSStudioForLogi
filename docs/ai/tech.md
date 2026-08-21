@@ -107,6 +107,7 @@ LogiPluginTool metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiP
 ```
 
 **LogiPluginTool locations:**
+
 - Preferred: `C:\Users\steph\.dotnet\tools\logiplugintool.exe` (dotnet global tool, callable as `LogiPluginTool`)
 - Alternative: `B:\development\LogitechBeta\LogiPluginSdkTools\LogiPluginTool.exe`
 - ❌ Do NOT use: `C:\Program Files\Logi\LogiPluginService\LogiPluginTool.exe` (broken — missing companion DLL)
@@ -114,6 +115,7 @@ LogiPluginTool metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiP
 ## Version Management
 
 Version is defined in two places — both must be updated for a release:
+
 1. `src/OBSStudioForLogiPlugin.csproj` — `<Version>`, `<AssemblyVersion>`, `<FileVersion>`
 2. `src/package/metadata/LoupedeckPackage.yaml` — `version:`
 

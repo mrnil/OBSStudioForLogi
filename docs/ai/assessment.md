@@ -18,6 +18,7 @@ Items #1, #2, #4, #7, #10, #11 shipped in v1.6.0; v1.6.1 was a maintenance relea
 **Impact**: Any new command that correctly self-registers via `IObsCommand` will never receive `OnConnected()` through the registry. It only works if a hardcoded singleton call is also added to `OBSWebSocketManager`. This is a maintenance trap that contradicts the registry's design intent.
 
 **Fix**:
+
 1. Add `this._commandCoordinator.NotifyConnected()` to `OBSStudioForLogiPlugin.OnOBSConnected`
 2. Add `this._commandCoordinator.NotifyDisconnected()` to `OBSStudioForLogiPlugin.OnOBSDisconnected`
 3. Remove the hardcoded singleton calls from `OBSWebSocketManager.OnConnected` and `OnDisconnected`
@@ -68,6 +69,7 @@ public override BitmapImage GetCommandImage(String actionParameter, PluginImageS
 **Problem**: `_tapStates` dictionary is accessed from both the calling thread and `Task.Run` background threads without synchronisation — a race condition. Additionally, cancelled `CancellationTokenSource` objects are never disposed, leaking memory over time in a long-running plugin.
 
 **Fix**:
+
 - Add `lock (_tapStates)` around all dictionary access
 - Call `cancellation.Dispose()` after cancellation in the `TaskCanceledException` catch block and after single-tap fires
 
@@ -94,9 +96,11 @@ public override BitmapImage GetCommandImage(String actionParameter, PluginImageS
 **Problem**: `OBSActionExecutor.GetStats()` and `OBSFacade.GetStats()` return `null` when disconnected. Display commands (`StatsDisplay`, `StatsDynamicFolder`, `StreamStatsDynamicFolder`) must null-check defensively on every call.
 
 **Fix**: Introduce a null-object pattern:
+
 ```csharp
 public static OBSStats Empty => new OBSStats(); // all zero values
 ```
+
 Return `OBSStats.Empty` instead of `null` from disconnected/error paths. Display commands can then render "0.0 FPS" etc. without null guards.
 
 ---
@@ -124,6 +128,7 @@ Return `OBSStats.Empty` instead of `null` from disconnected/error paths. Display
 **Problem**: `MediaDynamicFolder.OnConnected()` loads the media list once. If a user adds or removes a media source in OBS while connected, the folder doesn't update. Audio inputs handle this via `IInputsListAwareCommand` and `OnInputListChanged`, but `MediaDynamicFolder` only implements `IObsCommand`.
 
 **Fix**: Implement `IInputsListAwareCommand` in `MediaDynamicFolder` and filter the incoming inputs list to media kinds:
+
 ```csharp
 public void OnInputsChanged(String[] inputs)
 {

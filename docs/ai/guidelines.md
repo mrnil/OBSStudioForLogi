@@ -3,7 +3,9 @@
 ## Code Style (EditorConfig Enforced)
 
 ### Type Names — BCL Keywords Forbidden
+
 Always use BCL type names, never C# keywords:
+
 ```csharp
 // CORRECT
 String name;
@@ -19,7 +21,9 @@ float volume;
 ```
 
 ### `this.` Qualification — Always Required
+
 Every field, method, property, and event access must be qualified with `this.`:
+
 ```csharp
 // CORRECT
 this._obs.IsConnected
@@ -33,6 +37,7 @@ CommandImageChanged(actionParameter)
 ```
 
 ### Private Fields — Underscore Prefix
+
 ```csharp
 private readonly IOBSWebsocket _obs;
 private readonly IPluginLog _log;
@@ -41,6 +46,7 @@ private Boolean _disposed = false;
 ```
 
 ### No `var` — Explicit Types Always
+
 ```csharp
 // CORRECT
 String[] profiles = this._obs.GetProfileList();
@@ -52,6 +58,7 @@ var isConnected = this._obs.IsConnected;
 ```
 
 ### Braces Always Required
+
 ```csharp
 // CORRECT
 if (String.IsNullOrEmpty(sceneName))
@@ -65,6 +72,7 @@ if (String.IsNullOrEmpty(sceneName))
 ```
 
 ### `using` Directives Inside Namespace
+
 ```csharp
 namespace Loupedeck.OBSStudioForLogiPlugin
 {
@@ -75,7 +83,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 ```
 
 ### Allman Brace Style
+
 Opening brace always on its own line:
+
 ```csharp
 public void MyMethod()
 {
@@ -91,7 +101,9 @@ public void MyMethod()
 ## Service Layer Patterns
 
 ### Connection Guard Pattern (Universal)
+
 Every service method that calls OBS must guard on connection state first:
+
 ```csharp
 public void ToggleRecording()
 {
@@ -116,7 +128,9 @@ public void ToggleRecording()
 ```
 
 ### Async Fire-and-Forget Pattern (All OBS Mutations)
+
 All OBS write operations use `Task.Run` to avoid blocking the UI thread:
+
 ```csharp
 public void SetInputVolume(String inputName, Single volumeMul)
 {
@@ -130,7 +144,9 @@ public void SetInputVolume(String inputName, Single volumeMul)
 ```
 
 ### Safe Default Return Pattern (All OBS Queries)
+
 Query methods return safe defaults on disconnection or error — never throw:
+
 ```csharp
 public Boolean GetInputMute(String inputName)
 {
@@ -150,6 +166,7 @@ public Boolean GetInputMute(String inputName)
 ```
 
 Safe defaults by type:
+
 - `Boolean` → `false`
 - `String` → `String.Empty` or domain-specific default (e.g. `"OBS_MONITORING_TYPE_NONE"`)
 - `String[]` → `new String[0]`
@@ -157,7 +174,9 @@ Safe defaults by type:
 - Model objects → `null`
 
 ### Input Validation Before OBS Calls
+
 Validate string parameters before proceeding:
+
 ```csharp
 if (String.IsNullOrEmpty(sceneName) || String.IsNullOrEmpty(sourceName))
 {
@@ -167,7 +186,9 @@ if (String.IsNullOrEmpty(sceneName) || String.IsNullOrEmpty(sourceName))
 ```
 
 ### State Guard Pattern (Prevent Invalid Operations)
+
 Check current state before executing operations that require a specific state:
+
 ```csharp
 if (this.IsRecording)
 {
@@ -183,7 +204,9 @@ if (this.IsRecordingChanging)
 ```
 
 ### Delayed Callback Pattern (Toggle Operations)
+
 When toggling state, add a delay before notifying UI to avoid race conditions:
+
 ```csharp
 this._obs.SetSceneItemEnabled(sceneName, sourceName, !currentState);
 await Task.Delay(OBSTimings.StateUpdateDelay);
@@ -195,7 +218,9 @@ OBSStudioForLogiPlugin.Instance?.OnSourceVisibilityChanged(sceneName, sourceName
 ## Command (Action) Layer Patterns
 
 ### Self-Registration in Constructor
+
 Every command registers itself with the plugin and sets its static Instance:
+
 ```csharp
 public class ScenesDynamicFolder : PluginDynamicFolder, IObsCommand, ISceneAwareCommand
 {
@@ -213,7 +238,9 @@ public class ScenesDynamicFolder : PluginDynamicFolder, IObsCommand, ISceneAware
 ```
 
 ### Null Guard in RunCommand
+
 Always guard against null/empty actionParameter:
+
 ```csharp
 public override void RunCommand(String actionParameter)
 {
@@ -225,7 +252,9 @@ public override void RunCommand(String actionParameter)
 ```
 
 ### GetCommandImage — Query Current State
+
 Always query live state from the plugin; never cache state in the command:
+
 ```csharp
 protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
 {
@@ -235,7 +264,9 @@ protected override BitmapImage GetCommandImage(String actionParameter, PluginIma
 ```
 
 ### CommandImageChanged — Targeted Refresh
+
 Refresh only the specific button that changed, not the entire folder:
+
 ```csharp
 // CORRECT — targeted refresh
 public void OnInputMuteChanged(String inputName)
@@ -252,7 +283,9 @@ public void OnInputMuteChanged(String inputName)
 ```
 
 ### OnConnected / OnDisconnected Pattern
+
 Clear state and rebuild button lists on disconnect; reload on connect:
+
 ```csharp
 public void OnConnected()
 {
@@ -268,7 +301,9 @@ public void OnDisconnected()
 ```
 
 ### ToggleCommandBase — For Toggle Commands
+
 Extend `ToggleCommandBase` for any on/off toggle:
+
 ```csharp
 public class RecordingToggleCommand : ToggleCommandBase, IObsCommand
 {
@@ -290,7 +325,9 @@ public class RecordingToggleCommand : ToggleCommandBase, IObsCommand
 ```
 
 ### StartStopCommandBase — For Start/Stop Pairs
+
 Extend `StartStopCommandBase` for start and stop command pairs:
+
 ```csharp
 public class RecordingStartCommand : StartStopCommandBase, IObsCommand
 {
@@ -309,7 +346,9 @@ public class RecordingStartCommand : StartStopCommandBase, IObsCommand
 ```
 
 ### ActionEditorCommand — For User-Defined Actions
+
 Use constants for control names; validate required parameters:
+
 ```csharp
 public class MyAdjustableCommand : ActionEditorCommand, IObsCommand
 {
@@ -347,6 +386,7 @@ public class MyAdjustableCommand : ActionEditorCommand, IObsCommand
 ## Image Rendering Patterns
 
 ### ButtonImageHelper — Preferred API
+
 Use `ButtonImageHelper` static methods for all button images:
 
 ```csharp
@@ -372,7 +412,9 @@ return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted,
 ```
 
 ### Icon Resource Names — Short Form
+
 Pass only the filename; the helper resolves the full embedded resource path:
+
 ```csharp
 // CORRECT
 ButtonImageHelper.Icon("RecordingOn.svg")
@@ -382,12 +424,15 @@ ButtonImageHelper.Icon("Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOn.svg")
 ```
 
 ### Volume Display — Always dB Format
+
 Use `VolumeConverter.FormatDb()` for all volume displays:
+
 ```csharp
 String volumeText = VolumeConverter.FormatDb(volumeMul); // e.g. "+6.0 dB", "0.0 dB", "-∞ dB"
 ```
 
 ### Colour Conventions
+
 - Green (`BitmapColor.Green`) = active, unmuted, connected, healthy
 - Red (`BitmapColor.Red`) = inactive, muted, error
 - Yellow (`new BitmapColor(255, 200, 0)`) = warning, paused
@@ -399,7 +444,9 @@ String volumeText = VolumeConverter.FormatDb(volumeMul); // e.g. "+6.0 dB", "0.0
 ## Notification Interface Pattern
 
 ### Implementing Notification Interfaces
+
 Commands declare which events they care about by implementing the appropriate interfaces:
+
 ```csharp
 public class AudioMixerDynamicFolder : PluginDynamicFolder,
     IObsCommand,
@@ -418,6 +465,7 @@ public class AudioMixerDynamicFolder : PluginDynamicFolder,
 ```
 
 ### Adding a New Notification Type
+
 1. Add interface to `src/Services/IObsCommand.cs`
 2. Add `NotifyXxx()` method to `CommandCoordinator` calling `this.NotifyEach<TInterface>(nameof(TInterface.OnXxx), c => c.OnXxx(...))` — `CommandRegistry` needs no changes, its generic `GetCommands<T>()` filters for any interface automatically
 3. Add `OnXxx()` call to `OBSStudioForLogiPlugin`
@@ -428,6 +476,7 @@ public class AudioMixerDynamicFolder : PluginDynamicFolder,
 ## Testing Patterns
 
 ### Test Class Structure
+
 ```csharp
 public class OBSActionExecutorTests
 {
@@ -445,7 +494,9 @@ public class OBSActionExecutorTests
 ```
 
 ### Async Fire-and-Forget Testing
+
 Use `Thread.Sleep(OBSTimings.TestAsyncDelay)` (500ms) after triggering async operations:
+
 ```csharp
 [Fact]
 public void SetCurrentProfile_WhenConnected_CallsObs()
@@ -460,7 +511,9 @@ public void SetCurrentProfile_WhenConnected_CallsObs()
 ```
 
 ### Test Naming Convention
+
 `MethodName_Condition_ExpectedBehaviour`:
+
 ```csharp
 GetProfileList_WhenConnected_ReturnsProfiles()
 GetProfileList_WhenNotConnected_ReturnsEmpty()
@@ -469,7 +522,9 @@ ToggleRecording_WhenOBSThrows_LogsError()
 ```
 
 ### Error Path Testing — Always Test Three Paths
+
 For every service method, test:
+
 1. Happy path (connected, succeeds)
 2. Disconnected path (returns safe default, no OBS call)
 3. Exception path (logs error with context, returns safe default)
@@ -489,7 +544,9 @@ public void GetInputMute_WhenOBSThrows_LogsErrorAndReturnsFalse()
 ```
 
 ### Log Message Verification
+
 Error log messages must contain both the entity name and the exception message:
+
 ```csharp
 this._mockLog.Verify(x => x.Error(
     It.Is<String>(s => s.Contains("Microphone") && s.Contains("OBS error"))),
@@ -497,7 +554,9 @@ this._mockLog.Verify(x => x.Error(
 ```
 
 ### TDD Scope
+
 Tests should be written before or alongside implementation where practical; all new business logic and core functionality must have accompanying tests.
+
 - **Business logic / core functionality**: 90%+ coverage
 - **Services layer** (`OBSActionExecutor`, `CommandRegistry`, `OBSFacade`, etc.): 80%+ coverage required
 - **Actions layer** (`src/Actions/`): Integration tests for constructor/singleton only; SDK-dependent rendering exempt
@@ -508,6 +567,7 @@ Tests should be written before or alongside implementation where practical; all 
 ## Logging Conventions
 
 ### Log Levels
+
 - `Trace` — render/UI calls (`GetCommandImage`, `GetEncoderNames`) — very high frequency
 - `Debug` — operational detail (folder updates, selection state, intermediate steps)
 - `Info` — significant state changes (scene changed, profile changed, connected, disconnected)
@@ -515,7 +575,9 @@ Tests should be written before or alongside implementation where practical; all 
 - `Error` — caught exceptions with context
 
 ### Log Message Format
+
 Include the entity name and action in every message:
+
 ```csharp
 this._log.Info($"Setting current profile to '{profileName}'");
 this._log.Warning($"Cannot set profile '{profileName}' - not connected");
@@ -529,6 +591,7 @@ Never log passwords or sensitive data. Sanitize file paths in logs.
 ## Timing Constants
 
 All timing values are centralised in `OBSTimings`:
+
 ```csharp
 OBSTimings.StateUpdateDelay      // 100ms — wait after OBS API call before refreshing UI
 OBSTimings.ProfileSwitchDelay    // delay between profile switch and next operation
@@ -544,6 +607,7 @@ Never hardcode timing values — always use `OBSTimings` constants.
 ## Adding a New Feature — Checklist
 
 ### New OBS API Method
+
 1. Add method signature to `IOBSWebsocket`
 2. Implement in `OBSWebsocketAdapter` (thin pass-through)
 3. Add business logic to `OBSActionExecutor` (connection guard + error handling)
@@ -552,6 +616,7 @@ Never hardcode timing values — always use `OBSTimings` constants.
 6. Write tests for all three paths (connected, disconnected, exception)
 
 ### New Command
+
 1. Create class in `src/Actions/`
 2. Inherit from appropriate base (`ToggleCommandBase`, `StartStopCommandBase`, `PluginDynamicFolder`, `ActionEditorCommand`)
 3. Implement `IObsCommand` and any relevant notification interfaces
@@ -563,6 +628,7 @@ Never hardcode timing values — always use `OBSTimings` constants.
 9. Add icon SVG to `src/Resources/icons/` and register in `.csproj` as `EmbeddedResource`
 
 ### New Notification Event
+
 1. Add interface to `IObsCommand.cs`
 2. Add `NotifyXxx()` to `CommandCoordinator` via `this.NotifyEach<TInterface>(...)` — `CommandRegistry` needs no changes
 3. Subscribe to OBS event in `OBSWebSocketManager`
@@ -575,6 +641,7 @@ Never hardcode timing values — always use `OBSTimings` constants.
 ## Known Issues to Be Aware Of
 
 ### Fixed in v1.6.0 (kept here for history — do not reintroduce)
+
 - **CommandRegistry Bypass** — `OBSWebSocketManager.OnConnected`/`OnDisconnected` used to contain hardcoded singleton calls bypassing the `CommandRegistry`. Now `OBSStudioForLogiPlugin.OnOBSConnected`/`OnOBSDisconnected` call `CommandCoordinator.NotifyConnected()`/`NotifyDisconnected()`, which dispatch through the registry. New self-registering commands correctly receive `OnConnected`/`OnDisconnected` with no extra wiring — do not add hardcoded singleton calls back into `OBSWebSocketManager`.
 - **Scene Change Bypass** — `OnCurrentSceneChanged` used to call `SourcesDynamicFolder.Instance`/`SceneAudioSourcesDynamicFolder.Instance` directly. Now routes through `ISceneSourcesAwareCommand` via the registry.
 - **DoubleTapHelper Thread Safety** — `_tapStates` access is now wrapped in `lock(_tapStates)`; `CancellationTokenSource` objects are disposed on every path (single-tap `finally`, double-tap, and `Reset()`).
@@ -582,4 +649,5 @@ Never hardcode timing values — always use `OBSTimings` constants.
 See `assessment.md` items #1, #2, #4 for the original write-ups and `test-coverage.md` for the tests added alongside each fix.
 
 ### Still Open
+
 See `assessment.md` for current priority list — as of v1.6.1 the top remaining item is #3 (scene/source/profile buttons show no text).

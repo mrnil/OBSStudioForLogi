@@ -61,7 +61,7 @@ Renders text with state-based background icon and color.
 ```csharp
 Boolean isMuted = GetMuteState();
 String text = $"{inputName}\n\n{volume}%";
-return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted, 
+return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted,
     "AudioMixerUnmuted.svg", "AudioMixerMuted.svg",
     BitmapColor.Green, BitmapColor.Red);
 ```
@@ -99,14 +99,14 @@ public class RecordingToggleCommand : PluginDynamicCommand
 public class CurrentSceneDisplay : PluginDynamicCommand
 {
     private String _currentScene = "Not Connected";
-    
+
     protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
         Boolean isConnected = OBSStudioForLogiPlugin.Instance?.IsConnected ?? false;
         String displayText = isConnected ? this._currentScene : "Not Connected";
         BitmapColor bgColor = isConnected ? new BitmapColor(57, 180, 120) : BitmapColor.Black;
         BitmapColor textColor = isConnected ? BitmapColor.White : new BitmapColor(128, 128, 128);
-        
+
         return ButtonImageHelper.Text(displayText, imageSize, bgColor, textColor);
     }
 }
@@ -121,11 +121,11 @@ public class AudioInputDynamicFolderBase : PluginDynamicFolder
     {
         Boolean isMuted = OBSStudioForLogiPlugin.Instance?.GetInputMute(actionParameter) ?? false;
         Single volumeLevel = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
-        
+
         Int32 volumePercent = (Int32)(volumeLevel * 100);
         String text = $"{actionParameter}\n\n{volumePercent}%";
-        
-        return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted, 
+
+        return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted,
             "AudioMixerUnmuted.svg", "AudioMixerMuted.svg",
             BitmapColor.Green, BitmapColor.Red);
     }
@@ -138,7 +138,7 @@ public class AudioInputDynamicFolderBase : PluginDynamicFolder
 public class ScenesDynamicFolder : PluginDynamicFolder
 {
     private String _currentScene = String.Empty;
-    
+
     public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
         Boolean isSelected = actionParameter == this._currentScene;
@@ -190,7 +190,7 @@ public RecordingToggleCommand()
 protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
 {
     Boolean isRecording = OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
-    
+
     StateImageData imageData = new StateImageData
     {
         Id = "recording-toggle",
@@ -198,14 +198,14 @@ protected override BitmapImage GetCommandImage(String actionParameter, PluginIma
         ActiveIconPath = "Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOn.svg",
         InactiveIconPath = "Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOff.svg"
     };
-    
+
     this.imageStore.UpdateImage(imageData.Id, imageData);
-    
+
     if (this.imageStore.TryGetImage(imageData.Id, imageSize, out BitmapImage image))
     {
         return image;
     }
-    
+
     return EmbeddedResources.ReadImage(imageData.InactiveIconPath);
 }
 ```

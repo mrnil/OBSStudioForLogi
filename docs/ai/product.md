@@ -7,7 +7,7 @@
 - **Current Version**: 1.6.1
 - **Author**: Stephen Moretti
 - **License**: MIT
-- **Repository**: https://github.com/mrnil/OBSStudioForLogi
+- **Repository**: <https://github.com/mrnil/OBSStudioForLogi>
 
 ## Purpose and Value Proposition
 
@@ -29,6 +29,7 @@ The plugin is **not** an OBS extension or plugin. It is a Logi Plugin Service pl
 ## Feature Groups
 
 ### Group 1 — OBS
+
 - Screenshot capture (auto-detects Pictures/Documents/Desktop path)
 - Manual reconnect button
 - Studio mode toggle and transition
@@ -38,23 +39,29 @@ The plugin is **not** an OBS extension or plugin. It is a Logi Plugin Service pl
 - Plugin Settings (configure local/remote OBS, stats polling interval)
 
 ### Group 2 — Streaming
+
 - Toggle, start, stop streaming
 - Stream Stats Folder (duration, bytes sent, congestion, skipped frames, total frames — colour-coded)
 
 ### Group 3 — Recording
+
 - Toggle, start, stop, pause/resume recording
 
 ### Group 4 — Replay Buffer
+
 - Toggle replay buffer, save replay buffer (green flash confirmation on save)
 
 ### Group 5 — Virtual Camera
+
 - Toggle, start, stop virtual camera
 
 ### Group 6 — Profiles
+
 - **Available Profiles** sub-group: Profile Select (multi-state), OBS Profiles Dynamic Folder
 - Current Profile Display
 
 ### Group 7 — Scenes
+
 - **Available Scenes** sub-group: Scene Select (multi-state — new in v1.6.0)
 - **Available Collections** sub-group: Scene Collection Select, OBS Scene Collections Dynamic Folder (new in v1.6.0)
 - **User Defined** sub-group: Switch to Scene, Toggle Source Visibility
@@ -62,6 +69,7 @@ The plugin is **not** an OBS extension or plugin. It is a Logi Plugin Service pl
 - Studio mode aware: switches to preview when studio mode enabled, program when disabled
 
 ### Group 8 — Audio
+
 - Audio Mixer Folder (all inputs, mute/unmute, volume in dB, real-time updates)
 - Scene Audio Folder (inputs in current scene + inputs not in any scene)
 - Audio Select Folder (dedicated source selection for wheel/dial control)
@@ -69,9 +77,11 @@ The plugin is **not** an OBS extension or plugin. It is a Logi Plugin Service pl
 - Selected Source Volume Adjustment (standalone dial/wheel adjustment)
 
 ### Group 9 — Media
+
 - Media Controls Folder (play/pause/stop with single/double tap, colour-coded state)
 
 ### Group 99 — User Defined Actions
+
 - Switch to Scene (configurable profile, collection, scene)
 - Toggle Source Visibility (comma-separated sources, optional scene)
 - Toggle Audio Mute (named source)
