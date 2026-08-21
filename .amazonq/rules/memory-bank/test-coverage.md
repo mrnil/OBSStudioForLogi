@@ -2,9 +2,9 @@
 
 ## Overview
 
-The project follows a TDD approach with 389 unit tests using xUnit + Moq (verified 2026-08-21, net10.0, all passing). Overall line coverage is ~37.4% (Cobertura), branch coverage ~19.8%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage. Coverage has drifted down slightly since v1.5.1 (was 39.5%/22.6%) as v1.6.0 added several new Actions-layer commands (`SceneSelectCommand`, `AudioSourceSelectCommand`, `SceneCollectionsDynamicFolder`) faster than services-layer surface area grew — expected under the TDD-exemption policy, not a regression.
+The project follows a TDD approach with 393 unit tests using xUnit + Moq (verified 2026-08-21, net10.0, all passing). Overall line coverage is ~37.4% (Cobertura, last measured pre-CommandCoordinator-refactor), branch coverage ~19.8%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage. Coverage has drifted down slightly since v1.5.1 (was 39.5%/22.6%) as v1.6.0 added several new Actions-layer commands (`SceneSelectCommand`, `AudioSourceSelectCommand`, `SceneCollectionsDynamicFolder`) faster than services-layer surface area grew — expected under the TDD-exemption policy, not a regression.
 
-## Test Count: 389
+## Test Count: 393
 
 ## Test Files
 
@@ -28,7 +28,8 @@ The project follows a TDD approach with 389 unit tests using xUnit + Moq (verifi
 | `OBSConnectionSettingsTests.cs` | Connection settings model, localhost validation | ~5 |
 | `OBSLifecycleManagerTests.cs` | Port checking, wait logic | ~3 |
 | `OBSFacadeTests.cs` | Facade disconnected state, safe defaults, connection validation | 36 |
-| `CommandRegistryTests.cs` | Registration, interface-based dispatch, deduplication | 20 |
+| `CommandRegistryTests.cs` | Registration, deduplication, generic `GetCommands<T>()` filtering | 6 |
+| `CommandCoordinatorTests.cs` | Dispatch-by-interface for every notification type, per-command exception isolation | 26 |
 | `VolumeConverterTests.cs` | Volume mul→dB conversion and formatting | 10 |
 | `SourceVisibilityTests.cs` | Source visibility toggle and query | ~5 |
 | `VirtualCameraCommandTests.cs` | Virtual camera state and toggle | ~5 |
@@ -71,9 +72,9 @@ The project follows a TDD approach with 389 unit tests using xUnit + Moq (verifi
 | **OBSLifecycleManager** | 79-100% | 75-100% | Good coverage |
 | **OBSConnectionSettings** | 100% | 100% | Perfect |
 | **OBSWebSocketManager** | 34% | 17% | Event handlers hard to unit test |
-| **CommandRegistry** | 100% | 100% | Fully covered |
+| **CommandRegistry** | 100% | 100% | Store + generic filter, fully covered |
 | **OBSFacade** | 71% | 37% | Query/state methods covered, action delegation partially |
-| **CommandCoordinator** | 0% | - | Thin delegation to CommandRegistry (tested indirectly) |
+| **CommandCoordinator** | 100%* | 100%* | Now owns dispatch + exception isolation, directly tested (26 tests); *not yet re-measured with Cobertura since the refactor |
 
 ## Why Some Classes Show 0% Despite Tests
 
@@ -93,10 +94,6 @@ All `Actions/` classes inherit from SDK base classes (`PluginDynamicCommand`, `P
 ### OBSWebsocketAdapter (Pass-Through)
 
 `OBSWebsocketAdapter` is a thin wrapper delegating to `obs-websocket-dotnet`. It's tested indirectly through `OBSActionExecutor` tests which mock `IOBSWebsocket`.
-
-### Coverage Tool Quirks
-
-`CommandCoordinator` shows 0% in Cobertura because it is a thin facade that delegates to `CommandRegistry` — the registry itself is tested directly and shows 100% coverage.
 
 ## Running Tests
 

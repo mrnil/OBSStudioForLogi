@@ -419,10 +419,9 @@ public class AudioMixerDynamicFolder : PluginDynamicFolder,
 
 ### Adding a New Notification Type
 1. Add interface to `src/Services/IObsCommand.cs`
-2. Add `NotifyXxx()` method to `CommandRegistry`
-3. Add `NotifyXxx()` pass-through to `CommandCoordinator`
-4. Add `OnXxx()` call to `OBSStudioForLogiPlugin`
-5. Implement the interface in relevant commands
+2. Add `NotifyXxx()` method to `CommandCoordinator` calling `this.NotifyEach<TInterface>(nameof(TInterface.OnXxx), c => c.OnXxx(...))` — `CommandRegistry` needs no changes, its generic `GetCommands<T>()` filters for any interface automatically
+3. Add `OnXxx()` call to `OBSStudioForLogiPlugin`
+4. Implement the interface in relevant commands
 
 ---
 
@@ -563,12 +562,11 @@ Never hardcode timing values — always use `OBSTimings` constants.
 
 ### New Notification Event
 1. Add interface to `IObsCommand.cs`
-2. Add `NotifyXxx()` to `CommandRegistry`
-3. Add `NotifyXxx()` pass-through to `CommandCoordinator`
-4. Subscribe to OBS event in `OBSWebSocketManager`
-5. Call `OBSStudioForLogiPlugin.Instance?.OnXxx()` from event handler
-6. Add `OnXxx()` to `OBSStudioForLogiPlugin` calling `_commandCoordinator.NotifyXxx()`
-7. Implement interface in relevant commands
+2. Add `NotifyXxx()` to `CommandCoordinator` via `this.NotifyEach<TInterface>(...)` — `CommandRegistry` needs no changes
+3. Subscribe to OBS event in `OBSWebSocketManager`
+4. Call `OBSStudioForLogiPlugin.Instance?.OnXxx()` from event handler
+5. Add `OnXxx()` to `OBSStudioForLogiPlugin` calling `_commandCoordinator.NotifyXxx()`
+6. Implement interface in relevant commands
 
 ---
 

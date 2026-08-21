@@ -43,8 +43,8 @@ OBSStudioForLogiPlugin/
 | `IOBSWebsocket.cs` | Interface for testability (mocked in all tests) |
 | `OBSFacade.cs` | Simplified public interface over OBSWebSocketManager |
 | `ConnectionManager.cs` | Connection lifecycle: config discovery, connect/disconnect |
-| `CommandCoordinator.cs` | Pass-through to CommandRegistry (thin delegation layer) |
-| `CommandRegistry.cs` | Interface-based event dispatch to registered commands |
+| `CommandCoordinator.cs` | Owns event dispatch: per-command exception isolation via generic `NotifyEach<T>()` |
+| `CommandRegistry.cs` | Command store: registration/dedup + generic `GetCommands<T>()` interface filter |
 | `IObsCommand.cs` | 14 notification interfaces (IObsCommand + 13 specialised) |
 | `OBSConfigReader.cs` | Reads OBS WebSocket config from disk |
 | `OBSLifecycleManager.cs` | Port availability checking |
@@ -143,10 +143,10 @@ public ScenesDynamicFolder()
     OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
 }
 ```
-`CommandRegistry` dispatches events via interface type-filtering:
+`CommandCoordinator` dispatches events via interface type-filtering, with per-command exception isolation so one throwing command doesn't block the rest:
 ```csharp
-foreach (var command in this._commands.OfType<ISceneAwareCommand>())
-    command.OnSceneChanged(sceneName);
+this.NotifyEach<ISceneAwareCommand>(nameof(ISceneAwareCommand.OnSceneChanged), c => c.OnSceneChanged(sceneName));
+// NotifyEach iterates this._registry.GetCommands<T>(), try/catching each call individually
 ```
 
 ### 3. Notification Interface Hierarchy
@@ -184,8 +184,7 @@ OBS fires event
     → obs-websocket-dotnet raises C# event
     → OBSWebSocketManager handler
     → OBSStudioForLogiPlugin.OnXxx() callback
-    → CommandCoordinator.NotifyXxx()
-    → CommandRegistry dispatches to registered commands via interface
+    → CommandCoordinator.NotifyXxx() — filters via CommandRegistry.GetCommands<T>(), dispatches per-command with exception isolation
     → Command calls CommandImageChanged(parameter)
     → Loupedeck framework calls GetCommandImage()
     → Button icon updates

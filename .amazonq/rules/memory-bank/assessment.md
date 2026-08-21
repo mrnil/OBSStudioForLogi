@@ -5,7 +5,7 @@
 Assessment conducted against v1.5.1. Covers code quality, architecture, usability, and feature gaps.
 Items are ordered by priority within each category.
 
-Items #1, #2, #4, #7, #10, #11 shipped in v1.6.0; v1.6.1 was a maintenance release (audio input-kind filter fix, default profiles, action-picker grouping) with no assessment items addressed. As of v1.6.1 (current), the remaining open items are #3, #5, #6, #8, #9, plus #12-#14 identified during the net10.0 migration (see "Newly Identified" below).
+Items #1, #2, #4, #7, #10, #11 shipped in v1.6.0; v1.6.1 was a maintenance release (audio input-kind filter fix, default profiles, action-picker grouping) with no assessment items addressed. #6 and #13 were fixed post-v1.6.1 (not yet released). As of now, the remaining open items are #3, #5, #8, #9, #12, #14.
 
 ---
 
@@ -81,25 +81,11 @@ public override BitmapImage GetCommandImage(String actionParameter, PluginImageS
 
 ---
 
-### 6. `CommandCoordinator` Is a Valueless Pass-Through (Code Quality)
+### 6. `CommandCoordinator` Is a Valueless Pass-Through (Code Quality) ✅ Fixed
 
-**Problem**: Every method in `CommandCoordinator` is a one-liner delegating identically to `CommandRegistry`. It adds a layer of indirection with no behaviour, no validation, no error isolation, and 0% test coverage.
+**Problem**: Every method in `CommandCoordinator` was a one-liner delegating identically to `CommandRegistry`. It added a layer of indirection with no behaviour, no validation, no error isolation, and 0% test coverage.
 
-**Options**:
-- Give it a real responsibility (e.g. per-command exception isolation so one failing command doesn't break others)
-- Or collapse it — have `OBSStudioForLogiPlugin` hold `CommandRegistry` directly
-
-**Recommended fix** — add per-command exception isolation in `CommandCoordinator`:
-```csharp
-public void NotifySceneChanged(String sceneName)
-{
-    foreach (var command in this._registry.GetSceneAwareCommands())
-    {
-        try { command.OnSceneChanged(sceneName); }
-        catch (Exception ex) { PluginLog.Error($"Command {command.GetType().Name} threw on OnSceneChanged: {ex.Message}"); }
-    }
-}
-```
+**Fix applied**: Responsibility moved so each class does one thing — `CommandRegistry` is now purely a store (`Register()` + a generic `GetCommands<T>()` filter), and `CommandCoordinator` owns dispatch through a private generic `NotifyEach<T>(eventName, action)` helper that every `NotifyXxx()` method calls. Each command invocation inside `NotifyEach` is wrapped in try/catch — a throwing command is logged via `PluginLog.Error` and does not prevent the remaining registered commands from being notified for that same event. `CommandCoordinatorTests.cs` (26 tests) covers dispatch-by-interface for every notification type plus explicit exception-isolation tests (`NotifyConnected_OneCommandThrows_StillNotifiesRemainingCommands`, `NotifyConnected_CommandThrows_DoesNotPropagateException`, `NotifySceneChanged_OneCommandThrows_StillNotifiesRemainingCommands`). `CommandRegistryTests.cs` was trimmed to cover only registration/dedup and `GetCommands<T>()` filtering, since dispatch no longer lives there.
 
 ---
 
@@ -170,11 +156,11 @@ Found while migrating to .NET 10.0 (`5d04506`) and refreshing this memory bank. 
 
 ---
 
-### 13. Stale `obj`/`bin` Caches Break Fresh Builds After Framework Changes (Build/DX)
+### 13. `obj/` Location Depended on How You Invoked the Build (Build/DX) ✅ Fixed
 
-**Problem**: Building from a working tree carrying old `obj/`/`bin/` caches (left over from the net8.0 → net9.0 → net10.0 churn) fails with ~19 `CS0579` duplicate-attribute errors — generated `AssemblyAttributes.cs`/`AssemblyInfo.cs` files for different target frameworks collide. Hit directly in this session; will affect any contributor who pulls the .NET 10 migration onto an existing checkout without cleaning first.
+**Problem**: This was not just migration leftovers — it was self-reproducing. `src/Directory.Build.props` set `<BaseIntermediateOutputPath>$(SolutionDir)obj\</BaseIntermediateOutputPath>`. `$(SolutionDir)` is only defined by MSBuild when building through the `.sln` (resolving to the repo root, e.g. `obj/` at the top level); building the bare `.csproj` directly (or via a `ProjectReference`) leaves `$(SolutionDir)` undefined, so it falls back to a path relative to the project file (`src/obj/`). Whichever invocation ran last left stale generated `AssemblyAttributes.cs`/`AssemblyInfo.cs` behind that the *other* invocation's default item-exclude glob no longer matched, so `**/*.cs` picked the stale file up as a real source file alongside the freshly generated one in the new location — hence the `CS0579` duplicate-attribute errors. Alternating between `dotnet build OBSStudioForLogiPlugin.sln`, `dotnet build src/OBSStudioForLogiPlugin.csproj`, and `dotnet test` (which builds the `ProjectReference`) reproduced it repeatedly.
 
-**Fix**: Note in `tech.md`/`README.md` that anyone updating an existing checkout across this migration should delete `obj/` and `bin/` (repo root, `src/`, `tests/…`) before rebuilding. Consider adding a `dotnet clean` step to `release-process.md` as a standing habit whenever the target framework changes.
+**Fix applied**: Changed `BaseIntermediateOutputPath` to `$(MSBuildThisFileDirectory)obj\`, which always resolves to `src/obj/` (the directory containing `Directory.Build.props` itself) regardless of invocation method. Verified by alternating all three invocation methods from a clean state — `obj/` now lands only in `src/obj/` every time. `<BaseOutputPath>$(SolutionDir)..\bin\</BaseOutputPath>` in the same file is still `$(SolutionDir)`-dependent but is dead code in practice — `OBSStudioForLogiPlugin.csproj` sets its own `<BaseOutputPath>` later using `$(MSBuildThisFileDirectory)`, which wins. Left as-is to keep this fix minimal; worth cleaning up if it's ever touched again.
 
 ---
 
@@ -202,5 +188,5 @@ Found while migrating to .NET 10.0 (`5d04506`) and refreshing this memory bank. 
 | 10 | ~~Low~~ | ~~Feature~~ | ~~`MediaDynamicFolder` doesn't respond to input list changes~~ ✅ Fixed |
 | 11 | ~~Low~~ | ~~Security~~ | ~~Password field has no masking or sensitivity indication~~ ✅ Fixed |
 | 12 | High | Risk | net10.0 migration unverified against real Logi Plugin Service host (compiles ≠ runs) |
-| 13 | Medium | Build/DX | Stale `obj`/`bin` caches cause spurious `CS0579` errors after target-framework changes |
+| 13 | ~~Medium~~ | ~~Build/DX~~ | ~~`obj/` location depended on invocation method, causing spurious `CS0579` errors~~ ✅ Fixed |
 | 14 | Low-Medium | Test Reliability | `DoubleTapHelperTests` flaky under full-suite/coverage load |
