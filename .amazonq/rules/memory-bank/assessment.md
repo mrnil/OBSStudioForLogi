@@ -5,7 +5,7 @@
 Assessment conducted against v1.5.1. Covers code quality, architecture, usability, and feature gaps.
 Items are ordered by priority within each category.
 
-Items #1, #2, #4, #7, #10, #11 shipped in v1.6.0; v1.6.1 was a maintenance release (audio input-kind filter fix, default profiles, action-picker grouping) with no assessment items addressed. As of v1.6.1 (current), the remaining open items are #3, #5, #6, #8, #9 below.
+Items #1, #2, #4, #7, #10, #11 shipped in v1.6.0; v1.6.1 was a maintenance release (audio input-kind filter fix, default profiles, action-picker grouping) with no assessment items addressed. As of v1.6.1 (current), the remaining open items are #3, #5, #6, #8, #9, plus #12-#14 identified during the net10.0 migration (see "Newly Identified" below).
 
 ---
 
@@ -156,6 +156,36 @@ public void OnInputsChanged(String[] inputs)
 
 ---
 
+## Newly Identified (2026-08-21)
+
+Found while migrating to .NET 10.0 (`5d04506`) and refreshing this memory bank. Not yet actioned.
+
+### 12. Verify net10.0 Plugin Actually Runs Under Logi Plugin Service (Risk)
+
+**Problem**: The .NET 10 migration builds cleanly and all 389 unit tests pass, but it has not been verified to run inside the real Logi Plugin Service host process. `PluginApi.dll` is loaded at runtime from `C:\Program Files\Logi\LogiPluginService\PluginApi.dll` (or the macOS equivalent) — compiling against the `ci/PluginApi.dll` stub proves nothing about whether that host process can load a net10.0 plugin assembly.
+
+**Fix**: Do an end-to-end smoke test — Release build, let the post-build `.link` file + `loupedeck:plugin/OBSStudioForLogi/reload` trigger a live reload, and confirm the plugin actually connects to OBS and responds to button presses on real hardware (or the Loupedeck simulator). If Logi Plugin Service can't host net10.0 assemblies, the migration needs to be reverted until the SDK vendor confirms support.
+
+**Risk if skipped**: Shipping a release that silently fails to load for every user.
+
+---
+
+### 13. Stale `obj`/`bin` Caches Break Fresh Builds After Framework Changes (Build/DX)
+
+**Problem**: Building from a working tree carrying old `obj/`/`bin/` caches (left over from the net8.0 → net9.0 → net10.0 churn) fails with ~19 `CS0579` duplicate-attribute errors — generated `AssemblyAttributes.cs`/`AssemblyInfo.cs` files for different target frameworks collide. Hit directly in this session; will affect any contributor who pulls the .NET 10 migration onto an existing checkout without cleaning first.
+
+**Fix**: Note in `tech.md`/`README.md` that anyone updating an existing checkout across this migration should delete `obj/` and `bin/` (repo root, `src/`, `tests/…`) before rebuilding. Consider adding a `dotnet clean` step to `release-process.md` as a standing habit whenever the target framework changes.
+
+---
+
+### 14. `DoubleTapHelperTests` Flaky Under Full-Suite / Coverage-Collector Load (Test Reliability)
+
+**Problem**: `OnTap_TwoDistinctParameters_FireIndependently` failed twice in this session — once under `--collect:"XPlat Code Coverage"` and once in a full 389-test run — but passed cleanly every time it ran in isolation. It relies on `Thread.Sleep(OBSTimings.TestAsyncDelayExtended)` after two `Task.Run` fire-and-forget calls; under full-suite thread-pool contention the fixed delay isn't always enough.
+
+**Fix**: Increase `TestAsyncDelayExtended`, or replace the fixed `Thread.Sleep` with a bounded poll on the expected state (more robust under load than a fixed sleep). Worth doing before ever considering enabling tests in CI — `tech.md` already notes CI skips tests for exactly this class of timing flakiness.
+
+---
+
 ## Summary Table
 
 | # | Priority | Area | Issue |
@@ -171,3 +201,6 @@ public void OnInputsChanged(String[] inputs)
 | 9 | Low | Feature | Recording duration display (parity with streaming stats) |
 | 10 | ~~Low~~ | ~~Feature~~ | ~~`MediaDynamicFolder` doesn't respond to input list changes~~ ✅ Fixed |
 | 11 | ~~Low~~ | ~~Security~~ | ~~Password field has no masking or sensitivity indication~~ ✅ Fixed |
+| 12 | High | Risk | net10.0 migration unverified against real Logi Plugin Service host (compiles ≠ runs) |
+| 13 | Medium | Build/DX | Stale `obj`/`bin` caches cause spurious `CS0579` errors after target-framework changes |
+| 14 | Low-Medium | Test Reliability | `DoubleTapHelperTests` flaky under full-suite/coverage load |

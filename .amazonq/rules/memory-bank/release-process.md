@@ -46,14 +46,18 @@ Create `RELEASE_NOTES_v{VERSION}.md` with:
 - Requirements
 - Acknowledgments
 
-### 4. Commit Release Notes
+### 4. Update CHANGELOG.md
+
+Add a new `## [{VERSION}] - {DATE}` entry at the top (below the header, above the previous latest version), in [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format (`### Added` / `### Changed` / `### Fixed` / `### Security` / etc). This step was skipped for v1.5.1, v1.6.0, and v1.6.1 despite release notes existing for all three — do not skip it again; a `RELEASE_NOTES_v{VERSION}.md` file is not a substitute for a `CHANGELOG.md` entry.
+
+### 5. Commit Release Notes and Changelog
 
 ```bash
-git add RELEASE_NOTES_v{VERSION}.md
-git commit -m "docs: add release notes for v{VERSION}"
+git add RELEASE_NOTES_v{VERSION}.md CHANGELOG.md
+git commit -m "docs: add release notes and changelog entry for v{VERSION}"
 ```
 
-### 5. Create Git Tag
+### 6. Create Git Tag
 
 ```bash
 git tag -a v{VERSION} -m "Release v{VERSION} - {TITLE}
@@ -61,7 +65,7 @@ git tag -a v{VERSION} -m "Release v{VERSION} - {TITLE}
 {SUMMARY OF CHANGES}"
 ```
 
-### 6. Create .lplug4 Package
+### 7. Create .lplug4 Package
 
 Use LogiPluginTool (installed as dotnet global tool):
 
@@ -74,13 +78,13 @@ LogiPluginTool pack "b:\development\OBSStudioForLogiPlugin\bin\Release" "b:\deve
 - SDK tools copy: `B:\development\LogitechBeta\LogiPluginSdkTools\LogiPluginTool.exe`
 - ❌ `C:\Program Files\Logi\LogiPluginService\LogiPluginTool.exe` — BROKEN (missing companion DLL, do NOT use)
 
-### 7. Verify Package
+### 8. Verify Package
 
 ```bash
 LogiPluginTool verify "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
 ```
 
-### 8. Check Package Metadata
+### 9. Check Package Metadata
 
 ```bash
 LogiPluginTool metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
@@ -92,14 +96,14 @@ Verify:
 - Display name is correct
 - Supported platforms are correct
 
-### 9. Push to Git
+### 10. Push to Git
 
 ```bash
 git push origin main
 git push origin v{VERSION}
 ```
 
-### 10. Create GitHub Release
+### 11. Create GitHub Release
 
 1. Go to GitHub repository
 2. Click "Releases" → "Draft a new release"
@@ -266,25 +270,27 @@ dotnet build src/OBSStudioForLogiPlugin.csproj -c Release
 
 # 3. Create release notes (manual)
 
-# 4. Commit release notes
-git add RELEASE_NOTES_v0.9.1.md
-git commit -m "docs: add release notes for v0.9.1"
+# 4. Update CHANGELOG.md with a new [0.9.1] entry (manual)
 
-# 5. Create tag
+# 5. Commit release notes and changelog
+git add RELEASE_NOTES_v0.9.1.md CHANGELOG.md
+git commit -m "docs: add release notes and changelog entry for v0.9.1"
+
+# 6. Create tag
 git tag -a v0.9.1 -m "Release v0.9.1 - Bug Fixes and Icon Updates"
 
-# 6. Create package (LogiPluginTool is a dotnet global tool, callable from any directory)
+# 7. Create package (LogiPluginTool is a dotnet global tool, callable from any directory)
 LogiPluginTool pack "b:\development\OBSStudioForLogiPlugin\bin\Release" "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v0.9.1.lplug4"
 
-# 7. Verify package
+# 8. Verify package
 LogiPluginTool verify "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v0.9.1.lplug4"
 
-# 8. Check metadata
+# 9. Check metadata
 LogiPluginTool metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v0.9.1.lplug4"
 
-# 9. Push to git
+# 10. Push to git
 git push origin main
 git push origin v0.9.1
 
-# 10. Create GitHub release (manual via web interface)
+# 11. Create GitHub release (manual via web interface)
 ```

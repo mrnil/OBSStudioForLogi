@@ -8,6 +8,12 @@
 - [ ] `SourcesDynamicFolder.GetCommandImage` — render source name alongside visibility icon
 - [ ] `ProfilesDynamicFolder.GetCommandImage` — render profile name alongside selected/unselected icon
 
+### Assessment: Verify net10.0 Runtime Compatibility (#12)
+
+- [ ] Release build + live `.link`/reload against a real Logi Plugin Service install (not just the CI `PluginApi.dll` stub)
+- [ ] Confirm plugin connects to OBS and responds to button presses on real hardware or the Loupedeck simulator
+- [ ] If Logi Plugin Service can't host net10.0 assemblies, revert the migration until the SDK vendor confirms support
+
 ## Medium Priority
 
 ### Assessment: CommandCoordinator Has No Error Isolation (#6)
@@ -15,6 +21,11 @@
 - [ ] Add per-command exception isolation in each `Notify*` method so one failing command does not break others
 
 ### Assessment: OBSStats Null Propagation (#7) ✅ Done
+
+### Assessment: Stale obj/bin Caches After Framework Changes (#13)
+
+- [ ] Note in `tech.md`/`README.md` that contributors must delete `obj/`/`bin/` (repo root, `src/`, `tests/…`) before rebuilding across the net10.0 migration
+- [ ] Consider adding a `dotnet clean` step to `release-process.md` whenever the target framework changes
 
 ### Audio
 
@@ -42,6 +53,10 @@
 ### Assessment: Password Field Has No Sensitivity Indication (#11)
 
 - [x] ~~Add `(sensitive)` to the password field label in `PluginSettingsCommand`~~ ✅ Done
+
+### Assessment: DoubleTapHelperTests Flaky Under Load (#14)
+
+- [ ] Increase `OBSTimings.TestAsyncDelayExtended`, or replace the fixed `Thread.Sleep` in the flaky test with a bounded poll on expected state
 
 ### Other
 
