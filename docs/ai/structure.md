@@ -104,8 +104,8 @@ Note: as of v1.6.0 the `99. User Defined Actions` group has been retired — all
 
 | File | Purpose |
 |------|---------|
-| `ButtonImageHelper.cs` | Static factory: Icon, StateIcon, Text, StateText, TextWithIcon, StateTextWithIcon |
-| `ButtonTextRenderer.cs` | BitmapBuilder-based text rendering with border support |
+| `ButtonImageHelper.cs` | Static icon factory: `Icon`, `IconWithBackground` |
+| `ButtonTextRenderer.cs` | BitmapBuilder-based text rendering: `RenderText`, `RenderTextWithIcon`, `RenderTextWithBorder` |
 | `AudioHelpers.cs` | Shared audio button image rendering |
 | `AudioSelectionState.cs` | Static singleton: global selected audio source for wheel/dial |
 | `VolumeConverter.cs` | volumeMul ↔ dB conversion and formatting |

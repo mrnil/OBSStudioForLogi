@@ -82,7 +82,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             Boolean isSelected = actionParameter == this._currentProfile;
-            return ButtonImageHelper.Icon(isSelected ? "ProfileSelected.svg" : "ProfileUnselected.svg");
+            return ButtonTextRenderer.RenderTextWithBorder(actionParameter, imageSize, isSelected ? BitmapColor.Green : BitmapColor.White, isSelected);
         }
 
         public override void RunCommand(String actionParameter)

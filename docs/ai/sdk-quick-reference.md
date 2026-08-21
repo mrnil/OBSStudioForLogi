@@ -37,31 +37,31 @@ public class ToggleCommand : PluginDynamicCommand
     // Override ONLY this method
     protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
-        return ButtonImageHelper.StateIcon(isActive, "On.svg", "Off.svg");
+        // No StateIcon() helper exists — branch inline to pick the icon
+        return ButtonImageHelper.Icon(isActive ? "On.svg" : "Off.svg");
     }
 
     // Do NOT override GetCommandDisplayName
 }
 ```
 
-### Text + Icon Command (Rendered)
+### Text + State Command (Rendered)
 
 ```csharp
 public class DataDisplay : PluginDynamicCommand
 {
     public DataDisplay()
-        : base("Data Display", "Shows data with icon", "Displays")
+        : base("Data Display", "Shows data with state", "Displays")
     {
-        this.IsWidget = true; // Icon-only mode
+        this.IsWidget = true; // Required when overriding GetCommandImage
     }
 
     protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
-        // Render text on icon using BitmapBuilder or ButtonImageHelper
+        // Use ButtonTextRenderer, not ButtonImageHelper, for anything showing text.
+        // RenderTextWithBorder's border param is how "selected/active" is shown alongside color.
         String text = $"{label}\n\n{value}";
-        return ButtonImageHelper.StateTextWithIcon(text, imageSize, isActive,
-            "ActiveIcon.svg", "InactiveIcon.svg",
-            BitmapColor.Green, BitmapColor.Red);
+        return ButtonTextRenderer.RenderTextWithBorder(text, imageSize, isActive ? BitmapColor.Green : BitmapColor.Red, isActive);
     }
 }
 ```
@@ -144,7 +144,7 @@ public class ItemsDynamicFolder : PluginDynamicFolder
     public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
         Boolean isSelected = actionParameter == GetCurrentItem();
-        return ButtonImageHelper.StateIcon(isSelected, "Selected.svg", "Unselected.svg");
+        return ButtonImageHelper.Icon(isSelected ? "Selected.svg" : "Unselected.svg");
     }
 }
 ```
