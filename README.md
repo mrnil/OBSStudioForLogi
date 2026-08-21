@@ -1,6 +1,7 @@
 # Logitech/Loupedeck Plugin for interacting with OBS Studio
 
 [![Dependency Check](https://github.com/mrnil/OBSStudioForLogi/actions/workflows/dependency-check.yml/badge.svg)](https://github.com/mrnil/OBSStudioForLogi/actions/workflows/dependency-check.yml)
+[![Markdown Lint](https://github.com/mrnil/OBSStudioForLogi/actions/workflows/markdown-lint.yml/badge.svg)](https://github.com/mrnil/OBSStudioForLogi/actions/workflows/markdown-lint.yml)
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![OBS Studio](https://img.shields.io/badge/OBS%20Studio-28.0%2B-302E31?logo=obsstudio)](https://obsproject.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)

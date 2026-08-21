@@ -1,0 +1,25 @@
+name: Markdown Lint
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '**/*.md'
+  push:
+    branches: [main]
+    paths:
+      - '**/*.md'
+
+jobs:
+  rumdl:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run rumdl
+        uses: rvben/rumdl@v0
+        with:
+          command: check
+          path: .
+          fail-on-error: true

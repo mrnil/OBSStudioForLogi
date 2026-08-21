@@ -35,6 +35,12 @@ Deeper reference material (read only when relevant to the task at hand):
 - Commits follow Conventional Commits and must explain **why**, not just what — see `docs/ai/commit-conventions.md`.
 - Tests run locally only; CI (`.github/workflows/dependency-check.yml`) does not run them — do not add them to CI without first fixing the fire-and-forget timing flakiness noted in `docs/ai/test-coverage.md`.
 - When you fix something tracked in `docs/ai/assessment.md` or `TODO.md`, update those files in the same change — they drift fast otherwise (this has already happened once).
+- Every `.md` file you write or edit must pass `rumdl` (config: `.markdownlint.json`, enforced in CI by `.github/workflows/markdown-lint.yml`). The rules that actually get hit in practice:
+  - Blank line before **and** after every heading, list block, and fenced code block (MD022/MD032/MD031).
+  - No bare URLs — use `[text](url)` or wrap in `<angle brackets>` (MD034).
+  - Wrap C#/generic syntax like `` `Func<OBSStats>` `` or `` `List<T>` `` in backticks when it appears in prose outside a code fence — unescaped `<...>` reads as an HTML tag (MD033).
+  - Ordered lists must increment (`1.`, `2.`, `3.` — not `1.` repeated) (MD029).
+  - No trailing whitespace, except exactly two trailing spaces for an intentional Markdown hard line-break inside a paragraph (MD009).
 
 ## Keeping this current
 
