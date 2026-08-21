@@ -5,7 +5,7 @@
 Assessment conducted against v1.5.1. Covers code quality, architecture, usability, and feature gaps.
 Items are ordered by priority within each category.
 
-Items #1, #2, #4, #7, #10, #11 shipped in v1.6.0; v1.6.1 was a maintenance release (audio input-kind filter fix, default profiles, action-picker grouping) with no assessment items addressed. #6 and #13 were fixed post-v1.6.1 (not yet released). As of now, the remaining open items are #3, #5, #8, #9, #12, #14.
+Items #1, #2, #4, #7, #10, #11 shipped in v1.6.0; v1.6.1 was a maintenance release (audio input-kind filter fix, default profiles, action-picker grouping) with no assessment items addressed. #6, #12, and #13 were fixed post-v1.6.1, shipping in v1.6.2. As of now, the remaining open items are #3, #5, #8, #9, #14.
 
 ---
 
@@ -151,13 +151,11 @@ public void OnInputsChanged(String[] inputs)
 
 Found while migrating to .NET 10.0 (`5d04506`) and refreshing this memory bank. Not yet actioned.
 
-### 12. Verify net10.0 Plugin Actually Runs Under Logi Plugin Service (Risk)
+### 12. Verify net10.0 Plugin Actually Runs Under Logi Plugin Service (Risk) ✅ Fixed
 
-**Problem**: The .NET 10 migration builds cleanly and all 389 unit tests pass, but it has not been verified to run inside the real Logi Plugin Service host process. `PluginApi.dll` is loaded at runtime from `C:\Program Files\Logi\LogiPluginService\PluginApi.dll` (or the macOS equivalent) — compiling against the `ci/PluginApi.dll` stub proves nothing about whether that host process can load a net10.0 plugin assembly.
+**Problem**: The .NET 10 migration built cleanly and all unit tests passed, but it had not been verified to run inside the real Logi Plugin Service host process. `PluginApi.dll` is loaded at runtime from `C:\Program Files\Logi\LogiPluginService\PluginApi.dll` (or the macOS equivalent) — compiling against the `ci/PluginApi.dll` stub proves nothing about whether that host process can load a net10.0 plugin assembly.
 
-**Fix**: Do an end-to-end smoke test — Release build, let the post-build `.link` file + `loupedeck:plugin/OBSStudioForLogi/reload` trigger a live reload, and confirm the plugin actually connects to OBS and responds to button presses on real hardware (or the Loupedeck simulator). If Logi Plugin Service can't host net10.0 assemblies, the migration needs to be reverted until the SDK vendor confirms support.
-
-**Risk if skipped**: Shipping a release that silently fails to load for every user.
+**Resolution**: Verified locally — the net10.0 build runs under a real Logi Plugin Service install, connects to OBS, and responds to button presses. Confirmed 2026-08-21, ahead of the v1.6.2 release.
 
 ---
 
@@ -192,6 +190,6 @@ Found while migrating to .NET 10.0 (`5d04506`) and refreshing this memory bank. 
 | 9 | Low | Feature | Recording duration display (parity with streaming stats) |
 | 10 | ~~Low~~ | ~~Feature~~ | ~~`MediaDynamicFolder` doesn't respond to input list changes~~ ✅ Fixed |
 | 11 | ~~Low~~ | ~~Security~~ | ~~Password field has no masking or sensitivity indication~~ ✅ Fixed |
-| 12 | High | Risk | net10.0 migration unverified against real Logi Plugin Service host (compiles ≠ runs) |
+| 12 | ~~High~~ | ~~Risk~~ | ~~net10.0 migration unverified against real Logi Plugin Service host~~ ✅ Fixed |
 | 13 | ~~Medium~~ | ~~Build/DX~~ | ~~`obj/` location depended on invocation method, causing spurious `CS0579` errors~~ ✅ Fixed |
 | 14 | Low-Medium | Test Reliability | `DoubleTapHelperTests` flaky under full-suite/coverage load |

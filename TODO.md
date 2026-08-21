@@ -8,11 +8,9 @@
 - [ ] `SourcesDynamicFolder.GetCommandImage` — render source name alongside visibility icon
 - [ ] `ProfilesDynamicFolder.GetCommandImage` — render profile name alongside selected/unselected icon
 
-### Assessment: Verify net10.0 Runtime Compatibility (#12)
+### Assessment: Verify net10.0 Runtime Compatibility (#12) ✅ Done
 
-- [ ] Release build + live `.link`/reload against a real Logi Plugin Service install (not just the CI `PluginApi.dll` stub)
-- [ ] Confirm plugin connects to OBS and responds to button presses on real hardware or the Loupedeck simulator
-- [ ] If Logi Plugin Service can't host net10.0 assemblies, revert the migration until the SDK vendor confirms support
+- [x] ~~Verified net10.0 build runs under a real Logi Plugin Service install, connects to OBS, and responds to button presses~~ ✅ Done
 
 ## Medium Priority
 
@@ -85,11 +83,16 @@
 - [ ] Multi-instance OBS support (see `docs/ai/multi-instance-obs-design.md`)
 - [ ] Dependency injection for StatsService (inject `Func<OBSStats>` instead of static singleton)
 
-## Recently Completed (post-v1.6.1, unreleased)
+## Recently Completed (v1.6.2)
 
 - [x] Assessment #6 — `CommandCoordinator` given real responsibility: per-command exception isolation via a private generic `NotifyEach<T>()` dispatcher; `CommandRegistry` simplified to a store + generic `GetCommands<T>()` filter; `CommandCoordinatorTests.cs` added (26 tests) covering dispatch and exception isolation, `CommandRegistryTests.cs` trimmed to registration/filtering
+- [x] Assessment #12 — verified the net10.0 build runs under a real Logi Plugin Service install, connects to OBS, and responds to button presses
 - [x] Assessment #13 — root-caused and fixed the recurring `obj/` location bug: `src/Directory.Build.props` now uses `$(MSBuildThisFileDirectory)` instead of `$(SolutionDir)` for `BaseIntermediateOutputPath`, so `obj/` no longer depends on whether the build is invoked via the `.sln`, the bare `.csproj`, or `dotnet test`
 - [x] Resolved nullable-reference build warnings (CS8600/CS8602) in `DoubleTapHelperTests.cs` and `PluginConfigReaderTests.cs`
+- [x] Migrated to .NET 10.0 (plugin, tests, CI)
+- [x] Moved AI coding-assistant docs from `.amazonq/rules/` to `docs/ai/`; added `AGENTS.md`/`CLAUDE.md`
+- [x] Added CI markdown linting (`rumdl`) and fixed existing violations repo-wide
+- [x] Removed `tools/InspectSdk` reflection-based SDK reverse-engineering utility
 
 ## Recently Completed (v1.5.x)
 
