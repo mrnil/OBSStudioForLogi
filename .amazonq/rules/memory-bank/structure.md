@@ -5,11 +5,11 @@
 ```
 OBSStudioForLogiPlugin/
 ├── src/                          # Plugin source code
-│   ├── Actions/                  # Loupedeck SDK command/folder classes (44 files)
+│   ├── Actions/                  # Loupedeck SDK command/folder classes (49 files)
 │   ├── Helpers/                  # Utility classes (11 files)
 │   ├── Models/                   # Data models (4 files)
 │   ├── Services/                 # Business logic and OBS integration (14 files)
-│   ├── Resources/icons/          # Embedded SVG/PNG icons (50 files)
+│   ├── Resources/icons/          # Embedded SVG/PNG icons (47 files)
 │   ├── package/metadata/         # LoupedeckPackage.yaml + plugin icon
 │   ├── OBSStudioForLogiPlugin.cs # Main plugin class (orchestration)
 │   ├── OBSStudioForLogiApplication.cs
@@ -60,7 +60,7 @@ OBSStudioForLogiPlugin/
 - `AudioInputDynamicFolderBase` — shared audio folder logic (mute, volume, selection, encoder)
 
 **Dynamic Folders (PluginDynamicFolder):**
-- `ScenesDynamicFolder`, `SourcesDynamicFolder`, `ProfilesDynamicFolder`
+- `ScenesDynamicFolder`, `SourcesDynamicFolder`, `ProfilesDynamicFolder`, `SceneCollectionsDynamicFolder` (added v1.6.0)
 - `AudioMixerDynamicFolder`, `SceneAudioSourcesDynamicFolder`
 - `AudioSelectDynamicFolder`, `AudioVolumeDynamicFolder`
 - `MediaDynamicFolder`
@@ -72,8 +72,11 @@ OBSStudioForLogiPlugin/
 
 **Start/Stop Commands (via StartStopCommandBase):**
 - `StreamingStartCommand`, `StreamingStopCommand`
-- `RecordingStartCommand`, `RecordingStopCommand`
+- `RecordingStartCommand`, `RecordingStopCommand`, `RecordingPauseToggleCommand`
 - `VirtualCameraStartCommand`, `VirtualCameraStopCommand`
+
+**Multi-State Select Commands:**
+- `ProfileSelectCommand`, `SceneSelectCommand` (added v1.6.0), `SceneCollectionSelectCommand`, `AudioSourceSelectCommand` (added v1.6.0)
 
 **User-Defined (ActionEditorCommand):**
 - `SceneSwitchAdjustableCommand`, `SourceVisibilityAdjustableCommand`
@@ -87,6 +90,9 @@ OBSStudioForLogiPlugin/
 **Display Commands:**
 - `ConnectionStatusDisplay`, `CurrentSceneDisplay`, `CurrentProfileDisplay`
 - `CurrentSceneCollectionDisplay`, `StatsDisplay`, `AudioStatusDisplayCommand`
+- `ReconnectCommand`, `ReplayBufferSaveCommand`, `StudioModeTransitionCommand`, `ScreenshotCommand`
+
+Note: as of v1.6.0 the `99. User Defined Actions` group has been retired — all configurable (`ActionEditorCommand`) actions now live in sub-groups alongside their related controls (e.g. `8. Audio › User Defined`, `7. Scenes › User Defined`).
 
 ### `src/Helpers/`
 
@@ -185,9 +191,9 @@ OBS fires event
     → Button icon updates
 ```
 
-## Known Architectural Inconsistency
+## Architectural Inconsistency (Fixed in v1.6.0)
 
-`OBSWebSocketManager.OnConnected` and `OnDisconnected` contain ~10 hardcoded singleton calls each that bypass the `CommandRegistry`. The `CommandCoordinator.NotifyConnected()` / `NotifyDisconnected()` methods exist but are never called from `OBSStudioForLogiPlugin.OnOBSConnected` / `OnOBSDisconnected`. This means new commands that self-register will not receive `OnConnected`/`OnDisconnected` unless also added as hardcoded calls in `OBSWebSocketManager`.
+Previously, `OBSWebSocketManager.OnConnected`/`OnDisconnected` bypassed the `CommandRegistry` via hardcoded singleton calls, and `OnCurrentSceneChanged` bypassed it for `SourcesDynamicFolder`/`SceneAudioSourcesDynamicFolder`. Both are fixed: `OBSStudioForLogiPlugin.OnOBSConnected`/`OnOBSDisconnected` now route through `CommandCoordinator.NotifyConnected()`/`NotifyDisconnected()`, and scene-source updates route through the registry via `ISceneSourcesAwareCommand`. New self-registering commands now correctly receive all lifecycle notifications with no extra wiring. See `assessment.md` items #1 and #2.
 
 ## Build Output
 

@@ -574,11 +574,12 @@ Never hardcode timing values — always use `OBSTimings` constants.
 
 ## Known Issues to Be Aware Of
 
-### CommandRegistry Bypass
-`OBSWebSocketManager.OnConnected` and `OnDisconnected` contain hardcoded singleton calls that bypass the `CommandRegistry`. `CommandCoordinator.NotifyConnected()` / `NotifyDisconnected()` are never called from `OBSStudioForLogiPlugin.OnOBSConnected` / `OnOBSDisconnected`. New commands that self-register will NOT receive `OnConnected`/`OnDisconnected` unless also added as hardcoded calls in `OBSWebSocketManager`.
+### Fixed in v1.6.0 (kept here for history — do not reintroduce)
+- **CommandRegistry Bypass** — `OBSWebSocketManager.OnConnected`/`OnDisconnected` used to contain hardcoded singleton calls bypassing the `CommandRegistry`. Now `OBSStudioForLogiPlugin.OnOBSConnected`/`OnOBSDisconnected` call `CommandCoordinator.NotifyConnected()`/`NotifyDisconnected()`, which dispatch through the registry. New self-registering commands correctly receive `OnConnected`/`OnDisconnected` with no extra wiring — do not add hardcoded singleton calls back into `OBSWebSocketManager`.
+- **Scene Change Bypass** — `OnCurrentSceneChanged` used to call `SourcesDynamicFolder.Instance`/`SceneAudioSourcesDynamicFolder.Instance` directly. Now routes through `ISceneSourcesAwareCommand` via the registry.
+- **DoubleTapHelper Thread Safety** — `_tapStates` access is now wrapped in `lock(_tapStates)`; `CancellationTokenSource` objects are disposed on every path (single-tap `finally`, double-tap, and `Reset()`).
 
-### Scene Change Bypass
-`OBSStudioForLogiPlugin.OnCurrentSceneChanged` calls `SourcesDynamicFolder.Instance` and `SceneAudioSourcesDynamicFolder.Instance` directly, bypassing the registry. These folders are not notified via `ISceneAwareCommand`.
+See `assessment.md` items #1, #2, #4 for the original write-ups and `test-coverage.md` for the tests added alongside each fix.
 
-### DoubleTapHelper Thread Safety
-`DoubleTapHelper._tapStates` is accessed from both the calling thread and `Task.Run` background threads without synchronisation. `CancellationTokenSource` objects are not disposed after cancellation.
+### Still Open
+See `assessment.md` for current priority list — as of v1.6.1 the top remaining item is #3 (scene/source/profile buttons show no text).

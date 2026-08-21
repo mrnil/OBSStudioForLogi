@@ -2,9 +2,9 @@
 
 ## Overview
 
-The project follows a TDD approach with 362 unit tests using xUnit + Moq. Overall line coverage is ~39.5% (Cobertura), branch coverage ~22.6%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage.
+The project follows a TDD approach with 389 unit tests using xUnit + Moq (verified 2026-08-21, net10.0, all passing). Overall line coverage is ~37.4% (Cobertura), branch coverage ~19.8%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage. Coverage has drifted down slightly since v1.5.1 (was 39.5%/22.6%) as v1.6.0 added several new Actions-layer commands (`SceneSelectCommand`, `AudioSourceSelectCommand`, `SceneCollectionsDynamicFolder`) faster than services-layer surface area grew — expected under the TDD-exemption policy, not a regression.
 
-## Test Count: 362
+## Test Count: 389
 
 ## Test Files
 
@@ -56,6 +56,11 @@ The project follows a TDD approach with 362 unit tests using xUnit + Moq. Overal
 | `Actions/AudioSelectDynamicFolderTests.cs` | Constructor, interface methods, deselect on disconnect | ~6 |
 | `Actions/AudioVolumeDynamicFolderTests.cs` | Constructor, interface methods, event handlers | ~5 |
 | `Actions/SelectedSourceVolumeAdjustmentTests.cs` | Constructor, interface methods | ~3 |
+| `Actions/AudioSourceSelectCommandTests.cs` | Constructor, interface methods (added v1.6.0) | ~3 |
+| `Actions/AudioStatusDisplayCommandTests.cs` | Constructor, interface methods | ~3 |
+| `Actions/MediaDynamicFolderTests.cs` | Constructor, `IInputsListAwareCommand` behaviour | ~3 |
+| `Actions/SceneCollectionsDynamicFolderTests.cs` | Constructor, instance property (added v1.6.0) | ~2 |
+| `Actions/SceneSelectCommandTests.cs` | Constructor, interface methods (added v1.6.0) | ~3 |
 
 ## Coverage by Class (Key Classes)
 

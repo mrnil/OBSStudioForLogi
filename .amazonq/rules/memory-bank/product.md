@@ -4,7 +4,7 @@
 
 - **Name**: Streaming Assistant (package display name) / OBSStudioForLogiPlugin (assembly name)
 - **Package ID**: OBSStudioForLogi
-- **Current Version**: 1.5.1
+- **Current Version**: 1.6.1
 - **Author**: Stephen Moretti
 - **License**: MIT
 - **Repository**: https://github.com/mrnil/OBSStudioForLogi
@@ -51,10 +51,14 @@ The plugin is **not** an OBS extension or plugin. It is a Logi Plugin Service pl
 - Toggle, start, stop virtual camera
 
 ### Group 6 — Profiles
-- Profile Select (multi-state), Profiles Dynamic Folder, Current Profile Display
+- **Available Profiles** sub-group: Profile Select (multi-state), OBS Profiles Dynamic Folder
+- Current Profile Display
 
 ### Group 7 — Scenes
-- Scene Collection Select, Scenes Folder, Sources Folder (visibility toggle), Current Scene Display, Current Scene Collection Display
+- **Available Scenes** sub-group: Scene Select (multi-state — new in v1.6.0)
+- **Available Collections** sub-group: Scene Collection Select, OBS Scene Collections Dynamic Folder (new in v1.6.0)
+- **User Defined** sub-group: Switch to Scene, Toggle Source Visibility
+- Sources Folder (visibility toggle), Current Scene Display, Current Scene Collection Display
 - Studio mode aware: switches to preview when studio mode enabled, program when disabled
 
 ### Group 8 — Audio

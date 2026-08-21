@@ -5,7 +5,7 @@
 | Item | Value |
 |------|-------|
 | Language | C# |
-| Target Framework | .NET 8.0 (`net8.0`) |
+| Target Framework | .NET 10.0 (`net10.0`) — migrated from net8.0 in commit `5d04506` (2026-08) |
 | Nullable Reference Types | Disabled in plugin project; Enabled in test project |
 | Implicit Usings | Enabled |
 | Root Namespace | `Loupedeck.OBSStudioForLogiPlugin` |
@@ -18,8 +18,8 @@
 |---------|---------|---------|
 | `PluginApi.dll` | (runtime-provided) | Logi Actions SDK — base classes for Plugin, PluginDynamicCommand, PluginDynamicFolder, ActionEditorCommand, BitmapBuilder, etc. |
 | `obs-websocket-dotnet` | 5.0.1 | OBS WebSocket 5.x client library |
-| `Microsoft.Extensions.Logging.Abstractions` | 10.0.9 | Logging abstractions |
-| `System.Drawing.Common` | 10.0.9 | Image rendering support |
+| `Microsoft.Extensions.Logging.Abstractions` | 10.0.11 | Logging abstractions |
+| `System.Drawing.Common` | 10.0.11 | Image rendering support |
 
 ### Test Project (`tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj`)
 
@@ -28,7 +28,7 @@
 | `xunit` | 2.9.3 | Test framework |
 | `xunit.runner.visualstudio` | 3.1.5 | VS/IDE test runner |
 | `Moq` | 4.20.72 | Mocking framework |
-| `Microsoft.NET.Test.Sdk` | 18.7.0 | Test SDK |
+| `Microsoft.NET.Test.Sdk` | 18.8.1 | Test SDK |
 | `coverlet.collector` | 10.0.1 | Code coverage collection |
 | `obs-websocket-dotnet` | 5.0.1 | Required for type references in tests |
 
@@ -138,5 +138,5 @@ Version is defined in two places — both must be updated for a release:
 - **Mocking**: Moq 4.20.72 — `IOBSWebsocket` and `IPluginLog` are the primary mock targets
 - **Pattern**: Arrange-Act-Assert
 - **Async testing**: `Thread.Sleep(OBSTimings.TestAsyncDelay)` (500ms) after fire-and-forget operations
-- **Test count**: 362 unit tests
-- **Coverage**: ~39.5% line (Cobertura) — services layer 80-100%, actions layer exempt from strict TDD
+- **Test count**: 389 unit tests (verified 2026-08-21, all passing on net10.0)
+- **Coverage**: ~37.4% line / ~19.8% branch (Cobertura, measured 2026-08-21) — services layer 80-100%, actions layer exempt from strict TDD. Coverage % has drifted down slightly from prior 39.5%/22.6% as more Actions-layer (SDK-exempt) commands were added faster than services-layer surface area grew.

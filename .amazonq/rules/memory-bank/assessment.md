@@ -5,6 +5,8 @@
 Assessment conducted against v1.5.1. Covers code quality, architecture, usability, and feature gaps.
 Items are ordered by priority within each category.
 
+Items #1, #2, #4, #7, #10, #11 shipped in v1.6.0; v1.6.1 was a maintenance release (audio input-kind filter fix, default profiles, action-picker grouping) with no assessment items addressed. As of v1.6.1 (current), the remaining open items are #3, #5, #6, #8, #9 below.
+
 ---
 
 ## High Priority

@@ -5,6 +5,72 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Migrated target framework from .NET 8.0 to .NET 10.0 (plugin project, test project, CI workflow, README)
+
+### Dependencies
+
+- `System.Drawing.Common` 10.0.10 → 10.0.11
+- `Microsoft.Extensions.Logging.Abstractions` 10.0.10 → 10.0.11
+
+## [1.6.1] - 2026-08-21
+
+### Fixed
+
+- Sources using `game_capture` and `browser_source` input kinds were not appearing in the Audio Mixer or Scene Audio folders — both kinds now included in the audio input filter
+
+### Changed
+
+- OBS Profiles folder moved to `6. Profiles › Available Profiles` (was a separate sub-group)
+- OBS Scene Collections folder moved to `7. Scenes › Available Collections` (was a separate sub-group)
+- Default button layouts now shipped for all six supported device types (`DefaultProfile20/30/50/70/71/72.lp5` — Loupedeck CT, Loupedeck Live, Loupedeck Live S, MX Creative Keypad, MX Creative Dialpad, Logitech Actions Ring); Logi Plugin Service applies these automatically on first install or new profile creation
+
+### Dependencies
+
+- `System.Drawing.Common` 9.0.0 → 10.0.10
+- `Microsoft.Extensions.Logging.Abstractions` 9.0.4 → 10.0.10
+- `Microsoft.NET.Test.Sdk` 18.7.0 → 18.8.1
+- `actions/setup-dotnet` (CI) 5 → 6
+
+## [1.6.0] - 2026-07-18
+
+### Added
+
+- Scene Select multi-state command (`7. Scenes › Available Scenes`) — mirrors Profile Select / Scene Collection Select, studio-mode-aware scene switching
+- Audio Source Select multi-state command (`8. Audio › Available Sources`) — per-input name, volume in dB, and mute state; updates automatically as inputs are added/removed
+- Scene Collections Dynamic Folder (`7. Scenes › Available Collections`) — folder-based alternative to Scene Collection Select
+
+### Changed
+
+- Actions reorganised into functional sub-groups within their top-level group (Available Scenes / Available Collections / User Defined, etc.) for easier navigation in the action picker
+- `99. User Defined Actions` group retired — all configurable actions now live alongside their related controls
+
+### Fixed
+
+- `DoubleTapHelper` race condition on `_tapStates` and `CancellationTokenSource` leak — dictionary access now synchronised, token sources disposed on all paths (Assessment #4)
+- `OBSStats`/`OBSStreamStats` null-object pattern added (`.Empty`) — `OBSActionExecutor`/`OBSFacade` return `Empty` instead of `null`; null guards removed from stats display commands (Assessment #7)
+- `MediaDynamicFolder` now implements `IInputsListAwareCommand` and updates automatically when media sources are added/removed in OBS (Assessment #10)
+- `CommandRegistry` bypass fixed — `OnOBSConnected`/`OnOBSDisconnected` now route through `CommandCoordinator.NotifyConnected()`/`NotifyDisconnected()` instead of hardcoded singleton calls (Assessment #1)
+- Scene sources registry bypass fixed — `OnCurrentSceneChanged` routes through the registry via `ISceneSourcesAwareCommand` instead of calling `SourcesDynamicFolder`/`SceneAudioSourcesDynamicFolder` directly (Assessment #2)
+
+### Security
+
+- Password field in Plugin Settings labelled `Password (sensitive)` (Assessment #11)
+
+### Testing
+
+- 389 unit tests (up from 362 at v1.5.1)
+
+## [1.5.1] - 2026-07-08
+
+### Fixed
+
+- Audio Select Folder, Audio Volume Folder, and Media Controls Folder showing empty on connect — added explicit `OnConnected()`/`OnDisconnected()` calls in `OBSWebSocketManager`, matching the existing `AudioMixerDynamicFolder` pattern
+- Media play action not triggering playback in OBS — single tap now uses Pause (playing), Play/resume (paused), or Restart (stopped/ended/none) instead of always using `PLAY`, which only resumes from `PAUSED`
+
 ## [1.5.0] - 2026-07-05
 
 ### Added

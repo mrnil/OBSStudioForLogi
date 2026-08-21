@@ -3,7 +3,7 @@
 ## 1. Code Style
 
 ### Language and Types
-- Target framework: **.NET 8.0** (`net8.0`)
+- Target framework: **.NET 10.0** (`net10.0`)
 - Always use **BCL type names** — never C# keywords:
   ```csharp
   // CORRECT
