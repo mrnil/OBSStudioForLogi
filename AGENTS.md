@@ -47,6 +47,10 @@ If you hit a question about SDK behavior that isn't answered by `docs/ai/sdk-qui
   - Wrap C#/generic syntax like `` `Func<OBSStats>` `` or `` `List<T>` `` in backticks when it appears in prose outside a code fence — unescaped `<...>` reads as an HTML tag (MD033).
   - Ordered lists must increment (`1.`, `2.`, `3.` — not `1.` repeated) (MD029).
   - No trailing whitespace, except exactly two trailing spaces for an intentional Markdown hard line-break inside a paragraph (MD009).
+- Every GitHub Actions workflow you write or edit must be least-privilege on `GITHUB_TOKEN`:
+  - Always declare an explicit top-level `permissions:` block — never rely on the repo/org default, which may be more permissive than this workflow needs.
+  - Default to `contents: read`. Only add a broader scope (`pull-requests: write`, `contents: write`, etc.) to the specific job that actually needs it, not to the whole workflow — job-level `permissions:` fully replaces the workflow-level block for that job, it doesn't add to it, so a job with no block inherits everything from the top level.
+  - Before adding a scope, check whether the action you're calling actually needs it — e.g. GitHub's native PR annotations (inline diagnostics in the "Files changed" tab) work off the job's log output and need no extra permission; only actions that post comments, reviews, labels, or merges need `pull-requests: write`.
 
 ## Keeping this current
 
