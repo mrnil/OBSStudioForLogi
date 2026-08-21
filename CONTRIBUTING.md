@@ -22,7 +22,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ### Code Style
 
-- Follow the conventions in `.amazonq/rules/memory-bank/guidelines.md`
+- Follow the conventions in `docs/ai/guidelines.md`
 - Use BCL type names (`String`, `Boolean`, `Int32`) instead of C# keywords
 - Prefix private fields with underscore (`_fieldName`)
 - Use PascalCase for classes, methods, and properties
@@ -129,14 +129,19 @@ dotnet test --filter "FullyQualifiedName~OBSActionExecutorTests"
 - `CONFIGURATION.md`: All plugin configuration options
 - `TODO.md`: Roadmap and completed items
 - `CHANGELOG.md`: Version history
-- `.amazonq/rules/memory-bank/*.md`: Architecture and patterns
+- `docs/ai/*.md`: Architecture and patterns
 
-### Memory Bank Structure
+### AI Context Docs (`docs/ai/`)
+
+Reference material for both human contributors and AI coding assistants (Claude Code reads `CLAUDE.md`/`AGENTS.md` at the repo root, which point here). Key files:
 
 - `product.md`: Product overview and use cases
 - `structure.md`: Project structure and components
 - `tech.md`: Technology stack and build system
 - `guidelines.md`: Code quality standards and patterns
+- `secure-coding.md`: Security principles for this project
+- `commit-conventions.md`: Commit message format and rules
+- `assessment.md` / `test-coverage.md` / `release-process.md`: Findings backlog, test architecture, release checklist
 
 ## Questions?
 

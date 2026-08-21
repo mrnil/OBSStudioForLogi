@@ -497,6 +497,8 @@ this._mockLog.Verify(x => x.Error(
 ```
 
 ### TDD Scope
+Tests should be written before or alongside implementation where practical; all new business logic and core functionality must have accompanying tests.
+- **Business logic / core functionality**: 90%+ coverage
 - **Services layer** (`OBSActionExecutor`, `CommandRegistry`, `OBSFacade`, etc.): 80%+ coverage required
 - **Actions layer** (`src/Actions/`): Integration tests for constructor/singleton only; SDK-dependent rendering exempt
 - **Helpers** (`VolumeConverter`, `OBSConfigReader`, etc.): Full coverage

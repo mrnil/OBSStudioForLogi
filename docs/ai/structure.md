@@ -20,7 +20,7 @@ OBSStudioForLogiPlugin/
 │       └── *.cs                  # Services-layer unit tests (25 files)
 ├── tools/
 │   └── InspectSdk/               # SDK inspection utility
-├── .amazonq/rules/               # AI coding rules and memory bank
+├── docs/ai/                      # AI coding rules and architecture docs (Claude Code, etc.)
 ├── .github/workflows/            # CI: dependency-check.yml
 ├── bin/                          # Build output (Debug/Release)
 ├── ci/                           # CI-only PluginApi.dll stub
