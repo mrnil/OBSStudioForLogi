@@ -51,9 +51,14 @@
 
 - [x] ~~Add `(sensitive)` to the password field label in `PluginSettingsCommand`~~ ✅ Done
 
-### Assessment: DoubleTapHelperTests Flaky Under Load (#14)
+### Assessment: DoubleTapHelperTests Flaky Under Load (#14) ✅ Done
 
-- [ ] Increase `OBSTimings.TestAsyncDelayExtended`, or replace the fixed `Thread.Sleep` in the flaky test with a bounded poll on expected state
+- [x] ~~Replaced fixed `Thread.Sleep` with a bounded poll (`WaitFor`) in the two flaky tests~~ ✅ Done — verified with 5 consecutive full-suite runs, zero failures from this class
+
+### Assessment: General Thread.Sleep-After-Task.Run Flakiness in OBSActionExecutor* Tests (#15)
+
+- [ ] Same fixed-sleep race as #14, but across dozens of call sites in `OBSActionExecutor*` test classes — needs its own pass, not a quick fix
+- [ ] Real blocker for ever enabling tests in CI
 
 ### Other
 

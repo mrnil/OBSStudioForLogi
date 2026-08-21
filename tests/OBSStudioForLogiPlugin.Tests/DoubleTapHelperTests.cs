@@ -41,7 +41,7 @@ public class DoubleTapHelperTests
 
         this._helper.OnTap("input1", p => received = p, _ => received = "double");
 
-        Thread.Sleep(OBSTimings.TestAsyncDelayExtended);
+        WaitFor(() => received != null);
         Assert.Equal("input1", received);
     }
 
@@ -68,7 +68,7 @@ public class DoubleTapHelperTests
         this._helper.OnTap("a", p => single1 = p, null);
         this._helper.OnTap("b", p => single2 = p, null);
 
-        Thread.Sleep(OBSTimings.TestAsyncDelayExtended);
+        WaitFor(() => single1 != null && single2 != null);
         Assert.Equal("a", single1);
         Assert.Equal("b", single2);
     }
@@ -91,5 +91,19 @@ public class DoubleTapHelperTests
         var exception = Record.Exception(() => this._helper.Reset());
 
         Assert.Null(exception);
+    }
+
+    // Polls instead of a fixed sleep so these assertions don't flake under full-suite
+    // thread-pool contention, where a fixed window can be too tight (Assessment #14).
+    private static void WaitFor(Func<Boolean> condition, Int32 timeoutMs = 3000)
+    {
+        Int32 elapsed = 0;
+        const Int32 pollIntervalMs = 20;
+
+        while (!condition() && elapsed < timeoutMs)
+        {
+            Thread.Sleep(pollIntervalMs);
+            elapsed += pollIntervalMs;
+        }
     }
 }

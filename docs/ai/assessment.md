@@ -5,7 +5,7 @@
 Assessment conducted against v1.5.1. Covers code quality, architecture, usability, and feature gaps.
 Items are ordered by priority within each category.
 
-Items #1, #2, #4, #7, #10, #11 shipped in v1.6.0; v1.6.1 was a maintenance release (audio input-kind filter fix, default profiles, action-picker grouping) with no assessment items addressed. #6, #12, and #13 were fixed post-v1.6.1, shipping in v1.6.2. As of now, the remaining open items are #3, #5, #8, #9, #14.
+Items #1, #2, #4, #7, #10, #11 shipped in v1.6.0; v1.6.1 was a maintenance release (audio input-kind filter fix, default profiles, action-picker grouping) with no assessment items addressed. #6, #12, and #13 were fixed post-v1.6.1, shipping in v1.6.2. #14 was fixed post-v1.6.2 (not yet released). As of now, the remaining open items are #3, #5, #8, #9, #15.
 
 ---
 
@@ -167,11 +167,21 @@ Found while migrating to .NET 10.0 (`5d04506`) and refreshing this memory bank. 
 
 ---
 
-### 14. `DoubleTapHelperTests` Flaky Under Full-Suite / Coverage-Collector Load (Test Reliability)
+### 14. `DoubleTapHelperTests` Flaky Under Full-Suite / Coverage-Collector Load (Test Reliability) ✅ Fixed
 
-**Problem**: `OnTap_TwoDistinctParameters_FireIndependently` failed twice in this session — once under `--collect:"XPlat Code Coverage"` and once in a full 389-test run — but passed cleanly every time it ran in isolation. It relies on `Thread.Sleep(OBSTimings.TestAsyncDelayExtended)` after two `Task.Run` fire-and-forget calls; under full-suite thread-pool contention the fixed delay isn't always enough.
+**Problem**: `OnTap_TwoDistinctParameters_FireIndependently` and `OnTap_SingleTap_FiresSingleAfterThreshold` failed intermittently under full-suite/coverage-collector load, but passed cleanly every time they ran in isolation. They relied on `Thread.Sleep(OBSTimings.TestAsyncDelayExtended)` (750ms) after `Task.Run` fire-and-forget calls racing a 500ms internal threshold — only 250ms of margin, not always enough under thread-pool contention.
 
-**Fix**: Increase `TestAsyncDelayExtended`, or replace the fixed `Thread.Sleep` with a bounded poll on the expected state (more robust under load than a fixed sleep). Worth doing before ever considering enabling tests in CI — `tech.md` already notes CI skips tests for exactly this class of timing flakiness.
+**Fix applied**: Replaced the fixed sleep in both tests with a bounded poll (`WaitFor`, 20ms interval, 3000ms ceiling) that returns as soon as the expected state is observed instead of waiting a fixed window and hoping it was long enough. Verified with 5 consecutive full-suite runs — zero failures from `DoubleTapHelperTests` across all 5 (previously flaked roughly 1 in 3 runs).
+
+**Follow-up finding**: those same 5 runs surfaced that the identical race pattern (fixed `Thread.Sleep` after a `Task.Run` fire-and-forget, asserting a mock call landed) exists much more broadly across the `OBSActionExecutor*` test classes, and is actually the dominant source of full-suite flakiness now that `DoubleTapHelperTests` is fixed. That's a separate, larger piece of work — see #15.
+
+---
+
+### 15. General `Thread.Sleep`-After-`Task.Run` Flakiness Across `OBSActionExecutor*` Tests (Test Reliability)
+
+**Problem**: Many tests across `OBSActionExecutorStudioModeTests`, `OBSActionExecutorAudioTests`, `OBSActionExecutorSceneSwitchingTests`, `OBSActionExecutorStudioModeTransitionTests`, `VirtualCameraCommandTests`, and others follow the same pattern as the now-fixed #14: fire a `Task.Run`-based operation, `Thread.Sleep(OBSTimings.TestAsyncDelay)`, then verify a mock call landed. Under full-suite thread-pool contention (393 tests, many spinning up background tasks concurrently) this fixed window isn't always enough — observed 3-6 different tests failing per run across 5 consecutive full-suite runs, never the same set twice, all passing in isolation.
+
+**Fix**: Same approach as #14 — replace the fixed `Thread.Sleep` + assert pattern with a bounded poll on the mock's invocation count (e.g. `WaitFor(() => mock.Invocations.Any(i => i.Method.Name == "MethodName"))`, or expose a poll helper on the mock verification itself). Given the number of affected call sites (dozens, across many test files), this is a larger, mechanical refactor rather than a quick fix — worth doing as its own pass rather than folding into other work. This is the real blocker for ever enabling tests in CI (`AGENTS.md` already calls this out), more so than #14 was.
 
 ---
 
@@ -184,7 +194,7 @@ Found while migrating to .NET 10.0 (`5d04506`) and refreshing this memory bank. 
 | 3 | High | Usability | Scene/source/profile buttons show no text — unusable without memorisation |
 | 4 | ~~Medium~~ | ~~Code Quality~~ | ~~`DoubleTapHelper` race condition and `CancellationTokenSource` leak~~ ✅ Fixed |
 | 5 | Medium | Usability | Double-tap unreliable on MX Console; 500ms delay on audio selection |
-| 6 | Medium | Code Quality | `CommandCoordinator` is a valueless pass-through — no error isolation |
+| 6 | ~~Medium~~ | ~~Code Quality~~ | ~~`CommandCoordinator` is a valueless pass-through — no error isolation~~ ✅ Fixed |
 | 7 | ~~Medium~~ | ~~Code Quality~~ | ~~`OBSStats` null propagation — null-object pattern would clean up display commands~~ ✅ Fixed |
 | 8 | Low | Feature | `ProfileListChanged`/`SceneCollectionListChanged` events not subscribed |
 | 9 | Low | Feature | Recording duration display (parity with streaming stats) |
@@ -192,4 +202,5 @@ Found while migrating to .NET 10.0 (`5d04506`) and refreshing this memory bank. 
 | 11 | ~~Low~~ | ~~Security~~ | ~~Password field has no masking or sensitivity indication~~ ✅ Fixed |
 | 12 | ~~High~~ | ~~Risk~~ | ~~net10.0 migration unverified against real Logi Plugin Service host~~ ✅ Fixed |
 | 13 | ~~Medium~~ | ~~Build/DX~~ | ~~`obj/` location depended on invocation method, causing spurious `CS0579` errors~~ ✅ Fixed |
-| 14 | Low-Medium | Test Reliability | `DoubleTapHelperTests` flaky under full-suite/coverage load |
+| 14 | ~~Low-Medium~~ | ~~Test Reliability~~ | ~~`DoubleTapHelperTests` flaky under full-suite/coverage load~~ ✅ Fixed |
+| 15 | Low-Medium | Test Reliability | Same fixed-sleep race broadly across `OBSActionExecutor*` tests — dozens of call sites, dominant flakiness source now that #14 is fixed |
