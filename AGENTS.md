@@ -28,6 +28,12 @@ Deeper reference material (read only when relevant to the task at hand):
 - `obs-websocket-api-complete.md`, `obs-audio-api-analysis.md`, `protocol-gap-analysis.md` — OBS WebSocket protocol coverage
 - `refactoring-patterns.md`, `vu-meters-learnings.md`, `multi-instance-obs-design.md` — past decisions and design notes
 
+## When SDK or plugin knowledge is missing
+
+The Logi Actions SDK (the SDK this plugin is built on — `PluginApi.dll`, `Plugin`/`PluginDynamicCommand`/`PluginDynamicFolder`/`ActionEditorCommand` base classes, etc.) has an AI-friendly documentation index at **<https://logitech.github.io/actions-sdk-docs/llms.txt>**. It's an `llms.txt`-format index linking out to the real docs pages — C# plugin development, haptics, icons, plugin features (logging/settings/localization/multistate actions), supported devices, distribution guidelines.
+
+If you hit a question about SDK behavior that isn't answered by `docs/ai/sdk-quick-reference.md` or the other reference docs above — an API you haven't used before, an edge case in lifecycle/rendering behavior, a class or method whose exact contract you're unsure of — **fetch and consult this index rather than guessing or inferring behavior from the SDK's shape**. `PluginApi.dll` is a compiled reference-only dependency in this repo (see `docs/ai/tech.md`), so you cannot read its source to verify assumptions; the official docs are the only reliable source of truth, and guessing wrong here produces plugin code that compiles but misbehaves at runtime in ways tests can't catch (the SDK-dependent `src/Actions/` layer is exempt from strict TDD — see `docs/ai/test-coverage.md`).
+
 ## Non-negotiables
 
 - Follow `docs/ai/guidelines.md` exactly for code style — this project's `.editorconfig` enforces BCL type names (`String`, not `string`), no `var`, mandatory `this.` qualification, and Allman braces as warnings, but the convention is followed strictly regardless.
