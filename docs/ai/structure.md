@@ -18,8 +18,6 @@ OBSStudioForLogiPlugin/
 │   └── OBSStudioForLogiPlugin.Tests/
 │       ├── Actions/              # Action-layer integration tests (16 files)
 │       └── *.cs                  # Services-layer unit tests (25 files)
-├── tools/
-│   └── InspectSdk/               # SDK inspection utility
 ├── docs/ai/                      # AI coding rules and architecture docs (Claude Code, etc.)
 ├── .github/workflows/            # CI: dependency-check.yml
 ├── bin/                          # Build output (Debug/Release)
