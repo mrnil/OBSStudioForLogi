@@ -6,7 +6,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ### Prerequisites
 
-- .NET 8.0 SDK
+- .NET 10.0 SDK
 - Visual Studio 2022 or VS Code
 - Logi Plugin Service installed
 - OBS Studio 28.0+ with obs-websocket 5.0+
@@ -60,7 +60,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 1. Create a feature branch from `main`
 2. Implement changes with tests
 3. Ensure all tests pass
-4. Update documentation (README, TODO, memory bank)
+4. Update documentation (README, TODO, `docs/ai/`)
 5. Commit with conventional commit messages
 6. Create pull request with detailed description
 
@@ -82,7 +82,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 6. Add icon resources to `src/Resources/icons/`
 7. Update `.csproj` with embedded resources
 8. Add tests in `tests/OBSStudioForLogiPlugin.Tests/`
-9. Update README, TODO, and memory bank
+9. Update README, TODO, and `docs/ai/`
 
 ### Adding OBS Integration
 
@@ -117,7 +117,7 @@ dotnet test --filter "FullyQualifiedName~OBSActionExecutorTests"
 - Name tests: `MethodName_Condition_ExpectedBehavior`
 - Add `Thread.Sleep(OBSTimings.TestAsyncDelay)` when testing `Task.Run` fire-and-forget methods
 - Use `OBSTimings.TestAsyncDelayExtended` for error-path tests that may be slower under load
-- Current test count: 348
+- Current test count: 393
 
 ## Documentation
 
