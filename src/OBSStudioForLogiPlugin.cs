@@ -467,6 +467,21 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsFacade.CycleInputAudioMonitorType(inputName);
         }
 
+        public void SubscribeToVolumeMeters()
+        {
+            this._obsFacade.SubscribeToVolumeMeters();
+        }
+
+        public void UnsubscribeFromVolumeMeters()
+        {
+            this._obsFacade.UnsubscribeFromVolumeMeters();
+        }
+
+        public AudioMeterLevels GetAudioMeterLevels(String inputName)
+        {
+            return this._obsFacade.GetAudioMeterLevels(inputName);
+        }
+
         public void OnInputsChanged(String[] inputs)
         {
             this._commandCoordinator.NotifyInputsChanged(inputs);

@@ -37,5 +37,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Models
         /// Stats polling interval in milliseconds (2000, 5000, or 10000).
         /// </summary>
         public Int32 StatsPollingInterval { get; set; } = 5000;
+
+        /// <summary>
+        /// Audio meter refresh interval in milliseconds (50, 100, or 200 - i.e. 20fps, 10fps, or 5fps).
+        /// </summary>
+        public Int32 AudioMeterRefreshInterval { get; set; } = 100;
     }
 }

@@ -312,4 +312,38 @@ public class OBSFacadeTests
         var exception = Record.Exception(() => this._facade.SaveScreenshot("C:\\Screenshots"));
         Assert.Null(exception);
     }
+
+    // --- Audio meters ---
+
+    [Fact]
+    public void GetAudioMeterLevels_WhenNeverSubscribed_ReturnsEmpty()
+    {
+        var result = this._facade.GetAudioMeterLevels("Microphone");
+
+        Assert.False(result.HasData);
+    }
+
+    [Fact]
+    public void SubscribeToVolumeMeters_WhenDisconnected_DoesNotThrow()
+    {
+        var exception = Record.Exception(() => this._facade.SubscribeToVolumeMeters());
+        Assert.Null(exception);
+    }
+
+    [Fact]
+    public void UnsubscribeFromVolumeMeters_WhenDisconnected_DoesNotThrow()
+    {
+        var exception = Record.Exception(() => this._facade.UnsubscribeFromVolumeMeters());
+        Assert.Null(exception);
+    }
+
+    [Fact]
+    public void UnsubscribeFromVolumeMeters_ClearsPreviouslyStoredLevels()
+    {
+        this._manager.AudioMeters.UpdateLevels("Microphone", new Models.AudioMeterLevels { ChannelPeaks = new[] { 0.5f } });
+
+        this._facade.UnsubscribeFromVolumeMeters();
+
+        Assert.False(this._facade.GetAudioMeterLevels("Microphone").HasData);
+    }
 }

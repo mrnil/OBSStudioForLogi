@@ -66,7 +66,8 @@ public class PluginConfigReaderTests : IDisposable
             RemoteIpAddress = "10.0.0.5",
             RemotePort = 4460,
             RemotePassword = "pw123",
-            StatsPollingInterval = 10000
+            StatsPollingInterval = 10000,
+            AudioMeterRefreshInterval = 50
         };
 
         this._reader.SaveConfig(config);
@@ -78,6 +79,7 @@ public class PluginConfigReaderTests : IDisposable
         Assert.Equal(4460, loaded.RemotePort);
         Assert.Equal("pw123", loaded.RemotePassword);
         Assert.Equal(10000, loaded.StatsPollingInterval);
+        Assert.Equal(50, loaded.AudioMeterRefreshInterval);
     }
 
     [Fact]

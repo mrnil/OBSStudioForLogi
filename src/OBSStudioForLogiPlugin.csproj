@@ -37,9 +37,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="obs-websocket-dotnet" Version="5.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.11" />
     <PackageReference Include="System.Drawing.Common" Version="10.0.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Temporarily using the feat/high-volume-event-subscription branch instead of the published NuGet package -->
+    <ProjectReference Include="B:\development\obs-websocket-dotnet\obs-websocket-dotnet\obs-websocket-dotnet.csproj" />
   </ItemGroup>
 
   <ItemGroup>

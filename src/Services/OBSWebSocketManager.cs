@@ -29,6 +29,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Boolean IsStreamingChanging => this.Actions.IsStreamingChanging;
         public Boolean IsRecordingChanging => this.Actions.IsRecordingChanging;
         public OBSActionExecutor Actions { get; }
+        public AudioMeterService AudioMeters { get; }
 
         public event EventHandler ConnectionEstablished;
         public event EventHandler ConnectionLost;
@@ -43,6 +44,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs = new OBSWebsocket();
             this._reconnectionStrategy = new ReconnectionStrategy(log);
             this.Actions = new OBSActionExecutor(new OBSWebsocketAdapter(this._obs), log);
+            this.AudioMeters = new AudioMeterService();
             this._reconnectTimer = new Timer();
             this._reconnectTimer.Elapsed += this.OnReconnectTimer;
             this._reconnectTimer.AutoReset = false;
@@ -101,6 +103,37 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Int32 GetReconnectDelay(Int32 attempt)
         {
             return this._reconnectionStrategy.GetNextDelay();
+        }
+
+        // InputVolumeMeters is a high-volume event (fires ~20x/sec) - the fork's event accessor
+        // sends the ReIdentify to opt in on the first += and opt back out once the last -= removes
+        // the final handler, so subscription is only active while a meter folder is actually open.
+        public void SubscribeToVolumeMeters()
+        {
+            this._obs.InputVolumeMeters += this.OnInputVolumeMeters;
+            this._log.Info("Subscribed to InputVolumeMeters");
+        }
+
+        public void UnsubscribeFromVolumeMeters()
+        {
+            this._obs.InputVolumeMeters -= this.OnInputVolumeMeters;
+            this.AudioMeters.Clear();
+            this._log.Info("Unsubscribed from InputVolumeMeters");
+        }
+
+        private void OnInputVolumeMeters(Object sender, InputVolumeMetersEventArgs e)
+        {
+            if (e?.inputs == null)
+                return;
+
+            foreach (var input in e.inputs)
+            {
+                if (String.IsNullOrEmpty(input?.InputName))
+                    continue;
+
+                var peaks = input.InputLevels?.Select(channel => channel.PeakWithVolume).ToArray() ?? new Single[0];
+                this.AudioMeters.UpdateLevels(input.InputName, new Models.AudioMeterLevels { ChannelPeaks = peaks });
+            }
         }
 
         private void OnConnected(Object sender, EventArgs e)
