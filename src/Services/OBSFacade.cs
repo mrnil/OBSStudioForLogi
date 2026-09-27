@@ -219,6 +219,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._obsManager?.AudioMeters.GetLevels(inputName) ?? Models.AudioMeterLevels.Empty;
         }
 
+        public String[] GetLiveAudioMeterInputs()
+        {
+            return this._obsManager?.AudioMeters.GetLiveInputs() ?? new String[0];
+        }
+
         public void ToggleSourceVisibility(String sceneName, String sourceName)
         {
             this._obsManager?.Actions.ToggleSourceVisibility(sceneName, sourceName);

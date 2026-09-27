@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Audio Meters** dynamic folder (`8. Audio › Meters`): real-time per-channel VU meters for audio inputs on a dB scale (-60dB to 0dB) matching OBS's own mixer, with green/yellow/red zones at -20dB and -10dB; tap a tile to toggle mute
 - **Audio Meter Refresh Rate** setting in Plugin Settings (20/10/5 fps, default 10fps)
 - The high-volume `InputVolumeMeters` event subscription is only active while the Audio Meters folder is open
+- The Audio Meters folder shows only live inputs (those OBS is reporting levels for) and updates automatically as scenes and sources change
+- Audio meter tiles show a baseline for live-but-silent inputs, and a red frame with grey bars for muted inputs
 
 ### Changed
 

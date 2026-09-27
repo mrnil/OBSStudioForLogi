@@ -49,7 +49,7 @@ OBSStudioForLogiPlugin/
 | `PluginConfigReader.cs` | Read/write plugin config JSON |
 | `ReconnectionStrategy.cs` | Exponential backoff with jitter |
 | `StatsService.cs` | Timer-based stats polling |
-| `AudioMeterService.cs` | Latest per-input audio meter levels, fed by `InputVolumeMeters` events |
+| `AudioMeterService.cs` | Latest per-input audio meter levels fed by `InputVolumeMeters` (expire after `OBSTimings.AudioMeterStaleThreshold`), the live-input list, and a cached per-input mute state |
 
 ### `src/Actions/` — Loupedeck SDK Commands (SDK-dependent, exempt from strict TDD)
 
@@ -64,7 +64,7 @@ OBSStudioForLogiPlugin/
 - `ScenesDynamicFolder`, `SourcesDynamicFolder`, `ProfilesDynamicFolder`, `SceneCollectionsDynamicFolder` (added v1.6.0)
 - `AudioMixerDynamicFolder`, `SceneAudioSourcesDynamicFolder`
 - `AudioSelectDynamicFolder`, `AudioVolumeDynamicFolder`
-- `AudioMetersDynamicFolder` — real-time VU meters; subscribes to `InputVolumeMeters` in `Activate()` and unsubscribes in `Deactivate()`
+- `AudioMetersDynamicFolder` — real-time VU meters; subscribes to `InputVolumeMeters` in `Activate()` and unsubscribes in `Deactivate()`; its button list is the live-input list from `AudioMeterService`, re-checked on every refresh tick
 - `MediaDynamicFolder`
 - `StatsDynamicFolder`, `StreamStatsDynamicFolder`
 

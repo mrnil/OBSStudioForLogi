@@ -221,4 +221,59 @@ public class VuMeterRendererTests
 
         Assert.Equal(0, result);
     }
+
+    // --- GetDisplayPeaks ---
+
+    [Fact]
+    public void GetDisplayPeaks_LiveInputWithNoChannels_ReturnsOneSilentChannel()
+    {
+        var levels = new Models.AudioMeterLevels { IsLive = true };
+
+        Assert.Equal(new[] { 0.0f }, VuMeterRenderer.GetDisplayPeaks(levels));
+    }
+
+    [Fact]
+    public void GetDisplayPeaks_NotLiveWithNoChannels_ReturnsEmpty()
+    {
+        Assert.Empty(VuMeterRenderer.GetDisplayPeaks(Models.AudioMeterLevels.Empty));
+    }
+
+    [Fact]
+    public void GetDisplayPeaks_WithChannels_ReturnsChannelsUnchanged()
+    {
+        var levels = new Models.AudioMeterLevels { ChannelPeaks = new[] { 0.2f, 0.4f }, IsLive = true };
+
+        Assert.Equal(new[] { 0.2f, 0.4f }, VuMeterRenderer.GetDisplayPeaks(levels));
+    }
+
+    [Fact]
+    public void GetDisplayPeaks_NullLevels_ReturnsEmpty()
+    {
+        Assert.Empty(VuMeterRenderer.GetDisplayPeaks(null));
+    }
+
+    // --- ResolveBarColor ---
+
+    [Theory]
+    [InlineData(-40f, VuMeterRenderer.MeterColor.Green)]
+    [InlineData(-15f, VuMeterRenderer.MeterColor.Yellow)]
+    [InlineData(-5f, VuMeterRenderer.MeterColor.Red)]
+    public void ResolveBarColor_WhenNotMuted_FollowsColorZone(Single db, VuMeterRenderer.MeterColor expected)
+    {
+        var result = VuMeterRenderer.ResolveBarColor(db, isMuted: false);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData(-40f)]
+    [InlineData(-15f)]
+    [InlineData(0f)]
+    [InlineData(Single.NegativeInfinity)]
+    public void ResolveBarColor_WhenMuted_ReturnsMutedRegardlessOfLevel(Single db)
+    {
+        var result = VuMeterRenderer.ResolveBarColor(db, isMuted: true);
+
+        Assert.Equal(VuMeterRenderer.MeterColor.Muted, result);
+    }
 }

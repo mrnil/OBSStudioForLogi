@@ -142,12 +142,13 @@ An AI Coding Assistant has been used to support the development of this project 
   - Controls volume of the globally selected audio source
   - Drag onto MX big wheel, CT wheel, or any dial
   - Turn to adjust volume, press to reset to 100%
-- **Audio Meters Folder**: Dynamic folder with a live VU meter tile for each audio input
+- **Audio Meters Folder**: Dynamic folder with a live VU meter tile for each live audio input
   - Per-channel bars on a dB scale (-60dB to 0dB), matching OBS's own meter
   - Colour zones: green below -20dB, yellow -20dB to -10dB, red at -10dB and above
   - Tap a tile to toggle mute for that input
   - Refresh rate configurable in Plugin Settings (20/10/5 fps, default 10)
-  - Only inputs OBS reports as active show levels (typically the live scene's sources plus device captures such as microphones)
+  - Shows only inputs OBS reports as live (the live scene's audio sources plus global devices such as microphones); the folder updates automatically on scene switches and source changes
+  - A thin baseline marks a live-but-silent input; muted inputs show a red frame and grey bars
 
 ### User Defined Actions (Group 99)
 

@@ -6,14 +6,16 @@
 
 ### Real-Time Audio VU Meters
 
-A new **Audio Meters** dynamic folder (`8. Audio › Meters`) shows live, per-channel volume bars for your audio inputs — one tile per input, updating up to 10 times a second by default.
+A new **Audio Meters** dynamic folder (`8. Audio › Meters`) shows live, per-channel volume bars for the audio inputs that are currently live in OBS — one tile per input, updating up to 10 times a second by default.
 
 - **dB scale, matching OBS's own meter**: green below -20dB, yellow -20dB to -10dB, red at -10dB and above, over the same -60dB-to-0dB range OBS uses. Normal speech now reads as a substantial, expressive bar rather than a barely-visible sliver.
-- **Tap a tile to mute** that input, same as elsewhere in the plugin.
+- **Only live inputs are shown.** The folder follows OBS's own idea of what's live (the current scene's audio sources plus global devices like your microphone) and updates itself as you switch scenes or show, hide, add, remove or rename sources.
+- **Tap a tile to mute** that input, same as elsewhere in the plugin. Muted inputs show a red frame with grey bars.
+- **Silent vs. no data**: a thin grey baseline under the bars means the input is live but silent, so a quiet mic no longer looks broken.
 - **Configurable refresh rate** — 20/10/5 fps — in Plugin Settings, alongside the existing stats polling interval. Defaults to 10fps.
 - Meters only draw data while the folder is actually open on your device; the underlying high-volume event subscription starts and stops automatically as you navigate in and out.
 
-**Note on what you'll see**: OBS only reports levels for inputs it considers "active" — in practice this tracks your current scene, plus device-capture inputs like a microphone. An input that isn't in the live scene, or one that's active but has no audio flowing (e.g. a browser source without "Control audio via OBS" enabled), will show its title but no bars. That's expected OBS behavior, not a bug.
+**Note on what you'll see**: OBS only reports levels for inputs it considers "active" — in practice this tracks your current scene, plus device-capture inputs like a microphone. Inputs outside the live scene don't appear in the folder. An active input with no audio flowing yet (e.g. a browser source that isn't playing anything) appears with just the silent baseline. When you open the folder, tiles appear a moment later, once OBS sends its first levels.
 
 ## Dependency Update
 
@@ -21,7 +23,7 @@ A new **Audio Meters** dynamic folder (`8. Audio › Meters`) shows live, per-ch
 
 ## Testing
 
-- 435 unit tests, all passing
+- 466 unit tests
 - Verified live against real OBS audio on a physical device — mic levels confirmed moving and color-coded correctly
 
 ## Requirements

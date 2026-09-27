@@ -133,6 +133,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
                 var peaks = input.InputLevels?.Select(channel => channel.PeakWithVolume).ToArray() ?? new Single[0];
                 this.AudioMeters.UpdateLevels(input.InputName, new Models.AudioMeterLevels { ChannelPeaks = peaks });
+
+                // Seed the mute state once per input so meter tiles can render it without querying
+                // OBS on every repaint; InputMuteStateChanged keeps it current from then on.
+                if (this.AudioMeters.TryBeginMuteLookup(input.InputName))
+                {
+                    String inputName = input.InputName;
+                    Task.Run(() => this.AudioMeters.CompleteMuteLookup(inputName, this.Actions.GetInputMute(inputName)));
+                }
             }
         }
 
@@ -201,7 +209,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.Actions.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             this.Actions.SetReplayBufferState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             this.Actions.SetStudioModeState(false);
-            
+
+            // Mute states may change while disconnected - drop the cache so they're re-queried.
+            this.AudioMeters.Clear();
+
             // NotifyDisconnected is called via OBSStudioForLogiPlugin.OnOBSDisconnected → CommandCoordinator
             
             if (this._shouldReconnect && !this._disposed)
@@ -377,6 +388,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (e?.InputName == null)
                 return;
 
+            this.AudioMeters.SetMuted(e.InputName, e.InputMuted);
             OBSStudioForLogiPlugin.Instance?.OnInputMuteChanged(e.InputName);
         }
 

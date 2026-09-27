@@ -482,6 +482,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._obsFacade.GetAudioMeterLevels(inputName);
         }
 
+        public String[] GetLiveAudioMeterInputs()
+        {
+            return this._obsFacade.GetLiveAudioMeterInputs();
+        }
+
         public void OnInputsChanged(String[] inputs)
         {
             this._commandCoordinator.NotifyInputsChanged(inputs);

@@ -7,7 +7,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using Loupedeck.OBSStudioForLogiPlugin.Models;
     using Loupedeck.OBSStudioForLogiPlugin.Services;
 
-    public class AudioMetersDynamicFolder : PluginDynamicFolder, IObsCommand, IInputsListAwareCommand
+    // Shows only "live" inputs - the ones OBS is currently reporting audio levels for. OBS decides
+    // that itself (inputs active on program output, including global audio devices, nested scenes
+    // and groups), so scene switches, source visibility toggles, renames and input add/remove are
+    // all picked up from the meter data on the next refresh tick without tracking scene items here.
+    public class AudioMetersDynamicFolder : PluginDynamicFolder, IObsCommand
     {
         public static AudioMetersDynamicFolder Instance { get; private set; }
 
@@ -20,7 +24,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.DisplayName = "Audio Meters";
             this.GroupName = "8. Audio###Meters";
-            this.Description = "Real-time volume meters for audio inputs";
+            this.Description = "Real-time volume meters for live audio inputs";
 
             this._refreshTimer.Elapsed += this.OnRefreshTimer;
             this._refreshTimer.AutoReset = true;
@@ -59,21 +63,40 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             PluginLog.Info("AudioMetersDynamicFolder deactivated - unsubscribing from volume meters");
             this._refreshTimer.Stop();
             OBSStudioForLogiPlugin.Instance?.UnsubscribeFromVolumeMeters();
+            this.SetInputs(new String[0]);
             return true;
         }
 
         private void OnRefreshTimer(Object sender, ElapsedEventArgs e)
         {
-            foreach (var input in this._audioInputs)
+            String[] liveInputs = OBSStudioForLogiPlugin.Instance?.GetLiveAudioMeterInputs() ?? new String[0];
+            this.SetInputs(liveInputs);
+
+            foreach (String input in this._audioInputs)
             {
                 this.CommandImageChanged(input);
             }
         }
 
+        // The live list is kept in stable first-seen order by AudioMeterService, so a plain
+        // sequence comparison only triggers a (comparatively expensive) button rebuild when an
+        // input actually appears or drops out.
+        private void SetInputs(String[] inputs)
+        {
+            if (inputs.SequenceEqual(this._audioInputs))
+            {
+                return;
+            }
+
+            PluginLog.Debug($"AudioMetersDynamicFolder live inputs changed: [{String.Join(", ", inputs)}]");
+            this._audioInputs = inputs;
+            this.ButtonActionNamesChanged();
+        }
+
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            var levels = OBSStudioForLogiPlugin.Instance?.GetAudioMeterLevels(actionParameter) ?? AudioMeterLevels.Empty;
-            return VuMeterRenderer.Render(levels.ChannelPeaks, imageSize);
+            AudioMeterLevels levels = OBSStudioForLogiPlugin.Instance?.GetAudioMeterLevels(actionParameter) ?? AudioMeterLevels.Empty;
+            return VuMeterRenderer.Render(levels, imageSize);
         }
 
         public override void RunCommand(String actionParameter)
@@ -86,20 +109,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnConnected()
         {
-            this._audioInputs = OBSStudioForLogiPlugin.Instance?.GetInputList() ?? new String[0];
-            this.ButtonActionNamesChanged();
+            // Nothing to load - the input list fills from meter data once the folder is open.
         }
 
         public void OnDisconnected()
         {
-            this._audioInputs = new String[0];
-            this.ButtonActionNamesChanged();
-        }
-
-        public void OnInputsChanged(String[] inputs)
-        {
-            this._audioInputs = inputs ?? new String[0];
-            this.ButtonActionNamesChanged();
+            this.SetInputs(new String[0]);
         }
     }
 }

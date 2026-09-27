@@ -33,6 +33,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Helpers
         public const Int32 ConnectionDelay = 2000;
 
         /// <summary>
+        /// How long an input's audio meter levels stay valid without a fresh InputVolumeMeters
+        /// update before the input is treated as inactive (500ms, ~10 missed OBS meter events).
+        /// </summary>
+        public const Int32 AudioMeterStaleThreshold = 500;
+
+        /// <summary>
         /// Test delay for async operations in unit tests.
         /// 500ms for CI environments (slower), 100ms for local development.
         /// </summary>

@@ -165,6 +165,7 @@ For recording-focused workflows:
 | Audio Select Folder | Folder | Selection-only folder. Single tap to select/deselect a source for global wheel/dial control. No mute action. |
 | Audio Volume Folder | Folder | MX big wheel compatible. Tap a tile to arm the wheel for that source's volume, then turn the wheel to adjust. |
 | Selected Source Volume | Adjustment | Standalone volume control. Drag onto any wheel or dial. Controls volume of the globally selected audio source. Press to reset to 100%. |
+| Audio Meters Folder | Folder | Live VU meters for audio sources that are currently live in OBS. Tap a tile to mute/unmute. See [Audio Meters](#audio-meters). |
 
 ### User Defined Actions (Group 99)
 
@@ -258,6 +259,16 @@ Monitoring controls whether you hear a source in your headphones:
 - **Monitor & Output** — source plays in headphones AND goes to stream
 
 Cycle through these with the "Cycle Audio Monitoring" user-defined action, or press the encoder in Audio Mixer/Scene Audio folders.
+
+### Audio Meters
+
+The Audio Meters folder shows a live level meter for each audio source OBS is currently sending to your program output — for example your microphone and desktop audio, plus any audio sources in the live scene. The folder updates itself as you switch scenes or show, hide, add or remove sources, so you only ever see sources that are actually live.
+
+- **Bars** — one per channel, on the same -60dB to 0dB scale as OBS's own mixer. Green below -20dB, yellow from -20dB to -10dB, red at -10dB and above.
+- **Thin grey line under the bars** — the source is live but silent. No line at all means OBS isn't sending levels for it.
+- **Red frame, grey bars and a red line** — the source is muted. Tap the tile to unmute it.
+
+Change how often the meters redraw (20, 10 or 5 fps) in Plugin Settings.
 
 ---
 
@@ -371,7 +382,6 @@ To find the exact name of a source in OBS:
 - **ActionEditorCommand grouping** — User Defined Actions do not appear in their named group in the Logi software (SDK limitation, reported as bug). They appear ungrouped.
 - **No dynamic dropdowns** — User Defined Actions require you to type exact names. The SDK does not support populating dropdowns from OBS at runtime.
 - **Volume only via selection** — You must select a source before adjusting volume. There is no per-source dedicated volume knob.
-- **No audio level meters** — Real-time VU meters are not yet implemented.
 - **No filter controls** — Toggling audio/video filters is not yet available.
 - **No transition selection** — Cannot choose or configure scene transitions from the device.
 - **Monitoring refresh** — After cycling audio monitoring mode via the user-defined action, the monitoring state updates on the status display but may not update in all dynamic folders until you re-open them.
