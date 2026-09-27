@@ -1,6 +1,6 @@
 # VU Meters Implementation Learnings
 
-## Status: Working on a Real Device — Using Published obs-websocket-dotnet 5.7.0
+## Status: Complete — Merged to `main`, Using Published obs-websocket-dotnet 5.7.0
 
 ## Overview
 
@@ -173,7 +173,7 @@ Test project needs relative path: `..\..\...\obs-websocket-dotnet\obs-websocket-
 4. [x] Map the fork's typed `InputVolumeMeter`/`ChannelLevel` into the plugin's own `Models.AudioMeterLevels`
 5. [x] Verify events arrive with non-zero peak values against real OBS — confirmed 2026-09-06 (see "Real-Device Findings")
 6. [x] Test rendering with real data on a real device — done 2026-09-06; the in-image `DrawText` name label was removed and the scale switched to dB (see "Real-Device Findings")
-7. [ ] Decide on `RunCommand`'s tap-to-mute behavior once seen in practice — reconsider double-tap/selection parity with `AudioMixerDynamicFolder` if the simple version feels wrong
+7. [x] Decide on `RunCommand`'s tap-to-mute behavior once seen in practice — kept as simple tap-to-mute after real-device use (2026-09-27); no double-tap/selection parity with `AudioMixerDynamicFolder`
 8. [x] Add tests for the new library-facing API surface (`AudioMeterServiceTests.cs`, `VuMeterRendererTests.cs`, `OBSFacadeTests.cs` additions)
 9. [x] Raise the PR to merge `feat/high-volume-event-subscription` upstream, then revert both `.csproj` files from `ProjectReference` back to the NuGet package once merged and published — merged as PR #150, published in 5.7.0
 

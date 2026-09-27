@@ -1,6 +1,6 @@
 # Release Notes — v2.0.0
 
-**Preview build on the `feat/audio-vu-meters` branch — not merged to `main`, not a tagged release.**
+**Draft — merged to `main` but not yet released or tagged.** More work is planned before the next release; the version number may change.
 
 ## New Features
 
