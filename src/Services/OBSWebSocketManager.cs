@@ -1,6 +1,7 @@
 namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using System.Timers;
@@ -16,6 +17,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly IPluginLog _log;
         private readonly ReconnectionStrategy _reconnectionStrategy;
         private readonly Object _disposeLock = new Object();
+        private readonly HashSet<String> _volumeMeterOwners = new HashSet<String>();
         private String _lastUrl;
         private String _lastPassword;
         private Boolean _shouldReconnect = false;
@@ -105,20 +107,48 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._reconnectionStrategy.GetNextDelay();
         }
 
-        // InputVolumeMeters is a high-volume event (fires ~20x/sec) - the fork's event accessor
+        // InputVolumeMeters is a high-volume event (fires ~20x/sec) - the library's event accessor
         // sends the ReIdentify to opt in on the first += and opt back out once the last -= removes
-        // the final handler, so subscription is only active while a meter folder is actually open.
-        public void SubscribeToVolumeMeters()
+        // the final handler. Several meter UIs (the live audio folder, per-source meter buttons) can
+        // need it at once, so each registers as a named owner and the event handler is attached
+        // only while at least one owner remains.
+        public void SubscribeToVolumeMeters(String owner)
         {
-            this._obs.InputVolumeMeters += this.OnInputVolumeMeters;
-            this._log.Info("Subscribed to InputVolumeMeters");
+            if (String.IsNullOrEmpty(owner))
+            {
+                return;
+            }
+
+            lock (this._volumeMeterOwners)
+            {
+                if (!this._volumeMeterOwners.Add(owner) || this._volumeMeterOwners.Count > 1)
+                {
+                    return;
+                }
+
+                this._obs.InputVolumeMeters += this.OnInputVolumeMeters;
+                this._log.Info($"Subscribed to InputVolumeMeters (requested by '{owner}')");
+            }
         }
 
-        public void UnsubscribeFromVolumeMeters()
+        public void UnsubscribeFromVolumeMeters(String owner)
         {
-            this._obs.InputVolumeMeters -= this.OnInputVolumeMeters;
-            this.AudioMeters.Clear();
-            this._log.Info("Unsubscribed from InputVolumeMeters");
+            if (String.IsNullOrEmpty(owner))
+            {
+                return;
+            }
+
+            lock (this._volumeMeterOwners)
+            {
+                if (!this._volumeMeterOwners.Remove(owner) || this._volumeMeterOwners.Count > 0)
+                {
+                    return;
+                }
+
+                this._obs.InputVolumeMeters -= this.OnInputVolumeMeters;
+                this.AudioMeters.Clear();
+                this._log.Info($"Unsubscribed from InputVolumeMeters (last released by '{owner}')");
+            }
         }
 
         private void OnInputVolumeMeters(Object sender, InputVolumeMetersEventArgs e)

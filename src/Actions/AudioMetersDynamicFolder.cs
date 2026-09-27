@@ -15,6 +15,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     {
         public static AudioMetersDynamicFolder Instance { get; private set; }
 
+        private const String SubscriptionOwner = nameof(AudioMetersDynamicFolder);
+
         private String[] _audioInputs = new String[0];
         private readonly Timer _refreshTimer = new Timer();
 
@@ -50,7 +52,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public override Boolean Activate()
         {
             PluginLog.Info("AudioMetersDynamicFolder activated - subscribing to volume meters");
-            OBSStudioForLogiPlugin.Instance?.SubscribeToVolumeMeters();
+            OBSStudioForLogiPlugin.Instance?.SubscribeToVolumeMeters(SubscriptionOwner);
 
             Int32 refreshMs = new PluginConfigReader().ReadConfig()?.AudioMeterRefreshInterval ?? 100;
             this._refreshTimer.Interval = refreshMs;
@@ -62,7 +64,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             PluginLog.Info("AudioMetersDynamicFolder deactivated - unsubscribing from volume meters");
             this._refreshTimer.Stop();
-            OBSStudioForLogiPlugin.Instance?.UnsubscribeFromVolumeMeters();
+            OBSStudioForLogiPlugin.Instance?.UnsubscribeFromVolumeMeters(SubscriptionOwner);
             this.SetInputs(new String[0]);
             return true;
         }

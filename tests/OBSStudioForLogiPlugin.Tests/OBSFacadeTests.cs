@@ -326,23 +326,24 @@ public class OBSFacadeTests
     [Fact]
     public void SubscribeToVolumeMeters_WhenDisconnected_DoesNotThrow()
     {
-        var exception = Record.Exception(() => this._facade.SubscribeToVolumeMeters());
+        var exception = Record.Exception(() => this._facade.SubscribeToVolumeMeters("Folder"));
         Assert.Null(exception);
     }
 
     [Fact]
     public void UnsubscribeFromVolumeMeters_WhenDisconnected_DoesNotThrow()
     {
-        var exception = Record.Exception(() => this._facade.UnsubscribeFromVolumeMeters());
+        var exception = Record.Exception(() => this._facade.UnsubscribeFromVolumeMeters("Folder"));
         Assert.Null(exception);
     }
 
     [Fact]
     public void UnsubscribeFromVolumeMeters_ClearsPreviouslyStoredLevels()
     {
+        this._facade.SubscribeToVolumeMeters("Folder");
         this._manager.AudioMeters.UpdateLevels("Microphone", new Models.AudioMeterLevels { ChannelPeaks = new[] { 0.5f } });
 
-        this._facade.UnsubscribeFromVolumeMeters();
+        this._facade.UnsubscribeFromVolumeMeters("Folder");
 
         Assert.False(this._facade.GetAudioMeterLevels("Microphone").HasData);
     }
@@ -364,10 +365,59 @@ public class OBSFacadeTests
     [Fact]
     public void UnsubscribeFromVolumeMeters_ClearsLiveInputs()
     {
+        this._facade.SubscribeToVolumeMeters("Folder");
         this._manager.AudioMeters.UpdateLevels("Microphone", new Models.AudioMeterLevels { ChannelPeaks = new[] { 0.5f } });
 
-        this._facade.UnsubscribeFromVolumeMeters();
+        this._facade.UnsubscribeFromVolumeMeters("Folder");
 
         Assert.Empty(this._facade.GetLiveAudioMeterInputs());
+    }
+
+    [Fact]
+    public void UnsubscribeFromVolumeMeters_WhileAnotherOwnerStillSubscribed_KeepsLevels()
+    {
+        this._facade.SubscribeToVolumeMeters("Folder");
+        this._facade.SubscribeToVolumeMeters("Button");
+        this._manager.AudioMeters.UpdateLevels("Microphone", new Models.AudioMeterLevels { ChannelPeaks = new[] { 0.5f } });
+
+        this._facade.UnsubscribeFromVolumeMeters("Folder");
+
+        Assert.True(this._facade.GetAudioMeterLevels("Microphone").HasData);
+    }
+
+    [Fact]
+    public void UnsubscribeFromVolumeMeters_AfterLastOwnerReleases_ClearsLevels()
+    {
+        this._facade.SubscribeToVolumeMeters("Folder");
+        this._facade.SubscribeToVolumeMeters("Button");
+        this._manager.AudioMeters.UpdateLevels("Microphone", new Models.AudioMeterLevels { ChannelPeaks = new[] { 0.5f } });
+
+        this._facade.UnsubscribeFromVolumeMeters("Folder");
+        this._facade.UnsubscribeFromVolumeMeters("Button");
+
+        Assert.False(this._facade.GetAudioMeterLevels("Microphone").HasData);
+    }
+
+    [Fact]
+    public void SubscribeToVolumeMeters_SameOwnerTwice_OneReleaseIsEnough()
+    {
+        this._facade.SubscribeToVolumeMeters("Folder");
+        this._facade.SubscribeToVolumeMeters("Folder");
+        this._manager.AudioMeters.UpdateLevels("Microphone", new Models.AudioMeterLevels { ChannelPeaks = new[] { 0.5f } });
+
+        this._facade.UnsubscribeFromVolumeMeters("Folder");
+
+        Assert.False(this._facade.GetAudioMeterLevels("Microphone").HasData);
+    }
+
+    [Fact]
+    public void UnsubscribeFromVolumeMeters_OwnerNeverSubscribed_KeepsOtherOwnersLevels()
+    {
+        this._facade.SubscribeToVolumeMeters("Folder");
+        this._manager.AudioMeters.UpdateLevels("Microphone", new Models.AudioMeterLevels { ChannelPeaks = new[] { 0.5f } });
+
+        this._facade.UnsubscribeFromVolumeMeters("Button");
+
+        Assert.True(this._facade.GetAudioMeterLevels("Microphone").HasData);
     }
 }
