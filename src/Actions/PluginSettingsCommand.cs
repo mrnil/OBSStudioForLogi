@@ -11,6 +11,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private const String PortControlName = "Port";
         private const String PasswordControlName = "Password";
         private const String PollingIntervalControlName = "PollingInterval";
+        private const String MeterRefreshIntervalControlName = "MeterRefreshInterval";
 
         public static PluginSettingsCommand Instance { get; private set; }
 
@@ -34,6 +35,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var pollingListbox = new ActionEditorListbox(PollingIntervalControlName, "Stats Polling Interval");
             this.ActionEditor.AddControlEx(pollingListbox);
 
+            var meterRefreshListbox = new ActionEditorListbox(MeterRefreshIntervalControlName, "Audio Meter Refresh Rate");
+            this.ActionEditor.AddControlEx(meterRefreshListbox);
+
             this.ActionEditor.ListboxItemsRequested += this.OnListboxItemsRequested;
 
             PluginLog.Debug("PluginSettingsCommand: Initialized");
@@ -48,6 +52,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 e.AddItem("10000", "10 seconds", "Poll OBS stats every 10 seconds");
                 e.SetSelectedItemName("5000");
             }
+            else if (e.ControlName.EqualsNoCase(MeterRefreshIntervalControlName))
+            {
+                e.AddItem("50", "20 fps", "Refresh audio meters every 50ms");
+                e.AddItem("100", "10 fps", "Refresh audio meters every 100ms");
+                e.AddItem("200", "5 fps", "Refresh audio meters every 200ms");
+                e.SetSelectedItemName("100");
+            }
         }
 
         protected override Boolean OnLoad() => true;
@@ -61,6 +72,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             actionParameters.TryGetString(PortControlName, out var portStr);
             actionParameters.TryGetString(PasswordControlName, out var password);
             actionParameters.TryGetString(PollingIntervalControlName, out var pollingStr);
+            actionParameters.TryGetString(MeterRefreshIntervalControlName, out var meterRefreshStr);
 
             if (!Int32.TryParse(portStr?.Trim(), out var port) || port < 1 || port > 65535)
             {
@@ -73,6 +85,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 pollingInterval = 5000;
             }
 
+            if (!Int32.TryParse(meterRefreshStr, out var meterRefreshInterval) || (meterRefreshInterval != 50 && meterRefreshInterval != 100 && meterRefreshInterval != 200))
+            {
+                meterRefreshInterval = 100;
+            }
+
             var config = new PluginConfig
             {
                 LogLevel = PluginLog.CurrentLevel,
@@ -80,13 +97,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 RemoteIpAddress = ipAddress?.Trim() ?? "127.0.0.1",
                 RemotePort = port,
                 RemotePassword = password ?? "",
-                StatsPollingInterval = pollingInterval
+                StatsPollingInterval = pollingInterval,
+                AudioMeterRefreshInterval = meterRefreshInterval
             };
 
             var configReader = new PluginConfigReader();
             if (configReader.SaveConfig(config))
             {
-                PluginLog.Info($"PluginSettings: Config saved - UseLocal={useLocal}, IP={config.RemoteIpAddress}, Port={port}, Polling={pollingInterval}ms");
+                PluginLog.Info($"PluginSettings: Config saved - UseLocal={useLocal}, IP={config.RemoteIpAddress}, Port={port}, Polling={pollingInterval}ms, MeterRefresh={meterRefreshInterval}ms");
                 OBSStudioForLogiPlugin.Instance?.ApplyConnectionConfig(config);
             }
             else

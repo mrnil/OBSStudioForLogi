@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Audio Meters** dynamic folder (`8. Audio › Meters`): real-time per-channel VU meters for audio inputs on a dB scale (-60dB to 0dB) matching OBS's own mixer, with green/yellow/red zones at -20dB and -10dB; tap a tile to toggle mute
+- **Audio Meter Refresh Rate** setting in Plugin Settings (20/10/5 fps, default 10fps)
+- The high-volume `InputVolumeMeters` event subscription is only active while the Audio Meters folder is open
+
+### Changed
+
+- Upgraded `obs-websocket-dotnet` from 5.0.1 to 5.7.0 (required for `InputVolumeMeters` subscription support, contributed upstream)
+- Upgraded `Microsoft.Extensions.Logging.Abstractions` and `System.Drawing.Common` to 10.0.12
+
+### Fixed
+
+- Media buttons now refresh when playback starts — `MediaInputPlaybackStarted` always arrived with no input name in library 5.0.1, so the event was ignored
+- OBS requests that never receive a response now time out after 10s and are logged, instead of blocking indefinitely (library 5.0.1 did not enforce its request timeout)
+
 ## [1.6.2] - 2026-08-21
 
 No functional changes for end users. Internal engineering release.

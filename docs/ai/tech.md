@@ -17,20 +17,21 @@
 | Package | Version | Purpose |
 |---------|---------|---------|
 | `PluginApi.dll` | (runtime-provided) | Logi Actions SDK — base classes for Plugin, PluginDynamicCommand, PluginDynamicFolder, ActionEditorCommand, BitmapBuilder, etc. |
-| `obs-websocket-dotnet` | 5.0.1 | OBS WebSocket 5.x client library |
-| `Microsoft.Extensions.Logging.Abstractions` | 10.0.11 | Logging abstractions |
-| `System.Drawing.Common` | 10.0.11 | Image rendering support |
+| `obs-websocket-dotnet` | 5.7.0 | OBS WebSocket 5.x client library (5.7.0+ required for `InputVolumeMeters` high-volume event subscription) |
+| `Microsoft.Extensions.Logging.Abstractions` | 10.0.12 | Logging abstractions (must be >= the version `obs-websocket-dotnet` depends on, or restore fails with NU1605) |
+| `System.Drawing.Common` | 10.0.12 | Image rendering support |
 
 ### Test Project (`tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj`)
 
 | Package | Version | Purpose |
 |---------|---------|---------|
 | `xunit` | 2.9.3 | Test framework |
-| `xunit.runner.visualstudio` | 3.1.5 | VS/IDE test runner |
-| `Moq` | 4.20.72 | Mocking framework |
-| `Microsoft.NET.Test.Sdk` | 18.8.1 | Test SDK |
+| `xunit.runner.visualstudio` | 4.0.0 | VS/IDE test runner |
+| `Moq` | 4.21.0 | Mocking framework |
+| `Microsoft.NET.Test.Sdk` | 18.10.1 | Test SDK |
 | `coverlet.collector` | 10.0.1 | Code coverage collection |
-| `obs-websocket-dotnet` | 5.0.1 | Required for type references in tests |
+
+`obs-websocket-dotnet` reaches the test project transitively through the plugin project reference.
 
 ## Loupedeck SDK Base Classes Used
 
@@ -128,7 +129,7 @@ Version is defined in two places — both must be updated for a release:
 ## OBS WebSocket Protocol
 
 - **Protocol version**: OBS WebSocket 5.x
-- **Library**: obs-websocket-dotnet 5.0.1
+- **Library**: obs-websocket-dotnet 5.7.0
 - **Required OBS version**: 28.0+ (with obs-websocket 5.0+ built-in)
 - **Default port**: 4455
 - **Authentication**: SHA256 challenge-response (handled by library)

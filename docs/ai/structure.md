@@ -49,6 +49,7 @@ OBSStudioForLogiPlugin/
 | `PluginConfigReader.cs` | Read/write plugin config JSON |
 | `ReconnectionStrategy.cs` | Exponential backoff with jitter |
 | `StatsService.cs` | Timer-based stats polling |
+| `AudioMeterService.cs` | Latest per-input audio meter levels, fed by `InputVolumeMeters` events |
 
 ### `src/Actions/` — Loupedeck SDK Commands (SDK-dependent, exempt from strict TDD)
 
@@ -63,6 +64,7 @@ OBSStudioForLogiPlugin/
 - `ScenesDynamicFolder`, `SourcesDynamicFolder`, `ProfilesDynamicFolder`, `SceneCollectionsDynamicFolder` (added v1.6.0)
 - `AudioMixerDynamicFolder`, `SceneAudioSourcesDynamicFolder`
 - `AudioSelectDynamicFolder`, `AudioVolumeDynamicFolder`
+- `AudioMetersDynamicFolder` — real-time VU meters; subscribes to `InputVolumeMeters` in `Activate()` and unsubscribes in `Deactivate()`
 - `MediaDynamicFolder`
 - `StatsDynamicFolder`, `StreamStatsDynamicFolder`
 
@@ -109,6 +111,7 @@ Note: as of v1.6.0 the `99. User Defined Actions` group has been retired — all
 | `AudioHelpers.cs` | Shared audio button image rendering |
 | `AudioSelectionState.cs` | Static singleton: global selected audio source for wheel/dial |
 | `VolumeConverter.cs` | volumeMul ↔ dB conversion and formatting |
+| `VuMeterRenderer.cs` | VU meter bar rendering, dB scaling and colour zones |
 | `PressTimingHelper.cs` | DoubleTapHelper: 500ms window single/double tap detection |
 | `OBSTimings.cs` | Centralised timing constants (delays, test timeouts) |
 | `PluginLog.cs` | Static logging facade with configurable level |
@@ -120,10 +123,11 @@ Note: as of v1.6.0 the `99. User Defined Actions` group has been retired — all
 
 | File | Contents |
 |------|---------|
+| `AudioMeterLevels.cs` | Plugin-owned per-channel meter levels, decoupled from the library's `InputVolumeMeter` type |
 | `OBSConnectionSettings.cs` | IP, port, password — with localhost validation |
 | `OBSStats.cs` | Stats model with derived properties (FPS, CPU%, render lag %) |
 | `OBSStreamStats.cs` | Stream stats model (duration, bytes, congestion, frames) |
-| `PluginConfig.cs` | Persisted plugin config (UseLocalObs, RemoteIP, Port, Password, StatsPollingInterval, LogLevel) |
+| `PluginConfig.cs` | Persisted plugin config (UseLocalObs, RemoteIP, Port, Password, StatsPollingInterval, AudioMeterRefreshInterval, LogLevel) |
 
 ## Architectural Patterns
 

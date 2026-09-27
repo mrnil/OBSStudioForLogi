@@ -30,6 +30,7 @@ An AI Coding Assistant has been used to support the development of this project 
 - **Audio Volume Control**: Adjust volume via MX big wheel (folder tiles) or standalone dial adjustment
 - **Audio Display**: Volume shown in dB format with full OBS range support (up to +26 dB)
 - **Audio Source Selection**: Global audio source selection for wheel/dial volume control
+- **Audio Meters**: Real-time per-channel VU meters for audio inputs, on a dB scale matching OBS's own mixer
 - **User Defined Actions**: Configurable actions for source visibility, audio mute, monitoring, audio selection, and audio status display
 - **Profile Management**: Switch between OBS profiles with selection indicators and dynamic folder
 - **Scene Collections**: Switch between scene collections with selection indicators
@@ -141,6 +142,12 @@ An AI Coding Assistant has been used to support the development of this project 
   - Controls volume of the globally selected audio source
   - Drag onto MX big wheel, CT wheel, or any dial
   - Turn to adjust volume, press to reset to 100%
+- **Audio Meters Folder**: Dynamic folder with a live VU meter tile for each audio input
+  - Per-channel bars on a dB scale (-60dB to 0dB), matching OBS's own meter
+  - Colour zones: green below -20dB, yellow -20dB to -10dB, red at -10dB and above
+  - Tap a tile to toggle mute for that input
+  - Refresh rate configurable in Plugin Settings (20/10/5 fps, default 10)
+  - Only inputs OBS reports as active show levels (typically the live scene's sources plus device captures such as microphones)
 
 ### User Defined Actions (Group 99)
 
@@ -186,6 +193,7 @@ For remote OBS connections or custom settings, use the **Plugin Settings** actio
 - **Port**: WebSocket port (default 4455)
 - **Password**: WebSocket password
 - **Stats Polling Interval**: How often to refresh stats (2s, 5s, or 10s)
+- **Audio Meter Refresh Rate**: How often the Audio Meters folder redraws (20, 10, or 5 fps)
 
 ## Development
 

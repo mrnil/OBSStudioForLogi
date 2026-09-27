@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document catalogs all available features in the OBS WebSocket 5.x API (via obs-websocket-dotnet 5.0.1) and tracks which features are implemented in the OBSStudioForLogiPlugin.
+This document catalogs all available features in the OBS WebSocket 5.x API (via obs-websocket-dotnet 5.7.0) and tracks which features are implemented in the OBSStudioForLogiPlugin.
 
 **Legend:**
 
@@ -443,6 +443,6 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 ## Version Information
 
 - **OBS WebSocket Protocol**: 5.x
-- **obs-websocket-dotnet**: 5.0.1
+- **obs-websocket-dotnet**: 5.7.0
 - **OBS Studio**: 28.0+ required
-- **Plugin Version**: 1.0.1
+- **Plugin Version**: 2.0.0
