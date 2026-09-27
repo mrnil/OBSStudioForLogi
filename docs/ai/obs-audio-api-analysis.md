@@ -222,8 +222,8 @@ Based on the obs-websocket-dotnet library and OBS WebSocket 5.x protocol, here a
 
 ### Enhanced Features (Should Have)
 
-1. ❌ **Audio Monitoring Toggle** - Monitor in headphones (None/Monitor Only/Monitor & Output)
-2. ❌ **Audio Level Meters** - Real-time VU meters (if device supports dynamic displays)
+1. ✅ **Audio Monitoring Toggle** - Monitor in headphones (None/Monitor Only/Monitor & Output)
+2. ✅ **Audio Level Meters** - Real-time VU meters (`AudioMetersDynamicFolder`, see `vu-meters-learnings.md`)
 
 ### Advanced Features (Nice to Have)
 
@@ -259,11 +259,11 @@ Based on the obs-websocket-dotnet library and OBS WebSocket 5.x protocol, here a
 
 - ✅ **InputMuteStateChanged** - Updates UI when mute state changes in OBS
 - ✅ **InputVolumeChanged** - Updates volume display when changed in OBS
+- ✅ **InputAudioMonitorTypeChanged** - Updates monitoring state display
+- ✅ **InputVolumeMeters** - Real-time audio level data for VU meters (only while the Audio Meters folder is open)
 
 ### Recommended Additions
 
-- ❌ **InputAudioMonitorTypeChanged** - Update monitoring state display
-- ❌ **InputVolumeMeters** - Real-time audio level data for VU meters
 - ❌ **SourceFilterEnableStateChanged** - Update filter state display
 - ❌ **InputAudioBalanceChanged** - Update balance display
 - ❌ **InputAudioSyncOffsetChanged** - Update sync offset display
@@ -276,9 +276,9 @@ Based on the obs-websocket-dotnet library and OBS WebSocket 5.x protocol, here a
 Single GetInputVolume(String inputName); // ✅ Already implemented
 void SetInputVolume(String inputName, Single volumeMul); // ✅ Already implemented
 
-// Audio Monitoring - NOT IMPLEMENTED
-String GetInputAudioMonitorType(String inputName); // ❌ Needs implementation
-void SetInputAudioMonitorType(String inputName, String monitorType); // ❌ Needs implementation
+// Audio Monitoring - IMPLEMENTED
+String GetInputAudioMonitorType(String inputName); // ✅ Implemented
+void SetInputAudioMonitorType(String inputName, String monitorType); // ✅ Implemented
 
 // Audio Sync - NOT IMPLEMENTED
 Int64 GetInputAudioSyncOffset(String inputName); // ❌ Needs implementation
@@ -320,6 +320,7 @@ void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enable
 - User-defined audio mute toggle (ActionEditorCommand)
 - User-defined audio monitoring cycle (ActionEditorCommand)
 - User-defined audio source selection (ActionEditorCommand)
+- Audio Meters folder (v2.0.0) - real-time dB-scale VU meters for live inputs, with an active-input baseline and muted styling
 
 ### 🟡 Partially Completed
 
@@ -333,8 +334,6 @@ void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enable
 
 ### ❌ Not Yet Implemented
 
-- Audio level meters (VU meters) — **deferred** until obs-websocket-dotnet supports high-volume event subscription (see vu-meters-learnings.md)
-- Audio monitoring controls
 - Audio sync offset controls
 - Audio track assignment
 - Stereo balance controls
@@ -343,10 +342,9 @@ void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enable
 
 ### Next Steps
 
-1. **Medium Priority**: Add audio level meters (deferred — requires obs-websocket-dotnet library modifications, see vu-meters-learnings.md)
-2. **Medium Priority**: Implement filter enable/disable controls
-3. **Low Priority**: Add +/- button volume alternatives for devices without wheels
-4. **Low Priority**: Transition selection and T-bar encoder control
+1. **Medium Priority**: Implement filter enable/disable controls
+2. **Medium Priority**: Audio quick presets ("Mute All", "Reset All Volumes")
+3. **Low Priority**: Transition selection and T-bar encoder control
 
 ## Conclusion
 
