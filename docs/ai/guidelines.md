@@ -625,7 +625,7 @@ Never hardcode timing values — always use `OBSTimings` constants.
 6. Override `RunCommand` with null guard
 7. Override `GetCommandImage` querying live state
 8. Implement `OnConnected` / `OnDisconnected`
-9. Add icon SVG to `src/Resources/icons/` and register in `.csproj` as `EmbeddedResource`
+9. Add icon SVG to `src/Resources/icons/` following `docs/ai/icon-style.md`, and register it in `.csproj` as `EmbeddedResource`
 
 ### New Notification Event
 

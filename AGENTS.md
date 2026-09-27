@@ -27,6 +27,7 @@ Deeper reference material (read only when relevant to the task at hand):
 - `sdk-quick-reference.md`, `adjustable-command-pattern.md`, `icon-update-patterns.md`, `image-rendering-simplified.md` — Loupedeck SDK command patterns
 - `obs-websocket-api-complete.md`, `obs-audio-api-analysis.md`, `protocol-gap-analysis.md` — OBS WebSocket protocol coverage
 - `refactoring-patterns.md`, `vu-meters-learnings.md`, `multi-instance-obs-design.md` — past decisions and design notes
+- `icon-style.md` — canvas, palette, state language and naming rules for button icons; read before adding or changing an icon
 
 ## When SDK or plugin knowledge is missing
 
