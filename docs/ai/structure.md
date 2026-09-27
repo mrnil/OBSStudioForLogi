@@ -41,16 +41,17 @@ OBSStudioForLogiPlugin/
 | `OBSWebsocketAdapter.cs` | Thin wrapper over obs-websocket-dotnet library |
 | `IOBSWebsocket.cs` | Interface for testability (mocked in all tests) |
 | `OBSFacade.cs` | Simplified public interface over OBSWebSocketManager |
-| `ConnectionManager.cs` | Connection lifecycle: config discovery, connect/disconnect |
+| `ConnectionManager.cs` | Connection lifecycle: config discovery, connect/disconnect; `ReconnectAsync` ignores manual reconnects while connected or mid-attempt |
 | `CommandCoordinator.cs` | Owns event dispatch: per-command exception isolation via generic `NotifyEach<T>()` |
 | `CommandRegistry.cs` | Command store: registration/dedup + generic `GetCommands<T>()` interface filter |
-| `IObsCommand.cs` | 14 notification interfaces (IObsCommand + 13 specialised) |
+| `IObsCommand.cs` | 15 notification interfaces (IObsCommand + 14 specialised) |
 | `OBSConfigReader.cs` | Reads OBS WebSocket config from disk |
 | `OBSLifecycleManager.cs` | Port availability checking |
 | `PluginConfigReader.cs` | Read/write plugin config JSON |
 | `ReconnectionStrategy.cs` | Exponential backoff with jitter |
 | `StatsService.cs` | Timer-based stats polling |
 | `AudioMeterService.cs` | Latest per-input audio meter levels fed by `InputVolumeMeters` (expire after `OBSTimings.AudioMeterStaleThreshold`), the live-input list, and a cached per-input mute state |
+| `AudioStateCache.cs` | Non-blocking per-input mute/volume/monitor type for button rendering: fetches a miss once in the background, kept current by OBS change events |
 
 ### `src/Actions/` — Loupedeck SDK Commands (SDK-dependent, exempt from strict TDD)
 
@@ -118,6 +119,7 @@ Note: as of v1.6.0 the `99. User Defined Actions` group has been retired — all
 | `VolumeConverter.cs` | volumeMul ↔ dB conversion and formatting |
 | `VuMeterRenderer.cs` | VU meter tile state (inactive/muted/meter), bar rendering, dB scaling and colour zones |
 | `ActivityLease.cs` | Touch-renewed lease that lapses when idle; infers button visibility for `AudioMeterCommand` |
+| `SessionGate.cs` | Opens once per OBS connection so the initial state load ignores repeated `Connected` events (ReIdentify confirmations) |
 | `PressTimingHelper.cs` | DoubleTapHelper: 500ms window single/double tap detection |
 | `OBSTimings.cs` | Centralised timing constants (delays, test timeouts) |
 | `PluginLog.cs` | Static logging facade with configurable level |

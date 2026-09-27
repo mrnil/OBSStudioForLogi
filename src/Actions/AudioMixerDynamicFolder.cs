@@ -8,8 +8,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     {
         public static AudioMixerDynamicFolder Instance { get; private set; }
 
-        private Dictionary<String, String[]> _inputScenes = new Dictionary<String, String[]>();
-
         public AudioMixerDynamicFolder()
         {
             Instance = this;
@@ -28,33 +26,22 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             String previousSelection = AudioSelectionState.SelectedInput;
             
             this.AudioInputs = inputs ?? new String[0];
-            this._inputScenes.Clear();
-            
+
+
             // Deselect if selected input is no longer in the list
             if (!String.IsNullOrEmpty(previousSelection) && !this.AudioInputs.Contains(previousSelection))
             {
                 AudioSelectionState.Deselect();
             }
             
-            PluginLog.Debug($"=== AudioMixerDynamicFolder updated with {this.AudioInputs.Length} inputs ===");
-            
-            foreach (var input in this.AudioInputs)
-            {
-                String kind = OBSStudioForLogiPlugin.Instance?.GetInputKind(input) ?? String.Empty;
-                String[] scenes = OBSStudioForLogiPlugin.Instance?.GetScenesForInput(input) ?? new String[0];
-                this._inputScenes[input] = scenes;
-                
-                String scenesText = scenes.Length > 0 ? String.Join(", ", scenes) : "(no scenes)";
-                PluginLog.Debug($"  Input: '{input}' - Kind: '{kind}' - Scenes: {scenesText}");
-            }
-            
+            PluginLog.Debug($"AudioMixerDynamicFolder updated with {this.AudioInputs.Length} inputs");
+
             this.ButtonActionNamesChanged();
         }
 
+        // Inputs arrive via OnInputsChanged from OBSWebSocketManager's per-connection state load.
         public override void OnConnected()
         {
-            String[] inputs = OBSStudioForLogiPlugin.Instance?.GetInputList() ?? new String[0];
-            this.UpdateInputs(inputs);
         }
 
         public override void OnDisconnected()

@@ -68,11 +68,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
+        // Inputs arrive via OnInputsChanged from OBSWebSocketManager's per-connection state load.
         public void OnConnected()
         {
             this.IsEnabled = true;
-            this._audioInputs = OBSStudioForLogiPlugin.Instance?.GetInputList() ?? new String[0];
-            this.ResetParameters(true);
         }
 
         public void OnDisconnected()

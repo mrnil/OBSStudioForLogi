@@ -39,8 +39,8 @@
 
 ### Assessment: ProfileListChanged / SceneCollectionListChanged Not Subscribed (#8)
 
-- [ ] Subscribe to `ProfileListChanged` event in `OBSWebSocketManager` and call `UpdateProfileList()`
-- [ ] Subscribe to `SceneCollectionListChanged` event in `OBSWebSocketManager` and call `UpdateSceneCollectionList()`
+- [ ] Subscribe to `ProfileListChanged` event in `OBSWebSocketManager` and push the new list via `NotifyProfileList()`
+- [ ] Subscribe to `SceneCollectionListChanged` event in `OBSWebSocketManager` and push the new list via `OnSceneCollectionsChanged()`
 
 ### Assessment: MediaDynamicFolder Doesn't Respond to Input List Changes (#10)
 

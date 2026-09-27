@@ -14,7 +14,7 @@ The project follows a TDD approach with 393 unit tests using xUnit + Moq (verifi
 |-----------|--------|-------|
 | `OBSActionExecutorTests.cs` | Core executor: profiles, scenes, recording, streaming, mute, screenshots, error handling | ~50 |
 | `OBSActionExecutorReplayBufferTests.cs` | Replay buffer: toggle, start, stop, save, state tracking | 17 |
-| `OBSActionExecutorAudioTests.cs` | Audio: volume get/set, monitor type cycling, input kind, scenes for input | 27 |
+| `OBSActionExecutorAudioTests.cs` | Audio: volume get/set, monitor type cycling, `TryGetInputAudioState` | 24 |
 | `OBSActionExecutorSceneSwitchingTests.cs` | Scene switching with studio mode behavior | ~6 |
 | `OBSActionExecutorStudioModeTests.cs` | Studio mode toggle, state management | ~8 |
 | `OBSActionExecutorStudioModeTransitionTests.cs` | Studio mode transition command | ~6 |
@@ -27,9 +27,12 @@ The project follows a TDD approach with 393 unit tests using xUnit + Moq (verifi
 | `OBSConfigReaderTests.cs` | Config file parsing, validation, IsServerDisabled | 10 |
 | `OBSConnectionSettingsTests.cs` | Connection settings model, localhost validation | ~5 |
 | `OBSLifecycleManagerTests.cs` | Port checking, wait logic | ~3 |
-| `OBSFacadeTests.cs` | Facade disconnected state, safe defaults, connection validation | 36 |
+| `OBSFacadeTests.cs` | Facade disconnected state, safe defaults, connection validation, cache-backed audio getters | 52 |
 | `CommandRegistryTests.cs` | Registration, deduplication, generic `GetCommands<T>()` filtering | 6 |
-| `CommandCoordinatorTests.cs` | Dispatch-by-interface for every notification type, per-command exception isolation | 26 |
+| `CommandCoordinatorTests.cs` | Dispatch-by-interface for every notification type, per-command exception isolation | 24 |
+| `AudioStateCacheTests.cs` | Non-blocking misses, single in-flight fetch, event-vs-fetch precedence, failure backoff, invalidation | 14 |
+| `SessionGateTests.cs` | Once-per-connection gate, including concurrent opens | 4 |
+| `ConnectionManagerTests.cs` | `IsConnecting` during a port wait; `ReconnectAsync` ignores presses mid-attempt | 5 |
 | `VolumeConverterTests.cs` | Volume mul→dB conversion and formatting | 10 |
 | `SourceVisibilityTests.cs` | Source visibility toggle and query | ~5 |
 | `VirtualCameraCommandTests.cs` | Virtual camera state and toggle | ~5 |

@@ -179,6 +179,23 @@ public class CommandCoordinatorTests
         profilesListAware.Verify(x => x.OnProfilesChanged(profiles, "Profile 1"), Times.Once);
     }
 
+    // --- NotifySceneCollectionsChanged ---
+
+    [Fact]
+    public void NotifySceneCollectionsChanged_CallsOnlyISceneCollectionsListAwareCommands()
+    {
+        Mock<ISceneCollectionsListAwareCommand> collectionsListAware = new Mock<ISceneCollectionsListAwareCommand>();
+        Mock<ISceneCollectionAwareCommand> currentCollectionAware = new Mock<ISceneCollectionAwareCommand>();
+        this._coordinator.RegisterCommand(collectionsListAware.Object);
+        this._coordinator.RegisterCommand(currentCollectionAware.Object);
+
+        String[] collections = new[] { "Streaming", "Recording" };
+        this._coordinator.NotifySceneCollectionsChanged(collections, "Streaming");
+
+        collectionsListAware.Verify(x => x.OnSceneCollectionsChanged(collections, "Streaming"), Times.Once);
+        currentCollectionAware.Verify(x => x.OnSceneCollectionChanged(It.IsAny<String>(), It.IsAny<String>()), Times.Never);
+    }
+
     // --- NotifySourceVisibilityChanged ---
 
     [Fact]

@@ -22,7 +22,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         protected override Boolean OnLoad()
         {
             this.IsEnabled = false;
-            this.ResetParameters(false);
+            this.ResetParameters(new String[0]);
             return true;
         }
 
@@ -34,31 +34,30 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.SwitchScene(actionParameter);
         }
 
-        private void ResetParameters(Boolean readContent)
+        private void ResetParameters(String[] scenes)
         {
             this.RemoveAllParameters();
 
-            if (readContent)
+            // The current scene is tracked state, not an OBS request.
+            String currentScene = OBSStudioForLogiPlugin.Instance?.GetCurrentScene() ?? String.Empty;
+
+            PluginLog.Debug($"Adding {scenes.Length} scenes");
+
+            foreach (String scene in scenes)
             {
-                String[] scenes = OBSStudioForLogiPlugin.Instance?.GetSceneList() ?? new String[0];
-                String currentScene = OBSStudioForLogiPlugin.Instance?.GetCurrentScene() ?? String.Empty;
-
-                PluginLog.Info($"Adding {scenes.Length} scenes");
-
-                foreach (String scene in scenes)
-                {
-                    this.AddParameter(scene, scene, this.GroupName).Description = $"Switch to scene \"{scene}\"";
-                    this.SetCurrentState(scene, scene == currentScene ? SCENE_SELECTED : SCENE_UNSELECTED);
-                }
+                this.AddParameter(scene, scene, this.GroupName).Description = $"Switch to scene \"{scene}\"";
+                this.SetCurrentState(scene, scene == currentScene ? SCENE_SELECTED : SCENE_UNSELECTED);
             }
 
             this.ParametersChanged();
             this.ActionImageChanged();
         }
 
+        // Use the list OBSWebSocketManager already loaded - this used to discard it and query OBS
+        // for the same list again.
         public void OnScenesChanged(String[] scenes)
         {
-            this.ResetParameters(true);
+            this.ResetParameters(scenes ?? new String[0]);
         }
 
         public void OnSceneChanged(String sceneName)
@@ -84,13 +83,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnConnected()
         {
             this.IsEnabled = true;
-            this.ResetParameters(true);
         }
 
         public void OnDisconnected()
         {
             this.IsEnabled = false;
-            this.ResetParameters(false);
+            this.ResetParameters(new String[0]);
         }
 
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)

@@ -4,7 +4,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Collections.Generic;
     using System.Linq;
 
-    public class SceneCollectionsDynamicFolder : PluginDynamicFolder, IObsCommand, ISceneCollectionAwareCommand
+    public class SceneCollectionsDynamicFolder : PluginDynamicFolder, IObsCommand, ISceneCollectionAwareCommand, ISceneCollectionsListAwareCommand
     {
         public static SceneCollectionsDynamicFolder Instance { get; private set; }
 
@@ -46,12 +46,17 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
-        public void OnConnected()
+        public void OnSceneCollectionsChanged(String[] sceneCollections, String currentSceneCollection)
         {
-            this._sceneCollections = OBSStudioForLogiPlugin.Instance?.GetSceneCollectionList() ?? new String[0];
-            this._currentSceneCollection = OBSStudioForLogiPlugin.Instance?.CurrentSceneCollection ?? String.Empty;
+            this._sceneCollections = sceneCollections ?? new String[0];
+            this._currentSceneCollection = currentSceneCollection ?? String.Empty;
             PluginLog.Debug($"SceneCollectionsDynamicFolder loaded {this._sceneCollections.Length} collections, current: '{this._currentSceneCollection}'");
             this.ButtonActionNamesChanged();
+        }
+
+        // The collection list arrives via OnSceneCollectionsChanged from the per-connection state load.
+        public void OnConnected()
+        {
         }
 
         public void OnDisconnected()

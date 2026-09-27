@@ -2,7 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class SceneCollectionSelectCommand : PluginMultistateDynamicCommand, IObsCommand, ISceneCollectionAwareCommand
+    public class SceneCollectionSelectCommand : PluginMultistateDynamicCommand, IObsCommand, ISceneCollectionAwareCommand, ISceneCollectionsListAwareCommand
     {
         private const Int16 SCENE_COLLECTION_UNSELECTED = 0;
         private const Int16 SCENE_COLLECTION_SELECTED = 1;
@@ -22,7 +22,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         protected override Boolean OnLoad()
         {
             this.IsEnabled = false;
-            this.ResetParameters(false);
+            this.ResetParameters(new String[0], String.Empty);
             return true;
         }
 
@@ -34,31 +34,27 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.SwitchSceneCollection(actionParameter);
         }
 
-        private void ResetParameters(Boolean readContent)
+        private void ResetParameters(String[] sceneCollections, String currentSceneCollection)
         {
             this.RemoveAllParameters();
 
-            if (readContent)
+            PluginLog.Debug($"Adding {sceneCollections.Length} scene collections");
+
+            foreach (String sceneCollection in sceneCollections)
             {
-                var sceneCollections = OBSStudioForLogiPlugin.Instance?.GetSceneCollectionList() ?? new String[0];
-                var currentSceneCollection = OBSStudioForLogiPlugin.Instance?.CurrentSceneCollection ?? String.Empty;
-
-                PluginLog.Info($"Adding {sceneCollections.Length} scene collections");
-
-                foreach (var sceneCollection in sceneCollections)
-                {
-                    this.AddParameter(sceneCollection, $"{sceneCollection} Collection", this.GroupName).Description = $"Switch to scene collection \"{sceneCollection}\"";
-                    this.SetCurrentState(sceneCollection, sceneCollection == currentSceneCollection ? SCENE_COLLECTION_SELECTED : SCENE_COLLECTION_UNSELECTED);
-                }
+                this.AddParameter(sceneCollection, $"{sceneCollection} Collection", this.GroupName).Description = $"Switch to scene collection \"{sceneCollection}\"";
+                this.SetCurrentState(sceneCollection, sceneCollection == currentSceneCollection ? SCENE_COLLECTION_SELECTED : SCENE_COLLECTION_UNSELECTED);
             }
 
             this.ParametersChanged();
             this.ActionImageChanged();
         }
 
-        public void OnSceneCollectionsChanged()
+        // OBSWebSocketManager loads the scene collection list once per connection and pushes it
+        // here, rather than every collection-aware command querying OBS itself.
+        public void OnSceneCollectionsChanged(String[] sceneCollections, String currentSceneCollection)
         {
-            this.ResetParameters(true);
+            this.ResetParameters(sceneCollections ?? new String[0], currentSceneCollection ?? String.Empty);
         }
 
         public void OnSceneCollectionChanged(String oldSceneCollection, String newSceneCollection)
@@ -84,13 +80,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnConnected()
         {
             this.IsEnabled = true;
-            this.ResetParameters(true);
         }
 
         public void OnDisconnected()
         {
             this.IsEnabled = false;
-            this.ResetParameters(false);
+            this.ResetParameters(new String[0], String.Empty);
         }
 
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)

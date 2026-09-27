@@ -111,7 +111,7 @@ Return `OBSStats.Empty` instead of `null` from disconnected/error paths. Display
 
 **Problem**: If a user creates or deletes a profile or scene collection while the plugin is connected, the dynamic folders go stale until reconnect. The OBS WebSocket protocol fires `ProfileListChanged` and `SceneCollectionListChanged` events for exactly this case.
 
-**Fix**: Subscribe to both events in `OBSWebSocketManager` and call `UpdateProfileList()` / `UpdateSceneList()` respectively. Low effort, meaningful reliability improvement.
+**Fix**: Subscribe to both events in `OBSWebSocketManager`, re-read the lists, and push them through `OnProfilesChanged` / `OnSceneCollectionsChanged` respectively. Low effort, meaningful reliability improvement.
 
 ---
 
@@ -185,6 +185,43 @@ Found while migrating to .NET 10.0 (`5d04506`) and refreshing this memory bank. 
 
 ---
 
+## Newly Identified (2026-09-27)
+
+Found by reviewing a Logi Plugin Service log (`%LocalAppData%\Logi\LogiPluginService\Logs\plugin_logs\OBSStudioForLogi.log`) from a session where the device lagged: ~3,250 lines in 7 minutes, 359 errors (326 of them `Request timed out`), and 47 "OBS WebSocket connected" entries from only 2 real connections.
+
+### 16. Reconnect Storm and Blocking OBS Requests on the Render Path (Performance) ✅ Fixed
+
+**Problem**: Three compounding issues.
+
+1. obs-websocket-dotnet 5.7.0 raises `Connected` for every `Identified` message, and OBS sends one to confirm each `ReIdentify`. The library sends a `ReIdentify` on every `InputVolumeMeters` subscribe/unsubscribe, which the audio meter buttons toggle as they appear and disappear. Each page flip therefore re-ran the full initial-state load: every command's `OnConnected`, a stats restart, and profile/scene/input reloads.
+2. Every audio button redraw made up to three blocking OBS requests (mute, volume, monitor type) on the SDK's render thread. Requests block for up to the library's 10s timeout; under the reload storm they backed up, timed out together, and the device stalled while buttons waited.
+3. Each reload fanned out into dozens of redundant requests: five commands fetched the input list themselves, `SceneSelectCommand.OnScenesChanged` discarded the list it was given and fetched it again, and `AudioMixerDynamicFolder` made roughly inputs × (2 + scenes) requests (~88 for 11 inputs and 6 scenes) only to write a debug log line.
+
+**Fix applied**:
+
+- `SessionGate` makes `OBSWebSocketManager.OnConnected` run once per connection; repeats are ignored until a disconnect, `Disconnect` or new `ConnectAsync`. The matching library fix (`Connected` raised only on the first `Identified`) is on `mrnil/obs-websocket-dotnet` branch `fix/connected-raised-on-reidentify`, pending an upstream PR and release.
+- `ConnectionManager.ReconnectAsync` ignores the Reconnect button while already connected or while an attempt is still waiting on the port. A second press used to tear down a working connection.
+- `AudioStateCache` serves mute/volume/monitor type to rendering without blocking: a miss returns defaults and fetches that input once in the background, then redraws it; change events keep it current, event values win over an in-flight fetch, and failed fetches back off for `OBSTimings.AudioStateRetryDelay`. `OBSFacade`'s audio getters read it, so every existing render path is covered. `SetInputVolume` records the target immediately so fast dial turns don't lose steps.
+- The per-connection state load is the single source for the input, scene, profile and scene collection lists; commands receive them through `IInputsListAwareCommand`, `IScenesListAwareCommand`, `IProfilesListAwareCommand` and the new `ISceneCollectionsListAwareCommand` instead of querying OBS in `OnConnected`. The mixer folder's debug loop and the now-unused `GetInputKind`/`GetScenesForInput` chain were removed.
+
+Tests: `SessionGateTests`, `ConnectionManagerTests`, `AudioStateCacheTests`, `TryGetInputAudioState_*` in `OBSActionExecutorAudioTests`, cache-backed getters in `OBSFacadeTests`, and `NotifySceneCollectionsChanged_*` in `CommandCoordinatorTests`.
+
+---
+
+### 17. Remaining Findings From the 2026-09-27 Log Review (Performance/Reliability)
+
+**Problem**: Follow-ups from the same review, not yet actioned.
+
+- **Requests are still synchronous with a 10s timeout.** Set a shorter `WSTimeout` *before* `ConnectAsync` — in 5.7.0 the setter also sets Websocket.Client's no-message `ReconnectTimeout`, so setting it after connecting arms an idle-disconnect watchdog. Guard on `IsIdentified` (new in 5.7.0) rather than `IsConnected`, which is true before the handshake completes.
+- **`StatsService` polls can overlap** — a 5s timer with requests that can block for 10s. Skip a tick while the previous one is in flight. `GetStats` also fails outright when OBS reports `cpuUsage: null` (non-nullable in the library's `ObsStats`).
+- **Other render paths still query OBS**: `SourcesDynamicFolder` (`GetSceneItemEnabled`, two requests per redraw) and `MediaDynamicFolder` (`GetMediaInputStatus`). A scene change also costs ~10 requests via `OBSFacade.UpdateSourcesForScene`.
+- **No retry after the startup port wait gives up.** If OBS isn't running when the plugin loads, the plugin stops trying after 20 attempts and only reconnects on a manual Reconnect (a 2-hour gap in the reviewed log). `ClientApplication.ApplicationStarted` never fired — check the SDK docs on whether `HasNoApplication = true` prevents it.
+- **Logging volume**: routine calls log at Info (`Getting input list`, `Getting scene list`), and a stalled request logs one error per redraw rather than one per incident.
+- **Meter lease churn**: the 3s `AudioMeterRenderLease` still drops and re-takes the `InputVolumeMeters` subscription on page flips. Each toggle is now a single cheap `ReIdentify`, but a longer lease would avoid it.
+- `INSTALL.md` gives the log path as `Logs\OBSStudioForLogiPlugin.log`; the file is actually `Logs\plugin_logs\OBSStudioForLogi.log`.
+
+---
+
 ## Summary Table
 
 | # | Priority | Area | Issue |
@@ -204,3 +241,5 @@ Found while migrating to .NET 10.0 (`5d04506`) and refreshing this memory bank. 
 | 13 | ~~Medium~~ | ~~Build/DX~~ | ~~`obj/` location depended on invocation method, causing spurious `CS0579` errors~~ ✅ Fixed |
 | 14 | ~~Low-Medium~~ | ~~Test Reliability~~ | ~~`DoubleTapHelperTests` flaky under full-suite/coverage load~~ ✅ Fixed |
 | 15 | Low-Medium | Test Reliability | Same fixed-sleep race broadly across `OBSActionExecutor*` tests — dozens of call sites, dominant flakiness source now that #14 is fixed |
+| 16 | ~~High~~ | ~~Performance~~ | ~~Reconnect storm on every meter subscription change; blocking OBS requests on the render path~~ ✅ Fixed |
+| 17 | Medium | Performance/Reliability | Remaining log-review findings: request timeout, stats overlap, other render-path queries, startup retry, log volume |

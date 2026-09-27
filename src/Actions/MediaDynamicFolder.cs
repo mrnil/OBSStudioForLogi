@@ -126,11 +126,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.ButtonActionNamesChanged();
         }
 
+        // Media inputs are reloaded in OnInputsChanged, which the per-connection state load triggers.
         public void OnConnected()
         {
-            this._mediaInputs = OBSStudioForLogiPlugin.Instance?.GetMediaInputList() ?? new String[0];
-            PluginLog.Debug($"MediaDynamicFolder: Loaded {this._mediaInputs.Length} media inputs");
-            this.ButtonActionNamesChanged();
         }
 
         public void OnDisconnected()

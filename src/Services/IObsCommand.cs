@@ -33,6 +33,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         void OnProfilesChanged(String[] profiles, String currentProfile);
     }
 
+    public interface ISceneCollectionsListAwareCommand : IObsCommand
+    {
+        void OnSceneCollectionsChanged(String[] sceneCollections, String currentSceneCollection);
+    }
+
     public interface ISourceVisibilityAwareCommand : IObsCommand
     {
         void OnSourceVisibilityChanged(String sceneName, String sourceName);

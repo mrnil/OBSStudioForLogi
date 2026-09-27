@@ -37,6 +37,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void NotifyProfilesChanged(String[] profiles, String currentProfile) =>
             this.NotifyEach<IProfilesListAwareCommand>(nameof(IProfilesListAwareCommand.OnProfilesChanged), c => c.OnProfilesChanged(profiles, currentProfile));
 
+        public void NotifySceneCollectionsChanged(String[] sceneCollections, String currentSceneCollection) =>
+            this.NotifyEach<ISceneCollectionsListAwareCommand>(nameof(ISceneCollectionsListAwareCommand.OnSceneCollectionsChanged), c => c.OnSceneCollectionsChanged(sceneCollections, currentSceneCollection));
+
         public void NotifySourceVisibilityChanged(String sceneName, String sourceName) =>
             this.NotifyEach<ISourceVisibilityAwareCommand>(nameof(ISourceVisibilityAwareCommand.OnSourceVisibilityChanged), c => c.OnSourceVisibilityChanged(sceneName, sourceName));
 

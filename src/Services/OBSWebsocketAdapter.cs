@@ -193,13 +193,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return audioInputs.Select(input => input.InputName).ToArray();
         }
 
-        public String GetInputKind(String inputName)
-        {
-            var inputs = this._obs?.GetInputList(null);
-            var input = inputs?.FirstOrDefault(i => i.InputName == inputName);
-            return input?.InputKind ?? String.Empty;
-        }
-
         public Boolean GetInputMute(String inputName)
         {
             return this._obs?.GetInputMute(inputName) ?? false;
@@ -282,24 +275,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
 
             return allAudioInputs.Where(input => !inputsInScenes.Contains(input)).ToArray();
-        }
-
-        public String[] GetScenesForInput(String inputName)
-        {
-            var scenes = this._obs?.GetSceneList()?.Scenes;
-            if (scenes == null)
-                return new String[0];
-
-            var scenesWithInput = scenes
-                .Where(scene => 
-                {
-                    var items = this._obs?.GetSceneItemList(scene.Name);
-                    return items?.Any(item => item.SourceName == inputName) ?? false;
-                })
-                .Select(scene => scene.Name)
-                .ToArray();
-
-            return scenesWithInput;
         }
 
         public Boolean GetStudioModeEnabled()

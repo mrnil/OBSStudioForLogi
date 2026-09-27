@@ -44,16 +44,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._obsManager?.Actions.GetInputList() ?? new String[0];
         }
 
-        public String GetInputKind(String inputName)
-        {
-            return this._obsManager?.Actions.GetInputKind(inputName) ?? String.Empty;
-        }
-
-        public String[] GetScenesForInput(String inputName)
-        {
-            return this._obsManager?.Actions.GetScenesForInput(inputName) ?? new String[0];
-        }
-
         // Audio state getters are called from button rendering, so they read the cache and never
         // wait on OBS - see AudioStateCache.
         public Boolean GetInputMute(String inputName)

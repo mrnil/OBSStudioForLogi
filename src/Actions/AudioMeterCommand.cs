@@ -119,9 +119,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnConnected()
         {
+            // Inputs arrive via OnInputsChanged from OBSWebSocketManager's per-connection state load.
             this.IsEnabled = true;
-            this._audioInputs = OBSStudioForLogiPlugin.Instance?.GetInputList() ?? new String[0];
-            this.ResetParameters();
 
             Int32 refreshMs = new PluginConfigReader().ReadConfig()?.AudioMeterRefreshInterval ?? 100;
             this._refreshTimer.Interval = refreshMs;

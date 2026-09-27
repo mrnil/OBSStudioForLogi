@@ -114,22 +114,6 @@ public class OBSFacadeTests
     }
 
     [Fact]
-    public void GetInputKind_WhenDisconnected_ReturnsEmpty()
-    {
-        var result = this._facade.GetInputKind("Microphone");
-
-        Assert.Equal(String.Empty, result);
-    }
-
-    [Fact]
-    public void GetScenesForInput_WhenDisconnected_ReturnsEmpty()
-    {
-        var result = this._facade.GetScenesForInput("Microphone");
-
-        Assert.Empty(result);
-    }
-
-    [Fact]
     public void GetInputMute_WhenDisconnected_ReturnsFalse()
     {
         var result = this._facade.GetInputMute("Microphone");

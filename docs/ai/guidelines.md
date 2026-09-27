@@ -284,21 +284,30 @@ public void OnInputMuteChanged(String inputName)
 
 ### OnConnected / OnDisconnected Pattern
 
-Clear state and rebuild button lists on disconnect; reload on connect:
+Clear state and rebuild button lists on disconnect. Do **not** query OBS for lists in `OnConnected` — `OBSWebSocketManager` loads the input, scene, profile and scene collection lists once per connection and pushes them through the list-aware interfaces (`IInputsListAwareCommand`, `IScenesListAwareCommand`, `IProfilesListAwareCommand`, `ISceneCollectionsListAwareCommand`). Each command querying for itself multiplied every reconnect into dozens of blocking requests (see `assessment.md` #16):
 
 ```csharp
 public void OnConnected()
 {
-    this._mediaInputs = OBSStudioForLogiPlugin.Instance?.GetMediaInputList() ?? new String[0];
+    this.IsEnabled = true;
+}
+
+public void OnInputsChanged(String[] inputs)
+{
+    this._audioInputs = inputs ?? new String[0];
     this.ButtonActionNamesChanged();
 }
 
 public void OnDisconnected()
 {
-    this._mediaInputs = new String[0];
+    this._audioInputs = new String[0];
     this.ButtonActionNamesChanged();
 }
 ```
+
+### Rendering Must Not Block on OBS
+
+`GetCommandImage`, `GetAdjustmentValue` and similar are called on the SDK's render threads, and every OBS request blocks until OBS answers (up to the websocket timeout). Render only from state the plugin already holds. Audio mute/volume/monitor type come from `AudioStateCache` via the plugin's `GetInputMute`/`GetInputVolume`/`GetInputAudioMonitorType`, which never wait on OBS.
 
 ### ToggleCommandBase — For Toggle Commands
 

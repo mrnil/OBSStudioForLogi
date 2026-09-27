@@ -199,7 +199,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             // Raise plugin-level event
             this.ConnectionEstablished?.Invoke(this, EventArgs.Empty);
             
-            // Get initial state
+            // Load the initial state once and push it to the commands - they no longer query OBS
+            // for these lists themselves in OnConnected.
             Task.Run(() =>
             {
                 try
@@ -210,6 +211,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                         this.Actions.SetCurrentProfileState(profiles.CurrentProfileName);
                         this._log.Info($"Initial profile: '{profiles.CurrentProfileName}'");
                         OBSStudioForLogiPlugin.Instance?.OnProfileChanged(String.Empty, profiles.CurrentProfileName);
+                        this.NotifyProfileList(profiles.Profiles, profiles.CurrentProfileName);
                     }
 
                     var currentCollection = this._obs.GetCurrentSceneCollection();
@@ -219,6 +221,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                         this._log.Info($"Initial scene collection: '{currentCollection}'");
                         OBSStudioForLogiPlugin.Instance?.OnSceneCollectionChanged(String.Empty, currentCollection);
                     }
+
+                    String[] sceneCollections = this.Actions.GetSceneCollectionList();
+                    OBSStudioForLogiPlugin.Instance?.OnSceneCollectionsChanged(sceneCollections, currentCollection ?? String.Empty);
 
                     var sceneList = this._obs.GetSceneList();
                     if (sceneList?.CurrentProgramSceneName != null)
@@ -230,7 +235,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
                     // Load initial scene list and notify commands
                     this.UpdateSceneList();
-                    this.UpdateProfileList();
                     this.UpdateInputList();
                     this.UpdateStudioModeState();
                 }
@@ -314,7 +318,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                         
                         // Notify ProfileSelectCommand
                         OBSStudioForLogiPlugin.Instance?.OnProfileChanged(oldProfile, profiles.CurrentProfileName);
-                        this.UpdateProfileList();
+                        this.NotifyProfileList(profiles.Profiles, profiles.CurrentProfileName);
                     }
                 }
                 catch (Exception ex)
@@ -385,22 +389,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             });
         }
 
-        private void UpdateProfileList()
+        // GetProfileList already returns the full list alongside the current profile, so pass it on
+        // rather than requesting it from OBS a second time.
+        private void NotifyProfileList(IEnumerable<String> profiles, String currentProfile)
         {
-            Task.Run(() =>
-            {
-                try
-                {
-                    var profiles = this.Actions.GetProfileList();
-                    var currentProfile = this.Actions.CurrentProfile;
-                    this._log.Info($"Loaded {profiles.Length} profiles");
-                    OBSStudioForLogiPlugin.Instance?.OnProfilesChanged(profiles, currentProfile);
-                }
-                catch (Exception ex)
-                {
-                    this._log.Warning($"Failed to get profile list: {ex.Message}");
-                }
-            });
+            String[] profileNames = profiles?.ToArray() ?? new String[0];
+            this._log.Debug($"Loaded {profileNames.Length} profiles");
+            OBSStudioForLogiPlugin.Instance?.OnProfilesChanged(profileNames, currentProfile);
         }
 
         private void OnCurrentSceneChanged(Object sender, ProgramSceneChangedEventArgs e)

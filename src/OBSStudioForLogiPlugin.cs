@@ -284,6 +284,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._commandCoordinator.NotifyProfilesChanged(profiles, currentProfile);
         }
 
+        public void OnSceneCollectionsChanged(String[] sceneCollections, String currentSceneCollection)
+        {
+            this._commandCoordinator.NotifySceneCollectionsChanged(sceneCollections, currentSceneCollection);
+        }
+
         public void OnCurrentSceneChanged(String sceneName)
         {
             PluginLog.Info($"Plugin notified of scene change: '{sceneName}'");
@@ -425,16 +430,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public String[] GetInputList()
         {
             return this._obsFacade.GetInputList();
-        }
-
-        public String GetInputKind(String inputName)
-        {
-            return this._obsFacade.GetInputKind(inputName);
-        }
-
-        public String[] GetScenesForInput(String inputName)
-        {
-            return this._obsFacade.GetScenesForInput(inputName);
         }
 
         public Boolean GetInputMute(String inputName)

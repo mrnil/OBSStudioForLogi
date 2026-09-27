@@ -2,7 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class ProfileSelectCommand : PluginMultistateDynamicCommand, IObsCommand, IProfileAwareCommand
+    public class ProfileSelectCommand : PluginMultistateDynamicCommand, IObsCommand, IProfileAwareCommand, IProfilesListAwareCommand
     {
         private const Int16 PROFILE_UNSELECTED = 0;
         private const Int16 PROFILE_SELECTED = 1;
@@ -22,7 +22,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         protected override Boolean OnLoad()
         {
             this.IsEnabled = false;
-            this.ResetParameters(false);
+            this.ResetParameters(new String[0], String.Empty);
             return true;
         }
 
@@ -34,31 +34,27 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.SwitchProfile(actionParameter);
         }
 
-        private void ResetParameters(Boolean readContent)
+        private void ResetParameters(String[] profiles, String currentProfile)
         {
             this.RemoveAllParameters();
 
-            if (readContent)
+            PluginLog.Debug($"Adding {profiles.Length} profiles");
+
+            foreach (String profile in profiles)
             {
-                var profiles = OBSStudioForLogiPlugin.Instance?.GetProfileList() ?? new String[0];
-                var currentProfile = OBSStudioForLogiPlugin.Instance?.CurrentProfile ?? String.Empty;
-
-                PluginLog.Info($"Adding {profiles.Length} profiles");
-
-                foreach (var profile in profiles)
-                {
-                    this.AddParameter(profile, profile, this.GroupName).Description = $"Switch to profile \"{profile}\"";
-                    this.SetCurrentState(profile, profile == currentProfile ? PROFILE_SELECTED : PROFILE_UNSELECTED);
-                }
+                this.AddParameter(profile, profile, this.GroupName).Description = $"Switch to profile \"{profile}\"";
+                this.SetCurrentState(profile, profile == currentProfile ? PROFILE_SELECTED : PROFILE_UNSELECTED);
             }
 
             this.ParametersChanged();
             this.ActionImageChanged();
         }
 
-        public void OnProfilesChanged()
+        // OBSWebSocketManager loads the profile list once per connection (and on profile changes)
+        // and pushes it here, rather than every profile-aware command querying OBS itself.
+        public void OnProfilesChanged(String[] profiles, String currentProfile)
         {
-            this.ResetParameters(true);
+            this.ResetParameters(profiles ?? new String[0], currentProfile ?? String.Empty);
         }
 
         public void OnProfileChanged(String oldProfile, String newProfile)
@@ -84,13 +80,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnConnected()
         {
             this.IsEnabled = true;
-            this.ResetParameters(true);
         }
 
         public void OnDisconnected()
         {
             this.IsEnabled = false;
-            this.ResetParameters(false);
+            this.ResetParameters(new String[0], String.Empty);
         }
 
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
