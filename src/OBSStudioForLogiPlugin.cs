@@ -312,7 +312,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void ManualReconnect()
         {
             PluginLog.Info("Manual reconnect requested");
-            Task.Run(() => this._connectionManager.ConnectAsync());
+            Task.Run(() => this._connectionManager.ReconnectAsync());
         }
 
         public Models.OBSStats GetStats()

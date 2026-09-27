@@ -1,6 +1,7 @@
 namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Loupedeck.OBSStudioForLogiPlugin.Helpers;
     using Loupedeck.OBSStudioForLogiPlugin.Models;
@@ -11,6 +12,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly OBSConfigReader _configReader;
         private readonly OBSLifecycleManager _lifecycleManager;
         private PluginConfig _pluginConfig;
+        private Int32 _connectAttempts;
 
         public event EventHandler Connected;
         public event EventHandler Disconnected;
@@ -27,6 +29,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         }
 
         public Boolean IsConnected => this._obsManager?.IsConnected ?? false;
+
+        // True while a ConnectAsync call is still waiting for the port, the connection delay or
+        // the websocket start.
+        public Boolean IsConnecting => Volatile.Read(ref this._connectAttempts) > 0;
 
         public Boolean IsWebSocketServerDisabled => this._configReader?.IsServerDisabled ?? false;
 
@@ -55,7 +61,40 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._configReader.ReadConfig();
         }
 
+        // User-initiated reconnect. Pressing Reconnect while connected used to tear down a working
+        // connection, and pressing it again while the first attempt was still waiting on the port
+        // started a second, overlapping attempt - so both cases are ignored.
+        public Task ReconnectAsync()
+        {
+            if (this.IsConnected)
+            {
+                PluginLog.Info("Reconnect ignored - already connected to OBS");
+                return Task.CompletedTask;
+            }
+
+            if (this.IsConnecting)
+            {
+                PluginLog.Info("Reconnect ignored - a connection attempt is already in progress");
+                return Task.CompletedTask;
+            }
+
+            return this.ConnectAsync();
+        }
+
         public async Task ConnectAsync()
+        {
+            Interlocked.Increment(ref this._connectAttempts);
+            try
+            {
+                await this.ConnectCoreAsync();
+            }
+            finally
+            {
+                Interlocked.Decrement(ref this._connectAttempts);
+            }
+        }
+
+        private async Task ConnectCoreAsync()
         {
             PluginLog.Info("Attempting connection to OBS");
 

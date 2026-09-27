@@ -18,6 +18,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly ReconnectionStrategy _reconnectionStrategy;
         private readonly Object _disposeLock = new Object();
         private readonly HashSet<String> _volumeMeterOwners = new HashSet<String>();
+        private readonly SessionGate _session = new SessionGate();
         private String _lastUrl;
         private String _lastPassword;
         private Boolean _shouldReconnect = false;
@@ -84,6 +85,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._shouldReconnect = true;
             this._connectingInProgress = true;
 
+            // A fresh connection starts a fresh session, even if the previous one's Disconnected
+            // event has not been processed yet.
+            this._session.Close();
+
             this._log.Info($"Connecting to OBS WebSocket at {url}");
             
             await Task.Run(() =>
@@ -99,6 +104,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._log.Info("Disconnecting from OBS WebSocket");
             this._shouldReconnect = false;
             this._reconnectTimer?.Stop();
+            this._session.Close();
             this._obs?.Disconnect();
         }
 
@@ -176,6 +182,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         private void OnConnected(Object sender, EventArgs e)
         {
+            if (!this._session.TryOpen())
+            {
+                this._log.Debug("Ignoring repeated Connected for the current session (ReIdentify confirmation)");
+                return;
+            }
+
             this._log.Info("WebSocket connection established");
             this._connectingInProgress = false;
             this._reconnectionStrategy.Reset();
@@ -230,6 +242,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._log.Warning($"WebSocket disconnected: {e.DisconnectReason}");
             this._connectingInProgress = false;
+            this._session.Close();
             
             // Raise plugin-level event
             this.ConnectionLost?.Invoke(this, EventArgs.Empty);
