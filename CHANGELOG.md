@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Upgraded `obs-websocket-dotnet` from 5.0.1 to 5.7.0 (required for `InputVolumeMeters` subscription support, contributed upstream)
 - Upgraded `Microsoft.Extensions.Logging.Abstractions` and `System.Drawing.Common` to 10.0.12
+- Button icons restyled to one consistent set: 2px outline glyphs on a 32px grid, a fixed five-colour palette, a slash for off states, grey for unavailable actions, and a tick for the selected scene, scene collection and profile
+- Virtual Camera Start/Stop now show a camera instead of the recording dot and square
+- Streaming Start/Stop grey out when unavailable, like Recording and Virtual Camera, instead of showing the opposite state in full colour
+- The Reconnect button's icon is redrawn in white so it reads on the green, amber and red status backgrounds
+- The OBS Scenes folder has its own folder icon
 
 ### Fixed
 

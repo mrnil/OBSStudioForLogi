@@ -26,12 +26,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override String GetEnabledIcon()
         {
-            return "StreamingToggleOff.svg";
+            return "StreamingOff.svg";
         }
 
         protected override String GetDisabledIcon()
         {
-            return "StreamingToggleOn.svg";
+            return "StreamingOffDisabled.svg";
         }
     }
 }

@@ -9,7 +9,7 @@ OBSStudioForLogiPlugin/
 │   ├── Helpers/                  # Utility classes (11 files)
 │   ├── Models/                   # Data models (4 files)
 │   ├── Services/                 # Business logic and OBS integration (14 files)
-│   ├── Resources/icons/          # Embedded SVG/PNG icons (47 files)
+│   ├── Resources/icons/          # SVG button icons (40 files; rules in docs/ai/icon-style.md)
 │   ├── package/metadata/         # LoupedeckPackage.yaml + plugin icon
 │   ├── OBSStudioForLogiPlugin.cs # Main plugin class (orchestration)
 │   ├── OBSStudioForLogiApplication.cs

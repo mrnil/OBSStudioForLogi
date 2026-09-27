@@ -340,8 +340,8 @@ public class RecordingStartCommand : StartStopCommandBase, IObsCommand
     protected override void ExecuteStart() => OBSStudioForLogiPlugin.Instance?.StartRecording();
     protected override void ExecuteStop() => OBSStudioForLogiPlugin.Instance?.StopRecording();
     protected override Boolean GetState() => OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
-    protected override String GetEnabledIcon() => "RecordingStart.svg";
-    protected override String GetDisabledIcon() => "RecordingStartDisabled.svg";
+    protected override String GetEnabledIcon() => "RecordingOn.svg";
+    protected override String GetDisabledIcon() => "RecordingOnDisabled.svg";
 }
 ```
 
@@ -403,11 +403,11 @@ return ButtonImageHelper.Text("Connected", imageSize, BitmapColor.Green, BitmapC
 return ButtonImageHelper.StateText(text, imageSize, isActive, BitmapColor.Green, BitmapColor.Red);
 
 // Text with background icon
-return ButtonImageHelper.TextWithIcon(text, imageSize, "AudioMixerUnmuted.svg", BitmapColor.Green);
+return ButtonImageHelper.TextWithIcon(text, imageSize, "SourceVisibilityOn.svg", BitmapColor.Green);
 
 // State-based text with icon
 return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted,
-    "AudioMixerUnmuted.svg", "AudioMixerMuted.svg",
+    "SourceVisibilityOn.svg", "SourceVisibilityOff.svg",
     BitmapColor.Green, BitmapColor.Red);
 ```
 

@@ -26,12 +26,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override String GetEnabledIcon()
         {
-            return "RecordingStart.svg";
+            return "RecordingOn.svg";
         }
 
         protected override String GetDisabledIcon()
         {
-            return "RecordingStartDisabled.svg";
+            return "RecordingOnDisabled.svg";
         }
     }
 }

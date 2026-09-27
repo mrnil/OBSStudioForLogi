@@ -33,12 +33,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override String GetEnabledIcon()
         {
-            return "VirtualCameraStart.svg";
+            return "VirtualCameraOn.svg";
         }
 
         protected override String GetDisabledIcon()
         {
-            return "VirtualCameraStartDisabled.svg";
+            return "VirtualCameraOnDisabled.svg";
         }
 
         public void OnVirtualCameraStateChanged()

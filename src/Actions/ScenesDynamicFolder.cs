@@ -28,6 +28,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return PluginDynamicFolderNavigation.ButtonArea;
         }
 
+        public override BitmapImage GetButtonImage(PluginImageSize imageSize)
+        {
+            return ButtonImageHelper.Icon("SceneFolder.svg");
+        }
+
         public override IEnumerable<String> GetButtonPressActionNames(DeviceType deviceType)
         {
             return this._scenes.Select(scene => this.CreateCommandName(scene));
@@ -83,7 +88,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             Boolean isSelected = actionParameter == this._currentScene;
-            return ButtonImageHelper.Icon(isSelected ? "ScenesSelected.svg" : "ScenesUnselected.svg");
+            return ButtonImageHelper.Icon(isSelected ? "SceneSelected.svg" : "SceneUnselected.svg");
         }
 
         public override void RunCommand(String actionParameter)

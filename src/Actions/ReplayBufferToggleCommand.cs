@@ -26,9 +26,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return OBSStudioForLogiPlugin.Instance?.IsReplayBufferActive ?? false;
         }
 
-        protected override String GetActiveIcon() => "ReplayBufferToggleStop.svg";
+        protected override String GetActiveIcon() => "ReplayBufferOn.svg";
 
-        protected override String GetInactiveIcon() => "ReplayBufferToggleStart.svg";
+        protected override String GetInactiveIcon() => "ReplayBufferOff.svg";
 
         public void OnReplayBufferStateChanged()
         {

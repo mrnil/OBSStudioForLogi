@@ -99,11 +99,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             
             if (!isConnected)
             {
-                return ButtonImageHelper.Icon("ScenesCollectionsUnselected.svg");
+                return ButtonImageHelper.Icon("SceneCollectionUnselected.svg");
             }
             
             Boolean isSelected = stateIndex == SCENE_COLLECTION_SELECTED;
-            return ButtonImageHelper.Icon(isSelected ? "ScenesCollectionsSelected.svg" : "ScenesCollectionsUnselected.svg");
+            return ButtonImageHelper.Icon(isSelected ? "SceneCollectionSelected.svg" : "SceneCollectionUnselected.svg");
         }
     }
 }

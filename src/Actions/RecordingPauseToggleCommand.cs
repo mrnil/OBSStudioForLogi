@@ -19,8 +19,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return OBSStudioForLogiPlugin.Instance?.IsRecordingPaused ?? false;
         }
 
-        protected override String GetActiveIcon() => "RecordingPause.svg";
+        protected override String GetActiveIcon() => "RecordingPaused.svg";
 
-        protected override String GetInactiveIcon() => "RecordingResume.svg";
+        protected override String GetInactiveIcon() => "RecordingOn.svg";
     }
 }

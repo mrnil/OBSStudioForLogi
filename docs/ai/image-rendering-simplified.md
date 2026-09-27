@@ -51,7 +51,7 @@ Renders text with a background icon.
 
 ```csharp
 String text = $"{inputName}\n\n{volume}%";
-return ButtonImageHelper.TextWithIcon(text, imageSize, "AudioMixerUnmuted.svg", BitmapColor.Green);
+return ButtonImageHelper.TextWithIcon(text, imageSize, "SourceVisibilityOn.svg", BitmapColor.Green);
 ```
 
 #### StateTextWithIcon(text, imageSize, isActive, activeIcon, inactiveIcon, activeColor, inactiveColor)
@@ -62,7 +62,7 @@ Renders text with state-based background icon and color.
 Boolean isMuted = GetMuteState();
 String text = $"{inputName}\n\n{volume}%";
 return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted,
-    "AudioMixerUnmuted.svg", "AudioMixerMuted.svg",
+    "SourceVisibilityOn.svg", "SourceVisibilityOff.svg",
     BitmapColor.Green, BitmapColor.Red);
 ```
 
@@ -126,7 +126,7 @@ public class AudioInputDynamicFolderBase : PluginDynamicFolder
         String text = $"{actionParameter}\n\n{volumePercent}%";
 
         return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted,
-            "AudioMixerUnmuted.svg", "AudioMixerMuted.svg",
+            "SourceVisibilityOn.svg", "SourceVisibilityOff.svg",
             BitmapColor.Green, BitmapColor.Red);
     }
 }
@@ -142,7 +142,7 @@ public class ScenesDynamicFolder : PluginDynamicFolder
     public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
         Boolean isSelected = actionParameter == this._currentScene;
-        return ButtonImageHelper.StateIcon(isSelected, "ScenesSelected.svg", "ScenesUnselected.svg");
+        return ButtonImageHelper.StateIcon(isSelected, "SceneSelected.svg", "SceneUnselected.svg");
     }
 }
 ```

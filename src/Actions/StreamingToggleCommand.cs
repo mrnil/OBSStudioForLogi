@@ -19,8 +19,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return OBSStudioForLogiPlugin.Instance?.IsStreaming ?? false;
         }
 
-        protected override String GetActiveIcon() => "StreamingToggleOff.svg";
+        protected override String GetActiveIcon() => "StreamingOn.svg";
 
-        protected override String GetInactiveIcon() => "StreamingToggleOn.svg";
+        protected override String GetInactiveIcon() => "StreamingOff.svg";
     }
 }

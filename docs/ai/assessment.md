@@ -53,9 +53,9 @@ These folders implement `IObsCommand` and `ISceneAwareCommand` but their scene-c
 public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
 {
     Boolean isSelected = actionParameter == this._currentScene;
-    String icon = isSelected ? "ScenesSelected.svg" : "ScenesUnselected.svg";
+    String icon = isSelected ? "SceneSelected.svg" : "SceneUnselected.svg";
     return ButtonImageHelper.StateTextWithIcon(actionParameter, imageSize, isSelected,
-        "ScenesSelected.svg", "ScenesUnselected.svg",
+        "SceneSelected.svg", "SceneUnselected.svg",
         BitmapColor.Green, BitmapColor.White);
 }
 ```
