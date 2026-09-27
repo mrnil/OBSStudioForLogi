@@ -11,15 +11,24 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly OBSWebSocketManager _obsManager;
         private readonly OBSConfigReader _configReader;
         private readonly OBSLifecycleManager _lifecycleManager;
+        private readonly TimeSpan _retryDelay;
         private PluginConfig _pluginConfig;
         private Int32 _connectAttempts;
+        private CancellationTokenSource _pendingRetry;
+        private Boolean _disposed;
 
         public event EventHandler Connected;
         public event EventHandler Disconnected;
         public event EventHandler WebSocketServerDisabled;
 
         public ConnectionManager(OBSWebSocketManager obsManager, OBSConfigReader configReader, OBSLifecycleManager lifecycleManager)
+            : this(obsManager, configReader, lifecycleManager, TimeSpan.FromMilliseconds(OBSTimings.ConnectRetryDelay))
         {
+        }
+
+        public ConnectionManager(OBSWebSocketManager obsManager, OBSConfigReader configReader, OBSLifecycleManager lifecycleManager, TimeSpan retryDelay)
+        {
+            this._retryDelay = retryDelay;
             this._obsManager = obsManager;
             this._configReader = configReader;
             this._lifecycleManager = lifecycleManager;
@@ -43,6 +52,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         private void OnConnectionEstablished(Object sender, EventArgs e)
         {
+            this.CancelPendingRetry();
             this.Connected?.Invoke(this, EventArgs.Empty);
         }
 
@@ -83,6 +93,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public async Task ConnectAsync()
         {
+            // This attempt supersedes any retry that was waiting to run.
+            this.CancelPendingRetry();
             Interlocked.Increment(ref this._connectAttempts);
             try
             {
@@ -96,7 +108,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         private async Task ConnectCoreAsync()
         {
-            PluginLog.Info("Attempting connection to OBS");
+            PluginLog.Debug("Attempting connection to OBS");
 
             OBSConnectionSettings settings;
 
@@ -132,7 +144,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return;
                 }
 
-                PluginLog.Info($"Waiting for local OBS WebSocket port {settings.Port} to be ready");
+                PluginLog.Debug($"Waiting for local OBS WebSocket port {settings.Port} to be ready");
                 var portReady = await this._lifecycleManager.WaitForPortAsync("127.0.0.1", settings.Port);
 
                 if (portReady)
@@ -143,18 +155,56 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 }
                 else
                 {
-                    PluginLog.Error("OBS WebSocket port did not become available");
+                    // OBS isn't running (yet). Once connected, dropped connections are retried by
+                    // OBSWebSocketManager's reconnect timer, but nothing retried this initial case -
+                    // the plugin stayed disconnected until the user pressed Reconnect.
+                    PluginLog.Warning($"OBS WebSocket port did not become available - retrying in {this._retryDelay.TotalSeconds:0}s");
+                    this.ScheduleRetry();
                 }
             }
         }
 
         public void Disconnect()
         {
+            this.CancelPendingRetry();
             this._obsManager?.Disconnect();
+        }
+
+        private void ScheduleRetry()
+        {
+            if (this._disposed)
+            {
+                return;
+            }
+
+            CancellationTokenSource retry = new CancellationTokenSource();
+            Interlocked.Exchange(ref this._pendingRetry, retry)?.Cancel();
+            _ = this.RetryAfterDelayAsync(retry.Token);
+        }
+
+        private async Task RetryAfterDelayAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                await Task.Delay(this._retryDelay, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+
+            await this.ConnectAsync();
+        }
+
+        private void CancelPendingRetry()
+        {
+            Interlocked.Exchange(ref this._pendingRetry, null)?.Cancel();
         }
 
         public void Dispose()
         {
+            this._disposed = true;
+            this.CancelPendingRetry();
             this._obsManager.ConnectionEstablished -= this.OnConnectionEstablished;
             this._obsManager.ConnectionLost -= this.OnConnectionLost;
             this._obsManager?.Dispose();

@@ -242,7 +242,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnProfileChanged(String oldProfile, String newProfile)
         {
-            PluginLog.Info($"Plugin notified of profile change: '{oldProfile}' -> '{newProfile}'");
+            PluginLog.Debug($"Plugin notified of profile change: '{oldProfile}' -> '{newProfile}'");
             this._commandCoordinator.NotifyProfileChanged(oldProfile, newProfile);
         }
 
@@ -270,7 +270,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnSceneCollectionChanged(String oldSceneCollection, String newSceneCollection)
         {
-            PluginLog.Info($"Plugin notified of scene collection change: '{oldSceneCollection}' -> '{newSceneCollection}'");
+            PluginLog.Debug($"Plugin notified of scene collection change: '{oldSceneCollection}' -> '{newSceneCollection}'");
             this._commandCoordinator.NotifySceneCollectionChanged(oldSceneCollection, newSceneCollection);
         }
 
@@ -291,7 +291,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void OnCurrentSceneChanged(String sceneName)
         {
-            PluginLog.Info($"Plugin notified of scene change: '{sceneName}'");
+            PluginLog.Debug($"Plugin notified of scene change: '{sceneName}'");
             this._commandCoordinator.NotifySceneChanged(sceneName);
             this._obsFacade.UpdateSourcesForScene(sceneName,
                 (scene, sources, audioSources) => this.OnSceneSourcesChanged(scene, sources, audioSources));

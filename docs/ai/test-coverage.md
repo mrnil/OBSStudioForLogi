@@ -20,7 +20,7 @@ The project follows a TDD approach with 393 unit tests using xUnit + Moq (verifi
 | `OBSActionExecutorStudioModeTransitionTests.cs` | Studio mode transition command | ~6 |
 | `OBSWebSocketManagerTests.cs` | Manager lifecycle, disposal | ~4 |
 | `OBSWebSocketManagerStateTests.cs` | State properties delegation | ~6 |
-| `OBSWebSocketManagerReconnectionTests.cs` | Reconnection with exponential backoff | ~4 |
+| `OBSWebSocketManagerReconnectionTests.cs` | Reconnection with exponential backoff; request timeout set and kept across `ConnectAsync`; failed start clears the connecting flag | 7 |
 | `OBSWebSocketManagerLoggingTests.cs` | Log output verification | ~3 |
 | `OBSWebSocketManagerEventDispatchTests.cs` | State propagation through Actions executor | 18 |
 | `ReconnectionStrategyTests.cs` | Backoff delays, attempt counting, error handling | 15 |
@@ -32,7 +32,10 @@ The project follows a TDD approach with 393 unit tests using xUnit + Moq (verifi
 | `CommandCoordinatorTests.cs` | Dispatch-by-interface for every notification type, per-command exception isolation | 24 |
 | `AudioStateCacheTests.cs` | Non-blocking misses, single in-flight fetch, event-vs-fetch precedence, failure backoff, invalidation | 14 |
 | `SessionGateTests.cs` | Once-per-connection gate, including concurrent opens | 4 |
-| `ConnectionManagerTests.cs` | `IsConnecting` during a port wait; `ReconnectAsync` ignores presses mid-attempt | 5 |
+| `ConnectionManagerTests.cs` | `IsConnecting` during a port wait; `ReconnectAsync` ignores presses mid-attempt; retries while the port never comes up, stopped by `Disconnect`/`Dispose` | 8 |
+| `StatsServiceTests.cs` | Poll stores stats, overlapping polls skipped, a throwing provider doesn't block later polls | 4 |
+| `OBSWebsocketAdapterStatsTests.cs` | Null-tolerant `GetStats` parsing | 4 |
+| `LogThrottleTests.cs` | Repeat suppression window, suppressed-count reporting, per-message independence, pruning | 6 |
 | `VolumeConverterTests.cs` | Volume mul→dB conversion and formatting | 10 |
 | `SourceVisibilityTests.cs` | Source visibility toggle and query | ~5 |
 | `VirtualCameraCommandTests.cs` | Virtual camera state and toggle | ~5 |

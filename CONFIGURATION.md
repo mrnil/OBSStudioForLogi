@@ -118,7 +118,7 @@ See `config.sample.json` in the project root for a complete example with default
 
 Plugin logs are written to the Logi Plugin Service log file:
 
-**Windows**: `%LocalAppData%\Logi\LogiPluginService\Logs\`
+**Windows**: `%LocalAppData%\Logi\LogiPluginService\Logs\plugin_logs\OBSStudioForLogi.log`
 
 ## Behaviour Notes
 

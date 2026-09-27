@@ -208,17 +208,24 @@ Tests: `SessionGateTests`, `ConnectionManagerTests`, `AudioStateCacheTests`, `Tr
 
 ---
 
-### 17. Remaining Findings From the 2026-09-27 Log Review (Performance/Reliability)
+### 17. Remaining Findings From the 2026-09-27 Log Review (Performance/Reliability) ✅ Mostly Fixed
 
-**Problem**: Follow-ups from the same review, not yet actioned.
+**Problem**: Follow-ups from the same review as #16.
 
-- **Requests are still synchronous with a 10s timeout.** Set a shorter `WSTimeout` *before* `ConnectAsync` — in 5.7.0 the setter also sets Websocket.Client's no-message `ReconnectTimeout`, so setting it after connecting arms an idle-disconnect watchdog. Guard on `IsIdentified` (new in 5.7.0) rather than `IsConnected`, which is true before the handshake completes.
-- **`StatsService` polls can overlap** — a 5s timer with requests that can block for 10s. Skip a tick while the previous one is in flight. `GetStats` also fails outright when OBS reports `cpuUsage: null` (non-nullable in the library's `ObsStats`).
-- **Other render paths still query OBS**: `SourcesDynamicFolder` (`GetSceneItemEnabled`, two requests per redraw) and `MediaDynamicFolder` (`GetMediaInputStatus`). A scene change also costs ~10 requests via `OBSFacade.UpdateSourcesForScene`.
-- **No retry after the startup port wait gives up.** If OBS isn't running when the plugin loads, the plugin stops trying after 20 attempts and only reconnects on a manual Reconnect (a 2-hour gap in the reviewed log). `ClientApplication.ApplicationStarted` never fired — check the SDK docs on whether `HasNoApplication = true` prevents it.
-- **Logging volume**: routine calls log at Info (`Getting input list`, `Getting scene list`), and a stalled request logs one error per redraw rather than one per incident.
-- **Meter lease churn**: the 3s `AudioMeterRenderLease` still drops and re-takes the `InputVolumeMeters` subscription on page flips. Each toggle is now a single cheap `ReIdentify`, but a longer lease would avoid it.
-- `INSTALL.md` gives the log path as `Logs\OBSStudioForLogiPlugin.log`; the file is actually `Logs\plugin_logs\OBSStudioForLogi.log`.
+**Fix applied**:
+
+- **Connected means identified.** `OBSWebsocketAdapter.IsConnected` and `OBSWebSocketManager.IsConnected` now also require the library's `IsIdentified` (new in 5.7.0); the socket is already open during the handshake, before OBS accepts requests.
+- **3s request timeout** (`OBSTimings.RequestTimeout`, library default 10s), set in the `OBSWebSocketManager` constructor. It must be set before connecting: in 5.7.0 the `WSTimeout` setter also sets Websocket.Client's no-message `ReconnectTimeout`, which would drop a connection whenever OBS went quiet. `ConnectAsync` creates a fresh client with that watchdog off and keeps the request timeout (covered by `ConnectAsync_KeepsRequestTimeout`).
+- **`StatsService` polls no longer overlap** — a tick is skipped while the previous poll is still blocked on OBS. Stats providers are injectable for testing.
+- **Null stats fields no longer fail the poll.** `OBSWebsocketAdapter.GetStats` reads the raw `GetStats` response and treats null or missing fields as 0, instead of the library's `ObsStats`, whose non-nullable doubles threw on `cpuUsage: null`.
+- **Startup keeps retrying.** When OBS's port never comes up, `ConnectionManager` schedules another attempt after `OBSTimings.ConnectRetryDelay` (30s) until connected, `Disconnect` or `Dispose`, instead of giving up until a manual Reconnect. The SDK docs describe `HasNoApplication = true` as a universal plugin with no associated application, and `OBSStudioForLogiApplication.GetApplicationStatus()` returns `Unknown`, so `ApplicationStarted` is not relied on.
+- **Meter lease is 15s** (`OBSTimings.AudioMeterRenderLease`, was 3s), so paging away and back no longer toggles the `InputVolumeMeters` subscription.
+- **Logging volume**: routine calls (`Getting … list`, config reads, per-probe port checks, meter subscribe/unsubscribe, per-tick volume sets) moved from Info to Debug, and `PluginLog` writes each identical warning/error at most once per `OBSTimings.LogRepeatWindow` (60s) via `LogThrottle`, reporting how many repeats were suppressed on the next occurrence.
+- Corrected the Windows log path in `INSTALL.md` and `CONFIGURATION.md`.
+
+**Still open**:
+
+- **Other render paths still query OBS**: `SourcesDynamicFolder` (`GetSceneItemEnabled`, two requests per redraw) and `MediaDynamicFolder` (`GetMediaInputStatus`). A scene change also costs ~10 requests via `OBSFacade.UpdateSourcesForScene`. Same fix as the audio state: cache and update from events (`SceneItemEnableStateChanged`, media playback events).
 
 ---
 
@@ -242,4 +249,4 @@ Tests: `SessionGateTests`, `ConnectionManagerTests`, `AudioStateCacheTests`, `Tr
 | 14 | ~~Low-Medium~~ | ~~Test Reliability~~ | ~~`DoubleTapHelperTests` flaky under full-suite/coverage load~~ ✅ Fixed |
 | 15 | Low-Medium | Test Reliability | Same fixed-sleep race broadly across `OBSActionExecutor*` tests — dozens of call sites, dominant flakiness source now that #14 is fixed |
 | 16 | ~~High~~ | ~~Performance~~ | ~~Reconnect storm on every meter subscription change; blocking OBS requests on the render path~~ ✅ Fixed |
-| 17 | Medium | Performance/Reliability | Remaining log-review findings: request timeout, stats overlap, other render-path queries, startup retry, log volume |
+| 17 | Low | Performance | Remaining log-review finding: source visibility and media status still query OBS on redraw (rest ✅ fixed) |

@@ -235,7 +235,7 @@ Example config.json:
 
 **Plugin Logs:**
 
-- **Windows**: `%LocalAppData%\Logi\LogiPluginService\Logs\OBSStudioForLogiPlugin.log`
+- **Windows**: `%LocalAppData%\Logi\LogiPluginService\Logs\plugin_logs\OBSStudioForLogi.log`
 - **macOS**: `~/Library/Logs/Logi/LogiPluginService/OBSStudioForLogiPlugin.log`
 
 **Logi Plugin Service Logs:**

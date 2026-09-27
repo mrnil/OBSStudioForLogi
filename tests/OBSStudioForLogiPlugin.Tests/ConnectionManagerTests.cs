@@ -78,6 +78,83 @@ public class ConnectionManagerTests : IDisposable
         firstAttempt.Wait(TimeSpan.FromSeconds(5));
     }
 
+    // --- Retrying when OBS isn't up yet ---
+
+    // Builds a manager whose port wait always gives up immediately, with a short retry delay.
+    private ConnectionManager CreateWithPortNeverReady(Mock<OBSLifecycleManager> lifecycle)
+    {
+        lifecycle
+            .Setup(x => x.WaitForPortAsync(It.IsAny<String>(), It.IsAny<Int32>(), It.IsAny<Int32>(), It.IsAny<Int32>()))
+            .ReturnsAsync(false);
+
+        return new ConnectionManager(
+            new OBSWebSocketManager(new Mock<IPluginLog>().Object),
+            new OBSConfigReader { ConfigPath = this._configFile },
+            lifecycle.Object,
+            TimeSpan.FromMilliseconds(50));
+    }
+
+    private static Boolean WaitFor(Func<Boolean> condition)
+    {
+        DateTime deadline = DateTime.UtcNow.AddSeconds(5);
+        while (!condition() && DateTime.UtcNow < deadline)
+        {
+            Thread.Sleep(20);
+        }
+
+        return condition();
+    }
+
+    private static Int32 PortWaits(Mock<OBSLifecycleManager> lifecycle) =>
+        lifecycle.Invocations.Count(i => i.Method.Name == nameof(OBSLifecycleManager.WaitForPortAsync));
+
+    // OBS not running when the plugin loaded used to leave the plugin disconnected until the user
+    // pressed Reconnect - the startup attempt gave up after its port wait and never tried again.
+    [Fact]
+    public void ConnectAsync_WhenPortNeverReady_KeepsRetrying()
+    {
+        Mock<OBSLifecycleManager> lifecycle = new Mock<OBSLifecycleManager>(new Mock<IPluginLog>().Object);
+        ConnectionManager connectionManager = this.CreateWithPortNeverReady(lifecycle);
+
+        _ = connectionManager.ConnectAsync();
+
+        Assert.True(WaitFor(() => PortWaits(lifecycle) >= 3), $"Expected repeated attempts, saw {PortWaits(lifecycle)}");
+        connectionManager.Dispose();
+    }
+
+    [Fact]
+    public void Disconnect_StopsPendingRetries()
+    {
+        Mock<OBSLifecycleManager> lifecycle = new Mock<OBSLifecycleManager>(new Mock<IPluginLog>().Object);
+        ConnectionManager connectionManager = this.CreateWithPortNeverReady(lifecycle);
+        _ = connectionManager.ConnectAsync();
+        Assert.True(WaitFor(() => PortWaits(lifecycle) >= 2));
+
+        connectionManager.Disconnect();
+        Thread.Sleep(100);
+        Int32 afterDisconnect = PortWaits(lifecycle);
+        Thread.Sleep(300);
+
+        Assert.Equal(afterDisconnect, PortWaits(lifecycle));
+        connectionManager.Dispose();
+    }
+
+    [Fact]
+    public void Dispose_StopsPendingRetries()
+    {
+        Mock<OBSLifecycleManager> lifecycle = new Mock<OBSLifecycleManager>(new Mock<IPluginLog>().Object);
+        ConnectionManager connectionManager = this.CreateWithPortNeverReady(lifecycle);
+        _ = connectionManager.ConnectAsync();
+        Assert.True(WaitFor(() => PortWaits(lifecycle) >= 2));
+
+        connectionManager.Dispose();
+        Thread.Sleep(100);
+        Int32 afterDispose = PortWaits(lifecycle);
+        Thread.Sleep(300);
+
+        Assert.Equal(afterDispose, PortWaits(lifecycle));
+    }
+
     [Fact]
     public void ReconnectAsync_WhenIdle_StartsConnectAttempt()
     {

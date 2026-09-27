@@ -5,6 +5,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Linq;
     using System.Threading.Tasks;
     using System.Timers;
+    using Loupedeck.OBSStudioForLogiPlugin.Helpers;
     using OBSWebsocketDotNet;
     using OBSWebsocketDotNet.Communication;
     using OBSWebsocketDotNet.Types;
@@ -25,7 +26,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private Boolean _disposed = false;
         private Boolean _connectingInProgress = false;
 
-        public Boolean IsConnected => this._obs?.IsConnected ?? false;
+        // Connected means identified: the socket is open during the handshake too, before OBS will
+        // accept requests.
+        public Boolean IsConnected => this._obs != null && this._obs.IsConnected && this._obs.IsIdentified;
+        public Boolean IsConnecting => this._connectingInProgress;
+        internal TimeSpan RequestTimeout => this._obs.WSTimeout;
         public Boolean ShouldReconnect => this._shouldReconnect;
         public Boolean IsStreaming => this.Actions.IsStreaming;
         public Boolean IsRecording => this.Actions.IsRecording;
@@ -46,6 +51,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._log = log;
             this._obs = new OBSWebsocket();
+
+            // Set before any connection exists: in obs-websocket-dotnet 5.7.0 the WSTimeout setter also
+            // sets the live Websocket.Client's no-message ReconnectTimeout, so setting it while connected
+            // would drop the connection whenever OBS went quiet for that long. ConnectAsync creates a
+            // fresh client with that watchdog off but keeps this request timeout.
+            this._obs.WSTimeout = TimeSpan.FromMilliseconds(OBSTimings.RequestTimeout);
             this._reconnectionStrategy = new ReconnectionStrategy(log);
             this.Actions = new OBSActionExecutor(new OBSWebsocketAdapter(this._obs), log);
             this.AudioMeters = new AudioMeterService();
@@ -135,7 +146,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 }
 
                 this._obs.InputVolumeMeters += this.OnInputVolumeMeters;
-                this._log.Info($"Subscribed to InputVolumeMeters (requested by '{owner}')");
+                this._log.Debug($"Subscribed to InputVolumeMeters (requested by '{owner}')");
             }
         }
 
@@ -155,7 +166,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
                 this._obs.InputVolumeMeters -= this.OnInputVolumeMeters;
                 this.AudioMeters.Clear();
-                this._log.Info($"Unsubscribed from InputVolumeMeters (last released by '{owner}')");
+                this._log.Debug($"Unsubscribed from InputVolumeMeters (last released by '{owner}')");
             }
         }
 
@@ -379,7 +390,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 try
                 {
                     var scenes = this.Actions.GetSceneList();
-                    this._log.Info($"Loaded {scenes.Length} scenes");
+                    this._log.Debug($"Loaded {scenes.Length} scenes");
                     OBSStudioForLogiPlugin.Instance?.OnScenesChanged(scenes);
                 }
                 catch (Exception ex)
@@ -415,7 +426,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 try
                 {
                     var inputs = this.Actions.GetInputList();
-                    this._log.Info($"Loaded {inputs.Length} inputs");
+                    this._log.Debug($"Loaded {inputs.Length} inputs");
                     OBSStudioForLogiPlugin.Instance?.OnInputsChanged(inputs);
                 }
                 catch (Exception ex)
@@ -576,7 +587,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             if (this.IsConnected || this._connectingInProgress)
             {
-                this._log.Info("Already connected or connection in progress, skipping reconnection attempt");
+                this._log.Debug("Already connected or connection in progress, skipping reconnection attempt");
                 return;
             }
 

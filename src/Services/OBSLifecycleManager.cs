@@ -33,7 +33,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public virtual async Task<Boolean> WaitForPortAsync(String host, Int32 port, Int32 maxAttempts = 20, Int32 delayMs = 1000)
         {
-            this._log.Info($"Waiting for port {port} to be listening (max {maxAttempts} attempts)");
+            this._log.Debug($"Waiting for port {port} to be listening (max {maxAttempts} attempts)");
             
             for (var attempt = 0; attempt < maxAttempts; attempt++)
             {
@@ -43,7 +43,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     return true;
                 }
 
-                this._log.Info($"Port {port} not ready, attempt {attempt + 1}/{maxAttempts}");
+                this._log.Debug($"Port {port} not ready, attempt {attempt + 1}/{maxAttempts}");
                 await Task.Delay(delayMs);
             }
 

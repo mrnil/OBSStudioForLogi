@@ -1,13 +1,17 @@
 namespace Loupedeck.OBSStudioForLogiPlugin.Services
 {
     using System;
+    using System.Threading;
     using System.Timers;
     using Loupedeck.OBSStudioForLogiPlugin.Models;
 
     public class StatsService : IDisposable
     {
-        private readonly Timer _pollTimer;
+        private readonly System.Timers.Timer _pollTimer;
         private readonly Object _lock = new Object();
+        private readonly Func<OBSStats> _getStats;
+        private readonly Func<OBSStreamStats> _getStreamStats;
+        private Int32 _pollInProgress;
         private Boolean _disposed = false;
 
         public OBSStats CurrentStats { get; private set; }
@@ -15,8 +19,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
         public event EventHandler StatsUpdated;
 
         public StatsService(Int32 intervalMs = 5000)
+            : this(intervalMs, () => OBSStudioForLogiPlugin.Instance?.GetStats(), () => OBSStudioForLogiPlugin.Instance?.GetStreamStatus())
         {
-            this._pollTimer = new Timer(intervalMs);
+        }
+
+        public StatsService(Int32 intervalMs, Func<OBSStats> getStats, Func<OBSStreamStats> getStreamStats)
+        {
+            this._getStats = getStats;
+            this._getStreamStats = getStreamStats;
+            this._pollTimer = new System.Timers.Timer(intervalMs);
             this._pollTimer.Elapsed += this.OnPollTimer;
             this._pollTimer.AutoReset = true;
         }
@@ -44,15 +55,26 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
             PluginLog.Info($"StatsService polling interval changed to {intervalMs}ms");
         }
 
-        private void OnPollTimer(Object sender, ElapsedEventArgs e)
+        private void OnPollTimer(Object sender, ElapsedEventArgs e) => this.Poll();
+
+        // The timer fires every interval whether or not the previous poll has finished, and a poll
+        // blocks on OBS for up to the request timeout - so skip this tick rather than stack polls up
+        // behind a slow OBS.
+        internal void Poll()
         {
             if (this._disposed)
                 return;
 
+            if (Interlocked.Exchange(ref this._pollInProgress, 1) == 1)
+            {
+                PluginLog.Debug("StatsService: previous poll still running, skipping this tick");
+                return;
+            }
+
             try
             {
-                var stats = OBSStudioForLogiPlugin.Instance?.GetStats();
-                var streamStats = OBSStudioForLogiPlugin.Instance?.GetStreamStatus();
+                OBSStats stats = this._getStats?.Invoke();
+                OBSStreamStats streamStats = this._getStreamStats?.Invoke();
                 if (stats != null)
                 {
                     lock (this._lock)
@@ -66,6 +88,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
             catch (Exception ex)
             {
                 PluginLog.Warning($"StatsService: Failed to poll stats: {ex.Message}");
+            }
+            finally
+            {
+                Interlocked.Exchange(ref this._pollInProgress, 0);
             }
         }
 

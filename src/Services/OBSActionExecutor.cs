@@ -199,7 +199,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             try
             {
-                this._log.Info("Getting profile list");
+                this._log.Debug("Getting profile list");
                 return this._obs.GetProfileList();
             }
             catch (Exception ex)
@@ -252,7 +252,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             try
             {
-                this._log.Info("Getting scene collection list");
+                this._log.Debug("Getting scene collection list");
                 return this._obs.GetSceneCollectionList();
             }
             catch (Exception ex)
@@ -310,7 +310,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             try
             {
-                this._log.Info("Getting scene list");
+                this._log.Debug("Getting scene list");
                 return this._obs.GetSceneList();
             }
             catch (Exception ex)
@@ -679,7 +679,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             try
             {
-                this._log.Info($"Getting scene item list for '{sceneName}'");
+                this._log.Debug($"Getting scene item list for '{sceneName}'");
                 return this._obs.GetSceneItemList(sceneName);
             }
             catch (Exception ex)
@@ -750,7 +750,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             try
             {
-                this._log.Info("Getting input list");
+                this._log.Debug("Getting input list");
                 return this._obs.GetInputList();
             }
             catch (Exception ex)
@@ -845,9 +845,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 try
                 {
                     var volumePercent = (Int32)(volumeMul * 100);
-                    this._log.Info($"Setting input volume for '{inputName}' to {volumePercent}% ({volumeMul:F2})");
+                    this._log.Debug($"Setting input volume for '{inputName}' to {volumePercent}% ({volumeMul:F2})");
                     this._obs.SetInputVolume(inputName, volumeMul);
-                    this._log.Info($"Successfully set input volume for '{inputName}'");
+                    this._log.Debug($"Successfully set input volume for '{inputName}'");
                 }
                 catch (Exception ex)
                 {
@@ -963,7 +963,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             try
             {
-                this._log.Info($"Getting audio sources for scene '{sceneName}'");
+                this._log.Debug($"Getting audio sources for scene '{sceneName}'");
                 return this._obs.GetAudioSourcesInScene(sceneName);
             }
             catch (Exception ex)

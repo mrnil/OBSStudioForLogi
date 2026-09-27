@@ -28,6 +28,20 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Helpers
         public const Int32 StateUpdateDelay = 100;
 
         /// <summary>
+        /// How long an OBS request waits for a reply before failing (3000ms). The library default is
+        /// 10s, and every request blocks its caller for the whole wait, so a stalled OBS held threads
+        /// (and anything waiting on them) for 10s per request. OBS normally replies in milliseconds.
+        /// </summary>
+        public const Int32 RequestTimeout = 3000;
+
+        /// <summary>
+        /// When OBS isn't running, how long to wait after a connection attempt's port wait gives up
+        /// before starting the next attempt (30000ms). Each attempt already polls the port for about a
+        /// minute (20 probes, each ~2s to fail on Windows plus a 1s gap).
+        /// </summary>
+        public const Int32 ConnectRetryDelay = 30000;
+
+        /// <summary>
         /// Delay after OBS application starts before attempting connection (2000ms).
         /// </summary>
         public const Int32 ConnectionDelay = 2000;
@@ -40,9 +54,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Helpers
 
         /// <summary>
         /// How long individual audio meter buttons keep the InputVolumeMeters subscription alive
-        /// after the SDK last asked for one of their images (3000ms).
+        /// after the SDK last asked for one of their images (15000ms). Each subscribe/unsubscribe
+        /// sends OBS a ReIdentify, so this is long enough to ride out paging away and back rather
+        /// than toggling the subscription on every page flip; idle meters still unsubscribe.
         /// </summary>
-        public const Int32 AudioMeterRenderLease = 3000;
+        public const Int32 AudioMeterRenderLease = 15000;
 
         /// <summary>
         /// While no audio meter button is known to be visible, how often their images are
@@ -55,6 +71,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Helpers
         /// waits before trying that input again, so a stalled OBS isn't hit on every redraw (3000ms).
         /// </summary>
         public const Int32 AudioStateRetryDelay = 3000;
+
+        /// <summary>
+        /// Identical warnings/errors within this window are written once, and the next occurrence
+        /// after it reports how many were suppressed (60000ms).
+        /// </summary>
+        public const Int32 LogRepeatWindow = 60000;
 
         /// <summary>
         /// Test delay for async operations in unit tests.

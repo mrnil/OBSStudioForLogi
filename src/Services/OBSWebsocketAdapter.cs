@@ -2,6 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
     using System.Linq;
+    using Newtonsoft.Json.Linq;
     using OBSWebsocketDotNet;
 
     public class OBSWebsocketAdapter : IOBSWebsocket
@@ -32,7 +33,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs = obs;
         }
 
-        public Boolean IsConnected => this._obs?.IsConnected ?? false;
+        // The socket being open (the library's IsConnected) isn't enough - requests are only valid
+        // once OBS has confirmed identification, and IsConnected is already true during that handshake.
+        public Boolean IsConnected => this._obs != null && this._obs.IsConnected && this._obs.IsIdentified;
 
         public void SetCurrentProgramScene(String sceneName)
         {
@@ -292,23 +295,32 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs?.TriggerStudioModeTransition();
         }
 
+        // Reads the raw response rather than the library's typed GetStats: its ObsStats uses
+        // non-nullable doubles, and OBS can report a field as null (seen for cpuUsage under load),
+        // which made the whole call throw on every poll.
         public Models.OBSStats GetStats()
         {
-            var stats = this._obs?.GetStats();
-            if (stats == null)
+            return this._obs == null ? null : ParseStats(this._obs.SendRequest("GetStats"));
+        }
+
+        internal static Models.OBSStats ParseStats(JObject response)
+        {
+            if (response == null)
+            {
                 return null;
+            }
 
             return new Models.OBSStats
             {
-                Fps = stats.FPS,
-                CpuUsage = stats.CpuUsage,
-                MemoryUsage = stats.MemoryUsage,
-                AverageFrameTime = stats.AverageFrameTime,
-                FreeDiskSpace = stats.FreeDiskSpace,
-                RenderTotalFrames = stats.RenderTotalFrames,
-                RenderMissedFrames = stats.RenderMissedFrames,
-                OutputTotalFrames = stats.OutputTotalFrames,
-                OutputSkippedFrames = stats.OutputSkippedFrames
+                Fps = (Double?)response["activeFps"] ?? 0,
+                CpuUsage = (Double?)response["cpuUsage"] ?? 0,
+                MemoryUsage = (Double?)response["memoryUsage"] ?? 0,
+                AverageFrameTime = (Double?)response["averageFrameRenderTime"] ?? 0,
+                FreeDiskSpace = (Double?)response["availableDiskSpace"] ?? 0,
+                RenderTotalFrames = (Int64?)response["renderTotalFrames"] ?? 0,
+                RenderMissedFrames = (Int64?)response["renderSkippedFrames"] ?? 0,
+                OutputTotalFrames = (Int64?)response["outputTotalFrames"] ?? 0,
+                OutputSkippedFrames = (Int64?)response["outputSkippedFrames"] ?? 0
             };
         }
 

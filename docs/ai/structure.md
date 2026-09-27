@@ -38,10 +38,10 @@ OBSStudioForLogiPlugin/
 |------|---------------|
 | `OBSWebSocketManager.cs` | WebSocket lifecycle, event subscription, reconnection timer |
 | `OBSActionExecutor.cs` | All OBS operations with state tracking and error handling |
-| `OBSWebsocketAdapter.cs` | Thin wrapper over obs-websocket-dotnet library |
+| `OBSWebsocketAdapter.cs` | Thin wrapper over obs-websocket-dotnet library; `IsConnected` requires `IsIdentified`; parses `GetStats` null-tolerantly |
 | `IOBSWebsocket.cs` | Interface for testability (mocked in all tests) |
 | `OBSFacade.cs` | Simplified public interface over OBSWebSocketManager |
-| `ConnectionManager.cs` | Connection lifecycle: config discovery, connect/disconnect; `ReconnectAsync` ignores manual reconnects while connected or mid-attempt |
+| `ConnectionManager.cs` | Connection lifecycle: config discovery, connect/disconnect, retrying every `ConnectRetryDelay` while OBS isn't running; `ReconnectAsync` ignores manual reconnects while connected or mid-attempt |
 | `CommandCoordinator.cs` | Owns event dispatch: per-command exception isolation via generic `NotifyEach<T>()` |
 | `CommandRegistry.cs` | Command store: registration/dedup + generic `GetCommands<T>()` interface filter |
 | `IObsCommand.cs` | 15 notification interfaces (IObsCommand + 14 specialised) |
@@ -49,7 +49,7 @@ OBSStudioForLogiPlugin/
 | `OBSLifecycleManager.cs` | Port availability checking |
 | `PluginConfigReader.cs` | Read/write plugin config JSON |
 | `ReconnectionStrategy.cs` | Exponential backoff with jitter |
-| `StatsService.cs` | Timer-based stats polling |
+| `StatsService.cs` | Timer-based stats polling; skips a tick while the previous poll is still running |
 | `AudioMeterService.cs` | Latest per-input audio meter levels fed by `InputVolumeMeters` (expire after `OBSTimings.AudioMeterStaleThreshold`), the live-input list, and a cached per-input mute state |
 | `AudioStateCache.cs` | Non-blocking per-input mute/volume/monitor type for button rendering: fetches a miss once in the background, kept current by OBS change events |
 
@@ -122,7 +122,8 @@ Note: as of v1.6.0 the `99. User Defined Actions` group has been retired — all
 | `SessionGate.cs` | Opens once per OBS connection so the initial state load ignores repeated `Connected` events (ReIdentify confirmations) |
 | `PressTimingHelper.cs` | DoubleTapHelper: 500ms window single/double tap detection |
 | `OBSTimings.cs` | Centralised timing constants (delays, test timeouts) |
-| `PluginLog.cs` | Static logging facade with configurable level |
+| `PluginLog.cs` | Static logging facade with configurable level; throttles repeated warnings/errors |
+| `LogThrottle.cs` | Writes an identical message at most once per window and counts the suppressed repeats |
 | `IPluginLog.cs` | Interface for injectable logging in services |
 | `PluginResources.cs` | Embedded resource access helper |
 | `LogLevel.cs` | Log level enum |
