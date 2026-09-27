@@ -47,16 +47,15 @@ Several commands can share one file (Recording toggle and Recording Start both u
 
 ## Workflow
 
-1. **Draw with strokes.** Write the icon as 2px round-capped strokes on the 32px grid. For the off slash, clip the glyph with a path covering everything except a 6px-wide band along the slash, then draw the slash on top.
-2. **Flatten.** Convert to filled paths with [picosvg](https://github.com/googlefonts/picosvg) (`pip install picosvg`, then `picosvg source.svg > Icon.svg`). It turns strokes into fills and bakes in clips and transforms. picosvg drops `width`/`height`, so put back `width="32" height="32"` on the root element.
-3. **Make disabled variants by recolouring,** never by redrawing, so they can't drift from the enabled glyph:
+Use the scripts in [`tools/icons/`](../../tools/icons/README.md); its README has setup and step-by-step instructions. In short:
 
-    ```bash
-    sed 's/#396CF6/#666666/g' RecordingOn.svg > RecordingOnDisabled.svg
-    ```
+1. **Draw with strokes** in `ICONS` in `tools/icons/generate_icons.py`: 2px round-capped strokes on the 32px grid. Use its `slashed()` helper for an off state; it clips the glyph so there's a 2px gap either side of the slash.
+2. **Generate** with `python tools/icons/generate_icons.py`. [picosvg](https://github.com/googlefonts/picosvg) flattens the strokes into fill-only paths, and the script restores the 32×32 root element picosvg drops. Regenerating is deterministic, so the diff shows only what you changed.
+3. **Make disabled variants by recolouring,** never by redrawing, so they can't drift from the enabled glyph. Add the enabled icon to `DISABLED` in the same script and it writes `<Name>Disabled.svg`.
+4. **Embed only what code loads:** after referencing the icon from code, run `python tools/icons/sync_csproj.py`. It rewrites the icon `EmbeddedResource` entries in alphabetical order and fails if code names an icon that doesn't exist.
+5. **Check on black at key size.** Add the icon to `FAMILIES` in `tools/icons/build_sheet.py` and run it. Then open `tools/icons/out/icon-reference.html`, which shows every icon at 48–120px next to its family.
 
-4. **Check on black at key size** (48–120px) next to its family before committing.
-5. **Embed only what code loads.** Add an `EmbeddedResource` entry to `src/OBSStudioForLogiPlugin.csproj` (kept in alphabetical order) for each icon referenced from code, and remove the entry when the last reference goes.
+Most of the set was exported from Figma and isn't defined in `generate_icons.py`; the generator leaves those files alone. Move an icon into `ICONS` if it needs redrawing.
 
 ## Placeholders
 

@@ -1,0 +1,250 @@
+<title>OBS for Logi Icon Set</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #F2F3F6;
+    --surface: #FFFFFF;
+    --ink: #151923;
+    --muted: #5A6171;
+    --rule: #D9DCE4;
+    --accent: #396CF6;
+    --accent-ink: #2552D0;
+    --key-edge: #2A2D35;
+    --size: 80px;
+    --sans: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0F1116;
+      --surface: #181B22;
+      --ink: #E6E8EE;
+      --muted: #979EAD;
+      --rule: #2B2F39;
+      --accent-ink: #8AA8FA;
+      --key-edge: #3A3E48;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0F1116;
+    --surface: #181B22;
+    --ink: #E6E8EE;
+    --muted: #979EAD;
+    --rule: #2B2F39;
+    --accent-ink: #8AA8FA;
+    --key-edge: #3A3E48;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.55 var(--sans);
+    padding-inline: 20px;
+    padding-block: 32px 64px;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 48px; }
+  h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.2; }
+  h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.01em; }
+  h2 { font-size: 22px; font-weight: 700; }
+  h3 { font-size: 17px; font-weight: 700; }
+  p { margin: 0; }
+  code { font-family: var(--mono); font-size: 0.86em; }
+  .eyebrow {
+    font: 500 12px/1 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+  .lede { color: var(--muted); max-width: 64ch; }
+  header { display: grid; gap: 12px; }
+
+  /* Keys: always black like the device's LCD keys, whatever the page theme. */
+  .key {
+    width: var(--size);
+    height: var(--size);
+    flex: none;
+    background: var(--key, #000);
+    border-radius: calc(var(--size) * 0.14);
+    box-shadow: 0 0 0 1px var(--key-edge);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  .key svg { width: 100%; height: 100%; display: block; }
+  .key-sm { --size: 56px; }
+
+  /* Spec */
+  .spec { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 20px;
+    display: grid;
+    gap: 14px;
+    align-content: start;
+  }
+  .panel ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .palette li { display: flex; gap: 12px; align-items: center; }
+  .palette div { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; }
+  .palette span:not(.swatch) { grid-column: 1 / -1; color: var(--muted); font-size: 13px; }
+  .palette code { color: var(--muted); align-self: center; }
+  .swatch {
+    width: 36px; height: 36px; flex: none; border-radius: 8px;
+    background: var(--c);
+    box-shadow: inset 0 0 0 1px rgba(127, 127, 127, 0.35);
+  }
+  .rules li { display: grid; grid-template-columns: 112px 1fr; gap: 12px; }
+  .rules strong { font-weight: 500; }
+  .rules span { color: var(--muted); }
+  .state { display: flex; gap: 14px; align-items: flex-start; }
+  .state + .state { border-top: 1px solid var(--rule); padding-top: 14px; }
+  .state-keys { display: flex; gap: 6px; }
+  .state p { color: var(--muted); font-size: 14px; }
+
+  /* Catalogue */
+  .bar { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; }
+  .sizes { display: inline-flex; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .sizes button {
+    font: 500 13px/1 var(--mono);
+    color: var(--muted);
+    background: none;
+    border: 0;
+    padding: 9px 12px;
+    cursor: pointer;
+  }
+  .sizes button + button { border-left: 1px solid var(--rule); }
+  .sizes button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .sizes button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .catalogue { display: grid; gap: 36px; }
+  .family { display: grid; gap: 12px; }
+  .family .note { color: var(--muted); font-size: 14px; }
+  .tiles {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(max(var(--size), 150px), 1fr));
+  }
+  .tile, .pair { margin: 0; display: grid; gap: 8px; align-content: start; }
+  figcaption { display: grid; gap: 2px; min-width: 0; }
+  figcaption code { overflow-wrap: anywhere; }
+  .names { color: var(--muted); }
+  .names code { color: var(--ink); }
+  figcaption span { color: var(--muted); font-size: 13px; line-height: 1.4; }
+
+  /* Changes */
+  .changes { display: grid; gap: 28px; }
+  .pairs { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  .pair-keys { display: flex; align-items: center; gap: 10px; }
+  .pair .key { --size: 64px; }
+  .arrow { color: var(--muted); font-size: 18px; }
+  .table-scroll { overflow-x: auto; }
+  table { border-collapse: collapse; min-width: 420px; }
+  th, td { text-align: left; padding: 7px 18px 7px 0; border-bottom: 1px solid var(--rule); }
+  th { font: 500 12px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .removed { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  .removed li { display: flex; gap: 12px; align-items: center; }
+  .removed div { display: grid; gap: 2px; min-width: 0; }
+  .removed span { color: var(--muted); font-size: 13px; }
+  .two-col { display: grid; gap: 28px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 28px; }
+    .rules li { grid-template-columns: 1fr; gap: 2px; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">src/Resources/icons · {{COUNT}} SVGs</p>
+    <h1>OBS for Logi Icon Set</h1>
+    <p class="lede">Every button icon in the OBS Studio plugin for Logitech and Loupedeck consoles, drawn on black keys as the device shows them. The spec below is the reference for new icons. The full rules live in <code>docs/ai/icon-style.md</code>.</p>
+  </header>
+
+  <section class="spec" aria-label="Icon spec">
+    <div class="panel">
+      <h2>Palette</h2>
+      <ul class="palette">{{PALETTE}}</ul>
+    </div>
+    <div class="panel">
+      <h2>Construction</h2>
+      <ul class="rules">
+        <li><strong>Canvas</strong><span><code>viewBox="0 0 32 32"</code>, 32×32. The SDK scales it to the key.</span></li>
+        <li><strong>Glyph area</strong><span>Inside 4–28px on both axes. No background shapes; code paints the key.</span></li>
+        <li><strong>Line</strong><span>2px outlines with round caps and joins; corners radius 1–2px.</span></li>
+        <li><strong>Markup</strong><span>Filled paths only: no strokes, transforms, masks or clip paths in shipped files. Author with strokes, then flatten with picosvg.</span></li>
+        <li><strong>Names</strong><span><code>&lt;Feature&gt;&lt;State&gt;[Disabled].svg</code>, named after what the picture shows.</span></li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h2>States</h2>
+      {{STATES}}
+    </div>
+  </section>
+
+  <section class="catalogue" aria-labelledby="catalogue-title">
+    <div class="bar">
+      <div>
+        <p class="eyebrow">Catalogue</p>
+        <h2 id="catalogue-title">Icons by feature</h2>
+      </div>
+      <div class="sizes" role="group" aria-label="Key size">
+        <button type="button" id="size-48" data-size="48" aria-pressed="false">48px</button>
+        <button type="button" id="size-80" data-size="80" aria-pressed="true">80px</button>
+        <button type="button" id="size-120" data-size="120" aria-pressed="false">120px</button>
+      </div>
+    </div>
+    {{FAMILIES}}
+  </section>
+
+  <section class="changes" aria-labelledby="changes-title">
+    <div>
+      <p class="eyebrow">Restyle</p>
+      <h2 id="changes-title">What changed</h2>
+    </div>
+    <div class="family">
+      <h3>Redrawn</h3>
+      <p class="note">Old file on the left, new on the right.</p>
+      <div class="pairs">{{REDRAWN}}</div>
+    </div>
+    <div class="two-col">
+      <div class="family">
+        <h3>Renamed</h3>
+        <p class="note">Files now say what they show. The old Streaming names were the wrong way round.</p>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Before</th><th>After</th></tr></thead>
+            <tbody>{{RENAMED}}</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="family">
+        <h3>Removed</h3>
+        <ul class="removed">{{REMOVED}}</ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  (function () {
+    var buttons = document.querySelectorAll(".sizes button");
+    function apply(size) {
+      document.documentElement.style.setProperty("--size", size + "px");
+      buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.size === String(size))); });
+    }
+    var saved = null;
+    try { saved = localStorage.getItem("icon-key-size"); } catch (e) {}
+    if (saved) { apply(saved); }
+    buttons.forEach(function (b) {
+      b.addEventListener("click", function () {
+        apply(b.dataset.size);
+        try { localStorage.setItem("icon-key-size", b.dataset.size); } catch (e) {}
+      });
+    });
+  })();
+</script>

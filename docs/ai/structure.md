@@ -22,6 +22,7 @@ OBSStudioForLogiPlugin/
 ├── .github/workflows/            # CI: dependency-check.yml
 ├── bin/                          # Build output (Debug/Release)
 ├── ci/                           # CI-only PluginApi.dll stub
+├── tools/icons/                  # Icon generator, csproj sync and reference sheet (Python)
 ├── OBSStudioForLogiPlugin.sln
 ├── CHANGELOG.md
 ├── README.md
