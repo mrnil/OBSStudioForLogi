@@ -33,6 +33,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Boolean IsRecordingChanging => this.Actions.IsRecordingChanging;
         public OBSActionExecutor Actions { get; }
         public AudioMeterService AudioMeters { get; }
+        public AudioStateCache AudioState { get; }
 
         public event EventHandler ConnectionEstablished;
         public event EventHandler ConnectionLost;
@@ -48,6 +49,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._reconnectionStrategy = new ReconnectionStrategy(log);
             this.Actions = new OBSActionExecutor(new OBSWebsocketAdapter(this._obs), log);
             this.AudioMeters = new AudioMeterService();
+            this.AudioState = new AudioStateCache(this.Actions.TryGetInputAudioState, this.OnAudioStateFetched);
             this._reconnectTimer = new Timer();
             this._reconnectTimer.Elapsed += this.OnReconnectTimer;
             this._reconnectTimer.AutoReset = false;
@@ -190,6 +192,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             this._log.Info("WebSocket connection established");
             this._connectingInProgress = false;
+            this.AudioState.Clear();
             this._reconnectionStrategy.Reset();
             this._reconnectTimer?.Stop();
             
@@ -253,8 +256,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.Actions.SetReplayBufferState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             this.Actions.SetStudioModeState(false);
 
-            // Mute states may change while disconnected - drop the cache so they're re-queried.
+            // Audio state may change while disconnected - drop the caches so they're re-queried.
             this.AudioMeters.Clear();
+            this.AudioState.Clear();
 
             // NotifyDisconnected is called via OBSStudioForLogiPlugin.OnOBSDisconnected → CommandCoordinator
             
@@ -426,12 +430,21 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             });
         }
 
+        // The cache fetched an input the buttons were showing defaults for - redraw them.
+        private void OnAudioStateFetched(String inputName)
+        {
+            OBSStudioForLogiPlugin.Instance?.OnInputMuteChanged(inputName);
+            OBSStudioForLogiPlugin.Instance?.OnInputVolumeChanged(inputName);
+            OBSStudioForLogiPlugin.Instance?.OnInputMonitorTypeChanged(inputName);
+        }
+
         private void OnInputMuteStateChanged(Object sender, OBSWebsocketDotNet.Types.Events.InputMuteStateChangedEventArgs e)
         {
             if (e?.InputName == null)
                 return;
 
             this.AudioMeters.SetMuted(e.InputName, e.InputMuted);
+            this.AudioState.SetMuted(e.InputName, e.InputMuted);
             OBSStudioForLogiPlugin.Instance?.OnInputMuteChanged(e.InputName);
         }
 
@@ -441,6 +454,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return;
 
             PluginLog.Trace($"Input '{e.Volume.InputName}' volume changed to {e.Volume.InputVolumeMul}");
+            this.AudioState.SetVolume(e.Volume.InputName, e.Volume.InputVolumeMul);
             OBSStudioForLogiPlugin.Instance?.OnInputVolumeChanged(e.Volume.InputName);
         }
 
@@ -500,6 +514,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return;
 
             this._log.Info($"Input '{e.InputName}' audio monitor type changed");
+            this.AudioState.SetMonitorType(e.InputName, e.MonitorType);
             OBSStudioForLogiPlugin.Instance?.OnInputMonitorTypeChanged(e.InputName);
         }
 
@@ -530,6 +545,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private void OnInputRemoved(Object sender, InputRemovedEventArgs e)
         {
             this._log.Info($"Input removed: '{e?.InputName}'");
+            this.AudioState.Remove(e?.InputName);
             OBSStudioForLogiPlugin.Instance?.OnInputListChanged();
         }
 

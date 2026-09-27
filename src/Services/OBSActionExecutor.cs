@@ -894,6 +894,32 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
+        // Reads everything the audio buttons render for one input, for AudioStateCache. Unlike the
+        // single-value getters it returns null instead of a safe default on failure, so a timeout
+        // is retried later rather than cached as if OBS had reported "unmuted, 0 dB".
+        public Models.AudioInputState TryGetInputAudioState(String inputName)
+        {
+            if (String.IsNullOrEmpty(inputName) || !this._obs.IsConnected)
+            {
+                return null;
+            }
+
+            try
+            {
+                return new Models.AudioInputState
+                {
+                    IsMuted = this._obs.GetInputMute(inputName),
+                    VolumeMul = this._obs.GetInputVolume(inputName),
+                    MonitorType = this._obs.GetInputAudioMonitorType(inputName)
+                };
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get audio state for '{inputName}': {ex.Message}");
+                return null;
+            }
+        }
+
         public void CycleInputAudioMonitorType(String inputName)
         {
             Task.Run(() =>

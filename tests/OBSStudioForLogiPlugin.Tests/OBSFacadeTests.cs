@@ -161,6 +161,40 @@ public class OBSFacadeTests
         Assert.Equal("OBS_MONITORING_TYPE_NONE", result);
     }
 
+    // --- Audio state reads come from the cache, not OBS ---
+
+    [Fact]
+    public void GetInputMute_ReturnsCachedState()
+    {
+        this._manager.AudioState.SetMuted("Microphone", true);
+
+        Assert.True(this._facade.GetInputMute("Microphone"));
+    }
+
+    [Fact]
+    public void GetInputVolume_ReturnsCachedState()
+    {
+        this._manager.AudioState.SetVolume("Microphone", 0.3f);
+
+        Assert.Equal(0.3f, this._facade.GetInputVolume("Microphone"));
+    }
+
+    [Fact]
+    public void GetInputAudioMonitorType_ReturnsCachedState()
+    {
+        this._manager.AudioState.SetMonitorType("Microphone", "OBS_MONITORING_TYPE_MONITOR_ONLY");
+
+        Assert.Equal("OBS_MONITORING_TYPE_MONITOR_ONLY", this._facade.GetInputAudioMonitorType("Microphone"));
+    }
+
+    [Fact]
+    public void SetInputVolume_WhenDisconnected_DoesNotUpdateCachedVolume()
+    {
+        this._facade.SetInputVolume("Microphone", 0.5f);
+
+        Assert.Equal(1.0f, this._facade.GetInputVolume("Microphone"));
+    }
+
     // --- Action methods with connection validation ---
 
     [Fact]

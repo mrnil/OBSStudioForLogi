@@ -54,14 +54,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._obsManager?.Actions.GetScenesForInput(inputName) ?? new String[0];
         }
 
+        // Audio state getters are called from button rendering, so they read the cache and never
+        // wait on OBS - see AudioStateCache.
         public Boolean GetInputMute(String inputName)
         {
-            return this._obsManager?.Actions.GetInputMute(inputName) ?? false;
+            return this._obsManager?.AudioState.Get(inputName).IsMuted ?? false;
         }
 
         public Single GetInputVolume(String inputName)
         {
-            return this._obsManager?.Actions.GetInputVolume(inputName) ?? 1.0f;
+            return this._obsManager?.AudioState.Get(inputName).VolumeMul ?? 1.0f;
         }
 
         public Boolean GetSourceVisibility(String sceneName, String sourceName)
@@ -185,12 +187,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return;
             }
 
+            // Record the target right away so the next dial tick builds on it instead of on the
+            // value from before this change, which OBS only confirms with InputVolumeChanged later.
+            this._obsManager.AudioState.SetVolume(inputName, volumeMul);
             this._obsManager.Actions.SetInputVolume(inputName, volumeMul);
         }
 
         public String GetInputAudioMonitorType(String inputName)
         {
-            return this._obsManager?.Actions.GetInputAudioMonitorType(inputName) ?? "OBS_MONITORING_TYPE_NONE";
+            return this._obsManager?.AudioState.Get(inputName).MonitorType ?? Models.AudioInputState.MonitorTypeNone;
         }
 
         public void CycleInputAudioMonitorType(String inputName)

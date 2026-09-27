@@ -51,6 +51,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Helpers
         public const Int32 AudioMeterIdleProbeInterval = 1000;
 
         /// <summary>
+        /// After failing to read an input's audio state from OBS, how long the audio state cache
+        /// waits before trying that input again, so a stalled OBS isn't hit on every redraw (3000ms).
+        /// </summary>
+        public const Int32 AudioStateRetryDelay = 3000;
+
+        /// <summary>
         /// Test delay for async operations in unit tests.
         /// 500ms for CI environments (slower), 100ms for local development.
         /// </summary>

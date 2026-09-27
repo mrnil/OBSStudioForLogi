@@ -335,4 +335,56 @@ public class OBSActionExecutorAudioTests
         System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.ToggleInputMute(It.IsAny<String>()), Times.Never);
     }
+
+    // --- TryGetInputAudioState ---
+
+    [Fact]
+    public void TryGetInputAudioState_WhenConnected_ReturnsMuteVolumeAndMonitorType()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetInputMute("Microphone")).Returns(true);
+        this._mockObs.Setup(x => x.GetInputVolume("Microphone")).Returns(0.5f);
+        this._mockObs.Setup(x => x.GetInputAudioMonitorType("Microphone")).Returns("OBS_MONITORING_TYPE_MONITOR_ONLY");
+
+        Models.AudioInputState state = this._executor.TryGetInputAudioState("Microphone");
+
+        Assert.NotNull(state);
+        Assert.True(state.IsMuted);
+        Assert.Equal(0.5f, state.VolumeMul);
+        Assert.Equal("OBS_MONITORING_TYPE_MONITOR_ONLY", state.MonitorType);
+    }
+
+    [Fact]
+    public void TryGetInputAudioState_WhenNotConnected_ReturnsNullWithoutQueryingOrWarning()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(false);
+
+        Models.AudioInputState state = this._executor.TryGetInputAudioState("Microphone");
+
+        Assert.Null(state);
+        this._mockObs.Verify(x => x.GetInputMute(It.IsAny<String>()), Times.Never);
+        this._mockLog.Verify(x => x.Warning(It.IsAny<String>()), Times.Never);
+    }
+
+    [Fact]
+    public void TryGetInputAudioState_WhenInputNameEmpty_ReturnsNull()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+
+        Assert.Null(this._executor.TryGetInputAudioState(String.Empty));
+        this._mockObs.Verify(x => x.GetInputMute(It.IsAny<String>()), Times.Never);
+    }
+
+    [Fact]
+    public void TryGetInputAudioState_WhenOBSThrows_LogsErrorAndReturnsNull()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetInputMute(It.IsAny<String>())).Returns(false);
+        this._mockObs.Setup(x => x.GetInputVolume(It.IsAny<String>())).Throws(new Exception("OBS error"));
+
+        Models.AudioInputState state = this._executor.TryGetInputAudioState("Microphone");
+
+        Assert.Null(state);
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Microphone") && s.Contains("OBS error"))), Times.Once);
+    }
 }
