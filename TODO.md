@@ -26,7 +26,7 @@
 
 ### Audio
 
-- [ ] Audio level meters (real-time VU meters) — **in progress**, implemented against a temporary obs-websocket-dotnet fork (`B:\development\obs-websocket-dotnet`, branch `feat/high-volume-event-subscription`), not yet committed (the `ProjectReference` uses an absolute local path and would break CI) — see `docs/ai/vu-meters-learnings.md` for current status and remaining steps (real-OBS testing, then reverting to the NuGet package once the fork is upstreamed)
+- [ ] Audio level meters (real-time VU meters) — **in progress**, now built against the published obs-websocket-dotnet 5.7.0 NuGet package (the library changes were upstreamed) — see `docs/ai/vu-meters-learnings.md` for current status and remaining steps
 - [ ] Audio filter enable/disable toggle
 - [ ] Stereo balance controls
 - [ ] Audio quick presets ("Mute All", "Reset All Volumes")

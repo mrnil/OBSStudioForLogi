@@ -1,6 +1,6 @@
 # Release Notes — v2.0.0
 
-**Preview build on the `feat/audio-vu-meters` branch — not merged to `main`, not a tagged release.** See "Known Issue" below before building this yourself.
+**Preview build on the `feat/audio-vu-meters` branch — not merged to `main`, not a tagged release.**
 
 ## New Features
 
@@ -15,11 +15,9 @@ A new **Audio Meters** dynamic folder (`8. Audio › Meters`) shows live, per-ch
 
 **Note on what you'll see**: OBS only reports levels for inputs it considers "active" — in practice this tracks your current scene, plus device-capture inputs like a microphone. An input that isn't in the live scene, or one that's active but has no audio flowing (e.g. a browser source without "Control audio via OBS" enabled), will show its title but no bars. That's expected OBS behavior, not a bug.
 
-## Known Issue
+## Dependency Update
 
-This build depends on a **local, unpublished fork** of `obs-websocket-dotnet` (branch `feat/high-volume-event-subscription`) that adds the high-volume `InputVolumeMeters` event subscription support the meters feature needs. `src/OBSStudioForLogiPlugin.csproj` and the test project both reference it via an absolute local `ProjectReference` path rather than the published NuGet package.
-
-**Practical effect**: this `.lplug4` package runs fine once installed, but the source on this branch will not build on another machine, and will fail CI, until either the fork is published somewhere reachable or its pull request is merged upstream and the reference reverts to the NuGet package. Track progress in `docs/ai/vu-meters-learnings.md`.
+`obs-websocket-dotnet` is upgraded from 5.0.1 to **5.7.0**, the first published release with the high-volume `InputVolumeMeters` event subscription support the meters feature needs (contributed upstream as BarRaider/obs-websocket-dotnet PR #150). Earlier preview builds of this branch depended on a local, unpublished fork of the library; the source now builds anywhere from the public NuGet package.
 
 ## Testing
 
@@ -34,4 +32,4 @@ This build depends on a **local, unpublished fork** of `obs-websocket-dotnet` (b
 
 ## Installation
 
-Install `OBSStudioForLogiPlugin-v2.0.0.lplug4` via Logi Options+ or Loupedeck software. This is a preview build for testing the audio meters feature — not intended for wider distribution until the fork dependency above is resolved.
+Install `OBSStudioForLogiPlugin-v2.0.0.lplug4` via Logi Options+ or Loupedeck software. This is a preview build for testing the audio meters feature.

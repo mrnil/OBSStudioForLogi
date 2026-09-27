@@ -1,12 +1,12 @@
 # VU Meters Implementation Learnings
 
-## Status: Working on a Real Device — Not Yet Committed
+## Status: Working on a Real Device — Using Published obs-websocket-dotnet 5.7.0
 
 ## Overview
 
 Attempted to implement real-time VU meters as a dynamic folder. The core rendering and service architecture is sound, but the OBS WebSocket event subscription model blocked the implementation at the library level (see "Key Findings" below — this is the original blocker analysis, kept for context).
 
-**Current state (2026-09-06)**: confirmed working end-to-end on a real device — bars render and move with live mic input. A local fork of `obs-websocket-dotnet` on branch `feat/high-volume-event-subscription` (at `B:\development\obs-websocket-dotnet\`) implements everything this document originally scoped as needed, plus a cleaner subscription mechanism than planned — see "Update: Actual Implementation" below. `src/OBSStudioForLogiPlugin.csproj` and the test project both currently point at this fork via `ProjectReference` (temporary — intended to be reverted to the NuGet package once the fork is upstreamed via PR). **This `ProjectReference` uses an absolute local path and has not been committed** - pushing it as-is would break CI (the GitHub Actions runner doesn't have this path). Do not commit the `ProjectReference` change until either the fork is published somewhere CI can reach, or the PR merges upstream and the reference reverts to the NuGet package.
+**Current state (2026-09-06)**: confirmed working end-to-end on a real device — bars render and move with live mic input. A local fork of `obs-websocket-dotnet` on branch `feat/high-volume-event-subscription` (at `B:\development\obs-websocket-dotnet\`) implements everything this document originally scoped as needed, plus a cleaner subscription mechanism than planned — see "Update: Actual Implementation" below. The fork was merged upstream (BarRaider/obs-websocket-dotnet PR #150) and published as NuGet `obs-websocket-dotnet` 5.7.0 (2026-09-27); `src/OBSStudioForLogiPlugin.csproj` now uses that package, and the temporary absolute-path `ProjectReference` in both `.csproj` files has been removed.
 
 The plugin-side implementation (`AudioMeterService`, `VuMeterRenderer`, `AudioMetersDynamicFolder`, plumbing through `OBSWebSocketManager`/`OBSFacade`/`OBSStudioForLogiPlugin`) is written, passing tests locally, and verified against real OBS audio.
 
@@ -155,29 +155,29 @@ Key files:
 
 ### 9. Project Reference Switch
 
-To use modified library source instead of NuGet:
+No longer needed (the plugin uses the NuGet package, 5.7.0+). Kept for reference if library changes need to be developed locally again. To use modified library source instead of NuGet:
 
 ```xml
 <!-- Replace in .csproj -->
-<!-- Old: <PackageReference Include="obs-websocket-dotnet" Version="5.0.1" /> -->
+<!-- Old: <PackageReference Include="obs-websocket-dotnet" Version="5.7.0" /> -->
 <!-- New: <ProjectReference Include="..\..\obs-websocket-dotnet\obs-websocket-dotnet\obs-websocket-dotnet.csproj" /> -->
 ```
 
 Test project needs relative path: `..\..\...\obs-websocket-dotnet\obs-websocket-dotnet\obs-websocket-dotnet.csproj`
 
-## Remaining Steps (as of 2026-08-21)
+## Remaining Steps (as of 2026-09-27)
 
 1. [x] Complete obs-websocket-dotnet library modifications — done on the fork (`EventSubscription` enum, typed `InputVolumeMeter` model, auto-subscribing event accessor)
-2. [x] Switch plugin project to local ProjectReference — done, uncommitted (see status note above)
+2. [x] Switch plugin project to local ProjectReference — done, since reverted to NuGet 5.7.0 (see step 9)
 3. [x] Wire `OBSWebSocketManager.SubscribeToVolumeMeters()`/`UnsubscribeFromVolumeMeters()` using the fork's event accessor
 4. [x] Map the fork's typed `InputVolumeMeter`/`ChannelLevel` into the plugin's own `Models.AudioMeterLevels`
-5. [ ] Verify events arrive with non-zero peak values against real OBS
-6. [ ] Test rendering with real data on a real device — tune bar/text layout (see `VuMeterRenderer`'s render-method comment on unverified `DrawText` positioning)
+5. [x] Verify events arrive with non-zero peak values against real OBS — confirmed 2026-09-06 (see "Real-Device Findings")
+6. [x] Test rendering with real data on a real device — done 2026-09-06; the in-image `DrawText` name label was removed and the scale switched to dB (see "Real-Device Findings")
 7. [ ] Decide on `RunCommand`'s tap-to-mute behavior once seen in practice — reconsider double-tap/selection parity with `AudioMixerDynamicFolder` if the simple version feels wrong
 8. [x] Add tests for the new library-facing API surface (`AudioMeterServiceTests.cs`, `VuMeterRendererTests.cs`, `OBSFacadeTests.cs` additions)
-9. [ ] Raise the PR to merge `feat/high-volume-event-subscription` upstream, then revert both `.csproj` files from `ProjectReference` back to the NuGet package once merged and published
+9. [x] Raise the PR to merge `feat/high-volume-event-subscription` upstream, then revert both `.csproj` files from `ProjectReference` back to the NuGet package once merged and published — merged as PR #150, published in 5.7.0
 
-## Files Created (Current — Not Yet Committed)
+## Files Created (committed in `0ff3173`)
 
 - `src/Models/AudioMeterLevels.cs` — plugin-owned model, decoupled from the fork's types
 - `src/Services/AudioMeterService.cs` — level storage (10 tests)
