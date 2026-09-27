@@ -26,7 +26,7 @@
 
 ### Audio
 
-- [x] ~~Audio level meters (real-time VU meters)~~ ✅ Done — `AudioMetersDynamicFolder`, built against obs-websocket-dotnet 5.7.0; see `docs/ai/vu-meters-learnings.md`. Follow-ups done: stale levels expire after 500ms, folder shows only live inputs, live-but-silent baseline, muted styling
+- [x] ~~Audio level meters (real-time VU meters)~~ ✅ Done — `AudioMetersDynamicFolder`, built against obs-websocket-dotnet 5.7.0; see `docs/ai/vu-meters-learnings.md`. Follow-ups done: stale levels expire after 500ms, folder shows only live inputs (renamed "Live Audio Folder"), live-but-silent baseline, per-source Audio Meter action, crossed-out speaker icons for muted/inactive inputs
 - [ ] Audio filter enable/disable toggle
 - [ ] Stereo balance controls
 - [ ] Audio quick presets ("Mute All", "Reset All Volumes")

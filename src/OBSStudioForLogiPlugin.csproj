@@ -124,6 +124,12 @@
     <EmbeddedResource Include="Resources\icons\CurrentScene.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.CurrentScene.svg</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\icons\AudioMeterInactive.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.AudioMeterInactive.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\icons\AudioMeterMuted.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.AudioMeterMuted.svg</LogicalName>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\icons\AudioMixerMuted.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.AudioMixerMuted.svg</LogicalName>
     </EmbeddedResource>

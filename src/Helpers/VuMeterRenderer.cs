@@ -11,7 +11,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private const Single RedThresholdDb = -10f;
         private const Int32 BarMargin = 4;
         private const Int32 BaselineHeight = 2;
-        private const Int32 MutedBorderWidth = 3;
+        private static readonly BitmapColor BaselineColor = new BitmapColor(80, 80, 80);
 
         public enum ColorZone
         {
@@ -59,70 +59,64 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return Math.Max(available / channelCount, 0);
         }
 
-        // A muted input's bars are drawn grey regardless of level, so the color alone says "muted"
-        // even if OBS keeps reporting signal for it.
-        public static MeterColor ResolveBarColor(Single db, Boolean isMuted)
+        public enum TileState
         {
-            if (isMuted)
-                return MeterColor.Muted;
+            Inactive,
+            Muted,
+            Meter
+        }
 
-            switch (GetColorZone(db))
+        // Inactive (OBS isn't reporting the input) wins over muted: a muted input that isn't live
+        // has nothing to meter either way, and "not live" is the more useful thing to show.
+        public static TileState ResolveTileState(Models.AudioMeterLevels levels)
+        {
+            if (levels == null || !levels.IsLive)
             {
-                case ColorZone.Red:
-                    return MeterColor.Red;
-                case ColorZone.Yellow:
-                    return MeterColor.Yellow;
+                return TileState.Inactive;
+            }
+
+            return levels.IsMuted ? TileState.Muted : TileState.Meter;
+        }
+
+        // No name label is drawn here - both meter UIs rely on the SDK's own button title for that.
+        public static BitmapImage Render(Models.AudioMeterLevels levels, PluginImageSize imageSize)
+        {
+            switch (ResolveTileState(levels))
+            {
+                case TileState.Inactive:
+                    return ButtonImageHelper.IconWithBackground("AudioMeterInactive.svg", imageSize, BitmapColor.Black);
+                case TileState.Muted:
+                    return ButtonImageHelper.IconWithBackground("AudioMeterMuted.svg", imageSize, BitmapColor.Black);
                 default:
-                    return MeterColor.Green;
+                    return RenderBars(GetDisplayPeaks(levels), imageSize);
             }
         }
 
-        public enum MeterColor
-        {
-            Green,
-            Yellow,
-            Red,
-            Muted
-        }
-
         // Bar layout is verified against BitmapBuilder.FillRectangle's real signature, already used
-        // by ButtonTextRenderer.RenderTextWithBorder in this codebase. No name label is drawn here -
-        // the folder relies on the SDK's own button title (GetCommandDisplayName not overridden) for that.
-        public static BitmapImage Render(Models.AudioMeterLevels levels, PluginImageSize imageSize)
+        // by ButtonTextRenderer.RenderTextWithBorder in this codebase.
+        private static BitmapImage RenderBars(Single[] channelPeaks, PluginImageSize imageSize)
         {
-            Single[] channelPeaks = GetDisplayPeaks(levels);
-            Boolean isMuted = levels?.IsMuted ?? false;
-
             using (var builder = new BitmapBuilder(imageSize))
             {
                 builder.Clear(BitmapColor.Black);
 
                 Int32 channelCount = channelPeaks.Length;
                 Int32 barWidth = CalculateBarWidth(builder.Width, channelCount);
-                BitmapColor baselineColor = isMuted ? BitmapColor.Red : new BitmapColor(80, 80, 80);
 
                 for (Int32 i = 0; i < channelCount; i++)
                 {
                     Single db = LinearToDb(channelPeaks[i]);
-                    BitmapColor color = GetBitmapColor(ResolveBarColor(db, isMuted));
+                    BitmapColor color = GetBitmapColor(GetColorZone(db));
                     Single fraction = CalculateMeterFraction(db);
                     Int32 barHeight = CalculateBarHeight(fraction, builder.Height);
 
                     Int32 x = BarMargin + i * (barWidth + BarMargin);
                     Int32 y = builder.Height - barHeight;
 
-                    // A thin baseline under each reported channel distinguishes "active but silent"
-                    // (baseline, no bar) from "no data" (nothing at all) - a 0-height bar is
-                    // otherwise invisible on black. The bar, when present, draws over it.
-                    builder.FillRectangle(x, builder.Height - BaselineHeight, barWidth, BaselineHeight, baselineColor);
+                    // A thin baseline under each channel shows the input is live even when silent -
+                    // a 0-height bar is otherwise invisible on black. The bar, when present, draws over it.
+                    builder.FillRectangle(x, builder.Height - BaselineHeight, barWidth, BaselineHeight, BaselineColor);
                     builder.FillRectangle(x, y, barWidth, barHeight, color);
-                }
-
-                // Only draw the muted frame when the input is live - a muted input with no data
-                // is about to drop out of the folder anyway.
-                if (isMuted && channelCount > 0)
-                {
-                    DrawBorder(builder, MutedBorderWidth, BitmapColor.Red);
                 }
 
                 return builder.ToImage();
@@ -130,8 +124,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         }
 
         // A live input reported with no channels (e.g. a browser source with no audio flowing yet)
-        // is drawn as a single silent channel, so it gets the same baseline and muted styling as
-        // any other live-but-silent input instead of an empty black tile.
+        // is drawn as a single silent channel, so it shows the same baseline as any other
+        // live-but-silent input instead of an empty black tile.
         public static Single[] GetDisplayPeaks(Models.AudioMeterLevels levels)
         {
             Single[] channelPeaks = levels?.ChannelPeaks ?? new Single[0];
@@ -144,23 +138,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return channelPeaks;
         }
 
-        private static void DrawBorder(BitmapBuilder builder, Int32 width, BitmapColor color)
+        private static BitmapColor GetBitmapColor(ColorZone zone)
         {
-            builder.FillRectangle(0, 0, builder.Width, width, color);
-            builder.FillRectangle(0, builder.Height - width, builder.Width, width, color);
-            builder.FillRectangle(0, 0, width, builder.Height, color);
-            builder.FillRectangle(builder.Width - width, 0, width, builder.Height, color);
-        }
-
-        private static BitmapColor GetBitmapColor(MeterColor color)
-        {
-            switch (color)
+            switch (zone)
             {
-                case MeterColor.Muted:
-                    return new BitmapColor(128, 128, 128);
-                case MeterColor.Red:
+                case ColorZone.Red:
                     return BitmapColor.Red;
-                case MeterColor.Yellow:
+                case ColorZone.Yellow:
                     return new BitmapColor(255, 200, 0);
                 default:
                     return BitmapColor.Green;

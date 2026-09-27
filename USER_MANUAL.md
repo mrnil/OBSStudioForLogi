@@ -165,7 +165,8 @@ For recording-focused workflows:
 | Audio Select Folder | Folder | Selection-only folder. Single tap to select/deselect a source for global wheel/dial control. No mute action. |
 | Audio Volume Folder | Folder | MX big wheel compatible. Tap a tile to arm the wheel for that source's volume, then turn the wheel to adjust. |
 | Selected Source Volume | Adjustment | Standalone volume control. Drag onto any wheel or dial. Controls volume of the globally selected audio source. Press to reset to 100%. |
-| Audio Meters Folder | Folder | Live VU meters for audio sources that are currently live in OBS. Tap a tile to mute/unmute. See [Audio Meters](#audio-meters). |
+| Live Audio Folder | Folder | Live VU meters for audio sources that are currently live in OBS. Tap a tile to mute/unmute. See [Audio Meters](#audio-meters). |
+| Audio Meter | Button (one per source) | A VU meter for one specific audio source, live or not. Tap to mute/unmute. See [Audio Meters](#audio-meters). |
 
 ### User Defined Actions (Group 99)
 
@@ -262,11 +263,19 @@ Cycle through these with the "Cycle Audio Monitoring" user-defined action, or pr
 
 ### Audio Meters
 
-The Audio Meters folder shows a live level meter for each audio source OBS is currently sending to your program output — for example your microphone and desktop audio, plus any audio sources in the live scene. The folder updates itself as you switch scenes or show, hide, add or remove sources, so you only ever see sources that are actually live.
+There are two ways to see audio levels, both in the **Audio › Meters** group:
+
+- **Live Audio Folder** shows a meter for each audio source OBS is currently sending to your program output — for example your microphone and desktop audio, plus any audio sources in the live scene. The folder updates itself as you switch scenes or show, hide, add or remove sources, so you only ever see sources that are actually live.
+- **Audio Meter** lists every audio source, live or not. Drag the one you want onto a button to keep a meter for that source in a fixed place.
+
+What a meter shows:
 
 - **Bars** — one per channel, on the same -60dB to 0dB scale as OBS's own mixer. Green below -20dB, yellow from -20dB to -10dB, red at -10dB and above.
-- **Thin grey line under the bars** — the source is live but silent. No line at all means OBS isn't sending levels for it.
-- **Red frame, grey bars and a red line** — the source is muted. Tap the tile to unmute it.
+- **Thin grey line under the bars** — the source is live but silent.
+- **Red crossed-out speaker** — the source is live but muted. Tap to unmute it.
+- **Grey crossed-out speaker** — the source isn't live right now (for example, it's only in a scene that isn't on air).
+
+Tapping any meter toggles mute for that source.
 
 Change how often the meters redraw (20, 10 or 5 fps) in Plugin Settings.
 

@@ -252,28 +252,51 @@ public class VuMeterRendererTests
         Assert.Empty(VuMeterRenderer.GetDisplayPeaks(null));
     }
 
-    // --- ResolveBarColor ---
+    // --- ResolveTileState ---
 
-    [Theory]
-    [InlineData(-40f, VuMeterRenderer.MeterColor.Green)]
-    [InlineData(-15f, VuMeterRenderer.MeterColor.Yellow)]
-    [InlineData(-5f, VuMeterRenderer.MeterColor.Red)]
-    public void ResolveBarColor_WhenNotMuted_FollowsColorZone(Single db, VuMeterRenderer.MeterColor expected)
+    [Fact]
+    public void ResolveTileState_NullLevels_ReturnsInactive()
     {
-        var result = VuMeterRenderer.ResolveBarColor(db, isMuted: false);
-
-        Assert.Equal(expected, result);
+        Assert.Equal(VuMeterRenderer.TileState.Inactive, VuMeterRenderer.ResolveTileState(null));
     }
 
-    [Theory]
-    [InlineData(-40f)]
-    [InlineData(-15f)]
-    [InlineData(0f)]
-    [InlineData(Single.NegativeInfinity)]
-    public void ResolveBarColor_WhenMuted_ReturnsMutedRegardlessOfLevel(Single db)
+    [Fact]
+    public void ResolveTileState_NotLive_ReturnsInactive()
     {
-        var result = VuMeterRenderer.ResolveBarColor(db, isMuted: true);
+        var levels = new Models.AudioMeterLevels { IsLive = false };
 
-        Assert.Equal(VuMeterRenderer.MeterColor.Muted, result);
+        Assert.Equal(VuMeterRenderer.TileState.Inactive, VuMeterRenderer.ResolveTileState(levels));
+    }
+
+    [Fact]
+    public void ResolveTileState_NotLiveAndMuted_ReturnsInactive()
+    {
+        var levels = new Models.AudioMeterLevels { IsLive = false, IsMuted = true };
+
+        Assert.Equal(VuMeterRenderer.TileState.Inactive, VuMeterRenderer.ResolveTileState(levels));
+    }
+
+    [Fact]
+    public void ResolveTileState_LiveAndMuted_ReturnsMuted()
+    {
+        var levels = new Models.AudioMeterLevels { IsLive = true, IsMuted = true, ChannelPeaks = new[] { 0.5f } };
+
+        Assert.Equal(VuMeterRenderer.TileState.Muted, VuMeterRenderer.ResolveTileState(levels));
+    }
+
+    [Fact]
+    public void ResolveTileState_LiveAndUnmuted_ReturnsMeter()
+    {
+        var levels = new Models.AudioMeterLevels { IsLive = true, ChannelPeaks = new[] { 0.5f } };
+
+        Assert.Equal(VuMeterRenderer.TileState.Meter, VuMeterRenderer.ResolveTileState(levels));
+    }
+
+    [Fact]
+    public void ResolveTileState_LiveWithNoChannels_ReturnsMeter()
+    {
+        var levels = new Models.AudioMeterLevels { IsLive = true };
+
+        Assert.Equal(VuMeterRenderer.TileState.Meter, VuMeterRenderer.ResolveTileState(levels));
     }
 }

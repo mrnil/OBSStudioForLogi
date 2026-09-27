@@ -260,7 +260,7 @@ Based on the obs-websocket-dotnet library and OBS WebSocket 5.x protocol, here a
 - ✅ **InputMuteStateChanged** - Updates UI when mute state changes in OBS
 - ✅ **InputVolumeChanged** - Updates volume display when changed in OBS
 - ✅ **InputAudioMonitorTypeChanged** - Updates monitoring state display
-- ✅ **InputVolumeMeters** - Real-time audio level data for VU meters (only while the Audio Meters folder is open)
+- ✅ **InputVolumeMeters** - Real-time audio level data for VU meters (only while a meter is on screen)
 
 ### Recommended Additions
 
@@ -320,7 +320,7 @@ void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enable
 - User-defined audio mute toggle (ActionEditorCommand)
 - User-defined audio monitoring cycle (ActionEditorCommand)
 - User-defined audio source selection (ActionEditorCommand)
-- Audio Meters folder (v2.0.0) - real-time dB-scale VU meters for live inputs, with an active-input baseline and muted styling
+- Live Audio Folder and per-source Audio Meter action (v2.0.0) - real-time dB-scale VU meters, with a live-but-silent baseline and crossed-out speaker icons for muted and inactive inputs
 
 ### 🟡 Partially Completed
 

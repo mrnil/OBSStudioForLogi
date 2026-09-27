@@ -64,7 +64,7 @@ OBSStudioForLogiPlugin/
 - `ScenesDynamicFolder`, `SourcesDynamicFolder`, `ProfilesDynamicFolder`, `SceneCollectionsDynamicFolder` (added v1.6.0)
 - `AudioMixerDynamicFolder`, `SceneAudioSourcesDynamicFolder`
 - `AudioSelectDynamicFolder`, `AudioVolumeDynamicFolder`
-- `AudioMetersDynamicFolder` — real-time VU meters; subscribes to `InputVolumeMeters` in `Activate()` and unsubscribes in `Deactivate()`; its button list is the live-input list from `AudioMeterService`, re-checked on every refresh tick
+- `AudioMetersDynamicFolder` ("Live Audio Folder") — real-time VU meters; subscribes to `InputVolumeMeters` in `Activate()` and unsubscribes in `Deactivate()`; its button list is the live-input list from `AudioMeterService`, re-checked on every refresh tick
 - `MediaDynamicFolder`
 - `StatsDynamicFolder`, `StreamStatsDynamicFolder`
 
@@ -82,6 +82,10 @@ OBSStudioForLogiPlugin/
 **Multi-State Select Commands:**
 
 - `ProfileSelectCommand`, `SceneSelectCommand` (added v1.6.0), `SceneCollectionSelectCommand`, `AudioSourceSelectCommand` (added v1.6.0)
+
+**Parameterised Display Commands:**
+
+- `AudioMeterCommand` — one VU meter parameter per audio input; subscribes to `InputVolumeMeters` through an `ActivityLease` renewed by image requests, since plain commands get no `Activate()`/`Deactivate()`
 
 **User-Defined (ActionEditorCommand):**
 
@@ -111,7 +115,8 @@ Note: as of v1.6.0 the `99. User Defined Actions` group has been retired — all
 | `AudioHelpers.cs` | Shared audio button image rendering |
 | `AudioSelectionState.cs` | Static singleton: global selected audio source for wheel/dial |
 | `VolumeConverter.cs` | volumeMul ↔ dB conversion and formatting |
-| `VuMeterRenderer.cs` | VU meter bar rendering, dB scaling and colour zones |
+| `VuMeterRenderer.cs` | VU meter tile state (inactive/muted/meter), bar rendering, dB scaling and colour zones |
+| `ActivityLease.cs` | Touch-renewed lease that lapses when idle; infers button visibility for `AudioMeterCommand` |
 | `PressTimingHelper.cs` | DoubleTapHelper: 500ms window single/double tap detection |
 | `OBSTimings.cs` | Centralised timing constants (delays, test timeouts) |
 | `PluginLog.cs` | Static logging facade with configurable level |

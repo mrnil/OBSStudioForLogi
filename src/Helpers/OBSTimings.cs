@@ -39,6 +39,18 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Helpers
         public const Int32 AudioMeterStaleThreshold = 500;
 
         /// <summary>
+        /// How long individual audio meter buttons keep the InputVolumeMeters subscription alive
+        /// after the SDK last asked for one of their images (3000ms).
+        /// </summary>
+        public const Int32 AudioMeterRenderLease = 3000;
+
+        /// <summary>
+        /// While no audio meter button is known to be visible, how often their images are
+        /// invalidated so a visible button asks to be redrawn and renews the lease (1000ms).
+        /// </summary>
+        public const Int32 AudioMeterIdleProbeInterval = 1000;
+
+        /// <summary>
         /// Test delay for async operations in unit tests.
         /// 500ms for CI environments (slower), 100ms for local development.
         /// </summary>

@@ -24,7 +24,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             Instance = this;
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
-            this.DisplayName = "Audio Meters";
+            this.DisplayName = "Live Audio Folder";
             this.GroupName = "8. Audio###Meters";
             this.Description = "Real-time volume meters for live audio inputs";
 
@@ -51,7 +51,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         // visible. Activate/Deactivate fire on first-instance-open/last-instance-close respectively.
         public override Boolean Activate()
         {
-            PluginLog.Info("AudioMetersDynamicFolder activated - subscribing to volume meters");
+            PluginLog.Info("Live audio folder activated - subscribing to volume meters");
             OBSStudioForLogiPlugin.Instance?.SubscribeToVolumeMeters(SubscriptionOwner);
 
             Int32 refreshMs = new PluginConfigReader().ReadConfig()?.AudioMeterRefreshInterval ?? 100;
@@ -62,7 +62,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override Boolean Deactivate()
         {
-            PluginLog.Info("AudioMetersDynamicFolder deactivated - unsubscribing from volume meters");
+            PluginLog.Info("Live audio folder deactivated - unsubscribing from volume meters");
             this._refreshTimer.Stop();
             OBSStudioForLogiPlugin.Instance?.UnsubscribeFromVolumeMeters(SubscriptionOwner);
             this.SetInputs(new String[0]);

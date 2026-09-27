@@ -74,7 +74,8 @@ The plugin is **not** an OBS extension or plugin. It is a Logi Plugin Service pl
 - Scene Audio Folder (inputs in current scene + inputs not in any scene)
 - Audio Select Folder (dedicated source selection for wheel/dial control)
 - Audio Volume Folder (MX big wheel-compatible adjustment tiles)
-- Audio Meters Folder (real-time per-channel VU meters on a dB scale, tap to mute, configurable refresh rate)
+- Live Audio Folder (real-time per-channel VU meters on a dB scale for live inputs, tap to mute, configurable refresh rate)
+- Audio Meter per-source action (same meter for one chosen input on any button; grey/red crossed-out speaker when not live/muted)
 - Selected Source Volume Adjustment (standalone dial/wheel adjustment)
 
 ### Group 9 — Media
