@@ -10,7 +10,7 @@ public class AudioStateCacheTests
     private readonly List<String> _fetchedNotifications = new List<String>();
     private readonly List<String> _fetchRequests = new List<String>();
     private readonly AudioStateCache _cache;
-    private Func<String, AudioInputState> _fetchResult = _ => new AudioInputState { IsMuted = true, VolumeMul = 0.5f, MonitorType = "OBS_MONITORING_TYPE_MONITOR_ONLY" };
+    private Func<String, AudioInputState?> _fetchResult = _ => new AudioInputState { IsMuted = true, VolumeMul = 0.5f, MonitorType = "OBS_MONITORING_TYPE_MONITOR_ONLY" };
     private DateTime _now = new DateTime(2026, 9, 27, 12, 0, 0, DateTimeKind.Utc);
 
     public AudioStateCacheTests()
