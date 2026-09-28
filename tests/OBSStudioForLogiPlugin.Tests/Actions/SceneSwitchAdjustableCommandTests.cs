@@ -15,26 +15,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests.Actions
         }
 
         [Fact]
-        public void OnConnected_DoesNotThrow()
-        {
-            var command = new SceneSwitchAdjustableCommand();
-
-            var exception = Record.Exception(() => command.OnConnected());
-
-            Assert.Null(exception);
-        }
-
-        [Fact]
-        public void OnDisconnected_DoesNotThrow()
-        {
-            var command = new SceneSwitchAdjustableCommand();
-
-            var exception = Record.Exception(() => command.OnDisconnected());
-
-            Assert.Null(exception);
-        }
-
-        [Fact]
         public void OnProfileChanged_DoesNotThrow()
         {
             var command = new SceneSwitchAdjustableCommand();

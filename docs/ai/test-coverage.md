@@ -53,10 +53,10 @@ The project follows a TDD approach with 393 unit tests using xUnit + Moq (verifi
 | `Actions/RecordingToggleCommandTests.cs` | Toggle command properties | ~1 |
 | `Actions/SceneCollectionSelectCommandTests.cs` | Constructor, singleton | ~1 |
 | `Actions/ScenesDynamicFolderTests.cs` | Constructor, instance property | ~2 |
-| `Actions/SceneSwitchAdjustableCommandTests.cs` | Constructor, interface methods | ~6 |
+| `Actions/SceneSwitchAdjustableCommandTests.cs` | Constructor, no-op interface methods (connect/disconnect only redraw, which needs the SDK) | 4 |
 | `Actions/ScreenshotCommandTests.cs` | Constructor, properties | ~1 |
 | `Actions/StatusDisplayCommandTests.cs` | Display command construction | ~3 |
-| `Actions/SourceVisibilityAdjustableCommandTests.cs` | Constructor, interface methods | ~3 |
+| `Actions/SourceVisibilityAdjustableCommandTests.cs` | Constructor (its interface methods only redraw, which needs the SDK) | 1 |
 | `Actions/AudioMuteAdjustableCommandTests.cs` | Constructor, interface methods | ~3 |
 | `Actions/AudioMonitoringCycleAdjustableCommandTests.cs` | Constructor, interface methods | ~3 |
 | `Actions/AudioSelectAdjustableCommandTests.cs` | Constructor, interface methods | ~3 |
@@ -91,6 +91,7 @@ All `Actions/` classes inherit from SDK base classes (`PluginDynamicCommand`, `P
 - Require the Loupedeck runtime to instantiate properly
 - Call `OBSStudioForLogiPlugin.Instance?.RegisterCommand(this)` in constructors
 - Use `BitmapBuilder`, `EmbeddedResources`, `PluginImageSize` for rendering
+- Throw `NullReferenceException` from `ActionImageChanged()`/`CommandImageChanged()` when created with `new` in a test, because the SDK never registered them — so don't write "does not throw" tests for handlers that redraw
 - Cannot be meaningfully unit tested without mocking the entire framework
 
 ### Static Logging in OBSFacade
