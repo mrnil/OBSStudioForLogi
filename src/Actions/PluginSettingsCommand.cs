@@ -10,6 +10,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private const String IpAddressControlName = "IpAddress";
         private const String PortControlName = "Port";
         private const String PasswordControlName = "Password";
+        private const String ClearPasswordControlName = "ClearPassword";
         private const String PollingIntervalControlName = "PollingInterval";
         private const String MeterRefreshIntervalControlName = "MeterRefreshInterval";
 
@@ -21,7 +22,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.Name = "PluginSettings";
             this.DisplayName = "Plugin Settings";
             this.GroupName = "1. OBS";
-            this.Description = "Configure plugin settings including OBS connection and stats polling. Press to save and apply.";
+            this.Description = "Configure plugin settings including OBS connection and stats polling. Press to save and apply. After saving a password, clear the Password field: the saved password is kept, and the field would otherwise be stored unencrypted in your device profile.";
 
             var localSettings = OBSStudioForLogiPlugin.Instance?.GetLocalOBSSettings();
             var defaultIp = localSettings?.IpAddress ?? "127.0.0.1";
@@ -30,7 +31,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.ActionEditor.AddControlEx(new ActionEditorCheckbox(UseLocalObsControlName, "Use Local OBS").SetDefaultValue(true));
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(IpAddressControlName, $"IP Address (detected: {defaultIp})").SetRequired());
             this.ActionEditor.AddControlEx(new ActionEditorTextbox(PortControlName, $"Port (detected: {defaultPort})").SetRequired());
-            this.ActionEditor.AddControlEx(new ActionEditorTextbox(PasswordControlName, "Password (sensitive)"));
+            this.ActionEditor.AddControlEx(new ActionEditorTextbox(PasswordControlName, "Password (clear after saving; empty keeps saved)"));
+            this.ActionEditor.AddControlEx(new ActionEditorCheckbox(ClearPasswordControlName, "Clear Saved Password").SetDefaultValue(false));
 
             var pollingListbox = new ActionEditorListbox(PollingIntervalControlName, "Stats Polling Interval");
             this.ActionEditor.AddControlEx(pollingListbox);
@@ -71,6 +73,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             actionParameters.TryGetString(IpAddressControlName, out var ipAddress);
             actionParameters.TryGetString(PortControlName, out var portStr);
             actionParameters.TryGetString(PasswordControlName, out var password);
+            actionParameters.TryGetBoolean(ClearPasswordControlName, out var clearPassword);
             actionParameters.TryGetString(PollingIntervalControlName, out var pollingStr);
             actionParameters.TryGetString(MeterRefreshIntervalControlName, out var meterRefreshStr);
 
@@ -103,8 +106,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             // The plugin saves through its own config reader, which holds the encrypted secret
             // store for the password.
-            PluginLog.Info($"PluginSettings: Saving config - UseLocal={useLocal}, IP={config.RemoteIpAddress}, Port={port}, Polling={pollingInterval}ms, MeterRefresh={meterRefreshInterval}ms");
-            OBSStudioForLogiPlugin.Instance?.SaveAndApplyConnectionConfig(config);
+            PluginLog.Info($"PluginSettings: Saving config - UseLocal={useLocal}, IP={config.RemoteIpAddress}, Port={port}, Polling={pollingInterval}ms, MeterRefresh={meterRefreshInterval}ms, ClearPassword={clearPassword}");
+            if (!String.IsNullOrEmpty(password) && !clearPassword)
+            {
+                PluginLog.Info("PluginSettings: Password saved - clear the Password field in the action editor so it isn't kept in the device profile");
+            }
+
+            OBSStudioForLogiPlugin.Instance?.SaveAndApplyConnectionConfig(config, clearPassword);
 
             return true;
         }

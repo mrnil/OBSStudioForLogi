@@ -195,7 +195,8 @@ For remote OBS connections or custom settings, use the **Plugin Settings** actio
 - **Use Local OBS** (checkbox): When checked, auto-discovers local OBS. When unchecked, uses manual settings.
 - **IP Address**: Remote OBS machine IP
 - **Port**: WebSocket port (default 4455)
-- **Password**: WebSocket password
+- **Password**: WebSocket password. It is saved encrypted in the plugin's settings, not in the action. After pressing the action to save, clear this field: an empty field keeps the saved password, and a value left in the field is stored unencrypted in your device profile.
+- **Clear Saved Password** (checkbox): Removes the saved password, for an OBS instance that doesn't use one.
 - **Stats Polling Interval**: How often to refresh stats (2s, 5s, or 10s)
 - **Audio Meter Refresh Rate**: How often the Live Audio Folder and Audio Meter buttons redraw (20, 10, or 5 fps)
 

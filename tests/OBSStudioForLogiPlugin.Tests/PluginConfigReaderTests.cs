@@ -216,6 +216,89 @@ public class PluginConfigReaderTests : IDisposable
         Assert.DoesNotContain("hunter2", File.ReadAllText(this._configPath));
     }
 
+    [Fact]
+    public void SaveEditedConfig_WithEmptyPassword_KeepsStoredPasswordAndReturnsIt()
+    {
+        this._secretStore.Values[PluginConfigReader.RemotePasswordSecretName] = "stored";
+        PluginConfig config = new PluginConfig { UseLocalObs = false, RemotePassword = "" };
+
+        Boolean result = this._reader.SaveEditedConfig(config, clearStoredPassword: false);
+
+        Assert.True(result);
+        Assert.Equal("stored", config.RemotePassword);
+        Assert.Equal("stored", this._secretStore.Values[PluginConfigReader.RemotePasswordSecretName]);
+    }
+
+    [Fact]
+    public void SaveEditedConfig_WithNullPassword_KeepsStoredPassword()
+    {
+        this._secretStore.Values[PluginConfigReader.RemotePasswordSecretName] = "stored";
+        PluginConfig config = new PluginConfig { RemotePassword = null! };
+
+        this._reader.SaveEditedConfig(config, clearStoredPassword: false);
+
+        Assert.Equal("stored", config.RemotePassword);
+        Assert.Equal("stored", this._secretStore.Values[PluginConfigReader.RemotePasswordSecretName]);
+    }
+
+    [Fact]
+    public void SaveEditedConfig_WithNewPassword_ReplacesStoredPassword()
+    {
+        this._secretStore.Values[PluginConfigReader.RemotePasswordSecretName] = "stored";
+        PluginConfig config = new PluginConfig { RemotePassword = "new" };
+
+        this._reader.SaveEditedConfig(config, clearStoredPassword: false);
+
+        Assert.Equal("new", config.RemotePassword);
+        Assert.Equal("new", this._secretStore.Values[PluginConfigReader.RemotePasswordSecretName]);
+    }
+
+    [Fact]
+    public void SaveEditedConfig_WithClearChecked_DeletesStoredPassword()
+    {
+        this._secretStore.Values[PluginConfigReader.RemotePasswordSecretName] = "stored";
+        PluginConfig config = new PluginConfig { RemotePassword = "" };
+
+        this._reader.SaveEditedConfig(config, clearStoredPassword: true);
+
+        Assert.Equal("", config.RemotePassword);
+        Assert.False(this._secretStore.Values.ContainsKey(PluginConfigReader.RemotePasswordSecretName));
+    }
+
+    // Asking to clear wins over a typed password, so a password is never kept after the user
+    // asked for it to be removed.
+    [Fact]
+    public void SaveEditedConfig_WithClearCheckedAndNewPassword_DeletesStoredPassword()
+    {
+        this._secretStore.Values[PluginConfigReader.RemotePasswordSecretName] = "stored";
+        PluginConfig config = new PluginConfig { RemotePassword = "new" };
+
+        this._reader.SaveEditedConfig(config, clearStoredPassword: true);
+
+        Assert.Equal("", config.RemotePassword);
+        Assert.False(this._secretStore.Values.ContainsKey(PluginConfigReader.RemotePasswordSecretName));
+    }
+
+    [Fact]
+    public void SaveEditedConfig_WithEmptyPasswordAndNothingStored_SavesWithoutPassword()
+    {
+        PluginConfig config = new PluginConfig { RemotePassword = "" };
+
+        Boolean result = this._reader.SaveEditedConfig(config, clearStoredPassword: false);
+
+        Assert.True(result);
+        Assert.Equal("", config.RemotePassword);
+        Assert.False(this._secretStore.Values.ContainsKey(PluginConfigReader.RemotePasswordSecretName));
+    }
+
+    [Fact]
+    public void SaveEditedConfig_WhenNull_ReturnsFalse()
+    {
+        Boolean result = this._reader.SaveEditedConfig(null!, clearStoredPassword: false);
+
+        Assert.False(result);
+    }
+
     private sealed class FakeSecretStore : ISecretStore
     {
         public Dictionary<String, String> Values { get; } = new Dictionary<String, String>();

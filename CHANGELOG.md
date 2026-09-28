@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 - The remote OBS password is no longer written to `config.json`. It is kept in the plugin settings, which the Logi Plugin Service stores encrypted, and a password saved by an earlier version is moved there on first load
+- An empty Password field in Plugin Settings now keeps the saved password, so the field can be cleared after saving. The Logi Plugin Service stores Action Editor values unencrypted in the device profile. A new **Clear Saved Password** checkbox removes the saved password
 
 ### Fixed
 

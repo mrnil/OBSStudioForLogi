@@ -10,7 +10,8 @@
 ### Assessment: Remote OBS Password Stored in Plaintext (#19)
 
 - [x] ~~Keep `RemotePassword` out of `config.json`: store it through the SDK's encrypted plugin settings and migrate existing plaintext values~~ ✅ Done
-- [ ] Stop the password reaching the device profile: the Logi Plugin Service saves the Plugin Settings action's Password text box in plaintext in `ProfileInfo.json`
+- [x] ~~Stop the password staying in the device profile: an empty Password field keeps the saved password, the action tells users to clear it after saving, and a "Clear Saved Password" checkbox removes it~~ ✅ Done
+- [ ] Check on a device: save a password, clear the field and save again (still connects), then use Clear Saved Password (connects without one)
 
 ### Assessment: Verify net10.0 Runtime Compatibility (#12) ✅ Done
 

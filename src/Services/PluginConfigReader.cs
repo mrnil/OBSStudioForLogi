@@ -117,6 +117,30 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
         }
 
         /// <summary>
+        /// Saves settings entered in the Plugin Settings action. The Logi Plugin Service keeps
+        /// Action Editor values in plaintext in the device profile, so users are asked to clear the
+        /// Password field after saving: an empty field keeps the stored password, and only
+        /// <paramref name="clearStoredPassword"/> removes it. On return, config.RemotePassword holds
+        /// the password in effect, so the caller can connect with it.
+        /// </summary>
+        public Boolean SaveEditedConfig(PluginConfig config, Boolean clearStoredPassword)
+        {
+            if (config == null)
+                return false;
+
+            if (clearStoredPassword)
+            {
+                config.RemotePassword = "";
+            }
+            else if (String.IsNullOrEmpty(config.RemotePassword) && this._secretStore != null)
+            {
+                config.RemotePassword = this.ReadStoredPassword();
+            }
+
+            return this.SaveConfig(config);
+        }
+
+        /// <summary>
         /// Gets the configuration file path.
         /// </summary>
         public String ConfigPath => this._configPath;

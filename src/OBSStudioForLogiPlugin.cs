@@ -63,9 +63,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._obsConfigReader?.ReadConfig();
         }
 
-        public void SaveAndApplyConnectionConfig(PluginConfig config)
+        public void SaveAndApplyConnectionConfig(PluginConfig config, Boolean clearStoredPassword)
         {
-            if (!this._pluginConfigReader.SaveConfig(config))
+            if (!this._pluginConfigReader.SaveEditedConfig(config, clearStoredPassword))
             {
                 PluginLog.Error("Failed to save plugin config - not applying it");
                 return;

@@ -6,7 +6,7 @@ Reassessed on 2026-09-28 against `main`: version 2.0.0, not yet tagged. The last
 
 Item numbers stay the same between assessments because `TODO.md`, commit messages and `CHANGELOG.md` refer to them. Open items from earlier passes keep their original numbers. New findings start at #18. Fixed items are summarised under [Resolved](#resolved); for their full write-ups, see `git log -p -- docs/ai/assessment.md`.
 
-**Open**: #3, #5, #8, #9, #15, #18–#24. Priority order is in the [Summary Table](#summary-table).
+**Open**: #3, #5, #8, #9, #15, #18, #20–#24. Priority order is in the [Summary Table](#summary-table).
 
 ---
 
@@ -25,21 +25,6 @@ Carried over from #17 ("Still open"), with one more call site.
 A scene change also costs about 10 requests through `OBSFacade.UpdateSourcesForScene`. This is the same class of bug that caused the 2026-09-27 device lag. When OBS is slow, each tile waits up to `OBSTimings.RequestTimeout` (3s).
 
 **Fix**: Do what `AudioStateCache` does: serve renders from a cache keyed by (scene, source), return a default and fetch in the background on a miss, and keep the cache current from `SceneItemEnableStateChanged` (already subscribed) and the `MediaInputPlayback*` events. Clear it on disconnect and on scene-collection change.
-
----
-
-### 19. Remote OBS Password Stored in Plaintext (Security): Partly Fixed
-
-**Fixed so far**: `config.json` no longer holds the password. `PluginConfig.RemotePassword` is `[JsonIgnore]`. `PluginConfigReader` stores the password through `ISecretStore`, which the plugin backs with the SDK's plugin settings (`SetPluginSetting`, `backupOnline: false`). The Logi Plugin Service stores these encrypted on Windows and macOS, so DPAPI and Keychain code isn't needed. On the first read, a plaintext password left by an older version is saved to the store and removed from the file. If the store rejects it, the file is left as it was and the plaintext copy is still used, so the password is never lost. The read that uses the store happens in `Load()`, because the SDK doesn't document whether plugin settings work in the plugin constructor.
-
-**Still open**: the password is typed into the Plugin Settings action's `Password (sensitive)` text box, which is an Action Editor control. The Logi Plugin Service saves Action Editor values in the device profile (`%LocalAppData%\Logi\LogiPluginService\Applications\<device>\<app>\Profiles\<id>\ProfileInfo.json`), and the password is in plaintext there. This was confirmed on 2026-09-28 against a profile with the action assigned.
-
-**Fix**: The SDK has no masked or non-persisted text box, so the password must not stay in the action's parameters. Options:
-
-- Treat an empty Password field as "keep the stored password", tell users to clear the field after saving, and add a "Clear saved password" checkbox for removing it. The plaintext copy then lasts only until the user clears the field.
-- Move password entry out of the Action Editor completely, for example into a plugin-level settings UI if the SDK offers one.
-
-`docs/ai/secure-coding.md` records the rule against collecting secrets through Action Editor controls.
 
 ---
 
@@ -155,6 +140,7 @@ A scene change also costs about 10 requests through `OBSFacade.UpdateSourcesForS
 | 14 | Test Reliability | `DoubleTapHelperTests` fixed-sleep race replaced with a bounded poll | Unreleased (2.0.0) |
 | 16 | Performance | Reconnect storm on meter subscription changes; blocking audio requests on the render path | Unreleased (2.0.0) |
 | 17 | Performance | Log-review follow-ups: identified-only `IsConnected`, 3s request timeout, non-overlapping stats polls, null-tolerant stats, startup retry, 15s meter lease, log throttling. The remaining part became #18. | Unreleased (2.0.0) |
+| 19 | Security | Remote OBS password moved out of `config.json` into the SDK's encrypted plugin settings, with migration. The Action Editor field is persisted in plaintext in the device profile, so an empty field now keeps the saved password, users are told to clear it after saving, and a "Clear Saved Password" checkbox removes it. A value left in the field still sits in the profile. Needs a device check | Unreleased (2.0.0) |
 
 ---
 
@@ -165,7 +151,6 @@ Open items, in the order to work on them.
 | # | Priority | Area | Issue |
 |---|----------|------|-------|
 | 18 | High | Performance | Source visibility and media status still make blocking OBS requests on redraw (three render paths) |
-| 19 | High | Security | Remote OBS password: out of `config.json` now, but still saved in plaintext in the device profile by the Action Editor text box |
 | 20 | Medium | Architecture | Services call `OBSStudioForLogiPlugin.Instance`, and the plugin calls command singletons directly |
 | 21 | Medium | Correctness | `InputNameChanged` not handled: renamed inputs leave stale folders, cache entries and user-defined buttons |
 | 22 | Medium | Docs | AI docs describe `ButtonImageHelper` methods that don't exist (drift brought back by the #3 revert) |
