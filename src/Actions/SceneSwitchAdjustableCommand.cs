@@ -4,7 +4,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Threading.Tasks;
     using Loupedeck.OBSStudioForLogiPlugin.Helpers;
 
-    public class SceneSwitchAdjustableCommand : ActionEditorCommand, IObsCommand, IProfileAwareCommand, ISceneCollectionAwareCommand, IScenesListAwareCommand
+    public class SceneSwitchAdjustableCommand : ActionEditorCommand, IObsCommand, IProfileAwareCommand, ISceneCollectionAwareCommand, IScenesListAwareCommand, ISceneAwareCommand
     {
         private const String ProfileNameControlName = "ProfileName";
         private const String CollectionNameControlName = "CollectionName";
@@ -163,14 +163,29 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return true;
         }
 
+        protected override BitmapImage GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
+        {
+            actionParameters.TryGetString(SceneNameControlName, out String sceneName);
+            String currentScene = OBSStudioForLogiPlugin.Instance?.GetCurrentScene() ?? String.Empty;
+            Boolean isSelected = !String.IsNullOrEmpty(sceneName) && sceneName == currentScene;
+            return ButtonImageHelper.Icon(isSelected ? "SceneSelected.svg" : "SceneUnselected.svg");
+        }
+
         public void OnConnected()
         {
             PluginLog.Debug("SceneSwitchAdjustableCommand: OnConnected called");
+            this.ActionImageChanged();
         }
 
         public void OnDisconnected()
         {
             PluginLog.Debug("SceneSwitchAdjustableCommand: OnDisconnected called");
+            this.ActionImageChanged();
+        }
+
+        public void OnSceneChanged(String sceneName)
+        {
+            this.ActionImageChanged();
         }
 
         public void OnProfileChanged(String oldProfile, String newProfile)

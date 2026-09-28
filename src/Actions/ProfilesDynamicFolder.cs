@@ -18,7 +18,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             Instance = this;
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
-            this.DisplayName = "OBS Profiles";
+            this.DisplayName = "Profiles";
             this.GroupName = "6. Profiles";
             this.Description = "Folder of available OBS profiles";
         }
@@ -26,6 +26,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public override PluginDynamicFolderNavigation GetNavigationArea(DeviceType _)
         {
             return PluginDynamicFolderNavigation.ButtonArea;
+        }
+
+        public override BitmapImage GetButtonImage(PluginImageSize imageSize)
+        {
+            return ButtonImageHelper.Icon("ProfileUnselected.svg");
         }
 
         public override IEnumerable<String> GetButtonPressActionNames(DeviceType deviceType)

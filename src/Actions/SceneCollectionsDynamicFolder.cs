@@ -15,7 +15,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             Instance = this;
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
-            this.DisplayName = "OBS Scene Collections";
+            this.DisplayName = "Scene Collections";
             this.GroupName = "7. Scenes";
             this.Description = "Folder of available OBS scene collections";
         }
@@ -23,6 +23,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public override PluginDynamicFolderNavigation GetNavigationArea(DeviceType _)
         {
             return PluginDynamicFolderNavigation.ButtonArea;
+        }
+
+        public override BitmapImage GetButtonImage(PluginImageSize imageSize)
+        {
+            return ButtonImageHelper.Icon("SceneCollectionUnselected.svg");
         }
 
         public override IEnumerable<String> GetButtonPressActionNames(DeviceType deviceType)

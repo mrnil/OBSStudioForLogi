@@ -25,6 +25,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return PluginDynamicFolderNavigation.ButtonArea;
         }
 
+        public override BitmapImage GetButtonImage(PluginImageSize imageSize)
+        {
+            return ButtonImageHelper.Icon("AudioMediaFolder.svg");
+        }
+
         public override IEnumerable<String> GetButtonPressActionNames(DeviceType deviceType)
         {
             return this._mediaInputs.Select(this.CreateCommandName);

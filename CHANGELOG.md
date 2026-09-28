@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Button icons restyled to one consistent set: 2px outline glyphs on a 32px grid, a fixed five-colour palette, a slash for off states, grey for unavailable actions, and a tick for the selected scene, scene collection and profile
 - Virtual Camera Start/Stop now show a camera instead of the recording dot and square
 - Streaming Start/Stop grey out when unavailable, like Recording and Virtual Camera, instead of showing the opposite state in full colour
+- Toggle Source Visibility (User defined) shows the source's visibility, following the first source when several are listed
+- Switch to Scene (User Defined) shows a tick when its scene is the current scene
+- The Profiles, Scene Collections and Media Controls folder buttons show an icon instead of their name
+- Renamed the `OBS Profiles` and `OBS Scene Collections` folders to `Profiles` and `Scene Collections`
 - The Reconnect button's icon is redrawn in white so it reads on the green, amber and red status backgrounds
 - The OBS Scenes folder has its own folder icon
 

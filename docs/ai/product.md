@@ -57,13 +57,13 @@ The plugin is **not** an OBS extension or plugin. It is a Logi Plugin Service pl
 
 ### Group 6 — Profiles
 
-- **Available Profiles** sub-group: Profile Select (multi-state), OBS Profiles Dynamic Folder
+- **Available Profiles** sub-group: Profile Select (multi-state), Profiles Dynamic Folder
 - Current Profile Display
 
 ### Group 7 — Scenes
 
 - **Available Scenes** sub-group: Scene Select (multi-state — new in v1.6.0)
-- **Available Collections** sub-group: Scene Collection Select, OBS Scene Collections Dynamic Folder (new in v1.6.0)
+- **Available Collections** sub-group: Scene Collection Select, Scene Collections Dynamic Folder (new in v1.6.0)
 - **User Defined** sub-group: Switch to Scene, Toggle Source Visibility
 - Sources Folder (visibility toggle), Current Scene Display, Current Scene Collection Display
 - Studio mode aware: switches to preview when studio mode enabled, program when disabled
