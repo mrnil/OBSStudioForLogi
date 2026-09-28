@@ -4,7 +4,7 @@
 
 ### Assessment: Source Visibility and Media Status Query OBS on Redraw (#18)
 
-- [ ] Cache source visibility per (scene, source), kept current from `SceneItemEnableStateChanged`; serve `SourcesDynamicFolder` and `SourceVisibilityAdjustableCommand` renders from it
+- [x] ~~Cache source visibility per (scene, source), kept current from `SceneItemEnableStateChanged`; serve `SourcesDynamicFolder` and `SourceVisibilityAdjustableCommand` renders from it~~ ✅ Done
 - [ ] Cache media status, kept current from the `MediaInputPlayback*` events; serve `MediaDynamicFolder` renders from it
 
 ### Assessment: Remote OBS Password Stored in Plaintext (#19)

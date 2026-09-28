@@ -53,6 +53,7 @@ OBSStudioForLogiPlugin/
 | `StatsService.cs` | Timer-based stats polling; skips a tick while the previous poll is still running |
 | `AudioMeterService.cs` | Latest per-input audio meter levels fed by `InputVolumeMeters` (expire after `OBSTimings.AudioMeterStaleThreshold`), the live-input list, and a cached per-input mute state |
 | `AudioStateCache.cs` | Non-blocking per-input mute/volume/monitor type for button rendering: fetches a miss once in the background, kept current by OBS change events |
+| `KeyedStateCache.cs` | The same non-blocking pattern for one value per key; `OBSWebSocketManager.SourceVisibility` uses it keyed by (scene, source) |
 
 ### `src/Actions/` — Loupedeck SDK Commands (SDK-dependent, exempt from strict TDD)
 

@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Media buttons now refresh when playback starts — `MediaInputPlaybackStarted` always arrived with no input name in library 5.0.1, so the event was ignored
 - OBS requests that never receive a response now time out after 10s and are logged, instead of blocking indefinitely (library 5.0.1 did not enforce its request timeout)
+- Scene Sources and Toggle Source Visibility buttons no longer wait on OBS each time they are drawn, so a slow OBS no longer stalls the device while they are on screen. Their state is read once and then kept up to date from OBS's visibility events
 
 ## [1.6.2] - 2026-08-21
 

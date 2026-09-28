@@ -27,17 +27,18 @@ The project follows a TDD approach with 393 unit tests using xUnit + Moq (verifi
 | `OBSConfigReaderTests.cs` | Config file parsing, validation, IsServerDisabled | 10 |
 | `OBSConnectionSettingsTests.cs` | Connection settings model, localhost validation | ~5 |
 | `OBSLifecycleManagerTests.cs` | Port checking, wait logic | ~3 |
-| `OBSFacadeTests.cs` | Facade disconnected state, safe defaults, connection validation, cache-backed audio getters | 52 |
+| `OBSFacadeTests.cs` | Facade disconnected state, safe defaults, connection validation, cache-backed audio and source visibility getters | 56 |
 | `CommandRegistryTests.cs` | Registration, deduplication, generic `GetCommands<T>()` filtering | 6 |
 | `CommandCoordinatorTests.cs` | Dispatch-by-interface for every notification type, per-command exception isolation | 24 |
 | `AudioStateCacheTests.cs` | Non-blocking misses, single in-flight fetch, event-vs-fetch precedence, failure backoff, invalidation | 14 |
+| `KeyedStateCacheTests.cs` | Same as `AudioStateCacheTests` for the single-value cache, plus `TryFetch` failures and `RemoveWhere` | 19 |
 | `SessionGateTests.cs` | Once-per-connection gate, including concurrent opens | 4 |
 | `ConnectionManagerTests.cs` | `IsConnecting` during a port wait; `ReconnectAsync` ignores presses mid-attempt; retries while the port never comes up, stopped by `Disconnect`/`Dispose` | 8 |
 | `StatsServiceTests.cs` | Poll stores stats, overlapping polls skipped, a throwing provider doesn't block later polls | 4 |
 | `OBSWebsocketAdapterStatsTests.cs` | Null-tolerant `GetStats` parsing | 4 |
 | `LogThrottleTests.cs` | Repeat suppression window, suppressed-count reporting, per-message independence, pruning | 6 |
 | `VolumeConverterTests.cs` | Volume mul→dB conversion and formatting | 10 |
-| `SourceVisibilityTests.cs` | Source visibility toggle and query | ~5 |
+| `SourceVisibilityTests.cs` | Source visibility toggle and query, `TryGetSceneItemEnabled` cache fetch | 11 |
 | `VirtualCameraCommandTests.cs` | Virtual camera state and toggle | ~5 |
 | `ManualReconnectTests.cs` | Manual reconnect trigger | ~1 |
 | `OBSActionExecutorStatsAndMediaTests.cs` | Stats, stream status, media input methods | 17 |

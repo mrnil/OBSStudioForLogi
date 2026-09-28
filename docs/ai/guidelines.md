@@ -307,7 +307,7 @@ public void OnDisconnected()
 
 ### Rendering Must Not Block on OBS
 
-`GetCommandImage`, `GetAdjustmentValue` and similar are called on the SDK's render threads, and every OBS request blocks until OBS answers (up to the websocket timeout). Render only from state the plugin already holds. Audio mute/volume/monitor type come from `AudioStateCache` via the plugin's `GetInputMute`/`GetInputVolume`/`GetInputAudioMonitorType`, which never wait on OBS.
+`GetCommandImage`, `GetAdjustmentValue` and similar are called on the SDK's render threads, and every OBS request blocks until OBS answers (up to the websocket timeout). Render only from state the plugin already holds. Audio mute/volume/monitor type come from `AudioStateCache` via the plugin's `GetInputMute`/`GetInputVolume`/`GetInputAudioMonitorType`, and source visibility comes from `OBSWebSocketManager.SourceVisibility` (a `KeyedStateCache`) via `GetSourceVisibility`; neither waits on OBS. For new render state, use a `KeyedStateCache` kept current by the matching OBS event rather than a query.
 
 ### ToggleCommandBase — For Toggle Commands
 
@@ -504,7 +504,7 @@ public class OBSActionExecutorTests
 
 ### Async Fire-and-Forget Testing
 
-Don't sleep and hope the background work has finished — that raced the thread pool under full-suite load (assessment #15). Classes that fire work in the background take an `Action<Action>` runner in their constructor (`OBSActionExecutor`, `AudioStateCache`). Pass `action => action()` to run it inline, then assert straight away:
+Don't sleep and hope the background work has finished — that raced the thread pool under full-suite load (assessment #15). Classes that fire work in the background take an `Action<Action>` runner in their constructor (`OBSActionExecutor`, `AudioStateCache`, `KeyedStateCache`). Pass `action => action()` to run it inline, then assert straight away:
 
 ```csharp
 [Fact]

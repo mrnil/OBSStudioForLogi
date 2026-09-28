@@ -717,6 +717,28 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
+        // Fetch for the source visibility cache. Unlike GetSceneItemEnabled it reports failure
+        // instead of returning false, so a timeout is retried later rather than cached as "hidden".
+        public Boolean TryGetSceneItemEnabled(String sceneName, String sourceName, out Boolean enabled)
+        {
+            enabled = false;
+            if (String.IsNullOrEmpty(sceneName) || String.IsNullOrEmpty(sourceName) || !this._obs.IsConnected)
+            {
+                return false;
+            }
+
+            try
+            {
+                enabled = this._obs.GetSceneItemEnabled(sceneName, sourceName);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get visibility of '{sourceName}' in scene '{sceneName}': {ex.Message}");
+                return false;
+            }
+        }
+
         public void ToggleSourceVisibility(String sceneName, String sourceName)
         {
             this._runInBackground(() =>

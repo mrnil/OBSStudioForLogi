@@ -18,13 +18,15 @@ Carried over from #17 ("Still open"), with one more call site.
 
 **Problem**: #16 moved audio rendering onto `AudioStateCache`, but three render methods still make blocking OBS requests on the SDK's render thread:
 
-- `SourcesDynamicFolder.GetCommandImage` → `GetSourceVisibility` (`GetSceneItemId` + `GetSceneItemEnabled`, two requests per tile per redraw)
-- `SourceVisibilityAdjustableCommand.GetCommandImage` → `GetSourceVisibility`. This is new in the uncommitted working-tree change and only runs while connected.
-- `MediaDynamicFolder.GetCommandImage` → `GetMediaInputStatus`
+- ~~`SourcesDynamicFolder.GetCommandImage` → `GetSourceVisibility` (`GetSceneItemId` + `GetSceneItemEnabled`, two requests per tile per redraw)~~ Fixed: reads `OBSWebSocketManager.SourceVisibility`.
+- ~~`SourceVisibilityAdjustableCommand.GetCommandImage` → `GetSourceVisibility`~~ Fixed by the same change.
+- `MediaDynamicFolder.GetCommandImage` → `GetMediaInputStatus`. Still open, and `RunCommand` also queries it on the SDK thread.
 
 A scene change also costs about 10 requests through `OBSFacade.UpdateSourcesForScene`. This is the same class of bug that caused the 2026-09-27 device lag. When OBS is slow, each tile waits up to `OBSTimings.RequestTimeout` (3s).
 
 **Fix**: Do what `AudioStateCache` does: serve renders from a cache keyed by (scene, source), return a default and fetch in the background on a miss, and keep the cache current from `SceneItemEnableStateChanged` (already subscribed) and the `MediaInputPlayback*` events. Clear it on disconnect and on scene-collection change.
+
+**Progress**: `KeyedStateCache` is in place and source visibility uses it: `SceneItemEnableStateChanged` writes into it, and connect, disconnect, collection change and scene item add/remove clear it. Remaining: media state on the same cache (plus `MediaInputActionTriggered` for pause/stop), and moving `UpdateSourcesForScene` off the OBS event thread.
 
 ---
 

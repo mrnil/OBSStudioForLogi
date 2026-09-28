@@ -56,9 +56,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._obsManager?.AudioState.Get(inputName).VolumeMul ?? 1.0f;
         }
 
+        // Also called from button rendering - reads the cache, never waits on OBS.
         public Boolean GetSourceVisibility(String sceneName, String sourceName)
         {
-            return this._obsManager?.Actions.GetSceneItemEnabled(sceneName, sourceName) ?? false;
+            if (String.IsNullOrEmpty(sceneName) || String.IsNullOrEmpty(sourceName))
+            {
+                return false;
+            }
+
+            return this._obsManager?.SourceVisibility.Get((sceneName, sourceName)) ?? false;
         }
 
         public void SwitchScene(String sceneName)

@@ -39,6 +39,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public OBSActionExecutor Actions { get; }
         public AudioMeterService AudioMeters { get; }
         public AudioStateCache AudioState { get; }
+        public KeyedStateCache<(String Scene, String Source), Boolean> SourceVisibility { get; }
 
         public event EventHandler ConnectionEstablished;
         public event EventHandler ConnectionLost;
@@ -61,6 +62,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.Actions = new OBSActionExecutor(new OBSWebsocketAdapter(this._obs), log);
             this.AudioMeters = new AudioMeterService();
             this.AudioState = new AudioStateCache(this.Actions.TryGetInputAudioState, this.OnAudioStateFetched);
+            this.SourceVisibility = new KeyedStateCache<(String Scene, String Source), Boolean>(
+                this.TryFetchSourceVisibility, this.OnSourceVisibilityFetched, false, "source visibility");
             this._reconnectTimer = new Timer();
             this._reconnectTimer.Elapsed += this.OnReconnectTimer;
             this._reconnectTimer.AutoReset = false;
@@ -204,6 +207,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._log.Info("WebSocket connection established");
             this._connectingInProgress = false;
             this.AudioState.Clear();
+            this.SourceVisibility.Clear();
             this._reconnectionStrategy.Reset();
             this._reconnectTimer?.Stop();
             
@@ -271,9 +275,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.Actions.SetReplayBufferState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             this.Actions.SetStudioModeState(false);
 
-            // Audio state may change while disconnected - drop the caches so they're re-queried.
+            // State may change while disconnected - drop the caches so they're re-queried.
             this.AudioMeters.Clear();
             this.AudioState.Clear();
+            this.SourceVisibility.Clear();
 
             // NotifyDisconnected is called via OBSStudioForLogiPlugin.OnOBSDisconnected → CommandCoordinator
             
@@ -346,6 +351,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             var oldSceneCollection = this.Actions.CurrentSceneCollection;
             this.Actions.SetCurrentSceneCollectionState(e.SceneCollectionName);
+
+            // A different collection can reuse scene and source names with different visibility.
+            this.SourceVisibility.Clear();
             this._log.Info($"Current scene collection changed to '{e.SceneCollectionName}'");
             
             // Notify SceneCollectionSelectCommand
@@ -444,6 +452,17 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.OnInputMonitorTypeChanged(inputName);
         }
 
+        private Boolean TryFetchSourceVisibility((String Scene, String Source) key, out Boolean enabled)
+        {
+            return this.Actions.TryGetSceneItemEnabled(key.Scene, key.Source, out enabled);
+        }
+
+        // The cache fetched a source the buttons were showing "hidden" for - redraw them.
+        private void OnSourceVisibilityFetched((String Scene, String Source) key)
+        {
+            OBSStudioForLogiPlugin.Instance?.OnSourceVisibilityChanged(key.Scene, key.Source);
+        }
+
         private void OnInputMuteStateChanged(Object sender, OBSWebsocketDotNet.Types.Events.InputMuteStateChangedEventArgs e)
         {
             if (e?.InputName == null)
@@ -504,11 +523,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     if (item != null && !String.IsNullOrEmpty(item.SourceName))
                     {
                         this._log.Info($"Scene item '{item.SourceName}' visibility changed to {e.SceneItemEnabled} in scene '{e.SceneName}'");
+
+                        // Buttons show the source's first item in the scene (GetSceneItemEnabled
+                        // looks the source up by name), so a duplicate item must not overwrite it.
+                        SceneItemDetails firstItem = sceneItems.First(i => i.SourceName == item.SourceName);
+                        if (firstItem.ItemId == item.ItemId)
+                        {
+                            this.SourceVisibility.Set((e.SceneName, item.SourceName), e.SceneItemEnabled);
+                        }
+
                         OBSStudioForLogiPlugin.Instance?.OnSourceVisibilityChanged(e.SceneName, item.SourceName);
                     }
                 }
                 catch (Exception ex)
                 {
+                    // Without the source name the cached entry can't be found - drop the scene's
+                    // entries so its buttons re-read OBS rather than keep showing the old state.
+                    this.SourceVisibility.RemoveWhere(key => key.Scene == e.SceneName);
                     this._log.Warning($"Failed to process scene item visibility change: {ex.Message}");
                 }
             });
@@ -530,6 +561,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return;
 
             this._log.Info($"Scene item created in scene '{e.SceneName}'");
+            this.SourceVisibility.RemoveWhere(key => key.Scene == e.SceneName);
             OBSStudioForLogiPlugin.Instance?.OnSceneItemsChanged(e.SceneName);
         }
 
@@ -539,6 +571,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return;
 
             this._log.Info($"Scene item removed from scene '{e.SceneName}'");
+            this.SourceVisibility.RemoveWhere(key => key.Scene == e.SceneName);
             OBSStudioForLogiPlugin.Instance?.OnSceneItemsChanged(e.SceneName);
         }
 

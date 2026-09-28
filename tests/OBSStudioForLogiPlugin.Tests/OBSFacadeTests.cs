@@ -172,6 +172,26 @@ public class OBSFacadeTests
     }
 
     [Fact]
+    public void GetSourceVisibility_ReturnsCachedState()
+    {
+        this._manager.SourceVisibility.Set(("Scene1", "Source1"), true);
+
+        Assert.True(this._facade.GetSourceVisibility("Scene1", "Source1"));
+        Assert.False(this._facade.GetSourceVisibility("Scene2", "Source1"));
+    }
+
+    [Theory]
+    [InlineData("", "Source1")]
+    [InlineData("Scene1", "")]
+    [InlineData(null, "Source1")]
+    public void GetSourceVisibility_WhenNameEmpty_ReturnsFalseWithoutReadingCache(String? sceneName, String sourceName)
+    {
+        this._manager.SourceVisibility.Set((sceneName!, sourceName), true);
+
+        Assert.False(this._facade.GetSourceVisibility(sceneName!, sourceName));
+    }
+
+    [Fact]
     public void SetInputVolume_WhenDisconnected_DoesNotUpdateCachedVolume()
     {
         this._facade.SetInputVolume("Microphone", 0.5f);

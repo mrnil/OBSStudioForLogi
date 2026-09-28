@@ -69,7 +69,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         }
 
         // Multiple sources toggle independently and can disagree, so the icon
-        // follows the first one; this also keeps it to one OBS query per redraw.
+        // follows the first one.
         protected override BitmapImage GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
         {
             Boolean isVisible = false;

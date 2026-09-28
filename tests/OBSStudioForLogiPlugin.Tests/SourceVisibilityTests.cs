@@ -79,5 +79,57 @@ public class SourceVisibilityTests
 
         Assert.False(result);
     }
+
+    // --- TryGetSceneItemEnabled (source visibility cache fetch) ---
+
+    [Fact]
+    public void TryGetSceneItemEnabled_WhenConnected_ReturnsTrueWithState()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetSceneItemEnabled("Scene1", "Source1")).Returns(true);
+
+        Boolean fetched = this._executor.TryGetSceneItemEnabled("Scene1", "Source1", out Boolean enabled);
+
+        Assert.True(fetched);
+        Assert.True(enabled);
+    }
+
+    [Fact]
+    public void TryGetSceneItemEnabled_WhenNotConnected_ReturnsFalseWithoutQuerying()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(false);
+
+        Boolean fetched = this._executor.TryGetSceneItemEnabled("Scene1", "Source1", out Boolean enabled);
+
+        Assert.False(fetched);
+        Assert.False(enabled);
+        this._mockObs.Verify(x => x.GetSceneItemEnabled(It.IsAny<String>(), It.IsAny<String>()), Times.Never);
+    }
+
+    [Theory]
+    [InlineData("", "Source1")]
+    [InlineData("Scene1", "")]
+    public void TryGetSceneItemEnabled_WhenNameEmpty_ReturnsFalseWithoutQuerying(String sceneName, String sourceName)
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+
+        Boolean fetched = this._executor.TryGetSceneItemEnabled(sceneName, sourceName, out Boolean _);
+
+        Assert.False(fetched);
+        this._mockObs.Verify(x => x.GetSceneItemEnabled(It.IsAny<String>(), It.IsAny<String>()), Times.Never);
+    }
+
+    [Fact]
+    public void TryGetSceneItemEnabled_WhenOBSThrows_LogsErrorAndReturnsFalse()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetSceneItemEnabled("Scene1", "Source1")).Throws(new Exception("OBS error"));
+
+        Boolean fetched = this._executor.TryGetSceneItemEnabled("Scene1", "Source1", out Boolean enabled);
+
+        Assert.False(fetched);
+        Assert.False(enabled);
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Source1") && s.Contains("OBS error"))), Times.Once);
+    }
 }
 
