@@ -73,6 +73,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Helpers
         public const Int32 AudioStateRetryDelay = 3000;
 
         /// <summary>
+        /// The same retry delay for KeyedStateCache (source visibility and media state) (3000ms).
+        /// </summary>
+        public const Int32 RenderStateRetryDelay = 3000;
+
+        /// <summary>
         /// Identical warnings/errors within this window are written once, and the next occurrence
         /// after it reports how many were suppressed (60000ms).
         /// </summary>
