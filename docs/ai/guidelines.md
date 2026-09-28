@@ -307,7 +307,7 @@ public void OnDisconnected()
 
 ### Rendering Must Not Block on OBS
 
-`GetCommandImage`, `GetAdjustmentValue` and similar are called on the SDK's render threads, and every OBS request blocks until OBS answers (up to the websocket timeout). Render only from state the plugin already holds. Audio mute/volume/monitor type come from `AudioStateCache` via the plugin's `GetInputMute`/`GetInputVolume`/`GetInputAudioMonitorType`, and source visibility comes from `OBSWebSocketManager.SourceVisibility` (a `KeyedStateCache`) via `GetSourceVisibility`; neither waits on OBS. For new render state, use a `KeyedStateCache` kept current by the matching OBS event rather than a query.
+`GetCommandImage`, `GetAdjustmentValue` and similar are called on the SDK's render threads, and every OBS request blocks until OBS answers (up to the websocket timeout). Render only from state the plugin already holds. Audio mute/volume/monitor type come from `AudioStateCache` via the plugin's `GetInputMute`/`GetInputVolume`/`GetInputAudioMonitorType`, and source visibility and media state come from `OBSWebSocketManager.SourceVisibility`/`MediaState` (both `KeyedStateCache`) via `GetSourceVisibility`/`GetMediaInputStatus`; none of these wait on OBS. A button press that decides what to do from OBS state (like the media single tap) should read it live in the executor's background runner, not from the render cache. For new render state, use a `KeyedStateCache` kept current by the matching OBS event rather than a query.
 
 ### ToggleCommandBase — For Toggle Commands
 

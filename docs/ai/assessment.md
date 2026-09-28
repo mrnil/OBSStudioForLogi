@@ -20,13 +20,18 @@ Carried over from #17 ("Still open"), with one more call site.
 
 - ~~`SourcesDynamicFolder.GetCommandImage` → `GetSourceVisibility` (`GetSceneItemId` + `GetSceneItemEnabled`, two requests per tile per redraw)~~ Fixed: reads `OBSWebSocketManager.SourceVisibility`.
 - ~~`SourceVisibilityAdjustableCommand.GetCommandImage` → `GetSourceVisibility`~~ Fixed by the same change.
-- `MediaDynamicFolder.GetCommandImage` → `GetMediaInputStatus`. Still open, and `RunCommand` also queries it on the SDK thread.
+- ~~`MediaDynamicFolder.GetCommandImage` → `GetMediaInputStatus`~~ Fixed: reads `OBSWebSocketManager.MediaState`. `RunCommand`'s single tap now reads the live state in the background via `ToggleMediaInputPlayback`.
 
 A scene change also costs about 10 requests through `OBSFacade.UpdateSourcesForScene`. This is the same class of bug that caused the 2026-09-27 device lag. When OBS is slow, each tile waits up to `OBSTimings.RequestTimeout` (3s).
 
 **Fix**: Do what `AudioStateCache` does: serve renders from a cache keyed by (scene, source), return a default and fetch in the background on a miss, and keep the cache current from `SceneItemEnableStateChanged` (already subscribed) and the `MediaInputPlayback*` events. Clear it on disconnect and on scene-collection change.
 
-**Progress**: `KeyedStateCache` is in place and source visibility uses it: `SceneItemEnableStateChanged` writes into it, and connect, disconnect, collection change and scene item add/remove clear it. Remaining: media state on the same cache (plus `MediaInputActionTriggered` for pause/stop), and moving `UpdateSourcesForScene` off the OBS event thread.
+**Progress**: All three render paths now read from a `KeyedStateCache`:
+
+- Source visibility is kept current by `SceneItemEnableStateChanged`. Connect, disconnect, collection change and scene item add/remove clear it.
+- Media state is kept current by `MediaInputPlaybackStarted`/`Ended` and the newly subscribed `MediaInputActionTriggered`, which covers pause, resume and stop. Connect, disconnect, collection change and `InputRemoved` clear it.
+
+Remaining: move `UpdateSourcesForScene` off the OBS event thread.
 
 ---
 

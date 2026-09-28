@@ -5,7 +5,9 @@
 ### Assessment: Source Visibility and Media Status Query OBS on Redraw (#18)
 
 - [x] ~~Cache source visibility per (scene, source), kept current from `SceneItemEnableStateChanged`; serve `SourcesDynamicFolder` and `SourceVisibilityAdjustableCommand` renders from it~~ ✅ Done
-- [ ] Cache media status, kept current from the `MediaInputPlayback*` events; serve `MediaDynamicFolder` renders from it
+- [x] ~~Cache media status, kept current from the `MediaInputPlayback*` events; serve `MediaDynamicFolder` renders from it~~ ✅ Done
+- [ ] Move `UpdateSourcesForScene` (about 10 requests per scene change) off the OBS event thread
+- [ ] Check on a device: media tiles follow play/pause/stop from both the device and OBS's own controls
 
 ### Assessment: Remote OBS Password Stored in Plaintext (#19)
 

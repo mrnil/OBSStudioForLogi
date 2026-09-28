@@ -6,7 +6,7 @@
 OBSStudioForLogiPlugin/
 ├── src/                          # Plugin source code
 │   ├── Actions/                  # Loupedeck SDK command/folder classes (49 files)
-│   ├── Helpers/                  # Utility classes (11 files)
+│   ├── Helpers/                  # Utility classes (16 files)
 │   ├── Models/                   # Data models (4 files)
 │   ├── Services/                 # Business logic and OBS integration (17 files)
 │   ├── Resources/icons/          # SVG button icons (40 files; rules in docs/ai/icon-style.md)
@@ -53,7 +53,7 @@ OBSStudioForLogiPlugin/
 | `StatsService.cs` | Timer-based stats polling; skips a tick while the previous poll is still running |
 | `AudioMeterService.cs` | Latest per-input audio meter levels fed by `InputVolumeMeters` (expire after `OBSTimings.AudioMeterStaleThreshold`), the live-input list, and a cached per-input mute state |
 | `AudioStateCache.cs` | Non-blocking per-input mute/volume/monitor type for button rendering: fetches a miss once in the background, kept current by OBS change events |
-| `KeyedStateCache.cs` | The same non-blocking pattern for one value per key; `OBSWebSocketManager.SourceVisibility` uses it keyed by (scene, source) |
+| `KeyedStateCache.cs` | The same non-blocking pattern for one value per key; `OBSWebSocketManager.SourceVisibility` uses it keyed by (scene, source), `OBSWebSocketManager.MediaState` keyed by input name |
 
 ### `src/Actions/` — Loupedeck SDK Commands (SDK-dependent, exempt from strict TDD)
 
@@ -124,6 +124,7 @@ Note: as of v1.6.0 the `99. User Defined Actions` group has been retired — all
 | `SessionGate.cs` | Opens once per OBS connection so the initial state load ignores repeated `Connected` events (ReIdentify confirmations) |
 | `PressTimingHelper.cs` | DoubleTapHelper: 500ms window single/double tap detection |
 | `OBSTimings.cs` | Centralised timing constants (delays, test timeouts) |
+| `MediaInputStates.cs` | OBS media state/action names, the state each action leaves an input in, and the media button's single-tap action |
 | `PluginLog.cs` | Static logging facade with configurable level; throttles repeated warnings/errors |
 | `LogThrottle.cs` | Writes an identical message at most once per window and counts the suppressed repeats |
 | `IPluginLog.cs` | Interface for injectable logging in services |

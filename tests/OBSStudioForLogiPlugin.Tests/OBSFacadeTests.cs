@@ -192,6 +192,34 @@ public class OBSFacadeTests
     }
 
     [Fact]
+    public void GetMediaInputStatus_WhenNotCached_ReturnsNone()
+    {
+        Assert.Equal("OBS_MEDIA_STATE_NONE", this._facade.GetMediaInputStatus("Video"));
+    }
+
+    [Fact]
+    public void GetMediaInputStatus_ReturnsCachedState()
+    {
+        this._manager.MediaState.Set("Video", "OBS_MEDIA_STATE_PAUSED");
+
+        Assert.Equal("OBS_MEDIA_STATE_PAUSED", this._facade.GetMediaInputStatus("Video"));
+    }
+
+    [Fact]
+    public void GetMediaInputStatus_WhenNameEmpty_ReturnsNone()
+    {
+        Assert.Equal("OBS_MEDIA_STATE_NONE", this._facade.GetMediaInputStatus(String.Empty));
+    }
+
+    [Fact]
+    public void ToggleMediaInputPlayback_WhenDisconnected_DoesNotThrow()
+    {
+        Exception? ex = Record.Exception(() => this._facade.ToggleMediaInputPlayback("Video"));
+
+        Assert.Null(ex);
+    }
+
+    [Fact]
     public void SetInputVolume_WhenDisconnected_DoesNotUpdateCachedVolume()
     {
         this._facade.SetInputVolume("Microphone", 0.5f);

@@ -387,6 +387,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsFacade.TriggerMediaInputAction(inputName, mediaAction);
         }
 
+        public void ToggleMediaInputPlayback(String inputName)
+        {
+            this._obsFacade.ToggleMediaInputPlayback(inputName);
+        }
+
         public String[] GetMediaInputList()
         {
             return this._obsFacade.GetMediaInputList();

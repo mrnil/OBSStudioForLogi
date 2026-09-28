@@ -140,6 +140,105 @@ public class OBSActionExecutorStatsAndMediaTests
         Assert.Equal("OBS_MEDIA_STATE_NONE", result);
     }
 
+    // TryGetMediaInputStatus tests (media state cache fetch)
+
+    [Fact]
+    public void TryGetMediaInputStatus_WhenConnected_ReturnsTrueWithState()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetMediaInputStatus("Video")).Returns("OBS_MEDIA_STATE_PAUSED");
+
+        Boolean fetched = this._executor.TryGetMediaInputStatus("Video", out String state);
+
+        Assert.True(fetched);
+        Assert.Equal("OBS_MEDIA_STATE_PAUSED", state);
+    }
+
+    [Fact]
+    public void TryGetMediaInputStatus_WhenNotConnected_ReturnsFalseWithoutQuerying()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(false);
+
+        Boolean fetched = this._executor.TryGetMediaInputStatus("Video", out String state);
+
+        Assert.False(fetched);
+        Assert.Equal("OBS_MEDIA_STATE_NONE", state);
+        this._mockObs.Verify(x => x.GetMediaInputStatus(It.IsAny<String>()), Times.Never);
+    }
+
+    [Fact]
+    public void TryGetMediaInputStatus_WhenInputNameEmpty_ReturnsFalseWithoutQuerying()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+
+        Boolean fetched = this._executor.TryGetMediaInputStatus(String.Empty, out String _);
+
+        Assert.False(fetched);
+        this._mockObs.Verify(x => x.GetMediaInputStatus(It.IsAny<String>()), Times.Never);
+    }
+
+    [Fact]
+    public void TryGetMediaInputStatus_WhenOBSThrows_LogsErrorAndReturnsFalse()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetMediaInputStatus("Video")).Throws(new Exception("OBS error"));
+
+        Boolean fetched = this._executor.TryGetMediaInputStatus("Video", out String state);
+
+        Assert.False(fetched);
+        Assert.Equal("OBS_MEDIA_STATE_NONE", state);
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Video") && s.Contains("OBS error"))), Times.Once);
+    }
+
+    // ToggleMediaInputPlayback tests
+
+    [Theory]
+    [InlineData("OBS_MEDIA_STATE_PLAYING", "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE")]
+    [InlineData("OBS_MEDIA_STATE_PAUSED", "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY")]
+    [InlineData("OBS_MEDIA_STATE_ENDED", "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART")]
+    public void ToggleMediaInputPlayback_WhenConnected_TriggersActionForLiveState(String liveState, String expectedAction)
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetMediaInputStatus("Video")).Returns(liveState);
+
+        this._executor.ToggleMediaInputPlayback("Video");
+
+        this._mockObs.Verify(x => x.TriggerMediaInputAction("Video", expectedAction), Times.Once);
+    }
+
+    [Fact]
+    public void ToggleMediaInputPlayback_WhenNotConnected_DoesNotCallObs()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(false);
+
+        this._executor.ToggleMediaInputPlayback("Video");
+
+        this._mockObs.Verify(x => x.GetMediaInputStatus(It.IsAny<String>()), Times.Never);
+        this._mockObs.Verify(x => x.TriggerMediaInputAction(It.IsAny<String>(), It.IsAny<String>()), Times.Never);
+    }
+
+    [Fact]
+    public void ToggleMediaInputPlayback_WhenInputNameEmpty_DoesNotCallObs()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+
+        this._executor.ToggleMediaInputPlayback(String.Empty);
+
+        this._mockObs.Verify(x => x.TriggerMediaInputAction(It.IsAny<String>(), It.IsAny<String>()), Times.Never);
+    }
+
+    [Fact]
+    public void ToggleMediaInputPlayback_WhenStatusQueryThrows_LogsErrorAndDoesNotTrigger()
+    {
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetMediaInputStatus("Video")).Throws(new Exception("OBS error"));
+
+        this._executor.ToggleMediaInputPlayback("Video");
+
+        this._mockObs.Verify(x => x.TriggerMediaInputAction(It.IsAny<String>(), It.IsAny<String>()), Times.Never);
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Video") && s.Contains("OBS error"))), Times.Once);
+    }
+
     // TriggerMediaInputAction tests
 
     [Fact]

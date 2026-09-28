@@ -3,6 +3,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Loupedeck.OBSStudioForLogiPlugin.Helpers;
 
     public class MediaDynamicFolder : PluginDynamicFolder, IObsCommand, IInputsListAwareCommand
     {
@@ -45,25 +46,25 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (String.IsNullOrEmpty(actionParameter))
                 return null;
 
-            var state = OBSStudioForLogiPlugin.Instance?.GetMediaInputStatus(actionParameter) ?? "OBS_MEDIA_STATE_NONE";
+            String state = OBSStudioForLogiPlugin.Instance?.GetMediaInputStatus(actionParameter) ?? MediaInputStates.None;
             String stateLabel;
             BitmapColor color;
 
             switch (state)
             {
-                case "OBS_MEDIA_STATE_PLAYING":
+                case MediaInputStates.Playing:
                     stateLabel = "Playing";
                     color = new BitmapColor(80, 255, 80);
                     break;
-                case "OBS_MEDIA_STATE_PAUSED":
+                case MediaInputStates.Paused:
                     stateLabel = "Paused";
                     color = new BitmapColor(255, 200, 0);
                     break;
-                case "OBS_MEDIA_STATE_STOPPED":
+                case MediaInputStates.Stopped:
                     stateLabel = "Stopped";
                     color = new BitmapColor(128, 128, 128);
                     break;
-                case "OBS_MEDIA_STATE_ENDED":
+                case MediaInputStates.Ended:
                     stateLabel = "Ended";
                     color = new BitmapColor(128, 128, 128);
                     break;
@@ -82,38 +83,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (String.IsNullOrEmpty(actionParameter))
                 return;
 
+            // No redraw here: OBS answers every media action with MediaInputActionTriggered,
+            // which updates the media state cache and redraws the button.
             this._doubleTapHelper.OnTap(actionParameter,
-                onSingleTap: (input) =>
-                {
-                    var state = OBSStudioForLogiPlugin.Instance?.GetMediaInputStatus(input) ?? "OBS_MEDIA_STATE_NONE";
-                    if (state == "OBS_MEDIA_STATE_PLAYING")
-                    {
-                        OBSStudioForLogiPlugin.Instance?.TriggerMediaInputAction(input, "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE");
-                    }
-                    else if (state == "OBS_MEDIA_STATE_PAUSED")
-                    {
-                        OBSStudioForLogiPlugin.Instance?.TriggerMediaInputAction(input, "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY");
-                    }
-                    else
-                    {
-                        OBSStudioForLogiPlugin.Instance?.TriggerMediaInputAction(input, "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART");
-                    }
-                    this.RefreshAfterDelay(input);
-                },
-                onDoubleTap: (input) =>
-                {
-                    OBSStudioForLogiPlugin.Instance?.TriggerMediaInputAction(input, "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP");
-                    this.RefreshAfterDelay(input);
-                });
-        }
-
-        private void RefreshAfterDelay(String inputName)
-        {
-            System.Threading.Tasks.Task.Run(async () =>
-            {
-                await System.Threading.Tasks.Task.Delay(200);
-                this.CommandImageChanged(inputName);
-            });
+                onSingleTap: (input) => OBSStudioForLogiPlugin.Instance?.ToggleMediaInputPlayback(input),
+                onDoubleTap: (input) => OBSStudioForLogiPlugin.Instance?.TriggerMediaInputAction(input, MediaInputStates.ActionStop));
         }
 
         public void OnMediaStateChanged(String inputName)

@@ -1164,6 +1164,60 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
+        // Fetch for the media state cache. Unlike GetMediaInputStatus it reports failure instead of
+        // returning "none", so a timeout is retried later rather than cached as idle.
+        public Boolean TryGetMediaInputStatus(String inputName, out String state)
+        {
+            state = MediaInputStates.None;
+            if (String.IsNullOrEmpty(inputName) || !this._obs.IsConnected)
+            {
+                return false;
+            }
+
+            try
+            {
+                state = this._obs.GetMediaInputStatus(inputName) ?? MediaInputStates.None;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get media status for '{inputName}': {ex.Message}");
+                return false;
+            }
+        }
+
+        // Single tap on a media button. Reads the live state in the background rather than the
+        // render cache, so a press right after connecting doesn't act on the cache's default.
+        public void ToggleMediaInputPlayback(String inputName)
+        {
+            this._runInBackground(() =>
+            {
+                if (!this._obs.IsConnected)
+                {
+                    this._log.Warning($"Cannot toggle media playback for '{inputName}' - not connected");
+                    return;
+                }
+
+                if (String.IsNullOrEmpty(inputName))
+                {
+                    this._log.Warning("Cannot toggle media playback - input name is empty");
+                    return;
+                }
+
+                try
+                {
+                    String state = this._obs.GetMediaInputStatus(inputName);
+                    String mediaAction = MediaInputStates.ToggleActionFor(state);
+                    this._log.Info($"Toggling media playback for '{inputName}': {state} -> '{mediaAction}'");
+                    this._obs.TriggerMediaInputAction(inputName, mediaAction);
+                }
+                catch (Exception ex)
+                {
+                    this._log.Error($"Failed to toggle media playback for '{inputName}': {ex.Message}");
+                }
+            });
+        }
+
         public void TriggerMediaInputAction(String inputName, String mediaAction)
         {
             this._runInBackground(() =>

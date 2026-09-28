@@ -2,6 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
     using System.Linq;
+    using Loupedeck.OBSStudioForLogiPlugin.Helpers;
 
     public class OBSFacade
     {
@@ -271,9 +272,20 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
+        // Called from button rendering - reads the cache, never waits on OBS.
         public String GetMediaInputStatus(String inputName)
         {
-            return this._obsManager?.Actions.GetMediaInputStatus(inputName) ?? "OBS_MEDIA_STATE_NONE";
+            if (String.IsNullOrEmpty(inputName))
+            {
+                return MediaInputStates.None;
+            }
+
+            return this._obsManager?.MediaState.Get(inputName) ?? MediaInputStates.None;
+        }
+
+        public void ToggleMediaInputPlayback(String inputName)
+        {
+            this._obsManager?.Actions.ToggleMediaInputPlayback(inputName);
         }
 
         public void TriggerMediaInputAction(String inputName, String mediaAction)

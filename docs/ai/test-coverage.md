@@ -27,7 +27,7 @@ The project follows a TDD approach with 393 unit tests using xUnit + Moq (verifi
 | `OBSConfigReaderTests.cs` | Config file parsing, validation, IsServerDisabled | 10 |
 | `OBSConnectionSettingsTests.cs` | Connection settings model, localhost validation | ~5 |
 | `OBSLifecycleManagerTests.cs` | Port checking, wait logic | ~3 |
-| `OBSFacadeTests.cs` | Facade disconnected state, safe defaults, connection validation, cache-backed audio and source visibility getters | 56 |
+| `OBSFacadeTests.cs` | Facade disconnected state, safe defaults, connection validation, cache-backed audio, source visibility and media state getters | 60 |
 | `CommandRegistryTests.cs` | Registration, deduplication, generic `GetCommands<T>()` filtering | 6 |
 | `CommandCoordinatorTests.cs` | Dispatch-by-interface for every notification type, per-command exception isolation | 24 |
 | `AudioStateCacheTests.cs` | Non-blocking misses, single in-flight fetch, event-vs-fetch precedence, failure backoff, invalidation | 14 |
@@ -41,7 +41,8 @@ The project follows a TDD approach with 393 unit tests using xUnit + Moq (verifi
 | `SourceVisibilityTests.cs` | Source visibility toggle and query, `TryGetSceneItemEnabled` cache fetch | 11 |
 | `VirtualCameraCommandTests.cs` | Virtual camera state and toggle | ~5 |
 | `ManualReconnectTests.cs` | Manual reconnect trigger | ~1 |
-| `OBSActionExecutorStatsAndMediaTests.cs` | Stats, stream status, media input methods | 17 |
+| `OBSActionExecutorStatsAndMediaTests.cs` | Stats, stream status, media input methods, `TryGetMediaInputStatus` cache fetch, `ToggleMediaInputPlayback` | 27 |
+| `MediaInputStatesTests.cs` | Media action → resulting state mapping, single-tap action per state | 14 |
 | `OBSStatsModelTests.cs` | OBSStats and OBSStreamStats derived properties | 12 |
 | `PluginConfigReaderTests.cs` | Save/read config, round-trip, invalid JSON | 6 |
 

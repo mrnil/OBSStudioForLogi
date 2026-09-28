@@ -40,6 +40,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public AudioMeterService AudioMeters { get; }
         public AudioStateCache AudioState { get; }
         public KeyedStateCache<(String Scene, String Source), Boolean> SourceVisibility { get; }
+        public KeyedStateCache<String, String> MediaState { get; }
 
         public event EventHandler ConnectionEstablished;
         public event EventHandler ConnectionLost;
@@ -64,6 +65,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.AudioState = new AudioStateCache(this.Actions.TryGetInputAudioState, this.OnAudioStateFetched);
             this.SourceVisibility = new KeyedStateCache<(String Scene, String Source), Boolean>(
                 this.TryFetchSourceVisibility, this.OnSourceVisibilityFetched, false, "source visibility");
+            this.MediaState = new KeyedStateCache<String, String>(
+                this.Actions.TryGetMediaInputStatus, this.OnMediaStateFetched, MediaInputStates.None, "media state");
             this._reconnectTimer = new Timer();
             this._reconnectTimer.Elapsed += this.OnReconnectTimer;
             this._reconnectTimer.AutoReset = false;
@@ -89,6 +92,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.InputRemoved += this.OnInputRemoved;
             this._obs.MediaInputPlaybackStarted += this.OnMediaInputPlaybackStarted;
             this._obs.MediaInputPlaybackEnded += this.OnMediaInputPlaybackEnded;
+            this._obs.MediaInputActionTriggered += this.OnMediaInputActionTriggered;
             this._obs.ReplayBufferSaved += this.OnReplayBufferSaved;
             
             this._log.Info("OBSWebSocketManager initialized");
@@ -208,6 +212,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._connectingInProgress = false;
             this.AudioState.Clear();
             this.SourceVisibility.Clear();
+            this.MediaState.Clear();
             this._reconnectionStrategy.Reset();
             this._reconnectTimer?.Stop();
             
@@ -279,6 +284,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.AudioMeters.Clear();
             this.AudioState.Clear();
             this.SourceVisibility.Clear();
+            this.MediaState.Clear();
 
             // NotifyDisconnected is called via OBSStudioForLogiPlugin.OnOBSDisconnected → CommandCoordinator
             
@@ -352,8 +358,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var oldSceneCollection = this.Actions.CurrentSceneCollection;
             this.Actions.SetCurrentSceneCollectionState(e.SceneCollectionName);
 
-            // A different collection can reuse scene and source names with different visibility.
+            // A different collection can reuse scene, source and input names with different state.
             this.SourceVisibility.Clear();
+            this.MediaState.Clear();
             this._log.Info($"Current scene collection changed to '{e.SceneCollectionName}'");
             
             // Notify SceneCollectionSelectCommand
@@ -461,6 +468,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private void OnSourceVisibilityFetched((String Scene, String Source) key)
         {
             OBSStudioForLogiPlugin.Instance?.OnSourceVisibilityChanged(key.Scene, key.Source);
+        }
+
+        // The cache fetched an input the media buttons were showing "idle" for - redraw them.
+        private void OnMediaStateFetched(String inputName)
+        {
+            OBSStudioForLogiPlugin.Instance?.OnMediaPlaybackStateChanged(inputName);
         }
 
         private void OnInputMuteStateChanged(Object sender, OBSWebsocketDotNet.Types.Events.InputMuteStateChangedEventArgs e)
@@ -585,6 +598,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this._log.Info($"Input removed: '{e?.InputName}'");
             this.AudioState.Remove(e?.InputName);
+            this.MediaState.Remove(e?.InputName);
             OBSStudioForLogiPlugin.Instance?.OnInputListChanged();
         }
 
@@ -594,6 +608,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return;
 
             this._log.Info($"Media playback started: '{e.InputName}'");
+            this.MediaState.Set(e.InputName, MediaInputStates.Playing);
             OBSStudioForLogiPlugin.Instance?.OnMediaPlaybackStateChanged(e.InputName);
         }
 
@@ -603,6 +618,29 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return;
 
             this._log.Info($"Media playback ended: '{e.InputName}'");
+            this.MediaState.Set(e.InputName, MediaInputStates.Ended);
+            OBSStudioForLogiPlugin.Instance?.OnMediaPlaybackStateChanged(e.InputName);
+        }
+
+        // Pause, resume and stop only arrive as this event - there is no playback-paused event.
+        // OBS raises it for actions from its own UI as well as from websocket requests.
+        private void OnMediaInputActionTriggered(Object sender, MediaInputActionTriggeredEventArgs e)
+        {
+            if (String.IsNullOrEmpty(e?.InputName))
+                return;
+
+            this._log.Info($"Media action '{e.MediaAction}' triggered on '{e.InputName}'");
+            String state = MediaInputStates.StateAfterAction(e.MediaAction);
+            if (state != null)
+            {
+                this.MediaState.Set(e.InputName, state);
+            }
+            else
+            {
+                // Next/previous playlist item: the resulting state isn't implied, so re-read it.
+                this.MediaState.Remove(e.InputName);
+            }
+
             OBSStudioForLogiPlugin.Instance?.OnMediaPlaybackStateChanged(e.InputName);
         }
 
@@ -685,6 +723,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._obs.InputRemoved -= this.OnInputRemoved;
                     this._obs.MediaInputPlaybackStarted -= this.OnMediaInputPlaybackStarted;
                     this._obs.MediaInputPlaybackEnded -= this.OnMediaInputPlaybackEnded;
+                    this._obs.MediaInputActionTriggered -= this.OnMediaInputActionTriggered;
                     this._obs.ReplayBufferSaved -= this.OnReplayBufferSaved;
                     
                     this._obs.Disconnect();
