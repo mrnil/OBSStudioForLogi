@@ -25,7 +25,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Instance = this;
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.DisplayName = "Live Audio Folder";
-            this.GroupName = "8. Audio###Meters";
+            this.GroupName = "8. Audio";
             this.Description = "Real-time volume meters for live audio inputs";
 
             this._refreshTimer.Elapsed += this.OnRefreshTimer;
