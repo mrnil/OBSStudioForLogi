@@ -91,30 +91,44 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public override void Load()
         {
             PluginLog.Info("Plugin loading...");
-            
-            this.Info.Icon256x256 = EmbeddedResources.ReadImage("Loupedeck.OBSStudioForLogiPlugin.metadata.Icon256x256.png");
 
-            // Subscribe to connection events for status reporting
-            this._connectionManager.Connected += this.OnOBSConnected;
-            this._connectionManager.Disconnected += this.OnOBSDisconnected;
-            this._connectionManager.WebSocketServerDisabled += this.OnWebSocketServerDisabled;
+            try
+            {
+                this.Info.Icon256x256 = EmbeddedResources.ReadImage("Loupedeck.OBSStudioForLogiPlugin.metadata.Icon256x256.png");
 
-            this.ClientApplication.ApplicationStarted += this.OnApplicationStarted;
-            this.ClientApplication.ApplicationStopped += this.OnApplicationStopped;
-            
-            if (this.ClientApplication.IsRunning())
-            {
-                PluginLog.Info("OBS detected via ClientApplication");
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Normal, null);                
-                this.OnApplicationStarted(this, EventArgs.Empty);
+                // Subscribe to connection events for status reporting
+                this._connectionManager.Connected += this.OnOBSConnected;
+                this._connectionManager.Disconnected += this.OnOBSDisconnected;
+                this._connectionManager.WebSocketServerDisabled += this.OnWebSocketServerDisabled;
+
+                this.ClientApplication.ApplicationStarted += this.OnApplicationStarted;
+                this.ClientApplication.ApplicationStopped += this.OnApplicationStopped;
+
+                // Plugin status is never reported synchronously from here: the service redraws devices
+                // inside OnPluginStatusChanged, and doing that while it is still building pages for
+                // this plugin threw a concurrent-collection exception out of Load, failing the whole
+                // load. Normal is the default and OnOBSConnected re-reports it once connected.
+                if (this.ClientApplication.IsRunning())
+                {
+                    PluginLog.Info("OBS detected via ClientApplication");
+                    this.OnApplicationStarted(this, EventArgs.Empty);
+                }
+                else
+                {
+                    PluginLog.Info("OBS not detected, attempting direct connection");
+                    Task.Run(() => this.ReportPluginStatus(Loupedeck.PluginStatus.Warning, "OBS is offline. Please launch OBS"));
+                    Task.Run(() => this._connectionManager.ConnectAsync());
+                }
             }
-            else
+            catch (Exception ex)
             {
-                PluginLog.Info("OBS not detected, attempting direct connection");
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning,"OBS is offline. Please launch OBS");
-                Task.Run(() => this._connectionManager.ConnectAsync());
+                // The service never calls Unload after a failed Load, so without this the connection
+                // manager's reconnect loop keeps running as an orphan for the life of the service.
+                PluginLog.Error(ex, "Plugin load failed, releasing resources");
+                this.Unload();
+                throw;
             }
-            
+
             PluginLog.Info("Plugin loaded");
         }
 
@@ -154,7 +168,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private void OnOBSConnected(Object sender, EventArgs e)
         {
             PluginLog.Info("OBS WebSocket connected");
-            this.OnPluginStatusChanged(Loupedeck.PluginStatus.Normal, null);
+            this.ReportPluginStatus(Loupedeck.PluginStatus.Normal, null);
             this._statsService.Start();
             this._commandCoordinator.NotifyConnected();
             ConnectionStatusDisplay.Instance?.UpdateStatus();
@@ -163,7 +177,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private void OnOBSDisconnected(Object sender, EventArgs e)
         {
             PluginLog.Info("OBS WebSocket disconnected");
-            this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "OBS is offline. Please launch OBS");
+            this.ReportPluginStatus(Loupedeck.PluginStatus.Warning, "OBS is offline. Please launch OBS");
             this._statsService.Stop();
             this._commandCoordinator.NotifyDisconnected();
             ConnectionStatusDisplay.Instance?.UpdateStatus();
@@ -172,8 +186,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private void OnWebSocketServerDisabled(Object sender, EventArgs e)
         {
             PluginLog.Warning("OBS WebSocket server is disabled");
-            this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "OBS WebSocket server is disabled. Enable it in OBS Tools menu.");
+            this.ReportPluginStatus(Loupedeck.PluginStatus.Warning, "OBS WebSocket server is disabled. Enable it in OBS Tools menu.");
             ConnectionStatusDisplay.Instance?.UpdateStatus();
+        }
+
+        private void ReportPluginStatus(Loupedeck.PluginStatus status, String message)
+        {
+            // OnPluginStatusChanged redraws devices synchronously on the caller's thread, and that
+            // redraw can race the service's own page updates; a failure there must not take down
+            // the connection handler that reported the status.
+            try
+            {
+                this.OnPluginStatusChanged(status, message);
+            }
+            catch (Exception ex)
+            {
+                PluginLog.Warning(ex, $"Failed to report plugin status {status}");
+            }
         }
 
         public void RegisterCommand(IObsCommand command)
