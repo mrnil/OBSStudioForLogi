@@ -2,17 +2,42 @@
 
 ## High Priority
 
-### Assessment: Scene/Source/Profile Buttons Show No Text (#3)
+### Assessment: Source Visibility and Media Status Query OBS on Redraw (#18)
 
-- [ ] `ScenesDynamicFolder.GetCommandImage` — render scene name alongside selected/unselected icon using `ButtonImageHelper.StateTextWithIcon`
-- [ ] `SourcesDynamicFolder.GetCommandImage` — render source name alongside visibility icon
-- [ ] `ProfilesDynamicFolder.GetCommandImage` — render profile name alongside selected/unselected icon
+- [ ] Cache source visibility per (scene, source), kept current from `SceneItemEnableStateChanged`; serve `SourcesDynamicFolder` and `SourceVisibilityAdjustableCommand` renders from it
+- [ ] Cache media status, kept current from the `MediaInputPlayback*` events; serve `MediaDynamicFolder` renders from it
+
+### Assessment: Remote OBS Password Stored in Plaintext (#19)
+
+- [ ] Encrypt `RemotePassword` at rest (check the SDK's plugin settings first; otherwise DPAPI on Windows, Keychain on macOS) and migrate existing plaintext values
 
 ### Assessment: Verify net10.0 Runtime Compatibility (#12) ✅ Done
 
 - [x] ~~Verified net10.0 build runs under a real Logi Plugin Service install, connects to OBS, and responds to button presses~~ ✅ Done
 
 ## Medium Priority
+
+### Assessment: Services and Plugin Class Reach Into Singletons (#20)
+
+- [ ] Have `OBSWebSocketManager` raise events (or take a callback interface) instead of calling `OBSStudioForLogiPlugin.Instance`
+- [ ] Route stats and media updates through `CommandCoordinator` instead of `StatsDisplay.Instance`, `MediaDynamicFolder.Instance` and similar
+
+### Assessment: Renamed Inputs Go Stale (#21)
+
+- [ ] Subscribe to `InputNameChanged`, re-key `AudioStateCache` and meter entries, push the refreshed input list
+- [ ] Check whether `SceneListChanged` fires on scene rename; handle `SceneNameChanged` if not
+
+### Assessment: AI Docs Describe Non-Existent `ButtonImageHelper` Methods (#22)
+
+- [ ] Fix `StateIcon`/`StateText`/`TextWithIcon`/`StateTextWithIcon` examples in `guidelines.md`, `image-rendering-simplified.md` and `sdk-quick-reference.md`
+
+### Assessment: Scene/Source/Profile Buttons Show No Text (#3) — Needs Decision
+
+- [ ] Check on a device whether the SDK already shows item names on folder buttons; close or re-attempt (the earlier fix was reverted without a recorded reason)
+
+### Assessment: Double-Tap Window (#5)
+
+- [ ] Move the 500ms `DoubleTapThreshold` into `OBSTimings` or Plugin Settings, or drop double-tap in favour of dedicated mute buttons
 
 ### Assessment: CommandCoordinator Has No Error Isolation (#6) ✅ Done
 
@@ -57,8 +82,18 @@
 
 ### Assessment: General Thread.Sleep-After-Task.Run Flakiness in OBSActionExecutor* Tests (#15)
 
-- [ ] Same fixed-sleep race as #14, but across dozens of call sites in `OBSActionExecutor*` test classes — needs its own pass, not a quick fix
+- [ ] Same fixed-sleep race as #14, across 88 `Thread.Sleep` calls in 12 test files (largest: `OBSActionExecutorTests`, `OBSActionExecutorReplayBufferTests`, `OBSActionExecutorAudioTests`) — needs its own pass, not a quick fix
 - [ ] Real blocker for ever enabling tests in CI
+
+### Assessment: Small Robustness Items (#23)
+
+- [ ] Wrap `OnApplicationStarted` (`async void`) in try/catch
+- [ ] Remove or `await` the `Task.Delay(100).Wait()` in `OnCurrentSceneCollectionChanged`
+- [ ] Make sure `NotifyDisconnected` runs once per disconnect
+
+### Assessment: Library Fix for `Connected` on `ReIdentify` (#24)
+
+- [ ] Open the upstream PR from `fix/connected-raised-on-reidentify` and upgrade once released (keep `SessionGate`)
 
 ### Other
 
@@ -74,7 +109,7 @@
 ## Events Not Yet Subscribed
 
 - [ ] `CurrentPreviewSceneChanged` — studio mode preview tracking
-- [ ] `InputNameChanged` — input list sync when renamed in OBS
+- [ ] `InputNameChanged` — input list sync when renamed in OBS (assessment #21)
 - [ ] `InputAudioBalanceChanged` — audio balance display
 - [ ] `InputAudioSyncOffsetChanged` — audio sync display
 - [ ] `InputAudioTracksChanged` — track assignment display
@@ -86,7 +121,7 @@
 ## Architecture (Deferred)
 
 - [ ] Multi-instance OBS support (see `docs/ai/multi-instance-obs-design.md`)
-- [ ] Dependency injection for StatsService (inject `Func<OBSStats>` instead of static singleton)
+- [x] ~~Dependency injection for StatsService (inject `Func<OBSStats>` instead of static singleton)~~ ✅ Done (assessment #17)
 
 ## Recently Completed (v1.6.2)
 
