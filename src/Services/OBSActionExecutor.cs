@@ -9,6 +9,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     {
         private readonly IOBSWebsocket _obs;
         private readonly IPluginLog _log;
+        private readonly Action<Action> _runInBackground;
         private OutputState _recordingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
         private OutputState _streamingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
         private OutputState _virtualCameraState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
@@ -35,14 +36,22 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public String CurrentScene => this._currentScene;
 
         public OBSActionExecutor(IOBSWebsocket obs, IPluginLog log)
+            : this(obs, log, action => Task.Run(action))
+        {
+        }
+
+        // OBS mutations run off the caller's thread so a slow OBS never stalls a button press.
+        // runInBackground lets tests run that work inline instead of sleeping until Task.Run finishes.
+        public OBSActionExecutor(IOBSWebsocket obs, IPluginLog log, Action<Action> runInBackground)
         {
             this._obs = obs;
             this._log = log;
+            this._runInBackground = runInBackground ?? (action => Task.Run(action));
         }
 
         public void SetCurrentScene(String sceneName)
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -72,7 +81,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void ToggleRecording()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -100,7 +109,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void StartRecording()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -128,7 +137,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void StopRecording()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -156,7 +165,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void ToggleRecordingPause()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -211,7 +220,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void SetCurrentProfile(String profileName)
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -264,7 +273,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void SetCurrentSceneCollection(String sceneCollectionName)
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -322,7 +331,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void SaveScreenshot(String screenshotPath)
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -375,7 +384,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void ToggleStreaming()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -403,7 +412,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void StartStreaming()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -431,7 +440,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void StopStreaming()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -464,7 +473,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void ToggleVirtualCamera()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -493,7 +502,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void StartVirtualCamera()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -521,7 +530,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void StopVirtualCamera()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -554,7 +563,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void ToggleReplayBuffer()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -576,7 +585,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void StartReplayBuffer()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -604,7 +613,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void StopReplayBuffer()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -632,7 +641,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void SaveReplayBuffer()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -710,7 +719,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void ToggleSourceVisibility(String sceneName, String sourceName)
         {
-            Task.Run(async () =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -729,15 +738,30 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     var currentState = this._obs.GetSceneItemEnabled(sceneName, sourceName);
                     this._log.Info($"Toggling source '{sourceName}' visibility from {currentState} to {!currentState}");
                     this._obs.SetSceneItemEnabled(sceneName, sourceName, !currentState);
-                    
-                    await Task.Delay(OBSTimings.StateUpdateDelay);
-                    OBSStudioForLogiPlugin.Instance?.OnSourceVisibilityChanged(sceneName, sourceName);
                 }
                 catch (Exception ex)
                 {
                     this._log.Error($"Failed to toggle source visibility for '{sourceName}': {ex.Message}");
+                    return;
                 }
+
+                _ = this.NotifySourceVisibilityChangedAsync(sceneName, sourceName);
             });
+        }
+
+        // Kept out of the background action so that action stays synchronous (Action<Action>):
+        // the redraw waits for OBS to apply the change, but nothing should wait for the redraw.
+        private async Task NotifySourceVisibilityChangedAsync(String sceneName, String sourceName)
+        {
+            try
+            {
+                await Task.Delay(OBSTimings.StateUpdateDelay);
+                OBSStudioForLogiPlugin.Instance?.OnSourceVisibilityChanged(sceneName, sourceName);
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to refresh source visibility for '{sourceName}': {ex.Message}");
+            }
         }
 
         public String[] GetInputList()
@@ -781,7 +805,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void ToggleInputMute(String inputName)
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -828,7 +852,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void SetInputVolume(String inputName, Single volumeMul)
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -903,7 +927,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void CycleInputAudioMonitorType(String inputName)
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -1013,7 +1037,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void ToggleStudioMode()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -1040,7 +1064,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void TriggerStudioModeTransition()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
@@ -1120,7 +1144,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void TriggerMediaInputAction(String inputName, String mediaAction)
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {

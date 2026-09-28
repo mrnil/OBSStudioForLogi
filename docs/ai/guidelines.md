@@ -129,12 +129,12 @@ public void ToggleRecording()
 
 ### Async Fire-and-Forget Pattern (All OBS Mutations)
 
-All OBS write operations use `Task.Run` to avoid blocking the UI thread:
+All OBS write operations run in the background to avoid blocking the UI thread. They go through the injected `_runInBackground` runner (`Task.Run` in production), never `Task.Run` directly, so tests can run them inline:
 
 ```csharp
 public void SetInputVolume(String inputName, Single volumeMul)
 {
-    Task.Run(() =>
+    this._runInBackground(() =>
     {
         if (!this._obs.IsConnected) { ... return; }
         try { this._obs.SetInputVolume(inputName, volumeMul); }
@@ -497,14 +497,14 @@ public class OBSActionExecutorTests
     {
         this._mockObs = new Mock<IOBSWebsocket>();
         this._mockLog = new Mock<IPluginLog>();
-        this._executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object);
+        this._executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object, action => action());
     }
 }
 ```
 
 ### Async Fire-and-Forget Testing
 
-Use `Thread.Sleep(OBSTimings.TestAsyncDelay)` (500ms) after triggering async operations:
+Don't sleep and hope the background work has finished — that raced the thread pool under full-suite load (assessment #15). Classes that fire work in the background take an `Action<Action>` runner in their constructor (`OBSActionExecutor`, `AudioStateCache`). Pass `action => action()` to run it inline, then assert straight away:
 
 ```csharp
 [Fact]
@@ -514,10 +514,11 @@ public void SetCurrentProfile_WhenConnected_CallsObs()
 
     this._executor.SetCurrentProfile("test");
 
-    System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
     this._mockObs.Verify(x => x.SetCurrentProfile("test"), Times.Once);
 }
 ```
+
+To assert on what happens before the work runs, queue it instead (`action => background.Enqueue(action)`) and dequeue when ready. Give any new service that starts background work the same constructor parameter. Only code driven by a real timer (e.g. `DoubleTapHelper`) should wait in tests, and then with a bounded poll, not a fixed sleep.
 
 ### Test Naming Convention
 
@@ -605,8 +606,7 @@ All timing values are centralised in `OBSTimings`:
 OBSTimings.StateUpdateDelay      // 100ms — wait after OBS API call before refreshing UI
 OBSTimings.ProfileSwitchDelay    // delay between profile switch and next operation
 OBSTimings.CollectionSwitchDelay // delay between collection switch and next operation
-OBSTimings.TestAsyncDelay        // 500ms — standard wait in tests for Task.Run completion
-OBSTimings.TestAsyncDelayExtended // 750ms — extended wait for slower operations
+OBSTimings.TestAsyncDelay        // 500ms — test wait for real-timer code only (e.g. DoubleTapHelper)
 ```
 
 Never hardcode timing values — always use `OBSTimings` constants.

@@ -14,7 +14,7 @@ public class SourceVisibilityTests
     {
         this._mockObs = new Mock<IOBSWebsocket>();
         this._mockLog = new Mock<IPluginLog>();
-        this._executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object);
+        this._executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object, action => action());
     }
 
     [Fact]
@@ -46,7 +46,6 @@ public class SourceVisibilityTests
 
         this._executor.ToggleSourceVisibility("Scene1", "Source1");
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelayExtended);
         this._mockObs.Verify(x => x.SetSceneItemEnabled("Scene1", "Source1", It.IsAny<Boolean>()), Times.Once);
     }
 
@@ -57,7 +56,6 @@ public class SourceVisibilityTests
 
         this._executor.ToggleSourceVisibility("Scene1", "Source1");
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.SetSceneItemEnabled(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<Boolean>()), Times.Never);
     }
 

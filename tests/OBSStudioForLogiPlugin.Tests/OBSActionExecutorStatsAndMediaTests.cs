@@ -14,7 +14,7 @@ public class OBSActionExecutorStatsAndMediaTests
     {
         this._mockObs = new Mock<IOBSWebsocket>();
         this._mockLog = new Mock<IPluginLog>();
-        this._executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object);
+        this._executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object, action => action());
     }
 
     // GetStats tests
@@ -149,7 +149,6 @@ public class OBSActionExecutorStatsAndMediaTests
 
         this._executor.TriggerMediaInputAction("Video", "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY");
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.TriggerMediaInputAction("Video", "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY"), Times.Once);
     }
 
@@ -160,7 +159,6 @@ public class OBSActionExecutorStatsAndMediaTests
 
         this._executor.TriggerMediaInputAction("Video", "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY");
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.TriggerMediaInputAction(It.IsAny<String>(), It.IsAny<String>()), Times.Never);
     }
 
@@ -171,7 +169,6 @@ public class OBSActionExecutorStatsAndMediaTests
 
         this._executor.TriggerMediaInputAction("", "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY");
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.TriggerMediaInputAction(It.IsAny<String>(), It.IsAny<String>()), Times.Never);
     }
 
@@ -182,7 +179,6 @@ public class OBSActionExecutorStatsAndMediaTests
 
         this._executor.TriggerMediaInputAction("Video", "");
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.TriggerMediaInputAction(It.IsAny<String>(), It.IsAny<String>()), Times.Never);
     }
 

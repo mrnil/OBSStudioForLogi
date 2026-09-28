@@ -14,7 +14,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
         {
             this._mockObs = new Mock<IOBSWebsocket>();
             this._mockLog = new Mock<IPluginLog>();
-            this._executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object);
+            this._executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object, action => action());
         }
 
         [Fact]
@@ -48,7 +48,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.ToggleStudioMode();
 
-            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockObs.Verify(x => x.SetStudioModeEnabled(true), Times.Once);
         }
 
@@ -59,7 +58,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.ToggleStudioMode();
 
-            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockObs.Verify(x => x.SetStudioModeEnabled(It.IsAny<Boolean>()), Times.Never);
         }
 
@@ -85,7 +83,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.ToggleStudioMode();
 
-            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockObs.Verify(x => x.SetStudioModeEnabled(true), Times.Once);
         }
 
@@ -97,7 +94,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests
 
             this._executor.ToggleStudioMode();
 
-            System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
             this._mockObs.Verify(x => x.SetStudioModeEnabled(false), Times.Once);
         }
     }

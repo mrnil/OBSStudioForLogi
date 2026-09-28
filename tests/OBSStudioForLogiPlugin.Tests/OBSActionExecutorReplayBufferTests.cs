@@ -14,7 +14,7 @@ public class OBSActionExecutorReplayBufferTests
     {
         this._mockObs = new Mock<IOBSWebsocket>();
         this._mockLog = new Mock<IPluginLog>();
-        this._executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object);
+        this._executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object, action => action());
     }
 
     // --- IsReplayBufferActive ---
@@ -44,7 +44,6 @@ public class OBSActionExecutorReplayBufferTests
 
         this._executor.ToggleReplayBuffer();
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.ToggleReplayBuffer(), Times.Once);
     }
 
@@ -55,7 +54,6 @@ public class OBSActionExecutorReplayBufferTests
 
         this._executor.ToggleReplayBuffer();
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.ToggleReplayBuffer(), Times.Never);
     }
 
@@ -66,7 +64,6 @@ public class OBSActionExecutorReplayBufferTests
         this._mockObs.Setup(x => x.ToggleReplayBuffer()).Throws(new Exception("OBS error"));
 
         this._executor.ToggleReplayBuffer();
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("toggle replay buffer") && s.Contains("OBS error"))), Times.Once);
     }
@@ -81,7 +78,6 @@ public class OBSActionExecutorReplayBufferTests
 
         this._executor.StartReplayBuffer();
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.StartReplayBuffer(), Times.Once);
     }
 
@@ -92,7 +88,6 @@ public class OBSActionExecutorReplayBufferTests
 
         this._executor.StartReplayBuffer();
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.StartReplayBuffer(), Times.Never);
     }
 
@@ -104,7 +99,6 @@ public class OBSActionExecutorReplayBufferTests
 
         this._executor.StartReplayBuffer();
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.StartReplayBuffer(), Times.Never);
     }
 
@@ -116,7 +110,6 @@ public class OBSActionExecutorReplayBufferTests
         this._executor.SetReplayBufferState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
 
         this._executor.StartReplayBuffer();
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelayExtended);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("start replay buffer") && s.Contains("OBS error"))), Times.Once);
     }
@@ -131,7 +124,6 @@ public class OBSActionExecutorReplayBufferTests
 
         this._executor.StopReplayBuffer();
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.StopReplayBuffer(), Times.Once);
     }
 
@@ -142,7 +134,6 @@ public class OBSActionExecutorReplayBufferTests
 
         this._executor.StopReplayBuffer();
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.StopReplayBuffer(), Times.Never);
     }
 
@@ -154,7 +145,6 @@ public class OBSActionExecutorReplayBufferTests
 
         this._executor.StopReplayBuffer();
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.StopReplayBuffer(), Times.Never);
     }
 
@@ -166,7 +156,6 @@ public class OBSActionExecutorReplayBufferTests
         this._executor.SetReplayBufferState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
 
         this._executor.StopReplayBuffer();
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("stop replay buffer") && s.Contains("OBS error"))), Times.Once);
     }
@@ -181,7 +170,6 @@ public class OBSActionExecutorReplayBufferTests
 
         this._executor.SaveReplayBuffer();
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.SaveReplayBuffer(), Times.Once);
     }
 
@@ -192,7 +180,6 @@ public class OBSActionExecutorReplayBufferTests
 
         this._executor.SaveReplayBuffer();
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.SaveReplayBuffer(), Times.Never);
     }
 
@@ -204,7 +191,6 @@ public class OBSActionExecutorReplayBufferTests
 
         this._executor.SaveReplayBuffer();
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.SaveReplayBuffer(), Times.Never);
     }
 
@@ -216,7 +202,6 @@ public class OBSActionExecutorReplayBufferTests
         this._executor.SetReplayBufferState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
 
         this._executor.SaveReplayBuffer();
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("save replay buffer") && s.Contains("OBS error"))), Times.Once);
     }

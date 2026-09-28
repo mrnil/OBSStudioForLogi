@@ -82,10 +82,10 @@
 
 - [x] ~~Replaced fixed `Thread.Sleep` with a bounded poll (`WaitFor`) in the two flaky tests~~ ✅ Done — verified with 5 consecutive full-suite runs, zero failures from this class
 
-### Assessment: General Thread.Sleep-After-Task.Run Flakiness in OBSActionExecutor* Tests (#15)
+### Assessment: General Thread.Sleep-After-Task.Run Flakiness in OBSActionExecutor* Tests (#15) ✅ Done
 
-- [ ] Same fixed-sleep race as #14, across 88 `Thread.Sleep` calls in 12 test files (largest: `OBSActionExecutorTests`, `OBSActionExecutorReplayBufferTests`, `OBSActionExecutorAudioTests`) — needs its own pass, not a quick fix
-- [ ] Real blocker for ever enabling tests in CI
+- [x] ~~Same fixed-sleep race as #14, across 88 `Thread.Sleep` calls in 12 test files~~ ✅ Done — `OBSActionExecutor` takes an injectable background runner and its tests run mutations inline; 77 sleeps removed, verified with 5 consecutive full-suite runs, zero failures
+- [ ] Decide whether to run tests in CI now that the executor timing race is gone (`AGENTS.md` still says not to)
 
 ### Assessment: Small Robustness Items (#23)
 

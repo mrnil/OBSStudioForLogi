@@ -123,7 +123,7 @@ Version is defined in two places — both must be updated for a release:
 ## CI/CD
 
 - **GitHub Actions**: `.github/workflows/dependency-check.yml` — dependency vulnerability scanning + build validation
-- **Tests**: Run locally only (not in CI — fire-and-forget Task.Run patterns cause timing issues in CI)
+- **Tests**: Run locally only. They were kept out of CI because fire-and-forget `Task.Run` tests raced the thread pool; that race is fixed (assessment #15), but CI hasn't been switched on yet
 - **Dependabot**: `.github/dependabot.yml` — automated dependency update PRs
 
 ## OBS WebSocket Protocol
@@ -140,6 +140,6 @@ Version is defined in two places — both must be updated for a release:
 - **Framework**: xUnit 2.9.3
 - **Mocking**: Moq 4.20.72 — `IOBSWebsocket` and `IPluginLog` are the primary mock targets
 - **Pattern**: Arrange-Act-Assert
-- **Async testing**: `Thread.Sleep(OBSTimings.TestAsyncDelay)` (500ms) after fire-and-forget operations
+- **Async testing**: background work goes through an injected `Action<Action>` runner; tests pass `action => action()` to run it inline instead of sleeping (see `guidelines.md`)
 - **Test count**: 389 unit tests (verified 2026-08-21, all passing on net10.0)
 - **Coverage**: ~37.4% line / ~19.8% branch (Cobertura, measured 2026-08-21) — services layer 80-100%, actions layer exempt from strict TDD. Coverage % has drifted down slightly from prior 39.5%/22.6% as more Actions-layer (SDK-exempt) commands were added faster than services-layer surface area grew.

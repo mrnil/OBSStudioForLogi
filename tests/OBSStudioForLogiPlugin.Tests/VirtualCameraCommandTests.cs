@@ -12,12 +12,11 @@ public class VirtualCameraCommandTests
         var mockObs = new Mock<IOBSWebsocket>();
         var mockLog = new Mock<IPluginLog>();
         mockObs.Setup(x => x.IsConnected).Returns(true);
-        var executor = new OBSActionExecutor(mockObs.Object, mockLog.Object);
+        var executor = new OBSActionExecutor(mockObs.Object, mockLog.Object, action => action());
         executor.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
 
         executor.ToggleVirtualCamera();
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         mockObs.Verify(x => x.StartVirtualCam(), Times.Once);
     }
 
@@ -27,12 +26,11 @@ public class VirtualCameraCommandTests
         var mockObs = new Mock<IOBSWebsocket>();
         var mockLog = new Mock<IPluginLog>();
         mockObs.Setup(x => x.IsConnected).Returns(true);
-        var executor = new OBSActionExecutor(mockObs.Object, mockLog.Object);
+        var executor = new OBSActionExecutor(mockObs.Object, mockLog.Object, action => action());
         executor.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
 
         executor.ToggleVirtualCamera();
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         mockObs.Verify(x => x.StopVirtualCam(), Times.Once);
     }
 
@@ -42,11 +40,10 @@ public class VirtualCameraCommandTests
         var mockObs = new Mock<IOBSWebsocket>();
         var mockLog = new Mock<IPluginLog>();
         mockObs.Setup(x => x.IsConnected).Returns(true);
-        var executor = new OBSActionExecutor(mockObs.Object, mockLog.Object);
+        var executor = new OBSActionExecutor(mockObs.Object, mockLog.Object, action => action());
 
         executor.StartVirtualCamera();
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         mockObs.Verify(x => x.StartVirtualCam(), Times.Once);
     }
 
@@ -56,12 +53,11 @@ public class VirtualCameraCommandTests
         var mockObs = new Mock<IOBSWebsocket>();
         var mockLog = new Mock<IPluginLog>();
         mockObs.Setup(x => x.IsConnected).Returns(true);
-        var executor = new OBSActionExecutor(mockObs.Object, mockLog.Object);
+        var executor = new OBSActionExecutor(mockObs.Object, mockLog.Object, action => action());
         executor.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
 
         executor.StopVirtualCamera();
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         mockObs.Verify(x => x.StopVirtualCam(), Times.Once);
     }
 
@@ -70,7 +66,7 @@ public class VirtualCameraCommandTests
     {
         var mockObs = new Mock<IOBSWebsocket>();
         var mockLog = new Mock<IPluginLog>();
-        var executor = new OBSActionExecutor(mockObs.Object, mockLog.Object);
+        var executor = new OBSActionExecutor(mockObs.Object, mockLog.Object, action => action());
 
         executor.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
 
@@ -82,7 +78,7 @@ public class VirtualCameraCommandTests
     {
         var mockObs = new Mock<IOBSWebsocket>();
         var mockLog = new Mock<IPluginLog>();
-        var executor = new OBSActionExecutor(mockObs.Object, mockLog.Object);
+        var executor = new OBSActionExecutor(mockObs.Object, mockLog.Object, action => action());
 
         executor.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
 

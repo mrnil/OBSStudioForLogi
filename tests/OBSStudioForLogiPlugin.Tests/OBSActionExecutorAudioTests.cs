@@ -14,7 +14,7 @@ public class OBSActionExecutorAudioTests
     {
         this._mockObs = new Mock<IOBSWebsocket>();
         this._mockLog = new Mock<IPluginLog>();
-        this._executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object);
+        this._executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object, action => action());
     }
 
     // --- GetInputVolume ---
@@ -61,7 +61,6 @@ public class OBSActionExecutorAudioTests
 
         this._executor.SetInputVolume("Microphone", 0.5f);
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.SetInputVolume("Microphone", 0.5f), Times.Once);
     }
 
@@ -72,7 +71,6 @@ public class OBSActionExecutorAudioTests
 
         this._executor.SetInputVolume("Microphone", 0.5f);
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.SetInputVolume(It.IsAny<String>(), It.IsAny<Single>()), Times.Never);
     }
 
@@ -83,7 +81,6 @@ public class OBSActionExecutorAudioTests
 
         this._executor.SetInputVolume("", 0.5f);
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.SetInputVolume(It.IsAny<String>(), It.IsAny<Single>()), Times.Never);
     }
 
@@ -94,7 +91,6 @@ public class OBSActionExecutorAudioTests
         this._mockObs.Setup(x => x.SetInputVolume(It.IsAny<String>(), It.IsAny<Single>())).Throws(new Exception("OBS error"));
 
         this._executor.SetInputVolume("Microphone", 0.5f);
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Microphone") && s.Contains("OBS error"))), Times.Once);
     }
@@ -143,7 +139,6 @@ public class OBSActionExecutorAudioTests
         this._mockObs.Setup(x => x.GetInputAudioMonitorType("Mic")).Returns("OBS_MONITORING_TYPE_NONE");
 
         this._executor.CycleInputAudioMonitorType("Mic");
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockObs.Verify(x => x.SetInputAudioMonitorType("Mic", "OBS_MONITORING_TYPE_MONITOR_ONLY"), Times.Once);
     }
@@ -155,7 +150,6 @@ public class OBSActionExecutorAudioTests
         this._mockObs.Setup(x => x.GetInputAudioMonitorType("Mic")).Returns("OBS_MONITORING_TYPE_MONITOR_ONLY");
 
         this._executor.CycleInputAudioMonitorType("Mic");
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockObs.Verify(x => x.SetInputAudioMonitorType("Mic", "OBS_MONITORING_TYPE_MONITOR_AND_OUTPUT"), Times.Once);
     }
@@ -167,7 +161,6 @@ public class OBSActionExecutorAudioTests
         this._mockObs.Setup(x => x.GetInputAudioMonitorType("Mic")).Returns("OBS_MONITORING_TYPE_MONITOR_AND_OUTPUT");
 
         this._executor.CycleInputAudioMonitorType("Mic");
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockObs.Verify(x => x.SetInputAudioMonitorType("Mic", "OBS_MONITORING_TYPE_NONE"), Times.Once);
     }
@@ -178,7 +171,6 @@ public class OBSActionExecutorAudioTests
         this._mockObs.Setup(x => x.IsConnected).Returns(false);
 
         this._executor.CycleInputAudioMonitorType("Mic");
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockObs.Verify(x => x.SetInputAudioMonitorType(It.IsAny<String>(), It.IsAny<String>()), Times.Never);
     }
@@ -189,7 +181,6 @@ public class OBSActionExecutorAudioTests
         this._mockObs.Setup(x => x.IsConnected).Returns(true);
 
         this._executor.CycleInputAudioMonitorType("");
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockObs.Verify(x => x.SetInputAudioMonitorType(It.IsAny<String>(), It.IsAny<String>()), Times.Never);
     }
@@ -201,7 +192,6 @@ public class OBSActionExecutorAudioTests
         this._mockObs.Setup(x => x.GetInputAudioMonitorType(It.IsAny<String>())).Throws(new Exception("OBS error"));
 
         this._executor.CycleInputAudioMonitorType("Mic");
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
 
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Mic") && s.Contains("OBS error"))), Times.Once);
     }
@@ -251,7 +241,6 @@ public class OBSActionExecutorAudioTests
 
         this._executor.ToggleInputMute("");
 
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
         this._mockObs.Verify(x => x.ToggleInputMute(It.IsAny<String>()), Times.Never);
     }
 

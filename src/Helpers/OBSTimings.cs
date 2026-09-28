@@ -79,15 +79,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Helpers
         public const Int32 LogRepeatWindow = 60000;
 
         /// <summary>
-        /// Test delay for async operations in unit tests.
-        /// 500ms for CI environments (slower), 100ms for local development.
+        /// Test wait for code driven by a real timer, such as DoubleTapHelper's tap window.
+        /// Not for OBSActionExecutor tests: pass an inline background runner to its constructor instead.
         /// </summary>
         public const Int32 TestAsyncDelay = 500;
-
-        /// <summary>
-        /// Extended test delay for slower async operations in unit tests.
-        /// 750ms for CI environments (slower), 200ms for local development.
-        /// </summary>
-        public const Int32 TestAsyncDelayExtended = 750;
     }
 }

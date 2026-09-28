@@ -115,8 +115,7 @@ dotnet test --filter "FullyQualifiedName~OBSActionExecutorTests"
 - Use Moq for mocking dependencies
 - Follow Arrange-Act-Assert pattern
 - Name tests: `MethodName_Condition_ExpectedBehavior`
-- Add `Thread.Sleep(OBSTimings.TestAsyncDelay)` when testing `Task.Run` fire-and-forget methods
-- Use `OBSTimings.TestAsyncDelayExtended` for error-path tests that may be slower under load
+- For fire-and-forget methods, construct the class with an inline background runner (`action => action()`) and assert directly — don't `Thread.Sleep` and hope the work has finished
 - Current test count: 393
 
 ## Documentation

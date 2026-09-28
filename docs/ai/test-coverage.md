@@ -143,9 +143,9 @@ public void SetInputVolume_WhenConnected_CallsObs()
 {
     this._mockObs.Setup(x => x.IsConnected).Returns(true);
 
+    // The executor was built with an inline runner: new OBSActionExecutor(obs, log, action => action())
     this._executor.SetInputVolume("Microphone", 0.5f);
 
-    System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay); // 500ms
     this._mockObs.Verify(x => x.SetInputVolume("Microphone", 0.5f), Times.Once);
 }
 ```
@@ -185,7 +185,6 @@ public void GetInputVolume_WhenOBSThrows_LogsErrorAndReturnsDefault()
 
 Defined in `src/Helpers/OBSTimings.cs`:
 
-- `TestAsyncDelay = 500ms` — Standard wait for Task.Run fire-and-forget
-- `TestAsyncDelayExtended = 750ms` — Extended wait for slower operations
+- `TestAsyncDelay = 500ms` — wait for code driven by a real timer (`DoubleTapHelperTests`) only
 
-These are set conservatively for CI environments. Local execution could use shorter delays.
+`OBSActionExecutor` tests don't wait at all: they inject an inline background runner. The fixed 500ms sleeps they used to have raced the thread pool under full-suite load (assessment #15).

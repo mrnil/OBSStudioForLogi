@@ -6,7 +6,7 @@ Reassessed on 2026-09-28 against `main`: version 2.0.0, not yet tagged. The last
 
 Item numbers stay the same between assessments because `TODO.md`, commit messages and `CHANGELOG.md` refer to them. Open items from earlier passes keep their original numbers. New findings start at #18. Fixed items are summarised under [Resolved](#resolved); for their full write-ups, see `git log -p -- docs/ai/assessment.md`.
 
-**Open**: #3, #5, #8, #9, #15, #18, #20–#24. Priority order is in the [Summary Table](#summary-table).
+**Open**: #3, #5, #8, #9, #18, #20–#24. Priority order is in the [Summary Table](#summary-table).
 
 ---
 
@@ -81,14 +81,6 @@ A scene change also costs about 10 requests through `OBSFacade.UpdateSourcesForS
 
 ---
 
-### 15. `Thread.Sleep`-After-`Task.Run` Flakiness in Tests (Test Reliability)
-
-**Problem**: Unchanged in kind, and larger now: 88 `Thread.Sleep` calls in 12 test files, out of 531 tests. The largest are `OBSActionExecutorTests` (26), `OBSActionExecutorReplayBufferTests` (15) and `OBSActionExecutorAudioTests` (11). Most fire a `Task.Run` operation, sleep for `OBSTimings.TestAsyncDelay` and then assert on a mock, so they fail at random under full-suite thread-pool load. Some remaining sleeps in `DoubleTapHelperTests` and `ConnectionManagerTests` are intentional "nothing should happen" waits, so check each one before converting it.
-
-**Fix**: Replace them with the bounded `WaitFor` poll used in #14, one file at a time, starting with the largest files. This is still the blocker for running tests in CI (see `AGENTS.md`).
-
----
-
 ## Low Priority
 
 ### 8. `ProfileListChanged` / `SceneCollectionListChanged` Not Subscribed (Feature Gap)
@@ -138,6 +130,7 @@ A scene change also costs about 10 requests through `OBSFacade.UpdateSourcesForS
 | 12 | Risk | net10.0 build verified under a real Logi Plugin Service host | v1.6.2 |
 | 13 | Build/DX | `obj/` location no longer depends on how the build is invoked | v1.6.2 |
 | 14 | Test Reliability | `DoubleTapHelperTests` fixed-sleep race replaced with a bounded poll | Unreleased (2.0.0) |
+| 15 | Test Reliability | `OBSActionExecutor` takes an injectable background runner, so its tests run mutations inline; 77 fixed sleeps removed from 9 test files. The 11 left wait on real timers (`DoubleTapHelper`, `ConnectionManager` retries, one real connect attempt) | Unreleased (2.0.0) |
 | 16 | Performance | Reconnect storm on meter subscription changes; blocking audio requests on the render path | Unreleased (2.0.0) |
 | 17 | Performance | Log-review follow-ups: identified-only `IsConnected`, 3s request timeout, non-overlapping stats polls, null-tolerant stats, startup retry, 15s meter lease, log throttling. The remaining part became #18. | Unreleased (2.0.0) |
 | 19 | Security | Remote OBS password moved out of `config.json` into the SDK's encrypted plugin settings, with migration. The Action Editor field is persisted in plaintext in the device profile, so an empty field now keeps the saved password, users are told to clear it after saving, and a "Clear Saved Password" checkbox removes it. A value left in the field still sits in the profile. Needs a device check | Unreleased (2.0.0) |
@@ -156,7 +149,6 @@ Open items, in the order to work on them.
 | 22 | Medium | Docs | AI docs describe `ButtonImageHelper` methods that don't exist (drift brought back by the #3 revert) |
 | 3 | Medium | Usability | Name text on scene/source/profile buttons: the fix was reverted without a recorded reason, so check on a device and decide |
 | 5 | Medium | Usability | Hard-coded 500ms double-tap window delays every single tap |
-| 15 | Medium | Test Reliability | 88 fixed `Thread.Sleep` waits across 12 test files; blocks running tests in CI |
 | 8 | Low | Feature | `ProfileListChanged`/`SceneCollectionListChanged` not subscribed |
 | 9 | Low | Feature | Recording duration display (parity with stream stats) |
 | 23 | Low | Code Quality | `async void` without a catch, blocking `Task.Delay().Wait()`, double `NotifyDisconnected`, 1,165-line `OBSActionExecutor` |
