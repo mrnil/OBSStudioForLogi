@@ -28,13 +28,18 @@ A scene change also costs about 10 requests through `OBSFacade.UpdateSourcesForS
 
 ---
 
-### 19. Remote OBS Password Stored in Plaintext (Security)
+### 19. Remote OBS Password Stored in Plaintext (Security): Partly Fixed
 
-**Problem**: `PluginSettingsCommand` saves `RemotePassword` through `PluginConfigReader.Save`, which writes it unencrypted into `%AppData%\Loupedeck\OBSStudioForLogiPlugin\config.json` using `File.WriteAllText`. `docs/ai/secure-coding.md` says "Never store OBS WebSocket password in plugin code or config". The remote-connection feature breaks that rule. Local mode is fine: it reads the password from OBS's own config only when it needs it.
+**Fixed so far**: `config.json` no longer holds the password. `PluginConfig.RemotePassword` is `[JsonIgnore]`. `PluginConfigReader` stores the password through `ISecretStore`, which the plugin backs with the SDK's plugin settings (`SetPluginSetting`, `backupOnline: false`). The Logi Plugin Service stores these encrypted on Windows and macOS, so DPAPI and Keychain code isn't needed. On the first read, a plaintext password left by an older version is saved to the store and removed from the file. If the store rejects it, the file is left as it was and the plaintext copy is still used, so the password is never lost. The read that uses the store happens in `Load()`, because the SDK doesn't document whether plugin settings work in the plugin constructor.
 
-**Impact**: Any process or backup that can read the user's AppData can get the password for a remote OBS instance, and that instance is often on another machine on the network.
+**Still open**: the password is typed into the Plugin Settings action's `Password (sensitive)` text box, which is an Action Editor control. The Logi Plugin Service saves Action Editor values in the device profile (`%LocalAppData%\Logi\LogiPluginService\Applications\<device>\<app>\Profiles\<id>\ProfileInfo.json`), and the password is in plaintext there. This was confirmed on 2026-09-28 against a profile with the action assigned.
 
-**Fix**: Encrypt the password at rest. On Windows use DPAPI (`ProtectedData`, current-user scope). On macOS use the Keychain. Also check the SDK's plugin-settings API ([llms.txt](https://logitech.github.io/actions-sdk-docs/llms.txt)) for built-in encrypted storage before writing platform-specific code. Existing plaintext values need a migration: read them once, re-save them encrypted, and never write plaintext again. If encryption is deferred, update `secure-coding.md` to record the exception and restrict the file's ACL. The doc and the code should not disagree.
+**Fix**: The SDK has no masked or non-persisted text box, so the password must not stay in the action's parameters. Options:
+
+- Treat an empty Password field as "keep the stored password", tell users to clear the field after saving, and add a "Clear saved password" checkbox for removing it. The plaintext copy then lasts only until the user clears the field.
+- Move password entry out of the Action Editor completely, for example into a plugin-level settings UI if the SDK offers one.
+
+`docs/ai/secure-coding.md` records the rule against collecting secrets through Action Editor controls.
 
 ---
 
@@ -160,7 +165,7 @@ Open items, in the order to work on them.
 | # | Priority | Area | Issue |
 |---|----------|------|-------|
 | 18 | High | Performance | Source visibility and media status still make blocking OBS requests on redraw (three render paths) |
-| 19 | High | Security | Remote OBS password stored in plaintext in `config.json`, against `secure-coding.md` |
+| 19 | High | Security | Remote OBS password: out of `config.json` now, but still saved in plaintext in the device profile by the Action Editor text box |
 | 20 | Medium | Architecture | Services call `OBSStudioForLogiPlugin.Instance`, and the plugin calls command singletons directly |
 | 21 | Medium | Correctness | `InputNameChanged` not handled: renamed inputs leave stale folders, cache entries and user-defined buttons |
 | 22 | Medium | Docs | AI docs describe `ButtonImageHelper` methods that don't exist (drift brought back by the #3 revert) |

@@ -20,8 +20,10 @@
 
 ## Data Protection
 
-* Never store OBS WebSocket password in plugin code or config
-* Read password from OBS config only when needed
+* Never store OBS WebSocket password in plugin code or `config.json`
+* Local OBS: read the password from OBS's own config only when needed
+* Remote OBS: store the password only through `ISecretStore`, which the plugin backs with the SDK's plugin settings (`SetPluginSetting`, stored encrypted by the Logi Plugin Service, `backupOnline: false`)
+* Values typed into an Action Editor control are saved in plaintext in the device profile (`ProfileInfo.json`) by the Logi Plugin Service, so never collect a secret through an Action Editor control without a plan to clear it (see assessment #19)
 * Clear sensitive data from memory when no longer needed
 * Use readonly fields for injected dependencies
 * Validate data before passing to OBS WebSocket API

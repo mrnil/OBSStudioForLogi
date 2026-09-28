@@ -8,7 +8,7 @@ OBSStudioForLogiPlugin/
 │   ├── Actions/                  # Loupedeck SDK command/folder classes (49 files)
 │   ├── Helpers/                  # Utility classes (11 files)
 │   ├── Models/                   # Data models (4 files)
-│   ├── Services/                 # Business logic and OBS integration (14 files)
+│   ├── Services/                 # Business logic and OBS integration (17 files)
 │   ├── Resources/icons/          # SVG button icons (40 files; rules in docs/ai/icon-style.md)
 │   ├── package/metadata/         # LoupedeckPackage.yaml + plugin icon
 │   ├── OBSStudioForLogiPlugin.cs # Main plugin class (orchestration)
@@ -47,7 +47,8 @@ OBSStudioForLogiPlugin/
 | `IObsCommand.cs` | 15 notification interfaces (IObsCommand + 14 specialised) |
 | `OBSConfigReader.cs` | Reads OBS WebSocket config from disk |
 | `OBSLifecycleManager.cs` | Port availability checking |
-| `PluginConfigReader.cs` | Read/write plugin config JSON |
+| `PluginConfigReader.cs` | Read/write plugin config JSON; keeps the remote password out of the file, in an `ISecretStore`, and moves plaintext passwords left by older versions into it |
+| `ISecretStore.cs` | Encrypted value storage; the plugin backs it with the SDK's plugin settings (`PluginSettingsSecretStore`, nested in the plugin class) |
 | `ReconnectionStrategy.cs` | Exponential backoff with jitter |
 | `StatsService.cs` | Timer-based stats polling; skips a tick while the previous poll is still running |
 | `AudioMeterService.cs` | Latest per-input audio meter levels fed by `InputVolumeMeters` (expire after `OBSTimings.AudioMeterStaleThreshold`), the live-input list, and a cached per-input mute state |

@@ -1,6 +1,7 @@
 namespace Loupedeck.OBSStudioForLogiPlugin.Models
 {
     using System;
+    using System.Text.Json.Serialization;
     using Loupedeck.OBSStudioForLogiPlugin.Helpers;
 
     /// <summary>
@@ -29,8 +30,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Models
         public Int32 RemotePort { get; set; } = 4455;
 
         /// <summary>
-        /// Remote OBS WebSocket password (used when UseLocalObs is false).
+        /// Remote OBS WebSocket password (used when UseLocalObs is false). Never serialized:
+        /// <see cref="Services.PluginConfigReader"/> keeps it in the encrypted secret store.
         /// </summary>
+        [JsonIgnore]
         public String RemotePassword { get; set; } = "";
 
         /// <summary>

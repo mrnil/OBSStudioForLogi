@@ -101,16 +101,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 AudioMeterRefreshInterval = meterRefreshInterval
             };
 
-            var configReader = new PluginConfigReader();
-            if (configReader.SaveConfig(config))
-            {
-                PluginLog.Info($"PluginSettings: Config saved - UseLocal={useLocal}, IP={config.RemoteIpAddress}, Port={port}, Polling={pollingInterval}ms, MeterRefresh={meterRefreshInterval}ms");
-                OBSStudioForLogiPlugin.Instance?.ApplyConnectionConfig(config);
-            }
-            else
-            {
-                PluginLog.Error("PluginSettings: Failed to save config");
-            }
+            // The plugin saves through its own config reader, which holds the encrypted secret
+            // store for the password.
+            PluginLog.Info($"PluginSettings: Saving config - UseLocal={useLocal}, IP={config.RemoteIpAddress}, Port={port}, Polling={pollingInterval}ms, MeterRefresh={meterRefreshInterval}ms");
+            OBSStudioForLogiPlugin.Instance?.SaveAndApplyConnectionConfig(config);
 
             return true;
         }

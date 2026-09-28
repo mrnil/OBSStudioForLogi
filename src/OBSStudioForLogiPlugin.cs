@@ -13,6 +13,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly OBSFacade _obsFacade;
         private readonly OBSConfigReader _obsConfigReader;
         private readonly StatsService _statsService;
+        private readonly PluginConfigReader _pluginConfigReader;
         public static String ScreenshotPath { get; private set; }
         
         public override Boolean UsesApplicationApiOnly => true;
@@ -23,6 +24,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             Instance = this;
             PluginLog.Init(this.Log);
             PluginResources.Init(this.Assembly);
+            this._pluginConfigReader = new PluginConfigReader(new PluginSettingsSecretStore(this));
             var pluginConfig = LoadPluginConfiguration();
             DiscoverScreenshotPath();
             
@@ -61,7 +63,18 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._obsConfigReader?.ReadConfig();
         }
 
-        public void ApplyConnectionConfig(PluginConfig config)
+        public void SaveAndApplyConnectionConfig(PluginConfig config)
+        {
+            if (!this._pluginConfigReader.SaveConfig(config))
+            {
+                PluginLog.Error("Failed to save plugin config - not applying it");
+                return;
+            }
+
+            this.ApplyConnectionConfig(config);
+        }
+
+        private void ApplyConnectionConfig(PluginConfig config)
         {
             PluginLog.Info($"Applying connection config: UseLocal={config.UseLocalObs}, IP={config.RemoteIpAddress}, Port={config.RemotePort}, Polling={config.StatsPollingInterval}ms");
             this._connectionManager.SetPluginConfig(config);
@@ -94,6 +107,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             try
             {
+                // The constructor's read skips the secret store, because the SDK doesn't document
+                // whether plugin settings are available that early. Re-read with it here, before
+                // the first connection attempt, to pick up the remote password.
+                this._connectionManager.SetPluginConfig(this._pluginConfigReader.ReadConfig());
+
                 this.Info.Icon256x256 = EmbeddedResources.ReadImage("Loupedeck.OBSStudioForLogiPlugin.metadata.Icon256x256.png");
 
                 // Subscribe to connection events for status reporting
@@ -571,6 +589,25 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void TriggerStudioModeTransition()
         {
             this._obsFacade.TriggerStudioModeTransition();
+        }
+
+        // The SDK's plugin-settings methods are protected, so this nested class exposes them as an
+        // ISecretStore. The Logi Plugin Service stores these values encrypted. They are not backed
+        // up online: the only secret is a password for a machine on the user's own network.
+        private sealed class PluginSettingsSecretStore : ISecretStore
+        {
+            private readonly OBSStudioForLogiPlugin _plugin;
+
+            public PluginSettingsSecretStore(OBSStudioForLogiPlugin plugin)
+            {
+                this._plugin = plugin;
+            }
+
+            public Boolean TryGet(String name, out String value) => this._plugin.TryGetPluginSetting(name, out value);
+
+            public void Set(String name, String value) => this._plugin.SetPluginSetting(name, value, false);
+
+            public void Delete(String name) => this._plugin.DeletePluginSetting(name);
         }
     }
 }

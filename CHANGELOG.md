@@ -30,6 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Reconnect button's icon is redrawn in white so it reads on the green, amber and red status backgrounds
 - The OBS Scenes folder has its own folder icon
 
+### Security
+
+- The remote OBS password is no longer written to `config.json`. It is kept in the plugin settings, which the Logi Plugin Service stores encrypted, and a password saved by an earlier version is moved there on first load
+
 ### Fixed
 
 - Media buttons now refresh when playback starts — `MediaInputPlaybackStarted` always arrived with no input name in library 5.0.1, so the event was ignored

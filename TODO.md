@@ -9,7 +9,8 @@
 
 ### Assessment: Remote OBS Password Stored in Plaintext (#19)
 
-- [ ] Encrypt `RemotePassword` at rest (check the SDK's plugin settings first; otherwise DPAPI on Windows, Keychain on macOS) and migrate existing plaintext values
+- [x] ~~Keep `RemotePassword` out of `config.json`: store it through the SDK's encrypted plugin settings and migrate existing plaintext values~~ ✅ Done
+- [ ] Stop the password reaching the device profile: the Logi Plugin Service saves the Plugin Settings action's Password text box in plaintext in `ProfileInfo.json`
 
 ### Assessment: Verify net10.0 Runtime Compatibility (#12) ✅ Done
 
