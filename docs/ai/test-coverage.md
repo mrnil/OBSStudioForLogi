@@ -2,9 +2,9 @@
 
 ## Overview
 
-The project follows a TDD approach with 691 unit tests using xUnit + Moq (verified 2026-09-29, net10.0, all passing). Overall line coverage is ~37.4% (Cobertura, last measured pre-CommandCoordinator-refactor), branch coverage ~19.8%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage. Coverage has drifted down slightly since v1.5.1 (was 39.5%/22.6%) as v1.6.0 added several new Actions-layer commands (`SceneSelectCommand`, `AudioSourceSelectCommand`, `SceneCollectionsDynamicFolder`) faster than services-layer surface area grew — expected under the TDD-exemption policy, not a regression.
+The project follows a TDD approach with 705 unit tests using xUnit + Moq (verified 2026-09-29, net10.0, all passing). Overall line coverage is ~37.4% (Cobertura, last measured pre-CommandCoordinator-refactor), branch coverage ~19.8%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage. Coverage has drifted down slightly since v1.5.1 (was 39.5%/22.6%) as v1.6.0 added several new Actions-layer commands (`SceneSelectCommand`, `AudioSourceSelectCommand`, `SceneCollectionsDynamicFolder`) faster than services-layer surface area grew — expected under the TDD-exemption policy, not a regression.
 
-## Test Count: 691
+## Test Count: 705
 
 ## Test Files
 
@@ -35,7 +35,8 @@ The project follows a TDD approach with 691 unit tests using xUnit + Moq (verifi
 | `CommandCoordinatorTests.cs` | Dispatch-by-interface for every notification type, per-command exception isolation | 24 |
 | `AudioStateCacheTests.cs` | Non-blocking misses, single in-flight fetch, event-vs-fetch precedence, failure backoff, invalidation | 14 |
 | `KeyedStateCacheTests.cs` | Same as `AudioStateCacheTests` for the single-value cache, plus `TryFetch` failures and `RemoveWhere` | 19 |
-| `SessionGateTests.cs` | Once-per-connection gate, including concurrent opens | 4 |
+| `SessionGateTests.cs` | Once-per-connection gate, including concurrent opens; `Generation`/`IsCurrent` tell an old connection from a new one | 8 |
+| `InitialStateLoaderTests.cs` | Initial state load retried while OBS answers "not ready" (207), given up after the last attempt, not retried for other errors, abandoned when the connection goes (#26) | 10 |
 | `ConnectionManagerTests.cs` | `IsConnecting` during a port wait; `ReconnectAsync` ignores presses mid-attempt; retries while the port never comes up, stopped by `Disconnect`/`Dispose` | 8 |
 | `StatsServiceTests.cs` | Poll stores stats, overlapping polls skipped, a throwing provider doesn't block later polls; polling only while connected with a viewer, an immediate poll for the first viewer, resuming after reconnect (#25) | 18 |
 | `LoadingTilesTests.cs` | Loading tile parameters, tile index parsing, begin/end state, two tiles to fit beside the Back button, font size that fits the message (#25); rendering is SDK-dependent and checked on a device | 17 |

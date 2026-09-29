@@ -36,6 +36,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsFacade = new OBSFacade(obsManager);
             this._statsService = new StatsService(pluginConfig?.StatsPollingInterval ?? 5000);
             this._statsService.StatsUpdated += this.OnStatsUpdated;
+            obsManager.InitialStateLoadFinished += this.OnInitialStateLoadFinished;
         }
 
         private static PluginConfig LoadPluginConfiguration()
@@ -187,9 +188,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             PluginLog.Info("OBS WebSocket connected");
             this.ReportPluginStatus(Loupedeck.PluginStatus.Normal, null);
-            this._statsService.Start();
             this._commandCoordinator.NotifyConnected();
             ConnectionStatusDisplay.Instance?.UpdateStatus();
+        }
+
+        // Stats polling waits for the initial state load: while OBS is still starting it rejects
+        // stats requests too, and each rejection was logged as an error.
+        private void OnInitialStateLoadFinished(Object sender, EventArgs e)
+        {
+            this._statsService.Start();
         }
 
         private void OnOBSDisconnected(Object sender, EventArgs e)

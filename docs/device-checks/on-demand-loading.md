@@ -109,7 +109,7 @@ For reference, when reviewing the extract yourself:
 | 4 | `SourcesDynamicFolder closed`, then `Skipping source load` for the scene change |
 | 5 | `SceneAudioSourcesDynamicFolder opened - loading audio sources`, then `Loaded ...` |
 | 6 | `Cleared cached audio input scene membership (scene item created in '...')`, a cache miss and a new `Loaded ...`; the same for the removal |
-| 7 | Disconnect; on reconnect `SceneAudioSourcesDynamicFolder open when OBS connected - loading audio sources` and a `Loaded ...` line |
+| 7 | Disconnect; on reconnect `SceneAudioSourcesDynamicFolder open when OBS connected - loading audio sources` and a `Loaded ...` line. If OBS was still starting: `OBS is not ready for the initial state load yet`, then `Initial state loaded once OBS was ready`, with no stats errors |
 | 8 | `StatsDynamicFolder opened`, `polling started`, `polled stats in X ms (first viewer)`, timer polls, then `closed` and `polling stopped` |
 | 9 | The same for `StreamStatsDynamicFolder` |
 | 10 | `Stats summary button visible - requesting stats` and `polling started`; after moving away, `no longer visible - releasing stats` and `polling stopped` within about 6 seconds |

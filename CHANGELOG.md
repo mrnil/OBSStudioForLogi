@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Switching scenes no longer holds up other OBS updates while the new scene's source lists load. The lists now load in the background, and if scenes are switched quickly only the latest scene's sources are shown
 - Renaming an input or scene in OBS no longer leaves the plugin showing the old name. The Mixer, Live Audio, Media and Scene Sources folders and the scene list update straight away, the renamed input stays selected on the dial, and its mute, volume, visibility and playback state carry over. User-defined buttons store the name you typed, so the plugin log now warns which name to change them to
 - Adding or removing an input no longer holds up other OBS updates while the input list reloads
+- Connecting while OBS is still starting (for example when OBS is restarted with the plugin running) no longer leaves the audio folders, profiles and studio mode empty. OBS rejects requests until it has finished loading, and the plugin used to try once and give up; it now retries for up to 30 seconds. Stats polling also waits until then, instead of logging errors while OBS starts
 
 ## [1.6.2] - 2026-08-21
 

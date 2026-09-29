@@ -20,6 +20,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly Object _disposeLock = new Object();
         private readonly HashSet<String> _volumeMeterOwners = new HashSet<String>();
         private readonly SessionGate _session = new SessionGate();
+        private readonly InitialStateLoader _initialStateLoader;
         private String _lastUrl;
         private String _lastPassword;
         private Boolean _shouldReconnect = false;
@@ -46,6 +47,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public event EventHandler ConnectionEstablished;
         public event EventHandler ConnectionLost;
 
+        // Raised once per connection when the initial state load has finished - after OBS was
+        // ready, or after giving up - so work that needs a ready OBS (stats polling) can start.
+        public event EventHandler InitialStateLoadFinished;
+
         public OBSWebSocketManager() : this(new PluginLogAdapter())
         {
         }
@@ -61,6 +66,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             // fresh client with that watchdog off but keeps this request timeout.
             this._obs.WSTimeout = TimeSpan.FromMilliseconds(OBSTimings.RequestTimeout);
             this._reconnectionStrategy = new ReconnectionStrategy(log);
+            this._initialStateLoader = new InitialStateLoader(log);
             this.Actions = new OBSActionExecutor(new OBSWebsocketAdapter(this._obs), log);
             this.AudioMeters = new AudioMeterService();
             this.AudioState = new AudioStateCache(this.Actions.TryGetInputAudioState, this.OnAudioStateFetched);
@@ -226,49 +232,57 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.ConnectionEstablished?.Invoke(this, EventArgs.Empty);
             
             // Load the initial state once and push it to the commands - they no longer query OBS
-            // for these lists themselves in OnConnected.
-            Task.Run(() =>
+            // for these lists themselves in OnConnected. OBS may still be starting, so the load
+            // retries while it answers "not ready" - see InitialStateLoader.
+            Int64 session = this._session.Generation;
+            Task.Run(async () =>
             {
-                try
+                await this._initialStateLoader.RunAsync(this.LoadInitialState, () => this._session.IsCurrent(session));
+
+                if (this._session.IsCurrent(session))
                 {
-                    var profiles = this._obs.GetProfileList();
-                    if (profiles?.CurrentProfileName != null)
-                    {
-                        this.Actions.SetCurrentProfileState(profiles.CurrentProfileName);
-                        this._log.Info($"Initial profile: '{profiles.CurrentProfileName}'");
-                        OBSStudioForLogiPlugin.Instance?.OnProfileChanged(String.Empty, profiles.CurrentProfileName);
-                        this.NotifyProfileList(profiles.Profiles, profiles.CurrentProfileName);
-                    }
-
-                    var currentCollection = this._obs.GetCurrentSceneCollection();
-                    if (!String.IsNullOrEmpty(currentCollection))
-                    {
-                        this.Actions.SetCurrentSceneCollectionState(currentCollection);
-                        this._log.Info($"Initial scene collection: '{currentCollection}'");
-                        OBSStudioForLogiPlugin.Instance?.OnSceneCollectionChanged(String.Empty, currentCollection);
-                    }
-
-                    String[] sceneCollections = this.Actions.GetSceneCollectionList();
-                    OBSStudioForLogiPlugin.Instance?.OnSceneCollectionsChanged(sceneCollections, currentCollection ?? String.Empty);
-
-                    var sceneList = this._obs.GetSceneList();
-                    if (sceneList?.CurrentProgramSceneName != null)
-                    {
-                        this.Actions.SetCurrentSceneState(sceneList.CurrentProgramSceneName);
-                        this._log.Info($"Initial scene: '{sceneList.CurrentProgramSceneName}'");
-                        OBSStudioForLogiPlugin.Instance?.OnCurrentSceneChanged(sceneList.CurrentProgramSceneName);
-                    }
-
-                    // Load initial scene list and notify commands
-                    this.UpdateSceneList();
-                    this.UpdateInputList();
-                    this.UpdateStudioModeState();
-                }
-                catch (Exception ex)
-                {
-                    this._log.Warning($"Failed to get initial state: {ex.Message}");
+                    this.InitialStateLoadFinished?.Invoke(this, EventArgs.Empty);
                 }
             });
+        }
+
+        // Throws if OBS rejects a request, including "not ready" while it is starting: the first
+        // requests go straight to the library rather than through the executor, which would
+        // swallow the error and push empty lists to the commands.
+        private void LoadInitialState()
+        {
+            var profiles = this._obs.GetProfileList();
+            if (profiles?.CurrentProfileName != null)
+            {
+                this.Actions.SetCurrentProfileState(profiles.CurrentProfileName);
+                this._log.Info($"Initial profile: '{profiles.CurrentProfileName}'");
+                OBSStudioForLogiPlugin.Instance?.OnProfileChanged(String.Empty, profiles.CurrentProfileName);
+                this.NotifyProfileList(profiles.Profiles, profiles.CurrentProfileName);
+            }
+
+            var currentCollection = this._obs.GetCurrentSceneCollection();
+            if (!String.IsNullOrEmpty(currentCollection))
+            {
+                this.Actions.SetCurrentSceneCollectionState(currentCollection);
+                this._log.Info($"Initial scene collection: '{currentCollection}'");
+                OBSStudioForLogiPlugin.Instance?.OnSceneCollectionChanged(String.Empty, currentCollection);
+            }
+
+            String[] sceneCollections = this.Actions.GetSceneCollectionList();
+            OBSStudioForLogiPlugin.Instance?.OnSceneCollectionsChanged(sceneCollections, currentCollection ?? String.Empty);
+
+            var sceneList = this._obs.GetSceneList();
+            if (sceneList?.CurrentProgramSceneName != null)
+            {
+                this.Actions.SetCurrentSceneState(sceneList.CurrentProgramSceneName);
+                this._log.Info($"Initial scene: '{sceneList.CurrentProgramSceneName}'");
+                OBSStudioForLogiPlugin.Instance?.OnCurrentSceneChanged(sceneList.CurrentProgramSceneName);
+            }
+
+            // Load initial scene list and notify commands
+            this.UpdateSceneList();
+            this.UpdateInputList();
+            this.UpdateStudioModeState();
         }
 
         private void OnDisconnected(Object sender, ObsDisconnectionInfo e)

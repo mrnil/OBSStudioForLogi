@@ -35,6 +35,18 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Helpers
         public const Int32 RequestTimeout = 3000;
 
         /// <summary>
+        /// While OBS is still starting it accepts connections but answers requests with "not
+        /// ready", so the initial state load waits this long between attempts (500ms).
+        /// </summary>
+        public const Int32 InitialStateRetryDelay = 500;
+
+        /// <summary>
+        /// How many times the initial state load tries before giving up while OBS keeps answering
+        /// "not ready" (60, about 30s at <see cref="InitialStateRetryDelay"/>).
+        /// </summary>
+        public const Int32 InitialStateMaxAttempts = 60;
+
+        /// <summary>
         /// When OBS isn't running, how long to wait after a connection attempt's port wait gives up
         /// before starting the next attempt (30000ms). Each attempt already polls the port for about a
         /// minute (20 probes, each ~2s to fail on Windows plus a 1s gap).

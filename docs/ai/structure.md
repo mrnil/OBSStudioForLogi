@@ -8,7 +8,7 @@ OBSStudioForLogiPlugin/
 │   ├── Actions/                  # Loupedeck SDK command/folder classes (51 files)
 │   ├── Helpers/                  # Utility classes (17 files)
 │   ├── Models/                   # Data models (7 files)
-│   ├── Services/                 # Business logic and OBS integration (20 files)
+│   ├── Services/                 # Business logic and OBS integration (21 files)
 │   ├── Resources/icons/          # SVG button icons (40 files; rules in docs/ai/icon-style.md)
 │   ├── package/metadata/         # LoupedeckPackage.yaml + plugin icon
 │   ├── OBSStudioForLogiPlugin.cs # Main plugin class (orchestration)
@@ -17,7 +17,7 @@ OBSStudioForLogiPlugin/
 ├── tests/
 │   └── OBSStudioForLogiPlugin.Tests/
 │       ├── Actions/              # Action-layer integration tests (22 files)
-│       └── *.cs                  # Services-layer unit tests (42 files)
+│       └── *.cs                  # Services-layer unit tests (43 files)
 ├── docs/ai/                      # AI coding rules and architecture docs (Claude Code, etc.)
 ├── .github/workflows/            # CI: dependency-check.yml
 ├── bin/                          # Build output (Debug/Release)
@@ -55,6 +55,7 @@ OBSStudioForLogiPlugin/
 | `AudioStateCache.cs` | Non-blocking per-input mute/volume/monitor type for button rendering: fetches a miss once in the background, kept current by OBS change events |
 | `KeyedStateCache.cs` | The same non-blocking pattern for one value per key; `OBSWebSocketManager.SourceVisibility` uses it keyed by (scene, source), `OBSWebSocketManager.MediaState` keyed by input name |
 | `SceneSourcesLoader.cs` | Loads a scene's source and audio source lists in the background for `OBSFacade.UpdateSourcesForScene`, so a scene change doesn't hold up the OBS event thread; only the latest load is delivered, and none after a disconnect. Loads nothing unless a scene source folder has registered as a viewer |
+| `InitialStateLoader.cs` | Runs the once-per-connection initial state load, retrying every `OBSTimings.InitialStateRetryDelay` while OBS answers "not ready" (207) during its startup, until the connection changes. `OBSWebSocketManager` raises `InitialStateLoadFinished` afterwards, which starts stats polling |
 | `CachedValue.cs` | One OBS-derived value fetched on first use and kept until `Invalidate`; failed fetches and fetches overtaken by an invalidation aren't kept. `OBSWebSocketManager.AudioInputMembership` uses it for the audio input lists behind the scene audio folder |
 
 ### `src/Actions/` — Loupedeck SDK Commands (SDK-dependent, exempt from strict TDD)
@@ -126,7 +127,7 @@ Note: as of v1.6.0 the `99. User Defined Actions` group has been retired — all
 | `VuMeterRenderer.cs` | VU meter tile state (inactive/muted/meter), bar rendering, dB scaling and colour zones |
 | `ActivityLease.cs` | Touch-renewed lease that lapses when idle; infers button visibility for `AudioMeterCommand` and `StatsDisplay` |
 | `LoadingTiles.cs` | "Loading …" placeholder a folder shows while its list loads, drawn as one message across the two buttons right of the folder's Back button |
-| `SessionGate.cs` | Opens once per OBS connection so the initial state load ignores repeated `Connected` events (ReIdentify confirmations) |
+| `SessionGate.cs` | Opens once per OBS connection so the initial state load ignores repeated `Connected` events (ReIdentify confirmations); its `Generation` lets work started for one connection tell when that connection has gone |
 | `PressTimingHelper.cs` | DoubleTapHelper: 500ms window single/double tap detection |
 | `OBSTimings.cs` | Centralised timing constants (delays, test timeouts) |
 | `MediaInputStates.cs` | OBS media state/action names, the state each action leaves an input in, and the media button's single-tap action |

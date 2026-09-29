@@ -45,6 +45,12 @@
 - [x] ~~Check how the loading tiles look~~ ✅ Done 2026-09-29: the message sits right of the Back button and reads correctly across both tiles
 - [ ] Consider: `MediaDynamicFolder` still requests the full input list on every input list change, and the initial state load requests the scene list twice
 
+### Assessment: Initial State Not Loaded When OBS Is Still Starting (#26) ✅ Done
+
+- [x] ~~Retry the initial state load while OBS answers "not ready" (207), for as long as the connection is unchanged~~ ✅ Done
+- [x] ~~Start stats polling after the initial state load instead of at connect~~ ✅ Done
+- [ ] Check on a device: with the plugin running, close and restart OBS, and confirm the log shows `Initial state loaded once OBS was ready`, the audio folders list their inputs and no stats errors appear
+
 ### Assessment: Scene/Source/Profile Buttons Show No Text (#3) — Needs Decision
 
 - [ ] Check on a device whether the SDK already shows item names on folder buttons; close or re-attempt (the earlier fix was reverted without a recorded reason)
