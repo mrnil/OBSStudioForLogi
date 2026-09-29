@@ -54,6 +54,7 @@ OBSStudioForLogiPlugin/
 | `AudioMeterService.cs` | Latest per-input audio meter levels fed by `InputVolumeMeters` (expire after `OBSTimings.AudioMeterStaleThreshold`), the live-input list, and a cached per-input mute state |
 | `AudioStateCache.cs` | Non-blocking per-input mute/volume/monitor type for button rendering: fetches a miss once in the background, kept current by OBS change events |
 | `KeyedStateCache.cs` | The same non-blocking pattern for one value per key; `OBSWebSocketManager.SourceVisibility` uses it keyed by (scene, source), `OBSWebSocketManager.MediaState` keyed by input name |
+| `SceneSourcesLoader.cs` | Loads a scene's source and audio source lists in the background for `OBSFacade.UpdateSourcesForScene`, so a scene change doesn't hold up the OBS event thread; only the latest load is delivered, and none after a disconnect |
 
 ### `src/Actions/` — Loupedeck SDK Commands (SDK-dependent, exempt from strict TDD)
 

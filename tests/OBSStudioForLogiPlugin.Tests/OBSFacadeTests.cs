@@ -287,6 +287,28 @@ public class OBSFacadeTests
     }
 
     [Fact]
+    public void UpdateSourcesForScene_RunsOnBackgroundRunner()
+    {
+        Queue<Action> background = new Queue<Action>();
+        OBSFacade facade = new OBSFacade(this._manager, action => background.Enqueue(action));
+
+        facade.UpdateSourcesForScene("Scene", (s, sources, audio) => { });
+
+        Assert.Single(background);
+    }
+
+    [Fact]
+    public void UpdateSourcesForScene_WhenDisconnected_DoesNotCallCallback()
+    {
+        OBSFacade facade = new OBSFacade(this._manager, action => action());
+        Boolean called = false;
+
+        facade.UpdateSourcesForScene("Scene", (s, sources, audio) => called = true);
+
+        Assert.False(called);
+    }
+
+    [Fact]
     public void GetStats_WhenDisconnected_ReturnsEmpty()
     {
         var result = this._facade.GetStats();

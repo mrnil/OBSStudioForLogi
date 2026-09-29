@@ -6,32 +6,13 @@ Reassessed on 2026-09-28 against `main`: version 2.0.0, not yet tagged. The last
 
 Item numbers stay the same between assessments because `TODO.md`, commit messages and `CHANGELOG.md` refer to them. Open items from earlier passes keep their original numbers. New findings start at #18. Fixed items are summarised under [Resolved](#resolved); for their full write-ups, see `git log -p -- docs/ai/assessment.md`.
 
-**Open**: #3, #5, #8, #9, #18, #20–#24. Priority order is in the [Summary Table](#summary-table).
+**Open**: #3, #5, #8, #9, #20–#24. Priority order is in the [Summary Table](#summary-table).
 
 ---
 
 ## High Priority
 
-### 18. Source Visibility and Media Status Still Query OBS on the Render Path (Performance)
-
-Carried over from #17 ("Still open"), with one more call site.
-
-**Problem**: #16 moved audio rendering onto `AudioStateCache`, but three render methods still make blocking OBS requests on the SDK's render thread:
-
-- ~~`SourcesDynamicFolder.GetCommandImage` → `GetSourceVisibility` (`GetSceneItemId` + `GetSceneItemEnabled`, two requests per tile per redraw)~~ Fixed: reads `OBSWebSocketManager.SourceVisibility`.
-- ~~`SourceVisibilityAdjustableCommand.GetCommandImage` → `GetSourceVisibility`~~ Fixed by the same change.
-- ~~`MediaDynamicFolder.GetCommandImage` → `GetMediaInputStatus`~~ Fixed: reads `OBSWebSocketManager.MediaState`. `RunCommand`'s single tap now reads the live state in the background via `ToggleMediaInputPlayback`.
-
-A scene change also costs about 10 requests through `OBSFacade.UpdateSourcesForScene`. This is the same class of bug that caused the 2026-09-27 device lag. When OBS is slow, each tile waits up to `OBSTimings.RequestTimeout` (3s).
-
-**Fix**: Do what `AudioStateCache` does: serve renders from a cache keyed by (scene, source), return a default and fetch in the background on a miss, and keep the cache current from `SceneItemEnableStateChanged` (already subscribed) and the `MediaInputPlayback*` events. Clear it on disconnect and on scene-collection change.
-
-**Progress**: All three render paths now read from a `KeyedStateCache`:
-
-- Source visibility is kept current by `SceneItemEnableStateChanged`. Connect, disconnect, collection change and scene item add/remove clear it.
-- Media state is kept current by `MediaInputPlaybackStarted`/`Ended` and the newly subscribed `MediaInputActionTriggered`, which covers pause, resume and stop. Connect, disconnect, collection change and `InputRemoved` clear it.
-
-Remaining: move `UpdateSourcesForScene` off the OBS event thread.
+None open.
 
 ---
 
@@ -140,6 +121,7 @@ Remaining: move `UpdateSourcesForScene` off the OBS event thread.
 | 15 | Test Reliability | `OBSActionExecutor` takes an injectable background runner, so its tests run mutations inline; 77 fixed sleeps removed from 9 test files. The 11 left wait on real timers (`DoubleTapHelper`, `ConnectionManager` retries, one real connect attempt) | Unreleased (2.0.0) |
 | 16 | Performance | Reconnect storm on meter subscription changes; blocking audio requests on the render path | Unreleased (2.0.0) |
 | 17 | Performance | Log-review follow-ups: identified-only `IsConnected`, 3s request timeout, non-overlapping stats polls, null-tolerant stats, startup retry, 15s meter lease, log throttling. The remaining part became #18. | Unreleased (2.0.0) |
+| 18 | Performance | Source visibility and media status served from `KeyedStateCache` instead of blocking OBS requests on redraw; scene source lists load off the OBS event thread through `SceneSourcesLoader`, latest load wins. Media tiles still need a device check | Unreleased (2.0.0) |
 | 19 | Security | Remote OBS password moved out of `config.json` into the SDK's encrypted plugin settings, with migration. The Action Editor field is persisted in plaintext in the device profile, so an empty field now keeps the saved password, users are told to clear it after saving, and a "Clear Saved Password" checkbox removes it. A value left in the field still sits in the profile. Needs a device check | Unreleased (2.0.0) |
 
 ---
@@ -150,7 +132,6 @@ Open items, in the order to work on them.
 
 | # | Priority | Area | Issue |
 |---|----------|------|-------|
-| 18 | High | Performance | Source visibility and media status still make blocking OBS requests on redraw (three render paths) |
 | 20 | Medium | Architecture | Services call `OBSStudioForLogiPlugin.Instance`, and the plugin calls command singletons directly |
 | 21 | Medium | Correctness | `InputNameChanged` not handled: renamed inputs leave stale folders, cache entries and user-defined buttons |
 | 22 | Medium | Docs | AI docs describe `ButtonImageHelper` methods that don't exist (drift brought back by the #3 revert) |

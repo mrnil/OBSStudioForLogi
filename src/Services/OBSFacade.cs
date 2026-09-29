@@ -2,15 +2,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using Loupedeck.OBSStudioForLogiPlugin.Helpers;
 
     public class OBSFacade
     {
         private readonly OBSWebSocketManager _obsManager;
+        private readonly SceneSourcesLoader _sceneSourcesLoader;
 
         public OBSFacade(OBSWebSocketManager obsManager)
+            : this(obsManager, action => Task.Run(action))
+        {
+        }
+
+        public OBSFacade(OBSWebSocketManager obsManager, Action<Action> runInBackground)
         {
             this._obsManager = obsManager;
+            this._sceneSourcesLoader = new SceneSourcesLoader(this.FetchSceneSources, () => this.IsConnected, runInBackground);
         }
 
         public Boolean IsConnected => this._obsManager?.IsConnected ?? false;
@@ -298,21 +306,22 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._obsManager?.Actions.GetMediaInputList() ?? new String[0];
         }
 
+        // Returns straight away: the lists are fetched in the background and only the latest
+        // request's result reaches the callback - see SceneSourcesLoader.
         public void UpdateSourcesForScene(String sceneName, Action<String, String[], String[]> callback)
         {
-            if (String.IsNullOrEmpty(sceneName))
-            {
-                PluginLog.Warning("Cannot update sources - scene name is empty");
-                return;
-            }
+            this._sceneSourcesLoader.Load(sceneName, callback);
+        }
 
-            var sources = this._obsManager?.Actions.GetSceneItemList(sceneName) ?? new String[0];
+        private (String[] Sources, String[] AudioSources) FetchSceneSources(String sceneName)
+        {
+            String[] sources = this._obsManager?.Actions.GetSceneItemList(sceneName) ?? new String[0];
 
-            var audioSourcesInScene = this._obsManager?.Actions.GetAudioSourcesInScene(sceneName) ?? new String[0];
-            var audioInputsNotInAnyScene = this._obsManager?.Actions.GetAudioInputsNotInAnyScene() ?? new String[0];
-            var allSceneAudioSources = audioSourcesInScene.Concat(audioInputsNotInAnyScene).ToArray();
+            String[] audioSourcesInScene = this._obsManager?.Actions.GetAudioSourcesInScene(sceneName) ?? new String[0];
+            String[] audioInputsNotInAnyScene = this._obsManager?.Actions.GetAudioInputsNotInAnyScene() ?? new String[0];
+            String[] allSceneAudioSources = audioSourcesInScene.Concat(audioInputsNotInAnyScene).ToArray();
 
-            callback?.Invoke(sceneName, sources, allSceneAudioSources);
+            return (sources, allSceneAudioSources);
         }
     }
 }

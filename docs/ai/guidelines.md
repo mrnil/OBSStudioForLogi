@@ -309,6 +309,8 @@ public void OnDisconnected()
 
 `GetCommandImage`, `GetAdjustmentValue` and similar are called on the SDK's render threads, and every OBS request blocks until OBS answers (up to the websocket timeout). Render only from state the plugin already holds. Audio mute/volume/monitor type come from `AudioStateCache` via the plugin's `GetInputMute`/`GetInputVolume`/`GetInputAudioMonitorType`, and source visibility and media state come from `OBSWebSocketManager.SourceVisibility`/`MediaState` (both `KeyedStateCache`) via `GetSourceVisibility`/`GetMediaInputStatus`; none of these wait on OBS. A button press that decides what to do from OBS state (like the media single tap) should read it live in the executor's background runner, not from the render cache. For new render state, use a `KeyedStateCache` kept current by the matching OBS event rather than a query.
 
+The same goes for OBS event handlers in `OBSWebSocketManager`: they run on the websocket's event thread, so a handler that makes OBS requests holds up every event behind it. Move that work to a background runner, and drop results a newer event has superseded, as `SceneSourcesLoader` does for the source lists after a scene change.
+
 ### ToggleCommandBase — For Toggle Commands
 
 Extend `ToggleCommandBase` for any on/off toggle:
@@ -504,7 +506,7 @@ public class OBSActionExecutorTests
 
 ### Async Fire-and-Forget Testing
 
-Don't sleep and hope the background work has finished — that raced the thread pool under full-suite load (assessment #15). Classes that fire work in the background take an `Action<Action>` runner in their constructor (`OBSActionExecutor`, `AudioStateCache`, `KeyedStateCache`). Pass `action => action()` to run it inline, then assert straight away:
+Don't sleep and hope the background work has finished — that raced the thread pool under full-suite load (assessment #15). Classes that fire work in the background take an `Action<Action>` runner in their constructor (`OBSActionExecutor`, `AudioStateCache`, `KeyedStateCache`, `SceneSourcesLoader`, `OBSFacade`). Pass `action => action()` to run it inline, then assert straight away:
 
 ```csharp
 [Fact]
