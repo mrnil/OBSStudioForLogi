@@ -37,7 +37,7 @@ public class ToggleCommand : PluginDynamicCommand
     // Override ONLY this method
     protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
-        return ButtonImageHelper.StateIcon(isActive, "On.svg", "Off.svg");
+        return ButtonImageHelper.Icon(isActive ? "On.svg" : "Off.svg");
     }
 
     // Do NOT override GetCommandDisplayName
@@ -57,11 +57,11 @@ public class DataDisplay : PluginDynamicCommand
 
     protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
-        // Render text on icon using BitmapBuilder or ButtonImageHelper
+        // Draw the text over an icon with ButtonTextRenderer (see image-rendering-simplified.md)
         String text = $"{label}\n\n{value}";
-        return ButtonImageHelper.StateTextWithIcon(text, imageSize, isActive,
-            "ActiveIcon.svg", "InactiveIcon.svg",
-            BitmapColor.Green, BitmapColor.Red);
+        return ButtonTextRenderer.RenderTextWithIcon(text, imageSize,
+            isActive ? "ActiveIcon.svg" : "InactiveIcon.svg",
+            isActive ? BitmapColor.Green : BitmapColor.Red);
     }
 }
 ```
@@ -144,7 +144,7 @@ public class ItemsDynamicFolder : PluginDynamicFolder
     public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
         Boolean isSelected = actionParameter == GetCurrentItem();
-        return ButtonImageHelper.StateIcon(isSelected, "Selected.svg", "Unselected.svg");
+        return ButtonImageHelper.Icon(isSelected ? "Selected.svg" : "Unselected.svg");
     }
 }
 ```

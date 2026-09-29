@@ -31,9 +31,9 @@
 - [ ] Subscribe to `InputNameChanged`, re-key `AudioStateCache` and meter entries, push the refreshed input list
 - [ ] Check whether `SceneListChanged` fires on scene rename; handle `SceneNameChanged` if not
 
-### Assessment: AI Docs Describe Non-Existent `ButtonImageHelper` Methods (#22)
+### Assessment: AI Docs Describe Non-Existent `ButtonImageHelper` Methods (#22) ✅ Done
 
-- [ ] Fix `StateIcon`/`StateText`/`TextWithIcon`/`StateTextWithIcon` examples in `guidelines.md`, `image-rendering-simplified.md` and `sdk-quick-reference.md`
+- [x] ~~Fix `StateIcon`/`StateText`/`TextWithIcon`/`StateTextWithIcon` examples in `guidelines.md`, `image-rendering-simplified.md` and `sdk-quick-reference.md`~~ ✅ Done
 
 ### Assessment: Scene/Source/Profile Buttons Show No Text (#3) — Needs Decision
 

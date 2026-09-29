@@ -6,7 +6,7 @@ Reassessed on 2026-09-28 against `main`: version 2.0.0, not yet tagged. The last
 
 Item numbers stay the same between assessments because `TODO.md`, commit messages and `CHANGELOG.md` refer to them. Open items from earlier passes keep their original numbers. New findings start at #18. Fixed items are summarised under [Resolved](#resolved); for their full write-ups, see `git log -p -- docs/ai/assessment.md`.
 
-**Open**: #3, #5, #8, #9, #20–#24. Priority order is in the [Summary Table](#summary-table).
+**Open**: #3, #5, #8, #9, #20, #21, #23, #24. Priority order is in the [Summary Table](#summary-table).
 
 ---
 
@@ -40,16 +40,6 @@ None open.
 - user-defined buttons (`AudioMuteAdjustableCommand`, `SourceVisibilityAdjustableCommand` and others) store the name and stop working without any error
 
 **Fix**: Subscribe to `InputNameChanged`, re-key the cache entries, and push the refreshed input list through `NotifyInputsChanged`. User-defined buttons can't be updated automatically, so log a clear warning when a configured name isn't found. Check whether `SceneListChanged` fires on scene rename. If it doesn't, handle `SceneNameChanged` the same way.
-
----
-
-### 22. AI Docs Describe `ButtonImageHelper` Methods That Don't Exist (Docs)
-
-**Problem**: `docs/ai/guidelines.md` (the image examples near lines 262 and 406–418), `docs/ai/image-rendering-simplified.md` and `docs/ai/sdk-quick-reference.md` document `ButtonImageHelper.StateIcon`, `StateText`, `TextWithIcon` and `StateTextWithIcon`. None of them exist. The real API is `ButtonImageHelper.Icon(...)` for icons and `ButtonTextRenderer` for text. Commit `5eab775` corrected these docs, but its revert (`4e0b0d3`) restored the wrong versions along with the code.
-
-**Impact**: `AGENTS.md` tells assistants to read `guidelines.md` before writing code, so they will produce calls that don't compile.
-
-**Fix**: Re-apply only the doc parts of `5eab775`, or rewrite the examples against what is in `src/Helpers/`. This doesn't depend on the #3 decision.
 
 ---
 
@@ -123,6 +113,7 @@ None open.
 | 17 | Performance | Log-review follow-ups: identified-only `IsConnected`, 3s request timeout, non-overlapping stats polls, null-tolerant stats, startup retry, 15s meter lease, log throttling. The remaining part became #18. | Unreleased (2.0.0) |
 | 18 | Performance | Source visibility and media status served from `KeyedStateCache` instead of blocking OBS requests on redraw; scene source lists load off the OBS event thread through `SceneSourcesLoader`, latest load wins. Media tiles still need a device check | Unreleased (2.0.0) |
 | 19 | Security | Remote OBS password moved out of `config.json` into the SDK's encrypted plugin settings, with migration. The Action Editor field is persisted in plaintext in the device profile, so an empty field now keeps the saved password, users are told to clear it after saving, and a "Clear Saved Password" checkbox removes it. A value left in the field still sits in the profile. Needs a device check | Unreleased (2.0.0) |
+| 22 | Docs | `guidelines.md`, `image-rendering-simplified.md`, `sdk-quick-reference.md` and `structure.md` rewritten against the real `ButtonImageHelper`/`ButtonTextRenderer` API; the non-existent `StateIcon`/`StateText`/`TextWithIcon`/`StateTextWithIcon` examples are gone | Unreleased (2.0.0) |
 
 ---
 
@@ -134,7 +125,6 @@ Open items, in the order to work on them.
 |---|----------|------|-------|
 | 20 | Medium | Architecture | Services call `OBSStudioForLogiPlugin.Instance`, and the plugin calls command singletons directly |
 | 21 | Medium | Correctness | `InputNameChanged` not handled: renamed inputs leave stale folders, cache entries and user-defined buttons |
-| 22 | Medium | Docs | AI docs describe `ButtonImageHelper` methods that don't exist (drift brought back by the #3 revert) |
 | 3 | Medium | Usability | Name text on scene/source/profile buttons: the fix was reverted without a recorded reason, so check on a device and decide |
 | 5 | Medium | Usability | Hard-coded 500ms double-tap window delays every single tap |
 | 8 | Low | Feature | `ProfileListChanged`/`SceneCollectionListChanged` not subscribed |

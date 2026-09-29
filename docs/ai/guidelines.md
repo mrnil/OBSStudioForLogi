@@ -259,7 +259,7 @@ Always query live state from the plugin; never cache state in the command:
 protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
 {
     Boolean isRecording = OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
-    return ButtonImageHelper.StateIcon(isRecording, "RecordingOn.svg", "RecordingOff.svg");
+    return ButtonImageHelper.Icon(isRecording ? "RecordingOn.svg" : "RecordingOff.svg");
 }
 ```
 
@@ -396,31 +396,34 @@ public class MyAdjustableCommand : ActionEditorCommand, IObsCommand
 
 ## Image Rendering Patterns
 
-### ButtonImageHelper — Preferred API
+### ButtonImageHelper and ButtonTextRenderer
 
-Use `ButtonImageHelper` static methods for all button images:
+Build every button image with these two static classes in `src/Helpers/`. They are the whole API: there are no `StateIcon`, `StateText`, `TextWithIcon` or `StateTextWithIcon` helpers, so pick state-dependent icons and colours with a conditional at the call site.
 
 ```csharp
-// Static icon
+// Icon (embedded SVG)
 return ButtonImageHelper.Icon("Screenshot.svg");
 
-// State-based icon
-return ButtonImageHelper.StateIcon(isActive, "RecordingOn.svg", "RecordingOff.svg");
+// Icon that depends on state
+return ButtonImageHelper.Icon(isActive ? "RecordingOn.svg" : "RecordingOff.svg");
 
-// Text only
-return ButtonImageHelper.Text("Connected", imageSize, BitmapColor.Green, BitmapColor.White);
+// Icon on a coloured background (e.g. the connection-status colours)
+return ButtonImageHelper.IconWithBackground("Reconnect.svg", imageSize, backgroundColor);
 
-// State-based text
-return ButtonImageHelper.StateText(text, imageSize, isActive, BitmapColor.Green, BitmapColor.Red);
+// Text only; background and text colour default to black and white
+return ButtonTextRenderer.RenderText("Connected", imageSize, BitmapColor.Black, BitmapColor.Green);
 
-// Text with background icon
-return ButtonImageHelper.TextWithIcon(text, imageSize, "SourceVisibilityOn.svg", BitmapColor.Green);
+// Text whose colour depends on state
+return ButtonTextRenderer.RenderText(text, imageSize, BitmapColor.Black, !isMuted ? BitmapColor.Green : BitmapColor.Red);
 
-// State-based text with icon
-return ButtonImageHelper.StateTextWithIcon(text, imageSize, !isMuted,
-    "SourceVisibilityOn.svg", "SourceVisibilityOff.svg",
-    BitmapColor.Green, BitmapColor.Red);
+// Text with an optional white border, e.g. to mark the selected item
+return ButtonTextRenderer.RenderTextWithBorder(text, imageSize, textColor, showBorder: isSelected);
+
+// Text drawn over an icon on a black background
+return ButtonTextRenderer.RenderTextWithIcon(text, imageSize, "SourceVisibilityOn.svg", BitmapColor.Green);
 ```
+
+`ButtonTextRenderer` picks the font size from the text length and the button size. `RenderTextWithBorder` also has an overload that takes a width and height in pixels instead of a `PluginImageSize`. `ToggleCommandBase` and `StartStopCommandBase` already render their icons through `ButtonImageHelper.Icon`, so subclasses only name the icon files.
 
 ### Icon Resource Names — Short Form
 
@@ -661,4 +664,4 @@ See `assessment.md` items #1, #2, #4 for the original write-ups and `test-covera
 
 ### Still Open
 
-See `assessment.md` for current priority list — as of v1.6.1 the top remaining item is #3 (scene/source/profile buttons show no text).
+See the Summary Table in `assessment.md` for the current priority order.
