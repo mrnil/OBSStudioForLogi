@@ -7,13 +7,13 @@
 - [x] ~~Cache source visibility per (scene, source), kept current from `SceneItemEnableStateChanged`; serve `SourcesDynamicFolder` and `SourceVisibilityAdjustableCommand` renders from it~~ ✅ Done
 - [x] ~~Cache media status, kept current from the `MediaInputPlayback*` events; serve `MediaDynamicFolder` renders from it~~ ✅ Done
 - [x] ~~Move `UpdateSourcesForScene` (about 10 requests per scene change) off the OBS event thread~~ ✅ Done
-- [ ] Check on a device: media tiles follow play/pause/stop from both the device and OBS's own controls
+- [x] ~~Check on a device: media tiles follow play/pause/stop from both the device and OBS's own controls~~ ✅ Done 2026-09-29
 
-### Assessment: Remote OBS Password Stored in Plaintext (#19)
+### Assessment: Remote OBS Password Stored in Plaintext (#19) ✅ Done
 
 - [x] ~~Keep `RemotePassword` out of `config.json`: store it through the SDK's encrypted plugin settings and migrate existing plaintext values~~ ✅ Done
 - [x] ~~Stop the password staying in the device profile: an empty Password field keeps the saved password, the action tells users to clear it after saving, and a "Clear Saved Password" checkbox removes it~~ ✅ Done
-- [ ] Check on a device: save a password, clear the field and save again (still connects), then use Clear Saved Password (connects without one)
+- [x] ~~Check on a device: save a password, clear the field and save again (still connects), then use Clear Saved Password (connects without one)~~ ✅ Done 2026-09-29
 
 ### Assessment: Verify net10.0 Runtime Compatibility (#12) ✅ Done
 
@@ -30,7 +30,7 @@
 
 - [x] ~~Subscribe to `InputNameChanged`, re-key `AudioStateCache` and meter entries, push the refreshed input list~~ ✅ Done
 - [x] ~~Check whether `SceneListChanged` fires on scene rename; handle `SceneNameChanged` if not~~ ✅ Done — `SceneNameChanged` is handled directly, so it no longer matters whether OBS also sends `SceneListChanged`
-- [ ] Check on a device: rename an audio input (selected on the dial), a media source and the current scene in OBS, and confirm the folders, selection and scene tick follow
+- [x] ~~Check on a device: rename an audio input (selected on the dial), a media source and the current scene in OBS, and confirm the folders, selection and scene tick follow~~ ✅ Done 2026-09-29
 
 ### Assessment: AI Docs Describe Non-Existent `ButtonImageHelper` Methods (#22) ✅ Done
 
@@ -65,6 +65,8 @@
 
 ### Assessment: OBSStats Null Propagation (#7) ✅ Done
 
+- [x] ~~Return `OBSStats.Empty` / `OBSStreamStats.Empty` instead of `null` and remove the null guards from the stats displays~~ ✅ Done
+
 ### Assessment: obj/ Location Depended on Invocation Method (#13) ✅ Done
 
 - [x] ~~Fixed `src/Directory.Build.props` `BaseIntermediateOutputPath` to use `$(MSBuildThisFileDirectory)` instead of `$(SolutionDir)` so `obj/` always resolves to `src/obj/` regardless of how the build is invoked~~ ✅ Done
@@ -82,17 +84,18 @@
 
 ## Low Priority
 
-### Assessment: ProfileListChanged / SceneCollectionListChanged Not Subscribed (#8)
+### Assessment: ProfileListChanged / SceneCollectionListChanged Not Subscribed (#8) ✅ Done
 
-- [ ] Subscribe to `ProfileListChanged` event in `OBSWebSocketManager` and push the new list via `NotifyProfileList()`
-- [ ] Subscribe to `SceneCollectionListChanged` event in `OBSWebSocketManager` and push the new list via `OnSceneCollectionsChanged()`
+- [x] ~~Subscribe to `ProfileListChanged` event in `OBSWebSocketManager` and push the new list via `NotifyProfileList()`~~ ✅ Done
+- [x] ~~Subscribe to `SceneCollectionListChanged` event in `OBSWebSocketManager` and push the new list via `OnSceneCollectionsChanged()`~~ ✅ Done — both push the list from the event without asking OBS again, and re-read the current profile or collection when it is missing from the list (it was renamed)
+- [ ] Check on a device: create, rename and delete a profile and a scene collection in OBS, including renaming the current one, and confirm the folders and ticks follow
 
-### Assessment: MediaDynamicFolder Doesn't Respond to Input List Changes (#10)
+### Assessment: MediaDynamicFolder Doesn't Respond to Input List Changes (#10) ✅ Done
 
 - [x] ~~Implement `IInputsListAwareCommand` in `MediaDynamicFolder`~~ ✅ Done
 - [x] ~~Filter incoming inputs list to media kinds in `OnInputsChanged`~~ ✅ Done
 
-### Assessment: Password Field Has No Sensitivity Indication (#11)
+### Assessment: Password Field Has No Sensitivity Indication (#11) ✅ Done
 
 - [x] ~~Add `(sensitive)` to the password field label in `PluginSettingsCommand`~~ ✅ Done
 
@@ -105,11 +108,11 @@
 - [x] ~~Same fixed-sleep race as #14, across 88 `Thread.Sleep` calls in 12 test files~~ ✅ Done — `OBSActionExecutor` takes an injectable background runner and its tests run mutations inline; 77 sleeps removed, verified with 5 consecutive full-suite runs, zero failures
 - [ ] Decide whether to run tests in CI now that the executor timing race is gone (`AGENTS.md` still says not to)
 
-### Assessment: Small Robustness Items (#23)
+### Assessment: Small Robustness Items (#23) ✅ Done
 
-- [ ] Wrap `OnApplicationStarted` (`async void`) in try/catch
-- [ ] Remove or `await` the `Task.Delay(100).Wait()` in `OnCurrentSceneCollectionChanged`
-- [ ] Make sure `NotifyDisconnected` runs once per disconnect
+- [x] ~~Wrap `OnApplicationStarted` (`async void`) in try/catch~~ ✅ Done
+- [x] ~~Remove or `await` the `Task.Delay(100).Wait()` in `OnCurrentSceneCollectionChanged`~~ ✅ Done — removed: OBS sends `CurrentSceneCollectionChanged` only after the collection has loaded, so the scene list is read straight away
+- [x] ~~Make sure `NotifyDisconnected` runs once per disconnect~~ ✅ Done — `CommandCoordinator` skips a repeat until the next connect
 
 ### Assessment: Library Fix for `Connected` on `ReIdentify` (#24)
 
@@ -142,6 +145,7 @@
 
 - [ ] Multi-instance OBS support (see `docs/ai/multi-instance-obs-design.md`)
 - [x] ~~Dependency injection for StatsService (inject `Func<OBSStats>` instead of static singleton)~~ ✅ Done (assessment #17)
+- [ ] Split the 1,165-line `OBSActionExecutor` by feature area (outputs, scenes, audio, media) the next time a large change touches it (left over from assessment #23)
 
 ## Recently Completed (v1.6.2)
 

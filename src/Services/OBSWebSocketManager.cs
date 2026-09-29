@@ -88,6 +88,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.ReplayBufferStateChanged += this.OnReplayBufferStateChanged;
             this._obs.CurrentProfileChanged += this.OnCurrentProfileChanged;
             this._obs.CurrentSceneCollectionChanged += this.OnCurrentSceneCollectionChanged;
+            this._obs.ProfileListChanged += this.OnProfileListChanged;
+            this._obs.SceneCollectionListChanged += this.OnSceneCollectionListChanged;
             this._obs.SceneListChanged += this.OnSceneListChanged;
             this._obs.CurrentProgramSceneChanged += this.OnCurrentSceneChanged;
             this._obs.InputMuteStateChanged += this.OnInputMuteStateChanged;
@@ -268,8 +270,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 OBSStudioForLogiPlugin.Instance?.OnSceneCollectionChanged(String.Empty, currentCollection);
             }
 
-            String[] sceneCollections = this.Actions.GetSceneCollectionList();
-            OBSStudioForLogiPlugin.Instance?.OnSceneCollectionsChanged(sceneCollections, currentCollection ?? String.Empty);
+            this.NotifySceneCollectionList(this.Actions.GetSceneCollectionList(), currentCollection ?? String.Empty);
 
             var sceneList = this._obs.GetSceneList();
             if (sceneList?.CurrentProgramSceneName != null)
@@ -348,6 +349,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private void OnCurrentProfileChanged(Object sender, EventArgs e)
         {
             // Event doesn't provide profile name, query it
+            this.RefreshCurrentProfile();
+        }
+
+        private void RefreshCurrentProfile()
+        {
             Task.Run(() =>
             {
                 try
@@ -391,14 +397,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             // Update scenes in dynamic folder and get new current scene
             this.UpdateSceneList();
             
-            // Query and update current scene after collection change
+            // OBS sends this event only once the new collection has finished loading, so the current
+            // scene can be read straight away. It is read here rather than left to
+            // CurrentProgramSceneChanged, because OBS can send that during the load, before this event.
             Task.Run(() =>
             {
                 try
                 {
-                    // Small delay to ensure OBS has updated
-                    Task.Delay(100).Wait();
-                    
                     var sceneList = this._obs.GetSceneList();
                     if (sceneList?.CurrentProgramSceneName != null)
                     {
@@ -410,6 +415,74 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 catch (Exception ex)
                 {
                     this._log.Warning($"Failed to update current scene after collection change: {ex.Message}");
+                }
+            });
+        }
+
+        private void OnProfileListChanged(Object sender, ProfileListChangedEventArgs e)
+        {
+            this.ApplyProfileList(e?.Profiles);
+        }
+
+        private void OnSceneCollectionListChanged(Object sender, SceneCollectionListChangedEventArgs e)
+        {
+            this.ApplySceneCollectionList(e?.SceneCollections);
+        }
+
+        // A profile was created, renamed or removed in OBS. The event carries the whole new list, so
+        // it goes straight to the commands. If the current profile is no longer in it, the current
+        // profile was the one renamed, so it is read again and pushed with the list.
+        internal void ApplyProfileList(IEnumerable<String> profiles)
+        {
+            String[] profileNames = profiles?.ToArray() ?? new String[0];
+            String currentProfile = this.Actions.CurrentProfile;
+            this._log.Info("Profile list changed");
+
+            if (!String.IsNullOrEmpty(currentProfile) && !profileNames.Contains(currentProfile))
+            {
+                this._log.Info($"Current profile '{currentProfile}' is no longer listed, reading it again");
+                this.RefreshCurrentProfile();
+                return;
+            }
+
+            this.NotifyProfileList(profileNames, currentProfile);
+        }
+
+        // Same as ApplyProfileList, for scene collections.
+        internal void ApplySceneCollectionList(IEnumerable<String> sceneCollections)
+        {
+            String[] collectionNames = sceneCollections?.ToArray() ?? new String[0];
+            String currentCollection = this.Actions.CurrentSceneCollection;
+            this._log.Info("Scene collection list changed");
+
+            if (!String.IsNullOrEmpty(currentCollection) && !collectionNames.Contains(currentCollection))
+            {
+                this._log.Info($"Current scene collection '{currentCollection}' is no longer listed, reading it again");
+                this.RefreshCurrentSceneCollection(collectionNames);
+                return;
+            }
+
+            this.NotifySceneCollectionList(collectionNames, currentCollection);
+        }
+
+        // Only reached when the current collection was renamed: its scenes are unchanged, so the
+        // caches stay valid, unlike a switch (OnCurrentSceneCollectionChanged).
+        private void RefreshCurrentSceneCollection(String[] collectionNames)
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    String oldCollection = this.Actions.CurrentSceneCollection;
+                    String currentCollection = this._obs.GetCurrentSceneCollection() ?? String.Empty;
+                    this.Actions.SetCurrentSceneCollectionState(currentCollection);
+                    this._log.Info($"Current scene collection is now '{currentCollection}'");
+                    OBSStudioForLogiPlugin.Instance?.OnSceneCollectionChanged(oldCollection, currentCollection);
+                    this.NotifySceneCollectionList(collectionNames, currentCollection);
+                }
+                catch (Exception ex)
+                {
+                    this._log.Warning($"Failed to get current scene collection: {ex.Message}");
                 }
             });
         }
@@ -445,6 +518,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             String[] profileNames = profiles?.ToArray() ?? new String[0];
             this._log.Debug($"Loaded {profileNames.Length} profiles");
             OBSStudioForLogiPlugin.Instance?.OnProfilesChanged(profileNames, currentProfile);
+        }
+
+        private void NotifySceneCollectionList(IEnumerable<String> sceneCollections, String currentSceneCollection)
+        {
+            String[] collectionNames = sceneCollections?.ToArray() ?? new String[0];
+            this._log.Debug($"Loaded {collectionNames.Length} scene collections");
+            OBSStudioForLogiPlugin.Instance?.OnSceneCollectionsChanged(collectionNames, currentSceneCollection);
         }
 
         private void OnCurrentSceneChanged(Object sender, ProgramSceneChangedEventArgs e)
@@ -811,6 +891,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._obs.ReplayBufferStateChanged -= this.OnReplayBufferStateChanged;
                     this._obs.CurrentProfileChanged -= this.OnCurrentProfileChanged;
                     this._obs.CurrentSceneCollectionChanged -= this.OnCurrentSceneCollectionChanged;
+                    this._obs.ProfileListChanged -= this.OnProfileListChanged;
+                    this._obs.SceneCollectionListChanged -= this.OnSceneCollectionListChanged;
                     this._obs.SceneListChanged -= this.OnSceneListChanged;
                     this._obs.CurrentProgramSceneChanged -= this.OnCurrentSceneChanged;
                     this._obs.InputMuteStateChanged -= this.OnInputMuteStateChanged;

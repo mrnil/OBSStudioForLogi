@@ -52,6 +52,47 @@ public class CommandCoordinatorTests
         mock2.Verify(x => x.OnDisconnected(), Times.Once);
     }
 
+    // --- Once per disconnect (Assessment #23) ---
+
+    [Fact]
+    public void NotifyDisconnected_CalledTwice_NotifiesCommandsOnce()
+    {
+        var mock = new Mock<IObsCommand>();
+        this._coordinator.RegisterCommand(mock.Object);
+
+        this._coordinator.NotifyConnected();
+        this._coordinator.NotifyDisconnected();
+        this._coordinator.NotifyDisconnected();
+
+        mock.Verify(x => x.OnDisconnected(), Times.Once);
+    }
+
+    [Fact]
+    public void NotifyDisconnected_AfterReconnect_NotifiesCommandsAgain()
+    {
+        var mock = new Mock<IObsCommand>();
+        this._coordinator.RegisterCommand(mock.Object);
+
+        this._coordinator.NotifyConnected();
+        this._coordinator.NotifyDisconnected();
+        this._coordinator.NotifyConnected();
+        this._coordinator.NotifyDisconnected();
+
+        mock.Verify(x => x.OnDisconnected(), Times.Exactly(2));
+    }
+
+    [Fact]
+    public void NotifyDisconnected_BeforeAnyConnect_NotifiesCommandsOnce()
+    {
+        var mock = new Mock<IObsCommand>();
+        this._coordinator.RegisterCommand(mock.Object);
+
+        this._coordinator.NotifyDisconnected();
+        this._coordinator.NotifyDisconnected();
+
+        mock.Verify(x => x.OnDisconnected(), Times.Once);
+    }
+
     [Fact]
     public void NotifyConnected_WithNoCommands_DoesNotThrow()
     {

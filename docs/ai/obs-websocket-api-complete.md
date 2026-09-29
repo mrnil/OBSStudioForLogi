@@ -345,8 +345,8 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 | SceneTransitionStarted | ❌ | Transition progress |
 | SceneTransitionEnded | ❌ | Transition completion |
 | SceneTransitionVideoEnded | ❌ | Transition video completion |
-| ProfileListChanged | ❌ | Keep profile list fresh |
-| SceneCollectionListChanged | ❌ | Keep collection list fresh |
+| ProfileListChanged | ✅ | Keep profile list fresh |
+| SceneCollectionListChanged | ✅ | Keep collection list fresh |
 
 ---
 

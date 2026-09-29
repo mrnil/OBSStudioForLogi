@@ -52,7 +52,7 @@ The `SetInputMute` call appeared twice in `OBSActionExecutor.CycleInputAudioMoni
 | 4 | Hotkey trigger (ActionEditorCommand) | Low | Medium | `TriggerHotkeyByName` — power user feature |
 | 5 | Media duration/cursor display | Low | Medium | `GetMediaInputStatus` returns `mediaDuration` and `mediaCursor` — not extracted |
 | ~~6~~ | ~~Subscribe to `ReplayBufferSaved` event~~ | ~~Trivial~~ | ~~Low~~ | ✅ Done — green icon flash for 2s on save |
-| 7 | Subscribe to `ProfileListChanged` + `SceneCollectionListChanged` | Low | Medium | Avoid stale lists when profiles/collections created/removed |
+| ~~7~~ | ~~Subscribe to `ProfileListChanged` + `SceneCollectionListChanged`~~ | ~~Low~~ | ~~Medium~~ | ✅ Done — lists pushed from the event (assessment #8) |
 | 8 | Recording status/duration display | Low | Medium | `GetRecordStatus` returns timecode and bytes |
 | 9 | Broader audio input detection | Low | Low | `browser_source`, `game_capture` and `wasapi_process_output_capture` are now in `AudioInputKinds`; `monitor_capture` still missing |
 | 10 | `GetRecordDirectory` / `SetRecordDirectory` | Low | Low | Display/change recording save path; `SetRecordDirectory` added in library 5.7.0 |
@@ -64,8 +64,8 @@ The `SetInputMute` call appeared twice in `OBSActionExecutor.CycleInputAudioMoni
 |-------|-------|----------|
 | `CurrentPreviewSceneChanged` | High (studio mode users) | Show preview scene, update preview folder |
 | ~~`ReplayBufferSaved`~~ | ~~Medium~~ | ✅ Done — shows green save confirmation icon |
-| `SceneCollectionListChanged` | Medium | Keep collection list current without reconnect |
-| `ProfileListChanged` | Medium | Keep profile list current without reconnect |
+| ~~`SceneCollectionListChanged`~~ | ~~Medium~~ | ✅ Done — pushes the new list to the folders and select commands (assessment #8) |
+| ~~`ProfileListChanged`~~ | ~~Medium~~ | ✅ Done — pushes the new list to the folders and select commands (assessment #8) |
 | `SceneTransitionStarted` / `SceneTransitionEnded` | Medium | Visual feedback during transitions |
 | ~~`InputNameChanged`~~ | ~~Medium~~ | ✅ Done — moves cached state to the new name and refreshes the input lists (assessment #21); `SceneNameChanged` is handled the same way |
 | `SourceFilterEnableStateChanged` | Medium (if filters implemented) | Update filter button state |

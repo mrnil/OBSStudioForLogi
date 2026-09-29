@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renaming an input or scene in OBS no longer leaves the plugin showing the old name. The Mixer, Live Audio, Media and Scene Sources folders and the scene list update straight away, the renamed input stays selected on the dial, and its mute, volume, visibility and playback state carry over. User-defined buttons store the name you typed, so the plugin log now warns which name to change them to
 - Adding or removing an input no longer holds up other OBS updates while the input list reloads
 - Connecting while OBS is still starting (for example when OBS is restarted with the plugin running) no longer leaves the audio folders, profiles and studio mode empty. OBS rejects requests until it has finished loading, and the plugin used to try once and give up; it now retries for up to 30 seconds. Stats polling also waits until then, instead of logging errors while OBS starts
+- Creating, renaming or removing a profile or scene collection in OBS now updates the Profiles and Scene Collections folders straight away. Previously they kept the old list until you switched profile or collection, or the plugin reconnected
+- An error while connecting after OBS starts is now logged instead of going unhandled, which could stop the plugin
+- After switching scene collection, the current scene is read as soon as OBS reports the switch, instead of after a fixed 100ms wait that held up a background thread
 
 ## [1.6.2] - 2026-08-21
 

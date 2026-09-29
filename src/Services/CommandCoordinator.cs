@@ -1,10 +1,12 @@
 namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
+    using System.Threading;
 
     public class CommandCoordinator
     {
         private readonly CommandRegistry _registry;
+        private Int32 _disconnectNotified;
 
         public CommandCoordinator()
         {
@@ -16,11 +18,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._registry.Register(command);
         }
 
-        public void NotifyConnected() =>
+        public void NotifyConnected()
+        {
+            Interlocked.Exchange(ref this._disconnectNotified, 0);
             this.NotifyEach<IObsCommand>(nameof(IObsCommand.OnConnected), c => c.OnConnected());
+        }
 
-        public void NotifyDisconnected() =>
+        // A disconnect can be reported twice - OBS stopping, then the socket closing - so commands
+        // hear about it once, until the next connect.
+        public void NotifyDisconnected()
+        {
+            if (Interlocked.Exchange(ref this._disconnectNotified, 1) == 1)
+            {
+                return;
+            }
+
             this.NotifyEach<IObsCommand>(nameof(IObsCommand.OnDisconnected), c => c.OnDisconnected());
+        }
 
         public void NotifyProfileChanged(String oldProfile, String newProfile) =>
             this.NotifyEach<IProfileAwareCommand>(nameof(IProfileAwareCommand.OnProfileChanged), c => c.OnProfileChanged(oldProfile, newProfile));

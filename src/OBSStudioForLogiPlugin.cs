@@ -168,13 +168,22 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             PluginLog.Info("Plugin unloaded");
         }
 
+        // async void because it is an event handler, so nothing awaits it: an exception escaping it
+        // would be unhandled and could take down the plugin host.
         private async void OnApplicationStarted(Object sender, EventArgs e)
         {
-            await Task.Run(async () =>
+            try
             {
-                PluginLog.Info("OBS application started");
-                await this._connectionManager.ConnectAsync();
-            });
+                await Task.Run(async () =>
+                {
+                    PluginLog.Info("OBS application started");
+                    await this._connectionManager.ConnectAsync();
+                });
+            }
+            catch (Exception ex)
+            {
+                PluginLog.Error(ex, "Failed to connect to OBS after it started");
+            }
         }
 
         private void OnApplicationStopped(Object sender, EventArgs e)
