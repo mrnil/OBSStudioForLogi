@@ -21,8 +21,8 @@ Every button icon has been redrawn as one consistent set: outline glyphs, a fixe
 - Streaming Start/Stop grey out when unavailable, like Recording and Virtual Camera
 - Toggle Source Visibility (User Defined) shows whether its source is visible
 - Switch to Scene (User Defined) shows a tick when its scene is live
-- The Profiles, Scene Collections, Media Controls and OBS Scenes folders have their own icons
-- The `OBS Profiles` and `OBS Scene Collections` folders are renamed `Profiles` and `Scene Collections`
+- The Profiles, Scene Collections, Media Controls and Scenes folders have their own icons
+- The `OBS Profiles`, `OBS Scene Collections` and `OBS Scenes` folders are renamed `Profiles`, `Scene Collections` and `Scenes`
 
 ## Security
 
