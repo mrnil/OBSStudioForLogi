@@ -17,7 +17,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public StatsDynamicFolder()
         {
             Instance = this;
-            this.DisplayName = "OBS Stats Folder";
+            this.DisplayName = "Stats Folder";
             this.GroupName = "1. OBS";
             this.Description = "Folder showing individual OBS performance statistics";
         }

@@ -34,8 +34,8 @@ The plugin is **not** an OBS extension or plugin. It is a Logi Plugin Service pl
 - Manual reconnect button
 - Studio mode toggle and transition
 - Connection status display (green=connected, red=disconnected, orange=WebSocket disabled)
-- OBS Stats Summary (FPS, CPU%, dropped frames — colour-coded)
-- OBS Stats Folder (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped, Disk Space, Render Time)
+- Stats Summary (FPS, CPU%, dropped frames — colour-coded)
+- Stats Folder (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped, Disk Space, Render Time)
 - Plugin Settings (configure local/remote OBS, stats polling interval)
 
 ### Group 2 — Streaming

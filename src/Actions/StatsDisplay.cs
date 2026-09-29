@@ -21,12 +21,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly ActivityLease _renderLease = new ActivityLease(TimeSpan.FromMilliseconds(OBSTimings.StatsRenderLease));
 
         public StatsDisplay()
-            : base(displayName: "OBS Stats Summary", description: "Shows OBS performance summary (CPU, FPS, Dropped frames)", groupName: "1. OBS")
+            : base(displayName: "Stats Summary", description: "Shows OBS performance summary (CPU, FPS, Dropped frames)", groupName: "1. OBS")
         {
             Instance = this;
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.IsWidget = true;
-            this.AddParameter("", "OBS Stats Summary", groupName: "1. OBS");
+            this.AddParameter("", "Stats Summary", groupName: "1. OBS");
 
             this._probeTimer.Elapsed += this.OnProbeTimer;
             this._probeTimer.AutoReset = true;

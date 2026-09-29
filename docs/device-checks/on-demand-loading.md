@@ -24,8 +24,8 @@ The script `tools/device-check/device-check.ps1` collects the plugin log for the
 3. In Logi Options+, put these on the device:
    - **Scene Sources** folder (`7. Scenes`)
    - **Mixer for Scene Audio** folder (`8. Audio`)
-   - **OBS Stats Folder** (`1. OBS`) and **Stream Stats Folder** (`2. Streaming`)
-   - **OBS Stats Summary** (`1. OBS`) on a **different page** from the one you start on
+   - **Stats Folder** (`1. OBS`) and **Stream Stats Folder** (`2. Streaming`)
+   - **Stats Summary** (`1. OBS`) on a **different page** from the one you start on
 4. Start OBS and wait until the device shows it as connected.
 5. Open a terminal in the repository root.
 
@@ -73,9 +73,9 @@ Wait a few seconds for the device to show the plugin again after the reload. Bef
 
    Keep the folder open. Close OBS completely and wait until the device shows it as disconnected. Start OBS again and wait for the folder's buttons to come back (you may see the loading tiles first). Then leave the folder with Back.
 
-8. **OBS Stats Folder.** `./tools/device-check/device-check.ps1 Mark "8 stats folder"`
+8. **Stats Folder.** `./tools/device-check/device-check.ps1 Mark "8 stats folder"`
 
-   Open the OBS Stats Folder. Note whether the numbers appear within about a second, or show zeros until a few seconds later. Leave it open for about 15 seconds, then leave it with Back.
+   Open the Stats Folder. Note whether the numbers appear within about a second, or show zeros until a few seconds later. Leave it open for about 15 seconds, then leave it with Back.
 
 9. **Stream Stats Folder.** `./tools/device-check/device-check.ps1 Mark "9 stream stats folder"`
 
@@ -83,7 +83,7 @@ Wait a few seconds for the device to show the plugin again after the reload. Bef
 
 10. **Stats summary button.** `./tools/device-check/device-check.ps1 Mark "10 stats summary on"`
 
-    Go to the page with the OBS Stats Summary button and note whether its numbers appear within about a second. Stay on that page for about 15 seconds.
+    Go to the page with the Stats Summary button and note whether its numbers appear within about a second. Stay on that page for about 15 seconds.
 
     Then `./tools/device-check/device-check.ps1 Mark "10 stats summary off"`, go to a page without it, and wait **at least 10 seconds**.
 
