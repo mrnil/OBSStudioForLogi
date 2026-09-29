@@ -29,7 +29,7 @@
 | `xunit.runner.visualstudio` | 4.0.0 | VS/IDE test runner |
 | `Moq` | 4.21.0 | Mocking framework |
 | `Microsoft.NET.Test.Sdk` | 18.10.1 | Test SDK |
-| `coverlet.collector` | 10.0.1 | Code coverage collection |
+| `coverlet.collector` | 10.1.0 | Code coverage collection |
 
 `obs-websocket-dotnet` reaches the test project transitively through the plugin project reference.
 
