@@ -74,6 +74,17 @@ public class ListChangeHandlingTests
         this._mockLog.Verify(x => x.Debug("Loaded 0 scene collections"), Times.Once);
     }
 
+    // Creating or deleting a collection only sends CurrentSceneCollectionChanged, so the list is
+    // re-read then. If that read fails, the folder keeps its last list rather than going empty.
+    [Fact]
+    public void RefreshSceneCollectionList_RequestFails_KeepsTheLastListAndWarns()
+    {
+        this._manager.RefreshSceneCollectionList("Main");
+
+        this._mockLog.Verify(x => x.Warning(It.Is<String>(s => s.StartsWith("Failed to refresh the scene collection list"))), Times.Once);
+        this._mockLog.Verify(x => x.Debug(It.Is<String>(s => s.EndsWith("scene collections"))), Times.Never);
+    }
+
     [Fact]
     public void ApplySceneCollectionList_CurrentCollectionMissing_RereadsCurrentCollection()
     {

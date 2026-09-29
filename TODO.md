@@ -89,7 +89,9 @@
 
 - [x] ~~Subscribe to `ProfileListChanged` event in `OBSWebSocketManager` and push the new list via `NotifyProfileList()`~~ ✅ Done
 - [x] ~~Subscribe to `SceneCollectionListChanged` event in `OBSWebSocketManager` and push the new list via `OnSceneCollectionsChanged()`~~ ✅ Done — both push the list from the event without asking OBS again, and re-read the current profile or collection when it is missing from the list (it was renamed)
-- [ ] Check on a device: create, rename and delete a profile and a scene collection in OBS, including renaming the current one, and confirm the folders and ticks follow
+- [x] ~~Check on a device: create, rename and delete a profile and a scene collection in OBS, including renaming the current one, and confirm the folders and ticks follow~~ ✅ Done 2026-09-29 — everything followed except creating and deleting a scene collection: OBS sends no `SceneCollectionListChanged` for those, only `CurrentSceneCollectionChanged`
+- [x] ~~Re-read the scene collection list on `CurrentSceneCollectionChanged`, since creating or deleting a collection always switches it~~ ✅ Done
+- [ ] Check on a device: create and delete a scene collection and confirm the folder follows
 
 ### Assessment: MediaDynamicFolder Doesn't Respond to Input List Changes (#10) ✅ Done
 
@@ -121,6 +123,7 @@
 
 ### Other
 
+- [ ] Stats polls during a scene collection switch log `ERROR Failed to get stats: 207` (OBS is "not ready" while the collection loads). Treat 207 as expected there and log it at Debug, or skip polls while a switch is in progress
 - [ ] Recording duration display (parity with streaming stats — `GetRecordStatus` returns timecode and bytes)
 - [ ] Audio sync offset controls (set-and-forget, rarely adjusted mid-stream)
 - [ ] Audio track assignment (multi-track recording)

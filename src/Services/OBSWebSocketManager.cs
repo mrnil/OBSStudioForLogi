@@ -417,6 +417,25 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._log.Warning($"Failed to update current scene after collection change: {ex.Message}");
                 }
             });
+
+            // Creating or deleting a collection switches to another one, and OBS sends no
+            // SceneCollectionListChanged for either (seen on OBS with the device check for #8).
+            String currentCollection = e.SceneCollectionName;
+            Task.Run(() => this.RefreshSceneCollectionList(currentCollection));
+        }
+
+        // Reads the collection list from the library directly: the executor returns an empty list
+        // when a request fails, which would empty the folder instead of leaving the last good list.
+        internal void RefreshSceneCollectionList(String currentSceneCollection)
+        {
+            try
+            {
+                this.NotifySceneCollectionList(this._obs.GetSceneCollectionList(), currentSceneCollection);
+            }
+            catch (Exception ex)
+            {
+                this._log.Warning($"Failed to refresh the scene collection list: {ex.Message}");
+            }
         }
 
         private void OnProfileListChanged(Object sender, ProfileListChangedEventArgs e)
