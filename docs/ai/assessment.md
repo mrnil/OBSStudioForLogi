@@ -33,9 +33,11 @@ None open.
 
 ### 3. Scene/Source/Profile Buttons Show No Text (Usability): Needs Decision
 
-**Status**: The fix, `5eab775`, rendered item names with `ButtonTextRenderer.RenderTextWithBorder`. It was reverted in `4e0b0d3` and no reason was recorded. Since then the icon restyle added a tick for the selected scene, profile and scene collection, so the selected/unselected state is clearer. It is still unknown whether names are readable on the device.
+**Status**: The fix, `5eab775`, rendered item names with `ButtonTextRenderer.RenderTextWithBorder`. It was reverted in `4e0b0d3` and no reason was recorded. Since then the icon restyle added a tick for the selected scene, profile and scene collection, so the selected/unselected state is clearer.
 
-**Next step**: Check on a device whether the SDK draws each item's display name under the icon in `ScenesDynamicFolder`, `SourcesDynamicFolder` and `ProfilesDynamicFolder`. The changelog notes that display names are drawn as a native overlay in some cases. If names already show, close this item and record why. If they don't, find out what caused the revert (duplicated text? clashes with the icon style guide?) before trying again. `SceneSelectCommand`, `ProfileSelectCommand` and `SceneCollectionSelectCommand` would need the same answer.
+**Evidence (2026-09-29)**: On the device, the Audio Volume folder showed each input's name and volume twice: once in colour in the image, and once in white as the SDK's title, from a non-empty `GetAdjustmentDisplayName` (now fixed). So the SDK does draw display names over button images, and the three folders here don't override the display name. The revert was most likely because names then showed twice.
+
+**Next step**: Open the Scenes, Scene Sources and Profiles folders on a device and confirm each button is labelled with its name. If it is, close this item. If it isn't, find out why these folders differ from the audio ones before trying again. `SceneSelectCommand`, `ProfileSelectCommand` and `SceneCollectionSelectCommand` would need the same answer.
 
 ---
 

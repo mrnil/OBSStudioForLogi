@@ -34,10 +34,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._audioInputs.Select(this.CreateAdjustmentName);
         }
 
+        // The image already shows the name and volume. The SDK draws any display name over the
+        // image as a white title, so returning one here showed everything twice.
         public override String GetAdjustmentDisplayName(String actionParameter, PluginImageSize imageSize)
         {
-            Single vol = OBSStudioForLogiPlugin.Instance?.GetInputVolume(actionParameter) ?? 1.0f;
-            return $"{actionParameter}\n{VolumeConverter.FormatDb(vol)}";
+            return String.Empty;
         }
 
         public override BitmapImage GetAdjustmentImage(String actionParameter, PluginImageSize imageSize)

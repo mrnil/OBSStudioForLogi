@@ -53,7 +53,8 @@
 
 ### Assessment: Scene/Source/Profile Buttons Show No Text (#3) — Needs Decision
 
-- [ ] Check on a device whether the SDK already shows item names on folder buttons; close or re-attempt (the earlier fix was reverted without a recorded reason)
+- [x] ~~Find out whether the SDK draws display names over button images~~ ✅ Done 2026-09-29 — it does: the Audio Volume folder showed its text twice (fixed), which most likely explains the revert
+- [ ] Check on a device that the Scenes, Scene Sources and Profiles folder buttons are labelled with their names, then close #3
 
 ### Assessment: Double-Tap Window (#5)
 

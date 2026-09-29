@@ -54,5 +54,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests.Actions
 
             Assert.Null(exception);
         }
+
+        // The SDK draws a display name over the image, which already shows the name and volume.
+        [Fact]
+        public void GetAdjustmentDisplayName_ReturnsEmptySoTheImageIsNotOverlaid()
+        {
+            var folder = new AudioVolumeDynamicFolder();
+
+            String displayName = folder.GetAdjustmentDisplayName("Mic/Aux", PluginImageSize.Width90);
+
+            Assert.Equal(String.Empty, displayName);
+        }
     }
 }

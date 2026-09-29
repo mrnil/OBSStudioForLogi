@@ -143,6 +143,15 @@ public class ScenesDynamicFolder : PluginDynamicFolder
 
 `GetCommandImage` and `GetAdjustmentImage` run on the SDK's render threads. Draw only from state the plugin already holds: the plugin getters used above (`IsRecording`, `GetInputMute`, `GetInputVolume`, `GetSourceVisibility` and so on) read cached state and never wait on OBS. See "Rendering Must Not Block on OBS" in `guidelines.md`.
 
+## Display Names Are Drawn Over the Image
+
+The SDK draws a command's display name (`GetCommandDisplayName` / `GetAdjustmentDisplayName`) as a white title over the image. Pick one of these per button:
+
+- **The image carries the text** (`ButtonTextRenderer`): return `String.Empty` from the display-name override, or the text shows twice. The audio and stats folders do this. `AudioVolumeDynamicFolder` didn't, and showed each name and volume twice until 2026-09-29.
+- **The image is an icon or a meter**: leave the display name to the SDK, which labels the button with it. `VuMeterRenderer` draws no name for this reason.
+
+Single-command actions (`ActionEditorCommand`) return `null` from `GetCommandDisplayName` for the same reason.
+
 ## Icon Resource Naming
 
 Icons are embedded resources with automatic path resolution:
