@@ -49,7 +49,7 @@
 
 - [x] ~~Retry the initial state load while OBS answers "not ready" (207), for as long as the connection is unchanged~~ ✅ Done
 - [x] ~~Start stats polling after the initial state load instead of at connect~~ ✅ Done
-- [ ] Check on a device: with the plugin running, close and restart OBS, and confirm the log shows `Initial state loaded once OBS was ready`, the audio folders list their inputs and no stats errors appear
+- [x] ~~Check on a device: restart OBS with the plugin running~~ ✅ Done 2026-09-29: OBS answered "not ready" twice, the load succeeded on attempt 3 about 1s after connecting, inputs, profiles and studio mode loaded, and stats started afterwards with no errors
 
 ### Assessment: Scene/Source/Profile Buttons Show No Text (#3) — Needs Decision
 
