@@ -90,6 +90,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.SceneItemRemoved += this.OnSceneItemRemoved;
             this._obs.InputCreated += this.OnInputCreated;
             this._obs.InputRemoved += this.OnInputRemoved;
+            this._obs.InputNameChanged += this.OnInputNameChanged;
+            this._obs.SceneNameChanged += this.OnSceneNameChanged;
             this._obs.MediaInputPlaybackStarted += this.OnMediaInputPlaybackStarted;
             this._obs.MediaInputPlaybackEnded += this.OnMediaInputPlaybackEnded;
             this._obs.MediaInputActionTriggered += this.OnMediaInputActionTriggered;
@@ -591,7 +593,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private void OnInputCreated(Object sender, InputCreatedEventArgs e)
         {
             this._log.Info($"Input created: '{e?.InputName}'");
-            OBSStudioForLogiPlugin.Instance?.OnInputListChanged();
+            this.UpdateInputList();
         }
 
         private void OnInputRemoved(Object sender, InputRemovedEventArgs e)
@@ -599,7 +601,80 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._log.Info($"Input removed: '{e?.InputName}'");
             this.AudioState.Remove(e?.InputName);
             this.MediaState.Remove(e?.InputName);
-            OBSStudioForLogiPlugin.Instance?.OnInputListChanged();
+            this.UpdateInputList();
+        }
+
+        private void OnInputNameChanged(Object sender, InputNameChangedEventArgs e)
+        {
+            if (String.IsNullOrEmpty(e?.OldInputName) || String.IsNullOrEmpty(e.InputName))
+                return;
+
+            this._log.Info($"Input renamed from '{e.OldInputName}' to '{e.InputName}'");
+            this.ApplyInputRename(e.OldInputName, e.InputName);
+            this.WarnUserDefinedButtonsRenamed("input", e.OldInputName, e.InputName);
+
+            // The folders list inputs by name, and the current scene's source folders may list it too.
+            this.UpdateInputList();
+            String currentScene = this.Actions.CurrentScene;
+            if (!String.IsNullOrEmpty(currentScene))
+            {
+                OBSStudioForLogiPlugin.Instance?.OnSceneItemsChanged(currentScene);
+            }
+        }
+
+        private void OnSceneNameChanged(Object sender, SceneNameChangedEventArgs e)
+        {
+            if (String.IsNullOrEmpty(e?.OldSceneName) || String.IsNullOrEmpty(e.SceneName))
+                return;
+
+            this._log.Info($"Scene renamed from '{e.OldSceneName}' to '{e.SceneName}'");
+            Boolean wasCurrentScene = this.ApplySceneRename(e.OldSceneName, e.SceneName);
+            this.WarnUserDefinedButtonsRenamed("scene", e.OldSceneName, e.SceneName);
+
+            // Refresh the list here rather than relying on OBS also sending SceneListChanged for a
+            // rename. If it does, the second refresh is one cheap request.
+            this.UpdateSceneList();
+            if (wasCurrentScene)
+            {
+                OBSStudioForLogiPlugin.Instance?.OnCurrentSceneChanged(e.SceneName);
+            }
+        }
+
+        // Moves everything keyed by the input's old name to its new name. Must run before the
+        // refreshed input list reaches the folders, or they drop the audio selection.
+        internal void ApplyInputRename(String oldInputName, String newInputName)
+        {
+            this.AudioState.Rename(oldInputName, newInputName);
+            this.AudioMeters.RenameInput(oldInputName, newInputName);
+            this.MediaState.RenameKeys(key => key == oldInputName ? newInputName : key);
+            this.SourceVisibility.RenameKeys(key => key.Source == oldInputName ? (key.Scene, newInputName) : key);
+            AudioSelectionState.RenameIfMatches(oldInputName, newInputName);
+        }
+
+        // Moves everything keyed by the scene's old name to its new name, and returns whether it
+        // was the current scene. A scene can also be a source in another scene, so both halves of
+        // the source visibility key are renamed.
+        internal Boolean ApplySceneRename(String oldSceneName, String newSceneName)
+        {
+            this.SourceVisibility.RenameKeys(key => (
+                key.Scene == oldSceneName ? newSceneName : key.Scene,
+                key.Source == oldSceneName ? newSceneName : key.Source));
+
+            if (this.Actions.CurrentScene != oldSceneName)
+            {
+                return false;
+            }
+
+            this.Actions.SetCurrentSceneState(newSceneName);
+            return true;
+        }
+
+        // User-defined buttons store the name typed into the Action Editor, and the plugin can't
+        // rewrite a saved button. Say so at the moment it happens, since afterwards those buttons
+        // just stop working.
+        private void WarnUserDefinedButtonsRenamed(String kind, String oldName, String newName)
+        {
+            this._log.Warning($"OBS {kind} '{oldName}' was renamed to '{newName}'. User-defined buttons that name '{oldName}' won't find it any more - change them to '{newName}' in the Action Editor");
         }
 
         private void OnMediaInputPlaybackStarted(Object sender, MediaInputPlaybackStartedEventArgs e)
@@ -721,6 +796,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._obs.SceneItemRemoved -= this.OnSceneItemRemoved;
                     this._obs.InputCreated -= this.OnInputCreated;
                     this._obs.InputRemoved -= this.OnInputRemoved;
+                    this._obs.InputNameChanged -= this.OnInputNameChanged;
+                    this._obs.SceneNameChanged -= this.OnSceneNameChanged;
                     this._obs.MediaInputPlaybackStarted -= this.OnMediaInputPlaybackStarted;
                     this._obs.MediaInputPlaybackEnded -= this.OnMediaInputPlaybackEnded;
                     this._obs.MediaInputActionTriggered -= this.OnMediaInputActionTriggered;

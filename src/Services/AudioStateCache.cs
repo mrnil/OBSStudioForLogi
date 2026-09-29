@@ -88,6 +88,33 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
+        // Called when OBS renames an input. The entry moves to the new name unless that name already
+        // has one, which was read from OBS after the rename and so is newer. A fetch in flight for
+        // the old name, and its failure backoff, are dropped.
+        public void Rename(String oldInputName, String newInputName)
+        {
+            if (String.IsNullOrEmpty(oldInputName) || String.IsNullOrEmpty(newInputName) || oldInputName == newInputName)
+            {
+                return;
+            }
+
+            lock (this._lock)
+            {
+                if (this._entries.TryGetValue(oldInputName, out Entry entry))
+                {
+                    this._entries.Remove(oldInputName);
+                    if (!this._entries.ContainsKey(newInputName))
+                    {
+                        this._entries[newInputName] = entry;
+                        this._failedFetches.Remove(newInputName);
+                    }
+                }
+
+                this._pendingFetches.Remove(oldInputName);
+                this._failedFetches.Remove(oldInputName);
+            }
+        }
+
         public void Clear()
         {
             lock (this._lock)

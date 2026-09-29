@@ -319,6 +319,8 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 | SceneItemRemoved | ✅ | `OnSceneItemRemoved()` |
 | InputCreated | ✅ | `OnInputCreated()` |
 | InputRemoved | ✅ | `OnInputRemoved()` |
+| InputNameChanged | ✅ | `OnInputNameChanged()` |
+| SceneNameChanged | ✅ | `OnSceneNameChanged()` |
 | MediaInputPlaybackStarted | ✅ | `OnMediaInputPlaybackStarted()` |
 | MediaInputPlaybackEnded | ✅ | `OnMediaInputPlaybackEnded()` |
 | ReplayBufferSaved | ✅ | `OnReplayBufferSaved()` |
@@ -330,7 +332,6 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 | CurrentPreviewSceneChanged | ❌ | Studio mode preview tracking |
 | InputVolumeMeters | ❌ | Real-time VU meters (**deferred** — high-volume event, requires library Reidentify support; see vu-meters-learnings.md) |
 | SceneItemTransformChanged | ❌ | Source position/scale tracking |
-| InputNameChanged | ❌ | Input list sync |
 | InputAudioBalanceChanged | ❌ | Audio balance display |
 | InputAudioSyncOffsetChanged | ❌ | Audio sync display |
 | InputAudioTracksChanged | ❌ | Track assignment display |

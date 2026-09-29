@@ -67,7 +67,7 @@ The `SetInputMute` call appeared twice in `OBSActionExecutor.CycleInputAudioMoni
 | `SceneCollectionListChanged` | Medium | Keep collection list current without reconnect |
 | `ProfileListChanged` | Medium | Keep profile list current without reconnect |
 | `SceneTransitionStarted` / `SceneTransitionEnded` | Medium | Visual feedback during transitions |
-| `InputNameChanged` | Medium | Keep audio/source lists in sync without full rebuild |
+| ~~`InputNameChanged`~~ | ~~Medium~~ | ✅ Done — moves cached state to the new name and refreshes the input lists (assessment #21); `SceneNameChanged` is handled the same way |
 | `SourceFilterEnableStateChanged` | Medium (if filters implemented) | Update filter button state |
 | ~~`MediaInputActionTriggered`~~ | ~~Low~~ | ✅ Done — keeps the media state cache current on pause/resume/stop |
 | `RecordFileChanged` | Low (new in library 5.7.0) | Confirm a recording split |

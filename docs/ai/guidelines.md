@@ -311,6 +311,8 @@ public void OnDisconnected()
 
 The same goes for OBS event handlers in `OBSWebSocketManager`: they run on the websocket's event thread, so a handler that makes OBS requests holds up every event behind it. Move that work to a background runner, and drop results a newer event has superseded, as `SceneSourcesLoader` does for the source lists after a scene change.
 
+State keyed by an OBS scene or input name goes stale when the user renames it in OBS. When you add a new cache or name-keyed store, move its entries in `OBSWebSocketManager.ApplyInputRename` or `ApplySceneRename` (assessment #21).
+
 ### ToggleCommandBase — For Toggle Commands
 
 Extend `ToggleCommandBase` for any on/off toggle:
@@ -524,6 +526,10 @@ public void SetCurrentProfile_WhenConnected_CallsObs()
 ```
 
 To assert on what happens before the work runs, queue it instead (`action => background.Enqueue(action)`) and dequeue when ready. Give any new service that starts background work the same constructor parameter. Only code driven by a real timer (e.g. `DoubleTapHelper`) should wait in tests, and then with a bounded poll, not a fixed sleep.
+
+### Static State in Tests
+
+`AudioSelectionState` is static, and xUnit runs test classes in parallel. Put any test class that selects, deselects or renames the audio selection (directly, or through a folder's `OnDisconnected`/`OnInputsChanged`) in `[Collection(AudioSelectionStateCollection.Name)]` so those classes run one at a time.
 
 ### Test Naming Convention
 

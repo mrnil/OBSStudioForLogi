@@ -133,6 +133,42 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
+        // Called when OBS renames an input. Levels (keeping their place in the live-input order) and
+        // mute state move to the new name, so the meter folder doesn't briefly show the input twice
+        // while the old name goes stale. Anything already recorded under the new name is newer and
+        // is kept.
+        public void RenameInput(String oldInputName, String newInputName)
+        {
+            if (String.IsNullOrEmpty(oldInputName) || String.IsNullOrEmpty(newInputName) || oldInputName == newInputName)
+            {
+                return;
+            }
+
+            lock (this._lock)
+            {
+                if (this._levels.TryGetValue(oldInputName, out LevelEntry levels))
+                {
+                    this._levels.Remove(oldInputName);
+                    if (!this._levels.ContainsKey(newInputName))
+                    {
+                        this._levels[newInputName] = levels;
+                    }
+                }
+
+                if (this._muteStates.TryGetValue(oldInputName, out Boolean isMuted))
+                {
+                    this._muteStates.Remove(oldInputName);
+                    if (!this._muteStates.ContainsKey(newInputName))
+                    {
+                        this._muteStates[newInputName] = isMuted;
+                        this._pendingMuteLookups.Remove(newInputName);
+                    }
+                }
+
+                this._pendingMuteLookups.Remove(oldInputName);
+            }
+        }
+
         public void Clear()
         {
             lock (this._lock)

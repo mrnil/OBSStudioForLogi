@@ -6,7 +6,7 @@ Reassessed on 2026-09-28 against `main`: version 2.0.0, not yet tagged. The last
 
 Item numbers stay the same between assessments because `TODO.md`, commit messages and `CHANGELOG.md` refer to them. Open items from earlier passes keep their original numbers. New findings start at #18. Fixed items are summarised under [Resolved](#resolved); for their full write-ups, see `git log -p -- docs/ai/assessment.md`.
 
-**Open**: #3, #5, #8, #9, #20, #21, #23, #24. Priority order is in the [Summary Table](#summary-table).
+**Open**: #3, #5, #8, #9, #20, #23, #24. Priority order is in the [Summary Table](#summary-table).
 
 ---
 
@@ -28,18 +28,6 @@ None open.
 **Impact**: Services can't be tested without the static plugin instance. That is why `OBSWebSocketManager` event handling has so little coverage. Adding a new stats or media display also means editing the plugin class instead of implementing an interface, which is the same maintenance trap #1 described.
 
 **Fix**: Have `OBSWebSocketManager` raise its own events, or take a callback interface in its constructor, and let the plugin class subscribe and forward them to `CommandCoordinator`. Add `IStatsAwareCommand` and `IMediaStateAwareCommand` (or similar) so the displays and the media folder receive updates through the registry.
-
----
-
-### 21. Renamed Inputs Go Stale (Feature Gap / Correctness)
-
-**Problem**: `InputNameChanged` is not subscribed. The input lists are only refreshed on `InputCreated` and `InputRemoved`. If an input is renamed in OBS:
-
-- the audio, media and meter folders keep showing the old name, and pressing one of those buttons targets an input that no longer exists
-- `AudioStateCache` and the meter levels are keyed by input name, so the old entry lingers and the new name starts as a cache miss
-- user-defined buttons (`AudioMuteAdjustableCommand`, `SourceVisibilityAdjustableCommand` and others) store the name and stop working without any error
-
-**Fix**: Subscribe to `InputNameChanged`, re-key the cache entries, and push the refreshed input list through `NotifyInputsChanged`. User-defined buttons can't be updated automatically, so log a clear warning when a configured name isn't found. Check whether `SceneListChanged` fires on scene rename. If it doesn't, handle `SceneNameChanged` the same way.
 
 ---
 
@@ -113,6 +101,7 @@ None open.
 | 17 | Performance | Log-review follow-ups: identified-only `IsConnected`, 3s request timeout, non-overlapping stats polls, null-tolerant stats, startup retry, 15s meter lease, log throttling. The remaining part became #18. | Unreleased (2.0.0) |
 | 18 | Performance | Source visibility and media status served from `KeyedStateCache` instead of blocking OBS requests on redraw; scene source lists load off the OBS event thread through `SceneSourcesLoader`, latest load wins. Media tiles still need a device check | Unreleased (2.0.0) |
 | 19 | Security | Remote OBS password moved out of `config.json` into the SDK's encrypted plugin settings, with migration. The Action Editor field is persisted in plaintext in the device profile, so an empty field now keeps the saved password, users are told to clear it after saving, and a "Clear Saved Password" checkbox removes it. A value left in the field still sits in the profile. Needs a device check | Unreleased (2.0.0) |
+| 21 | Correctness | `InputNameChanged` and `SceneNameChanged` handled: cached audio, meter, media and visibility state moves to the new name, the dial selection follows the input, the current scene is updated, and the input and scene lists refresh in the background. User-defined buttons can't be rewritten, so a rename logs a warning naming the new name. Input create/remove/rename now refresh the list off the OBS event thread. Needs a device check | Unreleased (2.0.0) |
 | 22 | Docs | `guidelines.md`, `image-rendering-simplified.md`, `sdk-quick-reference.md` and `structure.md` rewritten against the real `ButtonImageHelper`/`ButtonTextRenderer` API; the non-existent `StateIcon`/`StateText`/`TextWithIcon`/`StateTextWithIcon` examples are gone | Unreleased (2.0.0) |
 
 ---
@@ -124,7 +113,6 @@ Open items, in the order to work on them.
 | # | Priority | Area | Issue |
 |---|----------|------|-------|
 | 20 | Medium | Architecture | Services call `OBSStudioForLogiPlugin.Instance`, and the plugin calls command singletons directly |
-| 21 | Medium | Correctness | `InputNameChanged` not handled: renamed inputs leave stale folders, cache entries and user-defined buttons |
 | 3 | Medium | Usability | Name text on scene/source/profile buttons: the fix was reverted without a recorded reason, so check on a device and decide |
 | 5 | Medium | Usability | Hard-coded 500ms double-tap window delays every single tap |
 | 8 | Low | Feature | `ProfileListChanged`/`SceneCollectionListChanged` not subscribed |

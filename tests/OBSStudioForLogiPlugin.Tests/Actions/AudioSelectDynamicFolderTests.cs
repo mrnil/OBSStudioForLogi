@@ -3,6 +3,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests.Actions
     using System;
     using Xunit;
 
+    [Collection(AudioSelectionStateCollection.Name)]
     public class AudioSelectDynamicFolderTests
     {
         [Fact]

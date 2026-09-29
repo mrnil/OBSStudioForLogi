@@ -26,10 +26,11 @@
 - [ ] Have `OBSWebSocketManager` raise events (or take a callback interface) instead of calling `OBSStudioForLogiPlugin.Instance`
 - [ ] Route stats and media updates through `CommandCoordinator` instead of `StatsDisplay.Instance`, `MediaDynamicFolder.Instance` and similar
 
-### Assessment: Renamed Inputs Go Stale (#21)
+### Assessment: Renamed Inputs Go Stale (#21) ✅ Done
 
-- [ ] Subscribe to `InputNameChanged`, re-key `AudioStateCache` and meter entries, push the refreshed input list
-- [ ] Check whether `SceneListChanged` fires on scene rename; handle `SceneNameChanged` if not
+- [x] ~~Subscribe to `InputNameChanged`, re-key `AudioStateCache` and meter entries, push the refreshed input list~~ ✅ Done
+- [x] ~~Check whether `SceneListChanged` fires on scene rename; handle `SceneNameChanged` if not~~ ✅ Done — `SceneNameChanged` is handled directly, so it no longer matters whether OBS also sends `SceneListChanged`
+- [ ] Check on a device: rename an audio input (selected on the dial), a media source and the current scene in OBS, and confirm the folders, selection and scene tick follow
 
 ### Assessment: AI Docs Describe Non-Existent `ButtonImageHelper` Methods (#22) ✅ Done
 
@@ -113,7 +114,7 @@
 ## Events Not Yet Subscribed
 
 - [ ] `CurrentPreviewSceneChanged` — studio mode preview tracking
-- [ ] `InputNameChanged` — input list sync when renamed in OBS (assessment #21)
+- [x] ~~`InputNameChanged` — input list sync when renamed in OBS (assessment #21)~~ ✅ Done
 - [ ] `InputAudioBalanceChanged` — audio balance display
 - [ ] `InputAudioSyncOffsetChanged` — audio sync display
 - [ ] `InputAudioTracksChanged` — track assignment display

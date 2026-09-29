@@ -136,6 +136,48 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
         }
 
+        // Called when OBS renames a scene or input: rename returns each key's new key, or the key
+        // unchanged. A value moves to its new key unless that key already has one, which was read
+        // from OBS after the rename and so is newer. Fetches in flight for the old keys, and their
+        // failure backoff, are dropped.
+        public void RenameKeys(Func<TKey, TKey> rename)
+        {
+            if (rename == null)
+            {
+                return;
+            }
+
+            lock (this._lock)
+            {
+                foreach (KeyValuePair<TKey, TValue> pair in this._values.ToList())
+                {
+                    TKey newKey = rename(pair.Key);
+                    if (EqualityComparer<TKey>.Default.Equals(newKey, pair.Key))
+                    {
+                        continue;
+                    }
+
+                    this._values.Remove(pair.Key);
+                    if (newKey != null && !this._values.ContainsKey(newKey))
+                    {
+                        this._values[newKey] = pair.Value;
+                        this._pendingFetches.Remove(newKey);
+                        this._failedFetches.Remove(newKey);
+                    }
+                }
+
+                foreach (TKey key in this._pendingFetches.Keys.Where(key => !EqualityComparer<TKey>.Default.Equals(rename(key), key)).ToList())
+                {
+                    this._pendingFetches.Remove(key);
+                }
+
+                foreach (TKey key in this._failedFetches.Keys.Where(key => !EqualityComparer<TKey>.Default.Equals(rename(key), key)).ToList())
+                {
+                    this._failedFetches.Remove(key);
+                }
+            }
+        }
+
         public void Clear()
         {
             lock (this._lock)

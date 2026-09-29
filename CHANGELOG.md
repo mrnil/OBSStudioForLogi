@@ -42,6 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Scene Sources and Toggle Source Visibility buttons no longer wait on OBS each time they are drawn, so a slow OBS no longer stalls the device while they are on screen. Their state is read once and then kept up to date from OBS's visibility events
 - Media Controls buttons no longer wait on OBS each time they are drawn, and now show Paused and Stopped as soon as media is paused or stopped, including from OBS's own controls. Previously they only caught up on their next redraw
 - Switching scenes no longer holds up other OBS updates while the new scene's source lists load. The lists now load in the background, and if scenes are switched quickly only the latest scene's sources are shown
+- Renaming an input or scene in OBS no longer leaves the plugin showing the old name. The Mixer, Live Audio, Media and Scene Sources folders and the scene list update straight away, the renamed input stays selected on the dial, and its mute, volume, visibility and playback state carry over. User-defined buttons store the name you typed, so the plugin log now warns which name to change them to
+- Adding or removing an input no longer holds up other OBS updates while the input list reloads
 
 ## [1.6.2] - 2026-08-21
 

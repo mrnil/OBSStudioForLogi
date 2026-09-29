@@ -574,13 +574,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 (scene, sources, audioSources) => this.OnSceneSourcesChanged(scene, sources, audioSources));
         }
 
-        public void OnInputListChanged()
-        {
-            PluginLog.Debug("Plugin notified of input list change");
-            var inputs = this._obsFacade.GetInputList();
-            this._commandCoordinator.NotifyInputsChanged(inputs);
-        }
-
         public void ToggleStudioMode()
         {
             this._obsFacade.ToggleStudioMode();
