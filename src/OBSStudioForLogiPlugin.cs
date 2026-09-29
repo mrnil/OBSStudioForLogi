@@ -37,6 +37,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._statsService = new StatsService(pluginConfig?.StatsPollingInterval ?? 5000);
             this._statsService.StatsUpdated += this.OnStatsUpdated;
             obsManager.InitialStateLoadFinished += this.OnInitialStateLoadFinished;
+            obsManager.SceneCollectionSwitchStarted += (s, e) => this._statsService.Pause("scene collection switching");
+            obsManager.SceneCollectionSwitchFinished += (s, e) => this._statsService.Resume("scene collection switched");
         }
 
         private static PluginConfig LoadPluginConfiguration()

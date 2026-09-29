@@ -21,6 +21,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
         private readonly Action<Action> _runInBackground;
         private readonly HashSet<String> _viewers = new HashSet<String>();
         private Boolean _started;
+        private volatile Boolean _paused;
         private Int32 _pollInProgress;
         private Boolean _disposed = false;
 
@@ -62,6 +63,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
                 }
 
                 this._started = true;
+                this._paused = false;
                 this.UpdatePolling("connected");
             }
         }
@@ -72,9 +74,43 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
             lock (this._lock)
             {
                 this._started = false;
+                this._paused = false;
                 this.UpdatePolling("disconnected");
                 this.CurrentStats = null;
                 this.CurrentStreamStats = null;
+            }
+        }
+
+        // OBS answers every request with "not ready" while it switches scene collection, so polling
+        // stops until the switch finishes. The last stats stay on screen meanwhile. Start and Stop
+        // clear the pause, so a switch that never reports finishing can't leave polling off.
+        public void Pause(String reason)
+        {
+            lock (this._lock)
+            {
+                if (this._paused)
+                {
+                    return;
+                }
+
+                this._paused = true;
+                PluginLog.Info($"StatsService paused ({reason})");
+                this.UpdatePolling(reason);
+            }
+        }
+
+        public void Resume(String reason)
+        {
+            lock (this._lock)
+            {
+                if (!this._paused)
+                {
+                    return;
+                }
+
+                this._paused = false;
+                PluginLog.Info($"StatsService resumed ({reason})");
+                this.UpdatePolling(reason, "resumed");
             }
         }
 
@@ -123,10 +159,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
         }
 
         // Called under _lock. Starts the timer (plus one poll straight away, so a newly shown stats
-        // button doesn't wait a whole interval) when connected with viewers, and stops it otherwise.
-        private void UpdatePolling(String reason)
+        // button doesn't wait a whole interval) when connected, not paused and with viewers, and
+        // stops it otherwise.
+        private void UpdatePolling(String reason, String firstPollTrigger = "first viewer")
         {
-            Boolean shouldPoll = this._started && this._viewers.Count > 0 && !this._disposed;
+            Boolean shouldPoll = this._started && !this._paused && this._viewers.Count > 0 && !this._disposed;
 
             if (shouldPoll == this._pollTimer.Enabled)
             {
@@ -137,7 +174,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
             {
                 this._pollTimer.Start();
                 PluginLog.Info($"StatsService polling started every {this._pollTimer.Interval}ms ({reason})");
-                this._runInBackground(() => this.Poll("first viewer"));
+                this._runInBackground(() => this.Poll(firstPollTrigger));
             }
             else
             {
@@ -155,7 +192,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
         // behind a slow OBS.
         private void Poll(String trigger)
         {
-            if (this._disposed)
+            // A timer tick can already be queued when polling pauses.
+            if (this._disposed || this._paused)
                 return;
 
             if (Interlocked.Exchange(ref this._pollInProgress, 1) == 1)

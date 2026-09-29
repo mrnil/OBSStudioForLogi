@@ -51,6 +51,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         // ready, or after giving up - so work that needs a ready OBS (stats polling) can start.
         public event EventHandler InitialStateLoadFinished;
 
+        // Raised around a scene collection switch. In between, OBS answers every request with
+        // "not ready" while it loads the new collection, so pollers should wait.
+        public event EventHandler SceneCollectionSwitchStarted;
+        public event EventHandler SceneCollectionSwitchFinished;
+
         public OBSWebSocketManager() : this(new PluginLogAdapter())
         {
         }
@@ -87,6 +92,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.VirtualcamStateChanged += this.OnVirtualCameraStateChanged;
             this._obs.ReplayBufferStateChanged += this.OnReplayBufferStateChanged;
             this._obs.CurrentProfileChanged += this.OnCurrentProfileChanged;
+            this._obs.CurrentSceneCollectionChanging += this.OnCurrentSceneCollectionChanging;
             this._obs.CurrentSceneCollectionChanged += this.OnCurrentSceneCollectionChanged;
             this._obs.ProfileListChanged += this.OnProfileListChanged;
             this._obs.SceneCollectionListChanged += this.OnSceneCollectionListChanged;
@@ -377,8 +383,17 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             });
         }
 
+        private void OnCurrentSceneCollectionChanging(Object sender, CurrentSceneCollectionChangingEventArgs e)
+        {
+            this._log.Info($"Scene collection '{e?.SceneCollectionName}' is being unloaded");
+            this.SceneCollectionSwitchStarted?.Invoke(this, EventArgs.Empty);
+        }
+
         private void OnCurrentSceneCollectionChanged(Object sender, CurrentSceneCollectionChangedEventArgs e)
         {
+            // OBS is ready again once it sends this, whatever the event carries.
+            this.SceneCollectionSwitchFinished?.Invoke(this, EventArgs.Empty);
+
             if (e?.SceneCollectionName == null)
                 return;
 
@@ -909,6 +924,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._obs.VirtualcamStateChanged -= this.OnVirtualCameraStateChanged;
                     this._obs.ReplayBufferStateChanged -= this.OnReplayBufferStateChanged;
                     this._obs.CurrentProfileChanged -= this.OnCurrentProfileChanged;
+                    this._obs.CurrentSceneCollectionChanging -= this.OnCurrentSceneCollectionChanging;
                     this._obs.CurrentSceneCollectionChanged -= this.OnCurrentSceneCollectionChanged;
                     this._obs.ProfileListChanged -= this.OnProfileListChanged;
                     this._obs.SceneCollectionListChanged -= this.OnSceneCollectionListChanged;

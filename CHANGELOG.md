@@ -50,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Creating, renaming or removing a profile or scene collection in OBS now updates the Profiles and Scene Collections folders straight away. Previously they kept the old list until you switched profile or collection, or the plugin reconnected
 - An error while connecting after OBS starts is now logged instead of going unhandled, which could stop the plugin
 - After switching scene collection, the current scene is read as soon as OBS reports the switch, instead of after a fixed 100ms wait that held up a background thread
+- Switching scene collection no longer logs stats errors. OBS rejects requests while it loads a collection, so stats polling now pauses for the switch and refreshes as soon as it finishes
 - The Audio Volume folder no longer shows each input's name and volume twice (once in colour and again as a white title)
 
 ## [1.6.2] - 2026-08-21

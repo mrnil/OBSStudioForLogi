@@ -259,4 +259,90 @@ public class StatsServiceTests
 
         Assert.Equal(0, this._statsCalls);
     }
+
+    // --- Paused while OBS switches scene collection ---
+    // OBS answers every request with 207 "not ready" while a collection loads, and each rejected
+    // poll was logged as an error.
+
+    [Fact]
+    public void Pause_WhilePolling_StopsPollingAndKeepsLastStats()
+    {
+        using StatsService service = this.CreateService();
+        service.Start();
+        service.AddViewer("Folder");
+
+        service.Pause("switching");
+
+        Assert.False(service.IsPolling);
+        Assert.Equal(60, service.CurrentStats.Fps);
+    }
+
+    [Fact]
+    public void Poll_WhilePaused_IsSkipped()
+    {
+        using StatsService service = this.CreateService();
+        service.Start();
+        service.Pause("switching");
+
+        service.Poll();
+
+        Assert.Equal(0, this._statsCalls);
+    }
+
+    [Fact]
+    public void AddViewer_WhilePaused_DoesNotPoll()
+    {
+        using StatsService service = this.CreateService();
+        service.Start();
+        service.Pause("switching");
+
+        service.AddViewer("Folder");
+
+        Assert.False(service.IsPolling);
+        Assert.Equal(0, this._statsCalls);
+    }
+
+    // The collection just changed, so the numbers are refreshed straight away.
+    [Fact]
+    public void Resume_WithViewer_RestartsPollingAndPollsImmediately()
+    {
+        using StatsService service = this.CreateService();
+        service.Start();
+        service.AddViewer("Folder");
+        service.Pause("switching");
+
+        service.Resume("switched");
+
+        Assert.True(service.IsPolling);
+        Assert.Equal(2, this._statsCalls);
+    }
+
+    [Fact]
+    public void Resume_WithoutPause_DoesNotPollAgain()
+    {
+        using StatsService service = this.CreateService();
+        service.Start();
+        service.AddViewer("Folder");
+
+        service.Resume("switched");
+
+        Assert.True(service.IsPolling);
+        Assert.Equal(1, this._statsCalls);
+    }
+
+    // A switch that never reports finishing (the connection dropped mid-switch) must not leave
+    // polling off for the next connection.
+    [Fact]
+    public void Start_AfterPauseWithoutResume_Polls()
+    {
+        using StatsService service = this.CreateService();
+        service.Start();
+        service.AddViewer("Folder");
+        service.Pause("switching");
+        service.Stop();
+
+        service.Start();
+
+        Assert.True(service.IsPolling);
+    }
 }

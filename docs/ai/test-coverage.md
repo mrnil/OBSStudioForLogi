@@ -38,7 +38,7 @@ The project follows a TDD approach with 705 unit tests using xUnit + Moq (verifi
 | `SessionGateTests.cs` | Once-per-connection gate, including concurrent opens; `Generation`/`IsCurrent` tell an old connection from a new one | 8 |
 | `InitialStateLoaderTests.cs` | Initial state load retried while OBS answers "not ready" (207), given up after the last attempt, not retried for other errors, abandoned when the connection goes (#26) | 10 |
 | `ConnectionManagerTests.cs` | `IsConnecting` during a port wait; `ReconnectAsync` ignores presses mid-attempt; retries while the port never comes up, stopped by `Disconnect`/`Dispose` | 8 |
-| `StatsServiceTests.cs` | Poll stores stats, overlapping polls skipped, a throwing provider doesn't block later polls; polling only while connected with a viewer, an immediate poll for the first viewer, resuming after reconnect (#25) | 18 |
+| `StatsServiceTests.cs` | Poll stores stats, overlapping polls skipped, a throwing provider doesn't block later polls; polling only while connected with a viewer, an immediate poll for the first viewer, resuming after reconnect (#25); paused during a scene collection switch, with a fresh poll on resume and the pause cleared by reconnecting | 24 |
 | `LoadingTilesTests.cs` | Loading tile parameters, tile index parsing, begin/end state, two tiles to fit beside the Back button, font size that fits the message (#25); rendering is SDK-dependent and checked on a device | 17 |
 | `OBSWebsocketAdapterStatsTests.cs` | Null-tolerant `GetStats` parsing | 4 |
 | `LogThrottleTests.cs` | Repeat suppression window, suppressed-count reporting, per-message independence, pruning | 6 |

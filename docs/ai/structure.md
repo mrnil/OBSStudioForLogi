@@ -50,7 +50,7 @@ OBSStudioForLogiPlugin/
 | `PluginConfigReader.cs` | Read/write plugin config JSON; keeps the remote password out of the file, in an `ISecretStore`, and moves plaintext passwords left by older versions into it |
 | `ISecretStore.cs` | Encrypted value storage; the plugin backs it with the SDK's plugin settings (`PluginSettingsSecretStore`, nested in the plugin class) |
 | `ReconnectionStrategy.cs` | Exponential backoff with jitter |
-| `StatsService.cs` | Timer-based stats polling; skips a tick while the previous poll is still running. Polls only while connected and while at least one viewer (a stats folder, the summary button) is registered, with an immediate poll for the first viewer |
+| `StatsService.cs` | Timer-based stats polling; skips a tick while the previous poll is still running. Polls only while connected and while at least one viewer (a stats folder, the summary button) is registered, with an immediate poll for the first viewer. Pauses while OBS switches scene collection (`Pause`/`Resume`, driven by `OBSWebSocketManager.SceneCollectionSwitchStarted`/`Finished`) |
 | `AudioMeterService.cs` | Latest per-input audio meter levels fed by `InputVolumeMeters` (expire after `OBSTimings.AudioMeterStaleThreshold`), the live-input list, and a cached per-input mute state |
 | `AudioStateCache.cs` | Non-blocking per-input mute/volume/monitor type for button rendering: fetches a miss once in the background, kept current by OBS change events |
 | `KeyedStateCache.cs` | The same non-blocking pattern for one value per key; `OBSWebSocketManager.SourceVisibility` uses it keyed by (scene, source), `OBSWebSocketManager.MediaState` keyed by input name |

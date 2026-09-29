@@ -123,7 +123,8 @@
 
 ### Other
 
-- [ ] Stats polls during a scene collection switch log `ERROR Failed to get stats: 207` (OBS is "not ready" while the collection loads). Treat 207 as expected there and log it at Debug, or skip polls while a switch is in progress
+- [x] ~~Stats polls during a scene collection switch log `ERROR Failed to get stats: 207` (OBS is "not ready" while the collection loads)~~ ✅ Done — `StatsService` pauses between `CurrentSceneCollectionChanging` and `CurrentSceneCollectionChanged`, then polls straight away
+- [ ] Check on a device: switch scene collection with the OBS Stats Summary button on screen; the log shows `StatsService paused` and `resumed` and no 207 errors
 - [ ] Recording duration display (parity with streaming stats — `GetRecordStatus` returns timecode and bytes)
 - [ ] Audio sync offset controls (set-and-forget, rarely adjusted mid-stream)
 - [ ] Audio track assignment (multi-track recording)
