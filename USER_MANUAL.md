@@ -47,6 +47,7 @@ To control OBS running on a different computer on your network:
    - Enter the **Password** (set in OBS WebSocket Server Settings on the remote machine)
    - Choose a **Stats Polling Interval** (2s, 5s, or 10s)
 3. Press the button to save and reconnect
+4. Clear the **Password** field and save the action again. The password is kept, encrypted, in the plugin's settings. An empty field keeps it, but a value left in the field is stored unencrypted in your device profile. To remove a saved password, tick **Clear Saved Password** and press the button.
 
 Settings persist between sessions. To switch back to local OBS, check "Use Local OBS" and press the button again.
 

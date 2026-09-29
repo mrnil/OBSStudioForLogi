@@ -152,6 +152,12 @@
 - [x] ~~Dependency injection for StatsService (inject `Func<OBSStats>` instead of static singleton)~~ ✅ Done (assessment #17)
 - [ ] Split the 1,165-line `OBSActionExecutor` by feature area (outputs, scenes, audio, media) the next time a large change touches it (left over from assessment #23)
 
+## Recently Completed (v2.0.0)
+
+- [x] Real-time audio VU meters (Live Audio Folder, per-source Audio Meter action) on obs-websocket-dotnet 5.7.0
+- [x] Restyled icon set
+- [x] Assessments #8, #14–#19, #21–#23, #25, #26 — see `docs/ai/assessment.md` Resolved table
+
 ## Recently Completed (v1.6.2)
 
 - [x] Assessment #6 — `CommandCoordinator` given real responsibility: per-command exception isolation via a private generic `NotifyEach<T>()` dispatcher; `CommandRegistry` simplified to a store + generic `GetCommands<T>()` filter; `CommandCoordinatorTests.cs` added (26 tests) covering dispatch and exception isolation, `CommandRegistryTests.cs` trimmed to registration/filtering

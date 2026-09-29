@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-09-29
+
 ### Added
 
 - **Live Audio Folder** dynamic folder (`8. Audio`): real-time per-channel VU meters for live audio inputs on a dB scale (-60dB to 0dB) matching OBS's own mixer, with green/yellow/red zones at -20dB and -10dB; tap a tile to toggle mute
