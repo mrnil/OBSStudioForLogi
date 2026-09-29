@@ -153,7 +153,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 | Toggle Input Mute | ✅ | `AudioMixerDynamicFolder`, `SceneAudioSourcesDynamicFolder` |
 | Input Mute Changed Event | ✅ | `InputMuteStateChanged` event |
 | Get Input Volume | ✅ | `GetInputVolume()` - displays on buttons |
-| Set Input Volume | ✅ | `SetInputVolume()` - wheel tool + API |
+| Set Input Volume | ✅ | `SetInputVolume()` - volume folder and adjustment |
 | Input Volume Changed Event | ✅ | `InputVolumeChanged` event |
 | Get Input Audio Balance | ❌ | Not implemented |
 | Set Input Audio Balance | ❌ | Not implemented |
@@ -390,7 +390,7 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 
 ### High Priority (User-Requested Features)
 
-1. **Volume Adjustment Controls** - ✅ Multiple approaches (WheelTool, AudioVolumeDynamicFolder, SelectedSourceVolumeAdjustment)
+1. **Volume Adjustment Controls** - ✅ Multiple approaches (AudioVolumeDynamicFolder, SelectedSourceVolumeAdjustment)
 2. **Audio Monitoring Toggle** - ✅ CycleInputAudioMonitorType implemented
 3. **Media Source Controls** - ✅ Play/pause/stop/restart with dynamic folder and user-defined actions
 4. **Filter Enable/Disable** - Toggle audio/video filters

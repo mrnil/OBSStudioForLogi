@@ -40,7 +40,7 @@
 | `Plugin` | `OBSStudioForLogiPlugin` |
 | `PluginDynamicCommand` | All toggle/start/stop/display commands |
 | `PluginDynamicFolder` | All dynamic folder commands |
-| `PluginDynamicAdjustment` | `SelectedSourceVolumeAdjustment`, `AudioVolumeWheelTool` |
+| `PluginDynamicAdjustment` | `SelectedSourceVolumeAdjustment` |
 | `ActionEditorCommand` | All user-defined (Group 99) commands + `PluginSettingsCommand` |
 | `BitmapBuilder` | `ButtonTextRenderer` |
 | `BitmapImage` | Return type of all `GetCommandImage` overrides |

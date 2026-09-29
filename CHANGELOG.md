@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- The "OBS Volume" wheel tool for the Loupedeck CT's centre wheel. It never appeared in the action list on any device. Use **Selected Source Volume** (`8. Audio`) on a wheel, dial or roller instead
+
 ## [2.0.0] - 2026-09-29
 
 ### Added

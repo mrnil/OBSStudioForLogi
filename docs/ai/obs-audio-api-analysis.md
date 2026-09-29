@@ -310,7 +310,6 @@ void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enable
 - Audio Mixer folder (all audio inputs)
 - Scene Audio folder (audio inputs in current scene)
 - Audio inputs not in any scene included in Scene Audio folder
-- Volume adjustment via encoder/wheel tool (`AudioVolumeWheelTool`)
 - Audio selection state for dial control (`AudioSelectionState`)
 - Double-tap to select/deselect audio source for wheel control
 - Audio monitoring type cycling (None → Monitor Only → Monitor & Output)
@@ -325,7 +324,6 @@ void SetSourceFilterEnabled(String sourceName, String filterName, Boolean enable
 ### 🟡 Partially Completed
 
 - Volume adjustment — multiple approaches available:
-  - `AudioVolumeWheelTool` ✅ CT encoder-based volume adjustment
   - `AudioVolumeDynamicFolder` ✅ MX big wheel via adjustment tiles
   - `SelectedSourceVolumeAdjustment` ✅ standalone adjustment for any wheel/dial
   - `AudioSelectionState` ✅ tracks selected input for dial

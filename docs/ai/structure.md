@@ -103,7 +103,7 @@ OBSStudioForLogiPlugin/
 
 **Adjustments (PluginDynamicAdjustment):**
 
-- `SelectedSourceVolumeAdjustment`, `AudioVolumeWheelTool`
+- `SelectedSourceVolumeAdjustment`
 
 **Display Commands:**
 
