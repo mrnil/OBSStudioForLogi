@@ -41,6 +41,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public AudioStateCache AudioState { get; }
         public KeyedStateCache<(String Scene, String Source), Boolean> SourceVisibility { get; }
         public KeyedStateCache<String, String> MediaState { get; }
+        public CachedValue<Models.AudioInputSceneMembership> AudioInputMembership { get; }
 
         public event EventHandler ConnectionEstablished;
         public event EventHandler ConnectionLost;
@@ -67,6 +68,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 this.TryFetchSourceVisibility, this.OnSourceVisibilityFetched, false, "source visibility");
             this.MediaState = new KeyedStateCache<String, String>(
                 this.Actions.TryGetMediaInputStatus, this.OnMediaStateFetched, MediaInputStates.None, "media state");
+            this.AudioInputMembership = new CachedValue<Models.AudioInputSceneMembership>(
+                this.Actions.TryGetAudioInputSceneMembership, "audio input scene membership");
             this._reconnectTimer = new Timer();
             this._reconnectTimer.Elapsed += this.OnReconnectTimer;
             this._reconnectTimer.AutoReset = false;
@@ -215,6 +218,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.AudioState.Clear();
             this.SourceVisibility.Clear();
             this.MediaState.Clear();
+            this.AudioInputMembership.Invalidate("new connection");
             this._reconnectionStrategy.Reset();
             this._reconnectTimer?.Stop();
             
@@ -287,6 +291,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.AudioState.Clear();
             this.SourceVisibility.Clear();
             this.MediaState.Clear();
+            this.AudioInputMembership.Invalidate("disconnected");
 
             // NotifyDisconnected is called via OBSStudioForLogiPlugin.OnOBSDisconnected → CommandCoordinator
             
@@ -363,6 +368,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             // A different collection can reuse scene, source and input names with different state.
             this.SourceVisibility.Clear();
             this.MediaState.Clear();
+            this.AudioInputMembership.Invalidate("scene collection changed");
             this._log.Info($"Current scene collection changed to '{e.SceneCollectionName}'");
             
             // Notify SceneCollectionSelectCommand
@@ -397,6 +403,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private void OnSceneListChanged(Object sender, EventArgs e)
         {
             this._log.Info("Scene list changed");
+            this.AudioInputMembership.Invalidate("scene list changed");
             this.UpdateSceneList();
         }
 
@@ -577,6 +584,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             this._log.Info($"Scene item created in scene '{e.SceneName}'");
             this.SourceVisibility.RemoveWhere(key => key.Scene == e.SceneName);
+            this.AudioInputMembership.Invalidate($"scene item created in '{e.SceneName}'");
             OBSStudioForLogiPlugin.Instance?.OnSceneItemsChanged(e.SceneName);
         }
 
@@ -587,12 +595,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             this._log.Info($"Scene item removed from scene '{e.SceneName}'");
             this.SourceVisibility.RemoveWhere(key => key.Scene == e.SceneName);
+            this.AudioInputMembership.Invalidate($"scene item removed from '{e.SceneName}'");
             OBSStudioForLogiPlugin.Instance?.OnSceneItemsChanged(e.SceneName);
         }
 
         private void OnInputCreated(Object sender, InputCreatedEventArgs e)
         {
             this._log.Info($"Input created: '{e?.InputName}'");
+            this.AudioInputMembership.Invalidate("input created");
             this.UpdateInputList();
         }
 
@@ -601,6 +611,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._log.Info($"Input removed: '{e?.InputName}'");
             this.AudioState.Remove(e?.InputName);
             this.MediaState.Remove(e?.InputName);
+            this.AudioInputMembership.Invalidate("input removed");
             this.UpdateInputList();
         }
 
@@ -648,6 +659,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.AudioMeters.RenameInput(oldInputName, newInputName);
             this.MediaState.RenameKeys(key => key == oldInputName ? newInputName : key);
             this.SourceVisibility.RenameKeys(key => key.Source == oldInputName ? (key.Scene, newInputName) : key);
+            this.AudioInputMembership.Invalidate("input renamed");
             AudioSelectionState.RenameIfMatches(oldInputName, newInputName);
         }
 

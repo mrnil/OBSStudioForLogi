@@ -313,6 +313,12 @@ The same goes for OBS event handlers in `OBSWebSocketManager`: they run on the w
 
 State keyed by an OBS scene or input name goes stale when the user renames it in OBS. When you add a new cache or name-keyed store, move its entries in `OBSWebSocketManager.ApplyInputRename` or `ApplySceneRename` (assessment #21).
 
+### Load OBS Data Only While It Is Shown
+
+Don't fetch or poll OBS for data that only one folder or button displays unless that folder or button is on screen (assessment #25). A `PluginDynamicFolder` registers as a viewer in `Activate()` (first instance opened) and unregisters in `Deactivate()` (last instance closed): see `SourcesDynamicFolder` with `SceneSourcesLoader`, and the stats folders with `StatsService`. A plain command gets no such hooks, so infer visibility with an `ActivityLease` renewed from `GetCommandImage` and a timer that invalidates the image about once a second and expires the lease: see `StatsDisplay` and `AudioMeterCommand`. A folder whose list loads on open shows `LoadingTiles` until the first list arrives. Set the tiles before starting the load, since the load can finish before the call that starts it returns.
+
+Lists that every command needs (scenes, inputs, profiles, scene collections) stay in the once-per-connection load; the Options+ action picker needs them even when nothing is on the device.
+
 ### ToggleCommandBase — For Toggle Commands
 
 Extend `ToggleCommandBase` for any on/off toggle:

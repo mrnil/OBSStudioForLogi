@@ -993,48 +993,25 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             });
         }
 
-        public String[] GetAudioSourcesInScene(String sceneName)
+        // For OBSWebSocketManager.AudioInputMembership. Returns false rather than empty lists on
+        // failure, so an OBS error isn't cached as "no audio inputs".
+        public Boolean TryGetAudioInputSceneMembership(out Models.AudioInputSceneMembership membership)
         {
+            membership = null;
             if (!this._obs.IsConnected)
             {
-                this._log.Warning($"Cannot get audio sources for scene '{sceneName}' - not connected");
-                return new String[0];
-            }
-
-            if (String.IsNullOrEmpty(sceneName))
-            {
-                this._log.Warning("Cannot get audio sources - scene name is empty");
-                return new String[0];
+                return false;
             }
 
             try
             {
-                this._log.Debug($"Getting audio sources for scene '{sceneName}'");
-                return this._obs.GetAudioSourcesInScene(sceneName);
+                membership = new Models.AudioInputSceneMembership(this._obs.GetInputList(), this._obs.GetAudioInputsNotInAnyScene());
+                return true;
             }
             catch (Exception ex)
             {
-                this._log.Error($"Failed to get audio sources for scene '{sceneName}': {ex.Message}");
-                return new String[0];
-            }
-        }
-
-        public String[] GetAudioInputsNotInAnyScene()
-        {
-            if (!this._obs.IsConnected)
-            {
-                this._log.Warning("Cannot get audio inputs not in any scene - not connected");
-                return new String[0];
-            }
-
-            try
-            {
-                return this._obs.GetAudioInputsNotInAnyScene();
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get audio inputs not in any scene: {ex.Message}");
-                return new String[0];
+                this._log.Error($"Failed to get audio input scene membership: {ex.Message}");
+                return false;
             }
         }
 

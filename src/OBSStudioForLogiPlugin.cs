@@ -349,6 +349,19 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._commandCoordinator.NotifySceneSourcesChanged(sceneName, sources, audioSources);
         }
 
+        // Scene source lists are only fetched while a folder that shows them is open. Returns true
+        // if the current scene's lists started loading, so the folder can show its loading tiles.
+        public Boolean OpenSceneSources(String owner)
+        {
+            return this._obsFacade.AddSceneSourcesViewer(owner,
+                (scene, sources, audioSources) => this.OnSceneSourcesChanged(scene, sources, audioSources));
+        }
+
+        public void CloseSceneSources(String owner)
+        {
+            this._obsFacade.RemoveSceneSourcesViewer(owner);
+        }
+
 
 
         public Boolean GetSourceVisibility(String sceneName, String sourceName)
@@ -411,6 +424,17 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Models.OBSStreamStats GetCurrentStreamStats()
         {
             return this._statsService.CurrentStreamStats;
+        }
+
+        // Stats are only polled while something that shows them is visible - see StatsService.
+        public void AddStatsViewer(String owner)
+        {
+            this._statsService.AddViewer(owner);
+        }
+
+        public void RemoveStatsViewer(String owner)
+        {
+            this._statsService.RemoveViewer(owner);
         }
 
         private void OnStatsUpdated(Object sender, EventArgs e)

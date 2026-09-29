@@ -307,21 +307,65 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         }
 
         // Returns straight away: the lists are fetched in the background and only the latest
-        // request's result reaches the callback - see SceneSourcesLoader.
+        // request's result reaches the callback - see SceneSourcesLoader. Does nothing while no
+        // scene source folder is open.
         public void UpdateSourcesForScene(String sceneName, Action<String, String[], String[]> callback)
         {
             this._sceneSourcesLoader.Load(sceneName, callback);
         }
 
+        // A scene source folder opened: from now on scene changes load its lists, and the current
+        // scene's lists load straight away. Returns true if that load was started - false while
+        // disconnected or before the current scene is known, in which case the folder's lists
+        // arrive with the next connection's initial scene.
+        public Boolean AddSceneSourcesViewer(String owner, Action<String, String[], String[]> callback)
+        {
+            this._sceneSourcesLoader.AddViewer(owner);
+
+            String currentScene = this.CurrentScene;
+            if (!this.IsConnected || String.IsNullOrEmpty(currentScene))
+            {
+                return false;
+            }
+
+            return this._sceneSourcesLoader.Load(currentScene, callback);
+        }
+
+        public void RemoveSceneSourcesViewer(String owner)
+        {
+            this._sceneSourcesLoader.RemoveViewer(owner);
+        }
+
+        // One scene item request per load; the audio input lists come from
+        // OBSWebSocketManager.AudioInputMembership, which only goes back to OBS (one request per
+        // scene) after an event that could change them.
         private (String[] Sources, String[] AudioSources) FetchSceneSources(String sceneName)
         {
-            String[] sources = this._obsManager?.Actions.GetSceneItemList(sceneName) ?? new String[0];
+            if (this._obsManager == null)
+            {
+                return (new String[0], new String[0]);
+            }
 
-            String[] audioSourcesInScene = this._obsManager?.Actions.GetAudioSourcesInScene(sceneName) ?? new String[0];
-            String[] audioInputsNotInAnyScene = this._obsManager?.Actions.GetAudioInputsNotInAnyScene() ?? new String[0];
-            String[] allSceneAudioSources = audioSourcesInScene.Concat(audioInputsNotInAnyScene).ToArray();
+            String[] sources = this._obsManager.Actions.GetSceneItemList(sceneName);
 
-            return (sources, allSceneAudioSources);
+            if (!this._obsManager.AudioInputMembership.TryGet(out Models.AudioInputSceneMembership membership))
+            {
+                return (sources, new String[0]);
+            }
+
+            return (sources, SceneAudioSources(sources, membership));
+        }
+
+        // The scene's audio inputs followed by the audio inputs that aren't in any scene.
+        // GetSceneItemList lists the top item first, as OBS shows it; the audio folder has always
+        // listed bottom-first, so keep that order.
+        internal static String[] SceneAudioSources(String[] sceneSources, Models.AudioInputSceneMembership membership)
+        {
+            String[] audioSourcesInScene = Enumerable.Reverse(sceneSources ?? new String[0])
+                .Where(membership.AudioInputs.Contains)
+                .ToArray();
+
+            return audioSourcesInScene.Concat(membership.NotInAnyScene).ToArray();
         }
     }
 }

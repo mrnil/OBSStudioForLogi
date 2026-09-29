@@ -67,6 +67,19 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Helpers
         public const Int32 AudioMeterIdleProbeInterval = 1000;
 
         /// <summary>
+        /// How long the stats summary button keeps stats polling alive after the SDK last asked for
+        /// its image (5000ms). Starting and stopping polling costs nothing on the OBS side, so this
+        /// only needs to ride out a quick page flip.
+        /// </summary>
+        public const Int32 StatsRenderLease = 5000;
+
+        /// <summary>
+        /// How often the stats summary button's image is invalidated so a visible button asks to be
+        /// redrawn and renews its lease (1000ms). The redraw reads cached stats, not OBS.
+        /// </summary>
+        public const Int32 StatsIdleProbeInterval = 1000;
+
+        /// <summary>
         /// After failing to read an input's audio state from OBS, how long the audio state cache
         /// waits before trying that input again, so a stalled OBS isn't hit on every redraw (3000ms).
         /// </summary>

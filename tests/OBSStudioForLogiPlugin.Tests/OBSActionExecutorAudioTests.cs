@@ -196,40 +196,48 @@ public class OBSActionExecutorAudioTests
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Mic") && s.Contains("OBS error"))), Times.Once);
     }
 
-    // --- GetAudioInputsNotInAnyScene ---
+    // --- TryGetAudioInputSceneMembership ---
 
     [Fact]
-    public void GetAudioInputsNotInAnyScene_WhenConnected_ReturnsInputs()
+    public void TryGetAudioInputSceneMembership_WhenConnected_ReturnsAudioInputsAndThoseNotInAnyScene()
     {
         this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetInputList()).Returns(new[] { "Mic", "Global Mic" });
         this._mockObs.Setup(x => x.GetAudioInputsNotInAnyScene()).Returns(new[] { "Global Mic" });
 
-        var result = this._executor.GetAudioInputsNotInAnyScene();
+        Boolean fetched = this._executor.TryGetAudioInputSceneMembership(out Models.AudioInputSceneMembership membership);
 
-        Assert.Single(result);
-        Assert.Contains("Global Mic", result);
+        Assert.True(fetched);
+        Assert.Equal(new[] { "Mic", "Global Mic" }, membership.AudioInputs);
+        Assert.Equal(new[] { "Global Mic" }, membership.NotInAnyScene);
     }
 
     [Fact]
-    public void GetAudioInputsNotInAnyScene_WhenNotConnected_ReturnsEmpty()
+    public void TryGetAudioInputSceneMembership_WhenNotConnected_ReturnsFalseWithoutQuerying()
     {
         this._mockObs.Setup(x => x.IsConnected).Returns(false);
 
-        var result = this._executor.GetAudioInputsNotInAnyScene();
+        Boolean fetched = this._executor.TryGetAudioInputSceneMembership(out Models.AudioInputSceneMembership membership);
 
-        Assert.Empty(result);
+        Assert.False(fetched);
+        Assert.Null(membership);
+        this._mockObs.Verify(x => x.GetInputList(), Times.Never);
+        this._mockObs.Verify(x => x.GetAudioInputsNotInAnyScene(), Times.Never);
     }
 
+    // A failed request must not look like "no audio inputs", or the cache would keep that answer.
     [Fact]
-    public void GetAudioInputsNotInAnyScene_WhenOBSThrows_LogsErrorAndReturnsEmpty()
+    public void TryGetAudioInputSceneMembership_WhenOBSThrows_LogsErrorAndReturnsFalse()
     {
         this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetInputList()).Returns(new[] { "Mic" });
         this._mockObs.Setup(x => x.GetAudioInputsNotInAnyScene()).Throws(new Exception("OBS error"));
 
-        var result = this._executor.GetAudioInputsNotInAnyScene();
+        Boolean fetched = this._executor.TryGetAudioInputSceneMembership(out Models.AudioInputSceneMembership membership);
 
-        Assert.Empty(result);
-        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("audio inputs not in any scene") && s.Contains("OBS error"))), Times.Once);
+        Assert.False(fetched);
+        Assert.Null(membership);
+        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("audio input scene membership") && s.Contains("OBS error"))), Times.Once);
     }
 
     // --- ToggleInputMute edge case ---

@@ -232,29 +232,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs?.SetInputAudioMonitorType(inputName, monitorType);
         }
 
-        public String[] GetAudioSourcesInScene(String sceneName)
-        {
-            var sceneItems = this._obs?.GetSceneItemList(sceneName);
-            if (sceneItems == null)
-                return new String[0];
-
-            var allInputs = this._obs?.GetInputList(null);
-            if (allInputs == null)
-                return new String[0];
-
-            var audioInputNames = allInputs
-                .Where(input => AudioInputKinds.Contains(input.InputKind))
-                .Select(input => input.InputName)
-                .ToHashSet();
-
-            var result = sceneItems
-                .Where(item => audioInputNames.Contains(item.SourceName))
-                .Select(item => item.SourceName)
-                .ToArray();
-
-            return result;
-        }
-
         public String[] GetAudioInputsNotInAnyScene()
         {
             var allAudioInputs = this.GetInputList();

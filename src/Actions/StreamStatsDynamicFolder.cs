@@ -32,6 +32,22 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return StatKeys.Select(key => this.CreateCommandName(key));
         }
 
+        // Stats are only polled while something shows them; opening the folder polls straight
+        // away so its buttons fill in without waiting a whole interval.
+        public override Boolean Activate()
+        {
+            PluginLog.Info("StreamStatsDynamicFolder opened - requesting stream stats");
+            OBSStudioForLogiPlugin.Instance?.AddStatsViewer(nameof(StreamStatsDynamicFolder));
+            return true;
+        }
+
+        public override Boolean Deactivate()
+        {
+            PluginLog.Info("StreamStatsDynamicFolder closed - releasing stream stats");
+            OBSStudioForLogiPlugin.Instance?.RemoveStatsViewer(nameof(StreamStatsDynamicFolder));
+            return true;
+        }
+
         public override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
         {
             return String.Empty;

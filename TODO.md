@@ -36,6 +36,15 @@
 
 - [x] ~~Fix `StateIcon`/`StateText`/`TextWithIcon`/`StateTextWithIcon` examples in `guidelines.md`, `image-rendering-simplified.md` and `sdk-quick-reference.md`~~ ✅ Done
 
+### Assessment: OBS Data Loaded Whether or Not Anything Shows It (#25) ✅ Done
+
+- [x] ~~Load scene source lists only while the Scene Sources or Mixer for Scene Audio folder is open, with loading tiles until they arrive~~ ✅ Done
+- [x] ~~Cache the "audio inputs not in any scene" list and clear it on the events that change it~~ ✅ Done
+- [x] ~~Poll stats only while a stats folder is open or the summary button is visible, polling straight away for the first viewer~~ ✅ Done
+- [x] ~~Check on a device: follow `docs/device-checks/on-demand-loading.md`~~ ✅ Done 2026-09-29 on a Loupedeck device: loads skipped with no folder open, cache hits after the first load, cache cleared on source add/remove, folder reloads after an OBS restart, stats poll only while shown
+- [x] ~~Check how the loading tiles look~~ ✅ Done 2026-09-29: the message sits right of the Back button and reads correctly across both tiles
+- [ ] Consider: `MediaDynamicFolder` still requests the full input list on every input list change, and the initial state load requests the scene list twice
+
 ### Assessment: Scene/Source/Profile Buttons Show No Text (#3) — Needs Decision
 
 - [ ] Check on a device whether the SDK already shows item names on folder buttons; close or re-attempt (the earlier fix was reverted without a recorded reason)

@@ -287,14 +287,89 @@ public class OBSFacadeTests
     }
 
     [Fact]
-    public void UpdateSourcesForScene_RunsOnBackgroundRunner()
+    public void UpdateSourcesForScene_WithSceneSourcesViewer_RunsOnBackgroundRunner()
+    {
+        Queue<Action> background = new Queue<Action>();
+        OBSFacade facade = new OBSFacade(this._manager, action => background.Enqueue(action));
+        facade.AddSceneSourcesViewer("Folder", (s, sources, audio) => { });
+
+        facade.UpdateSourcesForScene("Scene", (s, sources, audio) => { });
+
+        Assert.Single(background);
+    }
+
+    // Only the scene source folders use these lists, so a scene change with none open costs no
+    // OBS requests.
+    [Fact]
+    public void UpdateSourcesForScene_WithNoSceneSourcesViewer_DoesNotLoad()
     {
         Queue<Action> background = new Queue<Action>();
         OBSFacade facade = new OBSFacade(this._manager, action => background.Enqueue(action));
 
         facade.UpdateSourcesForScene("Scene", (s, sources, audio) => { });
 
-        Assert.Single(background);
+        Assert.Empty(background);
+    }
+
+    [Fact]
+    public void UpdateSourcesForScene_AfterViewerRemoved_DoesNotLoad()
+    {
+        Queue<Action> background = new Queue<Action>();
+        OBSFacade facade = new OBSFacade(this._manager, action => background.Enqueue(action));
+        facade.AddSceneSourcesViewer("Folder", (s, sources, audio) => { });
+        facade.RemoveSceneSourcesViewer("Folder");
+
+        facade.UpdateSourcesForScene("Scene", (s, sources, audio) => { });
+
+        Assert.Empty(background);
+    }
+
+    [Fact]
+    public void AddSceneSourcesViewer_WhenDisconnected_ReturnsFalseWithoutLoading()
+    {
+        Queue<Action> background = new Queue<Action>();
+        OBSFacade facade = new OBSFacade(this._manager, action => background.Enqueue(action));
+
+        Boolean loading = facade.AddSceneSourcesViewer("Folder", (s, sources, audio) => { });
+
+        Assert.False(loading);
+        Assert.Empty(background);
+    }
+
+    // --- SceneAudioSources ---
+
+    [Fact]
+    public void SceneAudioSources_ListsSceneAudioInputsBottomFirstThenThoseNotInAnyScene()
+    {
+        Models.AudioInputSceneMembership membership = new Models.AudioInputSceneMembership(
+            new[] { "Mic", "Music", "Desktop Audio" }, new[] { "Desktop Audio" });
+
+        // Top item first, as GetSceneItemList returns them.
+        String[] result = OBSFacade.SceneAudioSources(new[] { "Camera", "Music", "Overlay", "Mic" }, membership);
+
+        Assert.Equal(new[] { "Mic", "Music", "Desktop Audio" }, result);
+    }
+
+    [Fact]
+    public void SceneAudioSources_WhenSceneHasNoAudioInputs_ReturnsOnlyThoseNotInAnyScene()
+    {
+        Models.AudioInputSceneMembership membership = new Models.AudioInputSceneMembership(
+            new[] { "Mic", "Desktop Audio" }, new[] { "Desktop Audio" });
+
+        String[] result = OBSFacade.SceneAudioSources(new[] { "Camera" }, membership);
+
+        Assert.Equal(new[] { "Desktop Audio" }, result);
+    }
+
+    [Fact]
+    public void SceneAudioSources_WhenSceneSourcesNull_ReturnsOnlyThoseNotInAnyScene()
+    {
+        Models.AudioInputSceneMembership membership = new Models.AudioInputSceneMembership(
+            new[] { "Desktop Audio" }, new[] { "Desktop Audio" });
+
+        String[] result = OBSFacade.SceneAudioSources(null!, membership);
+
+        Assert.Equal(new[] { "Desktop Audio" }, result);
     }
 
     [Fact]

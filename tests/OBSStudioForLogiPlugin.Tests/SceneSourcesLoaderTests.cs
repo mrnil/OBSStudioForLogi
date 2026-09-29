@@ -13,9 +13,10 @@ public class SceneSourcesLoaderTests
         this._fetch = scene => (new[] { $"{scene}-source" }, new[] { $"{scene}-audio" });
     }
 
-    private SceneSourcesLoader CreateLoader(Boolean inline)
+    // Most tests want a folder open, so the loader starts with one viewer unless told otherwise.
+    private SceneSourcesLoader CreateLoader(Boolean inline, Boolean withViewer = true)
     {
-        return new SceneSourcesLoader(
+        SceneSourcesLoader loader = new SceneSourcesLoader(
             scene =>
             {
                 this._fetchedScenes.Add(scene);
@@ -23,6 +24,13 @@ public class SceneSourcesLoaderTests
             },
             () => this._isConnected,
             inline ? action => action() : action => this._background.Enqueue(action));
+
+        if (withViewer)
+        {
+            loader.AddViewer("Folder");
+        }
+
+        return loader;
     }
 
     private void Deliver(String scene, String[] sources, String[] audioSources)
@@ -145,6 +153,94 @@ public class SceneSourcesLoaderTests
         Exception exception = Record.Exception(() => loader.Load("Scene A", (s, sources, audio) => throw new InvalidOperationException("boom")));
 
         Assert.Null(exception);
+    }
+
+    // --- Viewers: nothing is fetched unless a scene source folder is open ---
+
+    [Fact]
+    public void Load_WhenNoViewers_SkipsFetchAndReturnsFalse()
+    {
+        SceneSourcesLoader loader = this.CreateLoader(inline: true, withViewer: false);
+
+        Boolean started = loader.Load("Scene A", this.Deliver);
+
+        Assert.False(started);
+        Assert.Empty(this._fetchedScenes);
+        Assert.Empty(this._delivered);
+    }
+
+    [Fact]
+    public void Load_WithViewer_ReturnsTrue()
+    {
+        SceneSourcesLoader loader = this.CreateLoader(inline: false);
+
+        Assert.True(loader.Load("Scene A", this.Deliver));
+    }
+
+    [Fact]
+    public void Load_WhenSceneNameEmpty_ReturnsFalse()
+    {
+        SceneSourcesLoader loader = this.CreateLoader(inline: false);
+
+        Assert.False(loader.Load(String.Empty, this.Deliver));
+    }
+
+    [Fact]
+    public void Load_AfterLastViewerRemoved_SkipsFetch()
+    {
+        SceneSourcesLoader loader = this.CreateLoader(inline: true);
+        loader.RemoveViewer("Folder");
+
+        loader.Load("Scene A", this.Deliver);
+
+        Assert.Empty(this._fetchedScenes);
+        Assert.False(loader.HasViewers);
+    }
+
+    [Fact]
+    public void Load_WhileAnotherViewerRemains_StillFetches()
+    {
+        SceneSourcesLoader loader = this.CreateLoader(inline: true);
+        loader.AddViewer("Other Folder");
+        loader.RemoveViewer("Folder");
+
+        loader.Load("Scene A", this.Deliver);
+
+        Assert.Single(this._delivered);
+    }
+
+    [Fact]
+    public void AddViewer_SameOwnerTwice_OneRemoveIsEnough()
+    {
+        SceneSourcesLoader loader = this.CreateLoader(inline: true, withViewer: false);
+        loader.AddViewer("Folder");
+        loader.AddViewer("Folder");
+
+        loader.RemoveViewer("Folder");
+
+        Assert.False(loader.HasViewers);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void AddViewer_WhenOwnerEmpty_IsIgnored(String? owner)
+    {
+        SceneSourcesLoader loader = this.CreateLoader(inline: true, withViewer: false);
+
+        loader.AddViewer(owner!);
+
+        Assert.False(loader.HasViewers);
+    }
+
+    [Fact]
+    public void RemoveViewer_OwnerNeverAdded_KeepsOtherViewers()
+    {
+        SceneSourcesLoader loader = this.CreateLoader(inline: true);
+
+        loader.RemoveViewer("Someone Else");
+
+        Assert.True(loader.HasViewers);
     }
 
     [Fact]

@@ -5,10 +5,10 @@
 ```
 OBSStudioForLogiPlugin/
 ├── src/                          # Plugin source code
-│   ├── Actions/                  # Loupedeck SDK command/folder classes (49 files)
-│   ├── Helpers/                  # Utility classes (16 files)
-│   ├── Models/                   # Data models (4 files)
-│   ├── Services/                 # Business logic and OBS integration (17 files)
+│   ├── Actions/                  # Loupedeck SDK command/folder classes (51 files)
+│   ├── Helpers/                  # Utility classes (17 files)
+│   ├── Models/                   # Data models (7 files)
+│   ├── Services/                 # Business logic and OBS integration (20 files)
 │   ├── Resources/icons/          # SVG button icons (40 files; rules in docs/ai/icon-style.md)
 │   ├── package/metadata/         # LoupedeckPackage.yaml + plugin icon
 │   ├── OBSStudioForLogiPlugin.cs # Main plugin class (orchestration)
@@ -16,8 +16,8 @@ OBSStudioForLogiPlugin/
 │   └── OBSStudioForLogiPlugin.csproj
 ├── tests/
 │   └── OBSStudioForLogiPlugin.Tests/
-│       ├── Actions/              # Action-layer integration tests (16 files)
-│       └── *.cs                  # Services-layer unit tests (25 files)
+│       ├── Actions/              # Action-layer integration tests (22 files)
+│       └── *.cs                  # Services-layer unit tests (42 files)
 ├── docs/ai/                      # AI coding rules and architecture docs (Claude Code, etc.)
 ├── .github/workflows/            # CI: dependency-check.yml
 ├── bin/                          # Build output (Debug/Release)
@@ -50,11 +50,12 @@ OBSStudioForLogiPlugin/
 | `PluginConfigReader.cs` | Read/write plugin config JSON; keeps the remote password out of the file, in an `ISecretStore`, and moves plaintext passwords left by older versions into it |
 | `ISecretStore.cs` | Encrypted value storage; the plugin backs it with the SDK's plugin settings (`PluginSettingsSecretStore`, nested in the plugin class) |
 | `ReconnectionStrategy.cs` | Exponential backoff with jitter |
-| `StatsService.cs` | Timer-based stats polling; skips a tick while the previous poll is still running |
+| `StatsService.cs` | Timer-based stats polling; skips a tick while the previous poll is still running. Polls only while connected and while at least one viewer (a stats folder, the summary button) is registered, with an immediate poll for the first viewer |
 | `AudioMeterService.cs` | Latest per-input audio meter levels fed by `InputVolumeMeters` (expire after `OBSTimings.AudioMeterStaleThreshold`), the live-input list, and a cached per-input mute state |
 | `AudioStateCache.cs` | Non-blocking per-input mute/volume/monitor type for button rendering: fetches a miss once in the background, kept current by OBS change events |
 | `KeyedStateCache.cs` | The same non-blocking pattern for one value per key; `OBSWebSocketManager.SourceVisibility` uses it keyed by (scene, source), `OBSWebSocketManager.MediaState` keyed by input name |
-| `SceneSourcesLoader.cs` | Loads a scene's source and audio source lists in the background for `OBSFacade.UpdateSourcesForScene`, so a scene change doesn't hold up the OBS event thread; only the latest load is delivered, and none after a disconnect |
+| `SceneSourcesLoader.cs` | Loads a scene's source and audio source lists in the background for `OBSFacade.UpdateSourcesForScene`, so a scene change doesn't hold up the OBS event thread; only the latest load is delivered, and none after a disconnect. Loads nothing unless a scene source folder has registered as a viewer |
+| `CachedValue.cs` | One OBS-derived value fetched on first use and kept until `Invalidate`; failed fetches and fetches overtaken by an invalidation aren't kept. `OBSWebSocketManager.AudioInputMembership` uses it for the audio input lists behind the scene audio folder |
 
 ### `src/Actions/` — Loupedeck SDK Commands (SDK-dependent, exempt from strict TDD)
 
@@ -66,12 +67,12 @@ OBSStudioForLogiPlugin/
 
 **Dynamic Folders (PluginDynamicFolder):**
 
-- `ScenesDynamicFolder`, `SourcesDynamicFolder`, `ProfilesDynamicFolder`, `SceneCollectionsDynamicFolder` (added v1.6.0)
+- `ScenesDynamicFolder`, `SourcesDynamicFolder`, `ProfilesDynamicFolder`, `SceneCollectionsDynamicFolder` (added v1.6.0). `SourcesDynamicFolder` and `SceneAudioSourcesDynamicFolder` register as scene source viewers in `Activate()`/`Deactivate()`, so their lists load only while open, and show `LoadingTiles` until the first list arrives
 - `AudioMixerDynamicFolder`, `SceneAudioSourcesDynamicFolder`
 - `AudioSelectDynamicFolder`, `AudioVolumeDynamicFolder`
 - `AudioMetersDynamicFolder` ("Live Audio Folder") — real-time VU meters; subscribes to `InputVolumeMeters` in `Activate()` and unsubscribes in `Deactivate()`; its button list is the live-input list from `AudioMeterService`, re-checked on every refresh tick
 - `MediaDynamicFolder`
-- `StatsDynamicFolder`, `StreamStatsDynamicFolder`
+- `StatsDynamicFolder`, `StreamStatsDynamicFolder` — register as stats viewers in `Activate()`/`Deactivate()`
 
 **Toggle Commands (PluginDynamicCommand via ToggleCommandBase):**
 
@@ -109,6 +110,8 @@ OBSStudioForLogiPlugin/
 - `CurrentSceneCollectionDisplay`, `StatsDisplay`, `AudioStatusDisplayCommand`
 - `ReconnectCommand`, `ReplayBufferSaveCommand`, `StudioModeTransitionCommand`, `ScreenshotCommand`
 
+`StatsDisplay` registers as a stats viewer through an `ActivityLease` renewed by image requests, like `AudioMeterCommand`.
+
 Note: as of v1.6.0 the `99. User Defined Actions` group has been retired — all configurable (`ActionEditorCommand`) actions now live in sub-groups alongside their related controls (e.g. `8. Audio › User Defined`, `7. Scenes › User Defined`).
 
 ### `src/Helpers/`
@@ -121,7 +124,8 @@ Note: as of v1.6.0 the `99. User Defined Actions` group has been retired — all
 | `AudioSelectionState.cs` | Static singleton: global selected audio source for wheel/dial |
 | `VolumeConverter.cs` | volumeMul ↔ dB conversion and formatting |
 | `VuMeterRenderer.cs` | VU meter tile state (inactive/muted/meter), bar rendering, dB scaling and colour zones |
-| `ActivityLease.cs` | Touch-renewed lease that lapses when idle; infers button visibility for `AudioMeterCommand` |
+| `ActivityLease.cs` | Touch-renewed lease that lapses when idle; infers button visibility for `AudioMeterCommand` and `StatsDisplay` |
+| `LoadingTiles.cs` | "Loading …" placeholder a folder shows while its list loads, drawn as one message across the two buttons right of the folder's Back button |
 | `SessionGate.cs` | Opens once per OBS connection so the initial state load ignores repeated `Connected` events (ReIdentify confirmations) |
 | `PressTimingHelper.cs` | DoubleTapHelper: 500ms window single/double tap detection |
 | `OBSTimings.cs` | Centralised timing constants (delays, test timeouts) |
@@ -137,6 +141,7 @@ Note: as of v1.6.0 the `99. User Defined Actions` group has been retired — all
 | File | Contents |
 |------|---------|
 | `AudioMeterLevels.cs` | Plugin-owned per-channel meter levels, decoupled from the library's `InputVolumeMeter` type |
+| `AudioInputSceneMembership.cs` | The audio input names and the audio inputs not in any scene, cached together for the scene audio folder |
 | `OBSConnectionSettings.cs` | IP, port, password — with localhost validation |
 | `OBSStats.cs` | Stats model with derived properties (FPS, CPU%, render lag %) |
 | `OBSStreamStats.cs` | Stream stats model (duration, bytes, congestion, frames) |

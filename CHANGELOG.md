@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed the `OBS Profiles` and `OBS Scene Collections` folders to `Profiles` and `Scene Collections`
 - The Reconnect button's icon is redrawn in white so it reads on the green, amber and red status backgrounds
 - The OBS Scenes folder has its own folder icon
+- The plugin only asks OBS for what the device is showing. The Scene Sources and Mixer for Scene Audio folders load their lists when opened, and show "Loading..." across the top row, beside the Back button, until they arrive. While neither is open, scene changes no longer request any source lists. With one open, a scene change takes one request instead of one per scene
+- OBS stats are only polled while a stats folder is open or the OBS Stats Summary button is on screen, and they are polled as soon as one appears instead of after the next interval
 
 ### Security
 
