@@ -51,10 +51,10 @@
 - [x] ~~Start stats polling after the initial state load instead of at connect~~ ✅ Done
 - [x] ~~Check on a device: restart OBS with the plugin running~~ ✅ Done 2026-09-29: OBS answered "not ready" twice, the load succeeded on attempt 3 about 1s after connecting, inputs, profiles and studio mode loaded, and stats started afterwards with no errors
 
-### Assessment: Scene/Source/Profile Buttons Show No Text (#3) — Needs Decision
+### Assessment: Scene/Source/Profile Buttons Show No Text (#3) ✅ Done
 
 - [x] ~~Find out whether the SDK draws display names over button images~~ ✅ Done 2026-09-29 — it does: the Audio Volume folder showed its text twice (fixed), which most likely explains the revert
-- [ ] Check on a device that the Scenes, Scene Sources and Profiles folder buttons are labelled with their names, then close #3
+- [x] ~~Check on a device that the Scenes, Scene Sources and Profiles folder buttons are labelled with their names, then close #3~~ ✅ Done 2026-09-29 — they are, so #3 is closed with no change
 
 ### Assessment: Double-Tap Window (#5)
 

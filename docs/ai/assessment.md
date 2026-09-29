@@ -6,7 +6,7 @@ Reassessed on 2026-09-28 against `main`: version 2.0.0, not yet tagged. The last
 
 Item numbers stay the same between assessments because `TODO.md`, commit messages and `CHANGELOG.md` refer to them. Open items from earlier passes keep their original numbers. New findings start at #18. Fixed items are summarised under [Resolved](#resolved); for their full write-ups, see `git log -p -- docs/ai/assessment.md`.
 
-**Open**: #3, #5, #9, #20, #24. Priority order is in the [Summary Table](#summary-table).
+**Open**: #5, #9, #20, #24. Priority order is in the [Summary Table](#summary-table).
 
 ---
 
@@ -28,16 +28,6 @@ None open.
 **Impact**: Services can't be tested without the static plugin instance. That is why `OBSWebSocketManager` event handling has so little coverage. Adding a new stats or media display also means editing the plugin class instead of implementing an interface, which is the same maintenance trap #1 described.
 
 **Fix**: Have `OBSWebSocketManager` raise its own events, or take a callback interface in its constructor, and let the plugin class subscribe and forward them to `CommandCoordinator`. Add `IStatsAwareCommand` and `IMediaStateAwareCommand` (or similar) so the displays and the media folder receive updates through the registry.
-
----
-
-### 3. Scene/Source/Profile Buttons Show No Text (Usability): Needs Decision
-
-**Status**: The fix, `5eab775`, rendered item names with `ButtonTextRenderer.RenderTextWithBorder`. It was reverted in `4e0b0d3` and no reason was recorded. Since then the icon restyle added a tick for the selected scene, profile and scene collection, so the selected/unselected state is clearer.
-
-**Evidence (2026-09-29)**: On the device, the Audio Volume folder showed each input's name and volume twice: once in colour in the image, and once in white as the SDK's title, from a non-empty `GetAdjustmentDisplayName` (now fixed). So the SDK does draw display names over button images, and the three folders here don't override the display name. The revert was most likely because names then showed twice.
-
-**Next step**: Open the Scenes, Scene Sources and Profiles folders on a device and confirm each button is labelled with its name. If it is, close this item. If it isn't, find out why these folders differ from the audio ones before trying again. `SceneSelectCommand`, `ProfileSelectCommand` and `SceneCollectionSelectCommand` would need the same answer.
 
 ---
 
@@ -73,6 +63,7 @@ None open.
 |---|------|-------|------------|
 | 1 | Architecture | `CommandRegistry` bypass: `NotifyConnected`/`NotifyDisconnected` weren't routed through the registry | v1.6.0 |
 | 2 | Architecture | Scene change bypassed the registry for the sources and scene-audio folders | v1.6.0 |
+| 3 | Usability | Scene/source/profile buttons showing no names: not a bug. The SDK labels each button with its display name, which these folders leave to the SDK. The reverted fix (`5eab775`, reverted in `4e0b0d3`) also drew names into the images, most likely showing them twice, as the Audio Volume folder did until it was fixed. Device-checked 2026-09-29: the Scenes, Scene Sources and Profiles folders show each name | No change needed |
 | 4 | Code Quality | `DoubleTapHelper` race condition and `CancellationTokenSource` leak | v1.6.0 |
 | 6 | Code Quality | `CommandCoordinator` given real dispatch with per-command exception isolation | v1.6.2 |
 | 7 | Code Quality | `OBSStats` null propagation replaced with `OBSStats.Empty` | v1.6.0 |
@@ -102,7 +93,6 @@ Open items, in the order to work on them.
 | # | Priority | Area | Issue |
 |---|----------|------|-------|
 | 20 | Medium | Architecture | Services call `OBSStudioForLogiPlugin.Instance`, and the plugin calls command singletons directly |
-| 3 | Medium | Usability | Name text on scene/source/profile buttons: the fix was reverted without a recorded reason, so check on a device and decide |
 | 5 | Medium | Usability | Hard-coded 500ms double-tap window delays every single tap |
 | 9 | Low | Feature | Recording duration display (parity with stream stats) |
 | 24 | Low | Dependency | `Connected`-on-`ReIdentify` library fix still unreleased upstream |
