@@ -59,27 +59,6 @@ public class SourceVisibilityTests
         this._mockObs.Verify(x => x.SetSceneItemEnabled(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<Boolean>()), Times.Never);
     }
 
-    [Fact]
-    public void GetSceneItemEnabled_WhenConnected_ReturnsState()
-    {
-        this._mockObs.Setup(x => x.IsConnected).Returns(true);
-        this._mockObs.Setup(x => x.GetSceneItemEnabled("Scene1", "Source1")).Returns(true);
-
-        var result = this._executor.GetSceneItemEnabled("Scene1", "Source1");
-
-        Assert.True(result);
-    }
-
-    [Fact]
-    public void GetSceneItemEnabled_WhenNotConnected_ReturnsFalse()
-    {
-        this._mockObs.Setup(x => x.IsConnected).Returns(false);
-
-        var result = this._executor.GetSceneItemEnabled("Scene1", "Source1");
-
-        Assert.False(result);
-    }
-
     // --- TryGetSceneItemEnabled (source visibility cache fetch) ---
 
     [Fact]

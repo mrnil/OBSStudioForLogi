@@ -506,18 +506,6 @@ public class OBSActionExecutorTests
     }
 
     [Fact]
-    public void GetSceneItemEnabled_WhenOBSThrows_LogsErrorAndReturnsFalse()
-    {
-        this._mockObs.Setup(x => x.IsConnected).Returns(true);
-        this._mockObs.Setup(x => x.GetSceneItemEnabled(It.IsAny<String>(), It.IsAny<String>())).Throws(new Exception("OBS error"));
-
-        var result = this._executor.GetSceneItemEnabled("Scene1", "Source1");
-
-        Assert.False(result);
-        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Source1") && s.Contains("OBS error"))), Times.Once);
-    }
-
-    [Fact]
     public void ToggleSourceVisibility_WhenOBSThrows_LogsError()
     {
         this._mockObs.Setup(x => x.IsConnected).Returns(true);

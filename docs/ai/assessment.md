@@ -8,7 +8,7 @@ Item numbers stay the same between assessments because `TODO.md`, commit message
 
 At this pass the build is clean (no warnings) and all 723 tests pass in about 7s.
 
-**Open**: #5, #9, #20, #24, #27–#37. Priority order is in the [Summary Table](#summary-table).
+**Open**: #5, #9, #20, #24, #27–#31, #33–#37. Priority order is in the [Summary Table](#summary-table).
 
 ---
 
@@ -114,16 +114,6 @@ At this pass the build is clean (no warnings) and all 723 tests pass in about 7s
 
 ---
 
-### 32. `OBSActionExecutor` Repeats the Same Steps in About 25 Methods (Code Quality)
-
-**Problem**: At 1,242 lines, `OBSActionExecutor` is the largest file. Most of its methods follow the same shape: check `IsConnected` and log a warning, check the arguments, then `try` the call and log an error. Several values also come in pairs (`GetSceneItemEnabled`/`TryGetSceneItemEnabled`, `GetMediaInputStatus`/`TryGetMediaInputStatus`) that differ only in how they report failure.
-
-**Impact**: Every new feature copies the pattern again, and it hides the few methods that do something different (the state guards in start/stop, the monitor-type cycle).
-
-**Fix**: Add two private helpers, for example `RunMutation(String description, Func<Boolean> guard, Action call)` and `Query<T>(String description, T fallback, Func<T> call)`, and express the methods through them. Collapse the `Get*`/`Try*` pairs where the non-`Try` version has no remaining callers. This makes the deferred split by feature area in `TODO.md` (left over from #23) a mechanical move.
-
----
-
 ### 33. Button Calls Pass Through Three Forwarding Layers (Architecture)
 
 **Problem**: An action calls `OBSStudioForLogiPlugin.Instance`, which forwards to `OBSFacade`, which forwards to `OBSWebSocketManager.Actions` (the executor). The plugin class has about 60 one-line forwarders, and most `OBSFacade` members only add a null check.
@@ -206,6 +196,7 @@ At this pass the build is clean (no warnings) and all 723 tests pass in about 7s
 | 25 | Performance | OBS data loaded on demand. Scene source lists load only while the Scene Sources or Mixer for Scene Audio folder is open, which shows loading tiles until they arrive. The "audio inputs not in any scene" list (one request per scene) is cached in `OBSWebSocketManager.AudioInputMembership` and cleared by the events that change it, so a scene change costs one request instead of about N+5. Stats poll only while a stats folder is open or the summary button is visible, with an immediate first poll. Device-checked 2026-09-29 (`docs/device-checks/on-demand-loading.md`), including the loading tiles | v2.0.0 |
 | 23 | Code Quality | `OnApplicationStarted` (`async void`) catches and logs exceptions. The blocking `Task.Delay(100).Wait()` after a scene collection switch is gone: obs-websocket sends `CurrentSceneCollectionChanged` only after the collection has loaded, so the scene list is read straight away. `CommandCoordinator` notifies commands of a disconnect once until the next connect. Splitting `OBSActionExecutor` moved to `TODO.md` (Architecture, Deferred) | v2.0.0 |
 | 26 | Correctness | Found in the #25 device check: OBS accepts connections while starting and answers "not ready" (207) until its scene collection loads, so the one-shot initial state load failed and the input list, profiles and studio mode stayed unloaded until something changed in OBS. `InitialStateLoader` now retries every 500ms (up to 30s) while OBS isn't ready and the connection is unchanged, and stats polling starts after the load instead of at connect, so it no longer logs errors while OBS starts. Device-checked 2026-09-29: loaded on the third attempt, about 1s after connecting | v2.0.0 |
+| 32 | Code Quality | `OBSActionExecutor` repeated the connected/guard/try/log steps in about 25 methods. They now go through three private helpers: `RunMutation` (background runner, "not connected" and refusal warnings, error logging), `Query<T>` (safe fallback) and `TryQuery<T>` (reports failure, for the render caches). The getters with no production callers left (`GetSceneItemEnabled`, `GetMediaInputStatus`, `GetInputVolume`, `GetInputAudioMonitorType`) are gone, since rendering reads the caches; their `TryGet*` versions stay. 1,242 → 657 lines | Unreleased |
 
 ---
 
@@ -221,7 +212,6 @@ Open items, in the order to work on them.
 | 31 | Medium | Usability | Scene buttons give no feedback in studio mode (preview scene not tracked) |
 | 5 | Medium | Usability | Hard-coded 500ms double-tap window delays every single tap |
 | 28 | Medium | Correctness | OBS groups not handled in scene source lists or scene audio membership |
-| 32 | Low | Code Quality | `OBSActionExecutor` repeats the connected/guard/try/log steps in about 25 methods |
 | 30 | Low | Performance | A source visibility toggle costs four OBS requests |
 | 9 | Low | Feature | Recording duration display (parity with stream stats) |
 | 33 | Low | Architecture | Button calls pass through plugin class, facade and executor forwarders |

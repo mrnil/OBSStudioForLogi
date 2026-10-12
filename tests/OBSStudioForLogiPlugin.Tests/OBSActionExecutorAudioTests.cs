@@ -17,41 +17,6 @@ public class OBSActionExecutorAudioTests
         this._executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object, action => action());
     }
 
-    // --- GetInputVolume ---
-
-    [Fact]
-    public void GetInputVolume_WhenConnected_ReturnsVolume()
-    {
-        this._mockObs.Setup(x => x.IsConnected).Returns(true);
-        this._mockObs.Setup(x => x.GetInputVolume("Microphone")).Returns(0.75f);
-
-        var result = this._executor.GetInputVolume("Microphone");
-
-        Assert.Equal(0.75f, result);
-    }
-
-    [Fact]
-    public void GetInputVolume_WhenNotConnected_ReturnsDefault()
-    {
-        this._mockObs.Setup(x => x.IsConnected).Returns(false);
-
-        var result = this._executor.GetInputVolume("Microphone");
-
-        Assert.Equal(1.0f, result);
-    }
-
-    [Fact]
-    public void GetInputVolume_WhenOBSThrows_LogsErrorAndReturnsDefault()
-    {
-        this._mockObs.Setup(x => x.IsConnected).Returns(true);
-        this._mockObs.Setup(x => x.GetInputVolume(It.IsAny<String>())).Throws(new Exception("OBS error"));
-
-        var result = this._executor.GetInputVolume("Microphone");
-
-        Assert.Equal(1.0f, result);
-        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Microphone") && s.Contains("OBS error"))), Times.Once);
-    }
-
     // --- SetInputVolume ---
 
     [Fact]
@@ -92,41 +57,6 @@ public class OBSActionExecutorAudioTests
 
         this._executor.SetInputVolume("Microphone", 0.5f);
 
-        this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Microphone") && s.Contains("OBS error"))), Times.Once);
-    }
-
-    // --- GetInputAudioMonitorType ---
-
-    [Fact]
-    public void GetInputAudioMonitorType_WhenConnected_ReturnsType()
-    {
-        this._mockObs.Setup(x => x.IsConnected).Returns(true);
-        this._mockObs.Setup(x => x.GetInputAudioMonitorType("Microphone")).Returns("OBS_MONITORING_TYPE_MONITOR_ONLY");
-
-        var result = this._executor.GetInputAudioMonitorType("Microphone");
-
-        Assert.Equal("OBS_MONITORING_TYPE_MONITOR_ONLY", result);
-    }
-
-    [Fact]
-    public void GetInputAudioMonitorType_WhenNotConnected_ReturnsNone()
-    {
-        this._mockObs.Setup(x => x.IsConnected).Returns(false);
-
-        var result = this._executor.GetInputAudioMonitorType("Microphone");
-
-        Assert.Equal("OBS_MONITORING_TYPE_NONE", result);
-    }
-
-    [Fact]
-    public void GetInputAudioMonitorType_WhenOBSThrows_LogsErrorAndReturnsNone()
-    {
-        this._mockObs.Setup(x => x.IsConnected).Returns(true);
-        this._mockObs.Setup(x => x.GetInputAudioMonitorType(It.IsAny<String>())).Throws(new Exception("OBS error"));
-
-        var result = this._executor.GetInputAudioMonitorType("Microphone");
-
-        Assert.Equal("OBS_MONITORING_TYPE_NONE", result);
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Microphone") && s.Contains("OBS error"))), Times.Once);
     }
 

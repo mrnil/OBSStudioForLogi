@@ -2,9 +2,9 @@
 
 ## Overview
 
-The project follows a TDD approach with 705 unit tests using xUnit + Moq (verified 2026-09-29, net10.0, all passing). Overall line coverage is ~37.4% (Cobertura, last measured pre-CommandCoordinator-refactor), branch coverage ~19.8%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage. Coverage has drifted down slightly since v1.5.1 (was 39.5%/22.6%) as v1.6.0 added several new Actions-layer commands (`SceneSelectCommand`, `AudioSourceSelectCommand`, `SceneCollectionsDynamicFolder`) faster than services-layer surface area grew — expected under the TDD-exemption policy, not a regression.
+The project follows a TDD approach with 710 unit tests using xUnit + Moq (verified 2026-10-12, net10.0, all passing). Overall line coverage is ~37.4% (Cobertura, last measured pre-CommandCoordinator-refactor), branch coverage ~19.8%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage. Coverage has drifted down slightly since v1.5.1 (was 39.5%/22.6%) as v1.6.0 added several new Actions-layer commands (`SceneSelectCommand`, `AudioSourceSelectCommand`, `SceneCollectionsDynamicFolder`) faster than services-layer surface area grew — expected under the TDD-exemption policy, not a regression.
 
-## Test Count: 705
+## Test Count: 710
 
 ## Test Files
 
@@ -14,7 +14,7 @@ The project follows a TDD approach with 705 unit tests using xUnit + Moq (verifi
 |-----------|--------|-------|
 | `OBSActionExecutorTests.cs` | Core executor: profiles, scenes, recording, streaming, mute, screenshots, error handling | ~50 |
 | `OBSActionExecutorReplayBufferTests.cs` | Replay buffer: toggle, start, stop, save, state tracking | 17 |
-| `OBSActionExecutorAudioTests.cs` | Audio: volume get/set, monitor type cycling, `TryGetInputAudioState`, `TryGetAudioInputSceneMembership` | 24 |
+| `OBSActionExecutorAudioTests.cs` | Audio: volume set, monitor type cycling, `TryGetInputAudioState`, `TryGetAudioInputSceneMembership` | 18 |
 | `OBSActionExecutorSceneSwitchingTests.cs` | Scene switching with studio mode behavior | ~6 |
 | `OBSActionExecutorStudioModeTests.cs` | Studio mode toggle, state management | ~8 |
 | `OBSActionExecutorStudioModeTransitionTests.cs` | Studio mode transition command | ~6 |
@@ -43,10 +43,10 @@ The project follows a TDD approach with 705 unit tests using xUnit + Moq (verifi
 | `OBSWebsocketAdapterStatsTests.cs` | Null-tolerant `GetStats` parsing | 4 |
 | `LogThrottleTests.cs` | Repeat suppression window, suppressed-count reporting, per-message independence, pruning | 6 |
 | `VolumeConverterTests.cs` | Volume mul→dB conversion and formatting | 10 |
-| `SourceVisibilityTests.cs` | Source visibility toggle and query, `TryGetSceneItemEnabled` cache fetch | 11 |
+| `SourceVisibilityTests.cs` | Source visibility toggle, `TryGetSceneItemEnabled` cache fetch | 9 |
 | `VirtualCameraCommandTests.cs` | Virtual camera state and toggle | ~5 |
 | `ManualReconnectTests.cs` | Manual reconnect trigger | ~1 |
-| `OBSActionExecutorStatsAndMediaTests.cs` | Stats, stream status, media input methods, `TryGetMediaInputStatus` cache fetch, `ToggleMediaInputPlayback` | 27 |
+| `OBSActionExecutorStatsAndMediaTests.cs` | Stats, stream status, media input methods, `TryGetMediaInputStatus` cache fetch, `ToggleMediaInputPlayback` | 23 |
 | `MediaInputStatesTests.cs` | Media action → resulting state mapping, single-tap action per state | 14 |
 | `OBSStatsModelTests.cs` | OBSStats and OBSStreamStats derived properties | 12 |
 | `PluginConfigReaderTests.cs` | Save/read config, round-trip, invalid JSON | 6 |

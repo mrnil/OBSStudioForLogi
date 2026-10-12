@@ -100,108 +100,65 @@ public void MyMethod()
 
 ## Service Layer Patterns
 
-### Connection Guard Pattern (Universal)
+### OBS Calls Go Through the Executor's Helpers
 
-Every service method that calls OBS must guard on connection state first:
+`OBSActionExecutor` never repeats the connection guard, background runner and error handling by hand (assessment #32). Every OBS call goes through one of three private helpers:
+
+| Helper | Use for | Disconnected | OBS error |
+|--------|---------|--------------|-----------|
+| `RunMutation(action, call, refusal)` | Every OBS write | Logs `Cannot <action> - not connected`, skips the call | Logs `Failed to <action>: <message>` |
+| `Query<T>(what, fallback, call)` | Reads whose callers want a safe value | Logs `Cannot get <what> - not connected` (pass `warnIfDisconnected: false` for polled reads), returns `fallback` | Logs `Failed to get <what>: <message>`, returns `fallback` |
+| `TryQuery<T>(what, call, out value)` | Fetches for the render caches (`AudioStateCache`, `KeyedStateCache`, `CachedValue`) | Returns `false` silently | Logs the error, returns `false` |
+
+Name the entity in `action` or `what` (`$"set profile '{profileName}'"`) so both messages say what failed.
+
+### Mutations — `RunMutation`
+
+`RunMutation` runs the call on the injected `_runInBackground` runner (`Task.Run` in production), never `Task.Run` directly, so a slow OBS never stalls a button press and tests can run the work inline. Input validation and state guards go in the optional `refusal`, which returns the reason the call can't run, or `null` to go ahead. It runs after the connection check and is logged as `Cannot <action> - <reason>`:
 
 ```csharp
-public void ToggleRecording()
+public void StartRecording()
 {
-    Task.Run(() =>
+    this.RunMutation("start recording", () =>
     {
-        if (!this._obs.IsConnected)
-        {
-            this._log.Warning("Cannot toggle recording - not connected");
-            return;
-        }
+        this._log.Info("Starting recording");
+        this._obs.StartRecord();
+    },
+    () => this.IsRecording ? "already recording" : null);
+}
 
-        try
-        {
-            this._obs.ToggleRecord();
-        }
-        catch (Exception ex)
-        {
-            this._log.Error($"Failed to toggle recording: {ex.Message}");
-        }
-    });
+public void ToggleInputMute(String inputName)
+{
+    this.RunMutation($"toggle input mute for '{inputName}'", () =>
+    {
+        this._log.Info($"Toggling input mute for '{inputName}'");
+        this._obs.ToggleInputMute(inputName);
+    },
+    () => String.IsNullOrEmpty(inputName) ? "input name is empty" : null);
 }
 ```
 
-### Async Fire-and-Forget Pattern (All OBS Mutations)
+A check that should log at `Info` rather than `Warning`, such as "profile already active", goes at the top of the call instead of in `refusal`.
 
-All OBS write operations run in the background to avoid blocking the UI thread. They go through the injected `_runInBackground` runner (`Task.Run` in production), never `Task.Run` directly, so tests can run them inline:
+### Queries — `Query<T>` and `TryQuery<T>`
 
-```csharp
-public void SetInputVolume(String inputName, Single volumeMul)
-{
-    this._runInBackground(() =>
-    {
-        if (!this._obs.IsConnected) { ... return; }
-        try { this._obs.SetInputVolume(inputName, volumeMul); }
-        catch (Exception ex) { this._log.Error($"...{ex.Message}"); }
-    });
-}
-```
-
-### Safe Default Return Pattern (All OBS Queries)
-
-Query methods return safe defaults on disconnection or error — never throw:
+Queries return a safe value on disconnection or error and never throw:
 
 ```csharp
 public Boolean GetInputMute(String inputName)
 {
-    if (!this._obs.IsConnected)
-        return false;          // safe default
-
-    try
-    {
-        return this._obs.GetInputMute(inputName);
-    }
-    catch (Exception ex)
-    {
-        this._log.Error($"Failed to get input mute state for '{inputName}': {ex.Message}");
-        return false;          // safe default on error
-    }
+    return this.Query($"input mute state for '{inputName}'", false, () => this._obs.GetInputMute(inputName));
 }
 ```
 
-Safe defaults by type:
+Safe fallbacks by type:
 
 - `Boolean` → `false`
-- `String` → `String.Empty` or domain-specific default (e.g. `"OBS_MONITORING_TYPE_NONE"`)
+- `String` → `String.Empty` or a domain-specific default (e.g. `MediaInputStates.None`)
 - `String[]` → `new String[0]`
-- `Single` (volume) → `1.0f`
-- Model objects → `null`
+- Model objects → their `Empty` instance (`OBSStats.Empty`, `OBSStreamStats.Empty`)
 
-### Input Validation Before OBS Calls
-
-Validate string parameters before proceeding:
-
-```csharp
-if (String.IsNullOrEmpty(sceneName) || String.IsNullOrEmpty(sourceName))
-{
-    this._log.Warning("Cannot toggle source visibility - scene or source name is empty");
-    return;
-}
-```
-
-### State Guard Pattern (Prevent Invalid Operations)
-
-Check current state before executing operations that require a specific state:
-
-```csharp
-if (this.IsRecording)
-{
-    this._log.Warning("Cannot start recording - already recording");
-    return;
-}
-
-if (this.IsRecordingChanging)
-{
-    this._log.Warning("Cannot toggle recording - state change in progress");
-    return;
-}
-```
+A value a render cache fetches uses `TryQuery` in a `TryGet*` method instead, so a timeout is retried later rather than cached as the fallback (`TryGetSceneItemEnabled`, `TryGetMediaInputStatus`, `TryGetInputAudioState`). Don't add a plain `Get*` alongside it unless something outside the render path needs one.
 
 ### Delayed Callback Pattern (Toggle Operations)
 
@@ -636,7 +593,7 @@ Never hardcode timing values — always use `OBSTimings` constants.
 
 1. Add method signature to `IOBSWebsocket`
 2. Implement in `OBSWebsocketAdapter` (thin pass-through)
-3. Add business logic to `OBSActionExecutor` (connection guard + error handling)
+3. Add business logic to `OBSActionExecutor` through `RunMutation`, `Query<T>` or `TryQuery<T>` (see "OBS Calls Go Through the Executor's Helpers")
 4. Expose via `OBSFacade`
 5. Expose via `OBSStudioForLogiPlugin` public method
 6. Write tests for all three paths (connected, disconnected, exception)

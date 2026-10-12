@@ -19,14 +19,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private String _currentScene = String.Empty;
         private Boolean _studioModeEnabled = false;
 
-        public Boolean IsRecording => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED 
+        public Boolean IsRecording => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED
                                     || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_PAUSED
                                     || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_RESUMED;
         public Boolean IsRecordingPaused { get; private set; }
-        public Boolean IsRecordingChanging => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING 
+        public Boolean IsRecordingChanging => this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING
                                             || this._recordingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
         public Boolean IsStreaming => this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
-        public Boolean IsStreamingChanging => this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING 
+        public Boolean IsStreamingChanging => this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTING
                                             || this._streamingState == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPING;
         public Boolean IsVirtualCameraActive => this._virtualCameraState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
         public Boolean IsReplayBufferActive => this._replayBufferState == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
@@ -51,198 +51,89 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void SetCurrentScene(String sceneName)
         {
-            this._runInBackground(() =>
+            this.RunMutation($"set scene '{sceneName}'", () =>
             {
-                if (!this._obs.IsConnected)
+                if (this._studioModeEnabled)
                 {
-                    this._log.Warning($"Cannot set scene '{sceneName}' - not connected");
-                    return;
+                    this._log.Info($"Setting current preview scene to '{sceneName}' (studio mode enabled)");
+                    this._obs.SetCurrentPreviewScene(sceneName);
                 }
-
-                try
+                else
                 {
-                    if (this._studioModeEnabled)
-                    {
-                        this._log.Info($"Setting current preview scene to '{sceneName}' (studio mode enabled)");
-                        this._obs.SetCurrentPreviewScene(sceneName);
-                    }
-                    else
-                    {
-                        this._log.Info($"Setting current program scene to '{sceneName}'");
-                        this._obs.SetCurrentProgramScene(sceneName);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to set scene '{sceneName}': {ex.Message}");
+                    this._log.Info($"Setting current program scene to '{sceneName}'");
+                    this._obs.SetCurrentProgramScene(sceneName);
                 }
             });
         }
 
         public void ToggleRecording()
         {
-            this._runInBackground(() =>
+            this.RunMutation("toggle recording", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot toggle recording - not connected");
-                    return;
-                }
-
-                if (this.IsRecordingChanging)
-                {
-                    this._log.Warning("Cannot toggle recording - state change in progress");
-                    return;
-                }
-
-                try
-                {
-                    this._log.Info("Toggling recording");
-                    this._obs.ToggleRecord();
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to toggle recording: {ex.Message}");
-                }
-            });
+                this._log.Info("Toggling recording");
+                this._obs.ToggleRecord();
+            },
+            () => this.IsRecordingChanging ? "state change in progress" : null);
         }
 
         public void StartRecording()
         {
-            this._runInBackground(() =>
+            this.RunMutation("start recording", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot start recording - not connected");
-                    return;
-                }
-
-                if (this.IsRecording)
-                {
-                    this._log.Warning("Cannot start recording - already recording");
-                    return;
-                }
-
-                try
-                {
-                    this._log.Info("Starting recording");
-                    this._obs.StartRecord();
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to start recording: {ex.Message}");
-                }
-            });
+                this._log.Info("Starting recording");
+                this._obs.StartRecord();
+            },
+            () => this.IsRecording ? "already recording" : null);
         }
 
         public void StopRecording()
         {
-            this._runInBackground(() =>
+            this.RunMutation("stop recording", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot stop recording - not connected");
-                    return;
-                }
-
-                if (!this.IsRecording)
-                {
-                    this._log.Warning("Cannot stop recording - not recording");
-                    return;
-                }
-
-                try
-                {
-                    this._log.Info("Stopping recording");
-                    this._obs.StopRecord();
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to stop recording: {ex.Message}");
-                }
-            });
+                this._log.Info("Stopping recording");
+                this._obs.StopRecord();
+            },
+            () => this.IsRecording ? null : "not recording");
         }
 
         public void ToggleRecordingPause()
         {
-            this._runInBackground(() =>
+            this.RunMutation("toggle recording pause", () =>
             {
-                if (!this._obs.IsConnected)
+                this._log.Info("Toggling recording pause");
+                if (this.IsRecordingPaused)
                 {
-                    this._log.Warning("Cannot toggle recording pause - not connected");
-                    return;
+                    this._obs.ResumeRecord();
                 }
-
-                if (!this.IsRecording)
+                else
                 {
-                    this._log.Warning("Cannot toggle recording pause - not recording");
-                    return;
+                    this._obs.PauseRecord();
                 }
-
-                try
-                {
-                    this._log.Info("Toggling recording pause");
-                    if (this.IsRecordingPaused)
-                    {
-                        this._obs.ResumeRecord();
-                    }
-                    else
-                    {
-                        this._obs.PauseRecord();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to toggle recording pause: {ex.Message}");
-                }
-            });
+            },
+            () => this.IsRecording ? null : "not recording");
         }
 
         public String[] GetProfileList()
         {
-            if (!this._obs.IsConnected)
-            {
-                this._log.Warning("Cannot get profile list - not connected");
-                return new String[0];
-            }
-
-            try
+            return this.Query("profile list", new String[0], () =>
             {
                 this._log.Debug("Getting profile list");
                 return this._obs.GetProfileList();
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get profile list: {ex.Message}");
-                return new String[0];
-            }
+            });
         }
 
         public void SetCurrentProfile(String profileName)
         {
-            this._runInBackground(() =>
+            this.RunMutation($"set profile '{profileName}'", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning($"Cannot set profile '{profileName}' - not connected");
-                    return;
-                }
-
                 if (this._currentProfile == profileName)
                 {
                     this._log.Info($"Profile '{profileName}' is already active");
                     return;
                 }
 
-                try
-                {
-                    this._log.Info($"Setting current profile to '{profileName}'");
-                    this._obs.SetCurrentProfile(profileName);
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to set profile '{profileName}': {ex.Message}");
-                }
+                this._log.Info($"Setting current profile to '{profileName}'");
+                this._obs.SetCurrentProfile(profileName);
             });
         }
 
@@ -253,49 +144,25 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public String[] GetSceneCollectionList()
         {
-            if (!this._obs.IsConnected)
-            {
-                this._log.Warning("Cannot get scene collection list - not connected");
-                return new String[0];
-            }
-
-            try
+            return this.Query("scene collection list", new String[0], () =>
             {
                 this._log.Debug("Getting scene collection list");
                 return this._obs.GetSceneCollectionList();
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get scene collection list: {ex.Message}");
-                return new String[0];
-            }
+            });
         }
 
         public void SetCurrentSceneCollection(String sceneCollectionName)
         {
-            this._runInBackground(() =>
+            this.RunMutation($"set scene collection '{sceneCollectionName}'", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning($"Cannot set scene collection '{sceneCollectionName}' - not connected");
-                    return;
-                }
-
                 if (this._currentSceneCollection == sceneCollectionName)
                 {
                     this._log.Info($"Scene collection '{sceneCollectionName}' is already active");
                     return;
                 }
 
-                try
-                {
-                    this._log.Info($"Setting current scene collection to '{sceneCollectionName}'");
-                    this._obs.SetCurrentSceneCollection(sceneCollectionName);
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to set scene collection '{sceneCollectionName}': {ex.Message}");
-                }
+                this._log.Info($"Setting current scene collection to '{sceneCollectionName}'");
+                this._obs.SetCurrentSceneCollection(sceneCollectionName);
             });
         }
 
@@ -311,63 +178,36 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public String[] GetSceneList()
         {
-            if (!this._obs.IsConnected)
-            {
-                this._log.Warning("Cannot get scene list - not connected");
-                return new String[0];
-            }
-
-            try
+            return this.Query("scene list", new String[0], () =>
             {
                 this._log.Debug("Getting scene list");
                 return this._obs.GetSceneList();
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get scene list: {ex.Message}");
-                return new String[0];
-            }
+            });
         }
 
         public void SaveScreenshot(String screenshotPath)
         {
-            this._runInBackground(() =>
+            this.RunMutation("save screenshot", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot save screenshot - not connected");
-                    return;
-                }
-
+                String filename = System.IO.Path.Combine(screenshotPath, $"Screenshot-{DateTime.Now:yyyyMMddHHmmssfff}.png");
+                this._log.Info($"Saving screenshot to {filename}");
+                this._obs.SaveSourceScreenshot(this._currentScene, "png", filename, -1, -1);
+            },
+            () =>
+            {
                 if (String.IsNullOrEmpty(this._currentScene))
                 {
-                    this._log.Warning("Cannot save screenshot - no current scene");
-                    return;
+                    return "no current scene";
                 }
 
-                if (String.IsNullOrEmpty(screenshotPath))
-                {
-                    this._log.Warning("Cannot save screenshot - no valid path");
-                    return;
-                }
-
-                try
-                {
-                    var filename = System.IO.Path.Combine(screenshotPath, $"Screenshot-{DateTime.Now:yyyyMMddHHmmssfff}.png");
-                    this._log.Info($"Saving screenshot to {filename}");
-                    this._obs.SaveSourceScreenshot(this._currentScene, "png", filename, -1, -1);
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to save screenshot: {ex.Message}");
-                }
+                return String.IsNullOrEmpty(screenshotPath) ? "no valid path" : null;
             });
         }
 
         public void SetRecordingState(OutputState state)
         {
             this._recordingState = state;
-            
+
             if (state == OutputState.OBS_WEBSOCKET_OUTPUT_PAUSED)
             {
                 this.IsRecordingPaused = true;
@@ -384,86 +224,32 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void ToggleStreaming()
         {
-            this._runInBackground(() =>
+            this.RunMutation("toggle streaming", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot toggle streaming - not connected");
-                    return;
-                }
-
-                if (this.IsStreamingChanging)
-                {
-                    this._log.Warning("Cannot toggle streaming - state change in progress");
-                    return;
-                }
-
-                try
-                {
-                    this._log.Info("Toggling streaming");
-                    this._obs.ToggleStream();
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to toggle streaming: {ex.Message}");
-                }
-            });
+                this._log.Info("Toggling streaming");
+                this._obs.ToggleStream();
+            },
+            () => this.IsStreamingChanging ? "state change in progress" : null);
         }
 
         public void StartStreaming()
         {
-            this._runInBackground(() =>
+            this.RunMutation("start streaming", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot start streaming - not connected");
-                    return;
-                }
-
-                if (this.IsStreaming)
-                {
-                    this._log.Warning("Cannot start streaming - already streaming");
-                    return;
-                }
-
-                try
-                {
-                    this._log.Info("Starting streaming");
-                    this._obs.StartStream();
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to start streaming: {ex.Message}");
-                }
-            });
+                this._log.Info("Starting streaming");
+                this._obs.StartStream();
+            },
+            () => this.IsStreaming ? "already streaming" : null);
         }
 
         public void StopStreaming()
         {
-            this._runInBackground(() =>
+            this.RunMutation("stop streaming", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot stop streaming - not connected");
-                    return;
-                }
-
-                if (!this.IsStreaming)
-                {
-                    this._log.Warning("Cannot stop streaming - not streaming");
-                    return;
-                }
-
-                try
-                {
-                    this._log.Info("Stopping streaming");
-                    this._obs.StopStream();
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to stop streaming: {ex.Message}");
-                }
-            });
+                this._log.Info("Stopping streaming");
+                this._obs.StopStream();
+            },
+            () => this.IsStreaming ? null : "not streaming");
         }
 
         public void SetStreamingState(OutputState state)
@@ -473,87 +259,38 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void ToggleVirtualCamera()
         {
-            this._runInBackground(() =>
+            this.RunMutation("toggle virtual camera", () =>
             {
-                if (!this._obs.IsConnected)
+                this._log.Info("Toggling virtual camera");
+                if (this.IsVirtualCameraActive)
                 {
-                    this._log.Warning("Cannot toggle virtual camera - not connected");
-                    return;
+                    this._obs.StopVirtualCam();
                 }
-
-                try
+                else
                 {
-                    this._log.Info("Toggling virtual camera");
-                    if (this.IsVirtualCameraActive)
-                    {
-                        this._obs.StopVirtualCam();
-                    }
-                    else
-                    {
-                        this._obs.StartVirtualCam();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to toggle virtual camera: {ex.Message}");
+                    this._obs.StartVirtualCam();
                 }
             });
         }
 
         public void StartVirtualCamera()
         {
-            this._runInBackground(() =>
+            this.RunMutation("start virtual camera", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot start virtual camera - not connected");
-                    return;
-                }
-
-                if (this.IsVirtualCameraActive)
-                {
-                    this._log.Warning("Cannot start virtual camera - already active");
-                    return;
-                }
-
-                try
-                {
-                    this._log.Info("Starting virtual camera");
-                    this._obs.StartVirtualCam();
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to start virtual camera: {ex.Message}");
-                }
-            });
+                this._log.Info("Starting virtual camera");
+                this._obs.StartVirtualCam();
+            },
+            () => this.IsVirtualCameraActive ? "already active" : null);
         }
 
         public void StopVirtualCamera()
         {
-            this._runInBackground(() =>
+            this.RunMutation("stop virtual camera", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot stop virtual camera - not connected");
-                    return;
-                }
-
-                if (!this.IsVirtualCameraActive)
-                {
-                    this._log.Warning("Cannot stop virtual camera - not active");
-                    return;
-                }
-
-                try
-                {
-                    this._log.Info("Stopping virtual camera");
-                    this._obs.StopVirtualCam();
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to stop virtual camera: {ex.Message}");
-                }
-            });
+                this._log.Info("Stopping virtual camera");
+                this._obs.StopVirtualCam();
+            },
+            () => this.IsVirtualCameraActive ? null : "not active");
         }
 
         public void SetVirtualCameraState(OutputState state)
@@ -563,108 +300,41 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void ToggleReplayBuffer()
         {
-            this._runInBackground(() =>
+            this.RunMutation("toggle replay buffer", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot toggle replay buffer - not connected");
-                    return;
-                }
-
-                try
-                {
-                    this._log.Info("Toggling replay buffer");
-                    this._obs.ToggleReplayBuffer();
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to toggle replay buffer: {ex.Message}");
-                }
+                this._log.Info("Toggling replay buffer");
+                this._obs.ToggleReplayBuffer();
             });
         }
 
         public void StartReplayBuffer()
         {
-            this._runInBackground(() =>
+            this.RunMutation("start replay buffer", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot start replay buffer - not connected");
-                    return;
-                }
-
-                if (this.IsReplayBufferActive)
-                {
-                    this._log.Warning("Cannot start replay buffer - already active");
-                    return;
-                }
-
-                try
-                {
-                    this._log.Info("Starting replay buffer");
-                    this._obs.StartReplayBuffer();
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to start replay buffer: {ex.Message}");
-                }
-            });
+                this._log.Info("Starting replay buffer");
+                this._obs.StartReplayBuffer();
+            },
+            () => this.IsReplayBufferActive ? "already active" : null);
         }
 
         public void StopReplayBuffer()
         {
-            this._runInBackground(() =>
+            this.RunMutation("stop replay buffer", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot stop replay buffer - not connected");
-                    return;
-                }
-
-                if (!this.IsReplayBufferActive)
-                {
-                    this._log.Warning("Cannot stop replay buffer - not active");
-                    return;
-                }
-
-                try
-                {
-                    this._log.Info("Stopping replay buffer");
-                    this._obs.StopReplayBuffer();
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to stop replay buffer: {ex.Message}");
-                }
-            });
+                this._log.Info("Stopping replay buffer");
+                this._obs.StopReplayBuffer();
+            },
+            () => this.IsReplayBufferActive ? null : "not active");
         }
 
         public void SaveReplayBuffer()
         {
-            this._runInBackground(() =>
+            this.RunMutation("save replay buffer", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot save replay buffer - not connected");
-                    return;
-                }
-
-                if (!this.IsReplayBufferActive)
-                {
-                    this._log.Warning("Cannot save replay buffer - not active");
-                    return;
-                }
-
-                try
-                {
-                    this._log.Info("Saving replay buffer");
-                    this._obs.SaveReplayBuffer();
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to save replay buffer: {ex.Message}");
-                }
-            });
+                this._log.Info("Saving replay buffer");
+                this._obs.SaveReplayBuffer();
+            },
+            () => this.IsReplayBufferActive ? null : "not active");
         }
 
         public void SetReplayBufferState(OutputState state)
@@ -674,101 +344,43 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public String[] GetSceneItemList(String sceneName)
         {
-            if (!this._obs.IsConnected)
-            {
-                this._log.Warning($"Cannot get scene item list for '{sceneName}' - not connected");
-                return new String[0];
-            }
-
             if (String.IsNullOrEmpty(sceneName))
             {
                 this._log.Warning("Cannot get scene item list - scene name is empty");
                 return new String[0];
             }
 
-            try
+            return this.Query($"scene item list for '{sceneName}'", new String[0], () =>
             {
                 this._log.Debug($"Getting scene item list for '{sceneName}'");
                 return this._obs.GetSceneItemList(sceneName);
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get scene item list for '{sceneName}': {ex.Message}");
-                return new String[0];
-            }
+            });
         }
 
-        public Boolean GetSceneItemEnabled(String sceneName, String sourceName)
-        {
-            if (!this._obs.IsConnected)
-            {
-                this._log.Warning($"Cannot get scene item enabled state for '{sourceName}' - not connected");
-                return false;
-            }
-
-            try
-            {
-                return this._obs.GetSceneItemEnabled(sceneName, sourceName);
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get scene item enabled state for '{sourceName}': {ex.Message}");
-                return false;
-            }
-        }
-
-        // Fetch for the source visibility cache. Unlike GetSceneItemEnabled it reports failure
-        // instead of returning false, so a timeout is retried later rather than cached as "hidden".
+        // Fetch for the source visibility cache: reports failure instead of returning false, so a
+        // timeout is retried later rather than cached as "hidden".
         public Boolean TryGetSceneItemEnabled(String sceneName, String sourceName, out Boolean enabled)
         {
             enabled = false;
-            if (String.IsNullOrEmpty(sceneName) || String.IsNullOrEmpty(sourceName) || !this._obs.IsConnected)
+            if (String.IsNullOrEmpty(sceneName) || String.IsNullOrEmpty(sourceName))
             {
                 return false;
             }
 
-            try
-            {
-                enabled = this._obs.GetSceneItemEnabled(sceneName, sourceName);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get visibility of '{sourceName}' in scene '{sceneName}': {ex.Message}");
-                return false;
-            }
+            return this.TryQuery($"visibility of '{sourceName}' in scene '{sceneName}'",
+                () => this._obs.GetSceneItemEnabled(sceneName, sourceName), out enabled);
         }
 
         public void ToggleSourceVisibility(String sceneName, String sourceName)
         {
-            this._runInBackground(() =>
+            this.RunMutation($"toggle source visibility for '{sourceName}'", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning($"Cannot toggle source visibility for '{sourceName}' - not connected");
-                    return;
-                }
-
-                if (String.IsNullOrEmpty(sceneName) || String.IsNullOrEmpty(sourceName))
-                {
-                    this._log.Warning("Cannot toggle source visibility - scene or source name is empty");
-                    return;
-                }
-
-                try
-                {
-                    var currentState = this._obs.GetSceneItemEnabled(sceneName, sourceName);
-                    this._log.Info($"Toggling source '{sourceName}' visibility from {currentState} to {!currentState}");
-                    this._obs.SetSceneItemEnabled(sceneName, sourceName, !currentState);
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to toggle source visibility for '{sourceName}': {ex.Message}");
-                    return;
-                }
-
+                Boolean currentState = this._obs.GetSceneItemEnabled(sceneName, sourceName);
+                this._log.Info($"Toggling source '{sourceName}' visibility from {currentState} to {!currentState}");
+                this._obs.SetSceneItemEnabled(sceneName, sourceName, !currentState);
                 _ = this.NotifySourceVisibilityChangedAsync(sceneName, sourceName);
-            });
+            },
+            () => String.IsNullOrEmpty(sceneName) || String.IsNullOrEmpty(sourceName) ? "scene or source name is empty" : null);
         }
 
         // Kept out of the background action so that action stays synchronous (Action<Action>):
@@ -788,271 +400,108 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public String[] GetInputList()
         {
-            if (!this._obs.IsConnected)
-            {
-                this._log.Warning("Cannot get input list - not connected");
-                return new String[0];
-            }
-
-            try
+            return this.Query("input list", new String[0], () =>
             {
                 this._log.Debug("Getting input list");
                 return this._obs.GetInputList();
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get input list: {ex.Message}");
-                return new String[0];
-            }
+            });
         }
 
         public Boolean GetInputMute(String inputName)
         {
-            if (!this._obs.IsConnected)
-            {
-                this._log.Warning($"Cannot get input mute state for '{inputName}' - not connected");
-                return false;
-            }
-
-            try
-            {
-                return this._obs.GetInputMute(inputName);
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get input mute state for '{inputName}': {ex.Message}");
-                return false;
-            }
+            return this.Query($"input mute state for '{inputName}'", false, () => this._obs.GetInputMute(inputName));
         }
 
         public void ToggleInputMute(String inputName)
         {
-            this._runInBackground(() =>
+            this.RunMutation($"toggle input mute for '{inputName}'", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning($"Cannot toggle input mute for '{inputName}' - not connected");
-                    return;
-                }
-
-                if (String.IsNullOrEmpty(inputName))
-                {
-                    this._log.Warning("Cannot toggle input mute - input name is empty");
-                    return;
-                }
-
-                try
-                {
-                    this._log.Info($"Toggling input mute for '{inputName}'");
-                    this._obs.ToggleInputMute(inputName);
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to toggle input mute for '{inputName}': {ex.Message}");
-                }
-            });
-        }
-
-        public Single GetInputVolume(String inputName)
-        {
-            if (!this._obs.IsConnected)
-            {
-                this._log.Warning($"Cannot get input volume for '{inputName}' - not connected");
-                return 1.0f;
-            }
-
-            try
-            {
-                return this._obs.GetInputVolume(inputName);
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get input volume for '{inputName}': {ex.Message}");
-                return 1.0f;
-            }
+                this._log.Info($"Toggling input mute for '{inputName}'");
+                this._obs.ToggleInputMute(inputName);
+            },
+            () => String.IsNullOrEmpty(inputName) ? "input name is empty" : null);
         }
 
         public void SetInputVolume(String inputName, Single volumeMul)
         {
-            this._runInBackground(() =>
+            this.RunMutation($"set input volume for '{inputName}'", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning($"Cannot set input volume for '{inputName}' - not connected");
-                    return;
-                }
-
-                if (String.IsNullOrEmpty(inputName))
-                {
-                    this._log.Warning("Cannot set input volume - input name is empty");
-                    return;
-                }
-
-                try
-                {
-                    var volumePercent = (Int32)(volumeMul * 100);
-                    this._log.Debug($"Setting input volume for '{inputName}' to {volumePercent}% ({volumeMul:F2})");
-                    this._obs.SetInputVolume(inputName, volumeMul);
-                    this._log.Debug($"Successfully set input volume for '{inputName}'");
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to set input volume for '{inputName}': {ex.Message}");
-                }
-            });
+                Int32 volumePercent = (Int32)(volumeMul * 100);
+                this._log.Debug($"Setting input volume for '{inputName}' to {volumePercent}% ({volumeMul:F2})");
+                this._obs.SetInputVolume(inputName, volumeMul);
+                this._log.Debug($"Successfully set input volume for '{inputName}'");
+            },
+            () => String.IsNullOrEmpty(inputName) ? "input name is empty" : null);
         }
 
-        public String GetInputAudioMonitorType(String inputName)
-        {
-            if (!this._obs.IsConnected)
-            {
-                this._log.Warning($"Cannot get audio monitor type for '{inputName}' - not connected");
-                return "OBS_MONITORING_TYPE_NONE";
-            }
-
-            try
-            {
-                return this._obs.GetInputAudioMonitorType(inputName);
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get audio monitor type for '{inputName}': {ex.Message}");
-                return "OBS_MONITORING_TYPE_NONE";
-            }
-        }
-
-        // Reads everything the audio buttons render for one input, for AudioStateCache. Unlike the
-        // single-value getters it returns null instead of a safe default on failure, so a timeout
-        // is retried later rather than cached as if OBS had reported "unmuted, 0 dB".
+        // Reads everything the audio buttons render for one input, for AudioStateCache. Returns null
+        // instead of a safe default on failure, so a timeout is retried later rather than cached as
+        // if OBS had reported "unmuted, 0 dB".
         public Models.AudioInputState TryGetInputAudioState(String inputName)
         {
-            if (String.IsNullOrEmpty(inputName) || !this._obs.IsConnected)
+            if (String.IsNullOrEmpty(inputName))
             {
                 return null;
             }
 
-            try
+            Boolean fetched = this.TryQuery($"audio state for '{inputName}'", () => new Models.AudioInputState
             {
-                return new Models.AudioInputState
-                {
-                    IsMuted = this._obs.GetInputMute(inputName),
-                    VolumeMul = this._obs.GetInputVolume(inputName),
-                    MonitorType = this._obs.GetInputAudioMonitorType(inputName)
-                };
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get audio state for '{inputName}': {ex.Message}");
-                return null;
-            }
+                IsMuted = this._obs.GetInputMute(inputName),
+                VolumeMul = this._obs.GetInputVolume(inputName),
+                MonitorType = this._obs.GetInputAudioMonitorType(inputName)
+            }, out Models.AudioInputState state);
+
+            return fetched ? state : null;
         }
 
         public void CycleInputAudioMonitorType(String inputName)
         {
-            this._runInBackground(() =>
+            this.RunMutation($"cycle audio monitor type for '{inputName}'", () =>
             {
-                if (!this._obs.IsConnected)
+                String current = this._obs.GetInputAudioMonitorType(inputName);
+                String next;
+
+                switch (current)
                 {
-                    this._log.Warning($"Cannot cycle audio monitor type for '{inputName}' - not connected");
-                    return;
+                    case "OBS_MONITORING_TYPE_NONE":
+                        next = "OBS_MONITORING_TYPE_MONITOR_ONLY";
+                        break;
+                    case "OBS_MONITORING_TYPE_MONITOR_ONLY":
+                        next = "OBS_MONITORING_TYPE_MONITOR_AND_OUTPUT";
+                        break;
+                    default:
+                        next = "OBS_MONITORING_TYPE_NONE";
+                        break;
                 }
 
-                if (String.IsNullOrEmpty(inputName))
-                {
-                    this._log.Warning("Cannot cycle audio monitor type - input name is empty");
-                    return;
-                }
-
-                try
-                {
-                    var current = this._obs.GetInputAudioMonitorType(inputName);
-                    String next;
-                    
-                    switch (current)
-                    {
-                        case "OBS_MONITORING_TYPE_NONE":
-                            next = "OBS_MONITORING_TYPE_MONITOR_ONLY";
-                            break;
-                        case "OBS_MONITORING_TYPE_MONITOR_ONLY":
-                            next = "OBS_MONITORING_TYPE_MONITOR_AND_OUTPUT";
-                            break;
-                        default:
-                            next = "OBS_MONITORING_TYPE_NONE";
-                            break;
-                    }
-                    
-                    this._log.Info($"Cycling audio monitor type for '{inputName}' from {current} to {next}");
-                    this._obs.SetInputAudioMonitorType(inputName, next);
-                    // Replicate OBS UI behaviour: mute output when in Monitor Only mode
-                    this._obs.SetInputMute(inputName, next == "OBS_MONITORING_TYPE_MONITOR_ONLY");
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to cycle audio monitor type for '{inputName}': {ex.Message}");
-                }
-            });
+                this._log.Info($"Cycling audio monitor type for '{inputName}' from {current} to {next}");
+                this._obs.SetInputAudioMonitorType(inputName, next);
+                // Replicate OBS UI behaviour: mute output when in Monitor Only mode
+                this._obs.SetInputMute(inputName, next == "OBS_MONITORING_TYPE_MONITOR_ONLY");
+            },
+            () => String.IsNullOrEmpty(inputName) ? "input name is empty" : null);
         }
 
         // For OBSWebSocketManager.AudioInputMembership. Returns false rather than empty lists on
         // failure, so an OBS error isn't cached as "no audio inputs".
         public Boolean TryGetAudioInputSceneMembership(out Models.AudioInputSceneMembership membership)
         {
-            membership = null;
-            if (!this._obs.IsConnected)
-            {
-                return false;
-            }
-
-            try
-            {
-                membership = new Models.AudioInputSceneMembership(this._obs.GetInputList(), this._obs.GetAudioInputsNotInAnyScene());
-                return true;
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get audio input scene membership: {ex.Message}");
-                return false;
-            }
+            return this.TryQuery("audio input scene membership",
+                () => new Models.AudioInputSceneMembership(this._obs.GetInputList(), this._obs.GetAudioInputsNotInAnyScene()),
+                out membership);
         }
 
         public Boolean GetStudioModeEnabled()
         {
-            if (!this._obs.IsConnected)
-            {
-                this._log.Warning("Cannot get studio mode state - not connected");
-                return false;
-            }
-
-            try
-            {
-                return this._obs.GetStudioModeEnabled();
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get studio mode state: {ex.Message}");
-                return false;
-            }
+            return this.Query("studio mode state", false, () => this._obs.GetStudioModeEnabled());
         }
 
         public void ToggleStudioMode()
         {
-            this._runInBackground(() =>
+            this.RunMutation("toggle studio mode", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot toggle studio mode - not connected");
-                    return;
-                }
-
-                try
-                {
-                    this._log.Info($"Toggling studio mode from {this._studioModeEnabled} to {!this._studioModeEnabled}");
-                    this._obs.SetStudioModeEnabled(!this._studioModeEnabled);
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to toggle studio mode: {ex.Message}");
-                }
+                this._log.Info($"Toggling studio mode from {this._studioModeEnabled} to {!this._studioModeEnabled}");
+                this._obs.SetStudioModeEnabled(!this._studioModeEnabled);
             });
         }
 
@@ -1063,179 +512,145 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public void TriggerStudioModeTransition()
         {
-            this._runInBackground(() =>
+            this.RunMutation("trigger studio mode transition", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning("Cannot trigger studio mode transition - not connected");
-                    return;
-                }
-
-                if (!this._studioModeEnabled)
-                {
-                    this._log.Warning("Cannot trigger studio mode transition - studio mode not enabled");
-                    return;
-                }
-
-                try
-                {
-                    this._log.Info("Triggering studio mode transition");
-                    this._obs.TriggerStudioModeTransition();
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to trigger studio mode transition: {ex.Message}");
-                }
-            });
+                this._log.Info("Triggering studio mode transition");
+                this._obs.TriggerStudioModeTransition();
+            },
+            () => this._studioModeEnabled ? null : "studio mode not enabled");
         }
 
+        // Polled on a timer, so a disconnect isn't worth a warning on every tick.
         public Models.OBSStats GetStats()
         {
-            if (!this._obs.IsConnected)
-            {
-                return Models.OBSStats.Empty;
-            }
-
-            try
-            {
-                return this._obs.GetStats();
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get stats: {ex.Message}");
-                return Models.OBSStats.Empty;
-            }
+            return this.Query("stats", Models.OBSStats.Empty, () => this._obs.GetStats(), warnIfDisconnected: false);
         }
 
         public Models.OBSStreamStats GetStreamStatus()
         {
-            if (!this._obs.IsConnected)
-            {
-                return Models.OBSStreamStats.Empty;
-            }
-
-            try
-            {
-                return this._obs.GetStreamStatus();
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get stream status: {ex.Message}");
-                return Models.OBSStreamStats.Empty;
-            }
+            return this.Query("stream status", Models.OBSStreamStats.Empty, () => this._obs.GetStreamStatus(), warnIfDisconnected: false);
         }
 
-        public String GetMediaInputStatus(String inputName)
-        {
-            if (!this._obs.IsConnected || String.IsNullOrEmpty(inputName))
-                return "OBS_MEDIA_STATE_NONE";
-
-            try
-            {
-                return this._obs.GetMediaInputStatus(inputName);
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get media status for '{inputName}': {ex.Message}");
-                return "OBS_MEDIA_STATE_NONE";
-            }
-        }
-
-        // Fetch for the media state cache. Unlike GetMediaInputStatus it reports failure instead of
-        // returning "none", so a timeout is retried later rather than cached as idle.
+        // Fetch for the media state cache: reports failure instead of returning "none", so a timeout
+        // is retried later rather than cached as idle.
         public Boolean TryGetMediaInputStatus(String inputName, out String state)
         {
             state = MediaInputStates.None;
-            if (String.IsNullOrEmpty(inputName) || !this._obs.IsConnected)
+            if (String.IsNullOrEmpty(inputName)
+                || !this.TryQuery($"media status for '{inputName}'", () => this._obs.GetMediaInputStatus(inputName), out String fetched))
             {
                 return false;
             }
 
-            try
-            {
-                state = this._obs.GetMediaInputStatus(inputName) ?? MediaInputStates.None;
-                return true;
-            }
-            catch (Exception ex)
-            {
-                this._log.Error($"Failed to get media status for '{inputName}': {ex.Message}");
-                return false;
-            }
+            state = fetched ?? MediaInputStates.None;
+            return true;
         }
 
         // Single tap on a media button. Reads the live state in the background rather than the
         // render cache, so a press right after connecting doesn't act on the cache's default.
         public void ToggleMediaInputPlayback(String inputName)
         {
-            this._runInBackground(() =>
+            this.RunMutation($"toggle media playback for '{inputName}'", () =>
             {
-                if (!this._obs.IsConnected)
-                {
-                    this._log.Warning($"Cannot toggle media playback for '{inputName}' - not connected");
-                    return;
-                }
-
-                if (String.IsNullOrEmpty(inputName))
-                {
-                    this._log.Warning("Cannot toggle media playback - input name is empty");
-                    return;
-                }
-
-                try
-                {
-                    String state = this._obs.GetMediaInputStatus(inputName);
-                    String mediaAction = MediaInputStates.ToggleActionFor(state);
-                    this._log.Info($"Toggling media playback for '{inputName}': {state} -> '{mediaAction}'");
-                    this._obs.TriggerMediaInputAction(inputName, mediaAction);
-                }
-                catch (Exception ex)
-                {
-                    this._log.Error($"Failed to toggle media playback for '{inputName}': {ex.Message}");
-                }
-            });
+                String state = this._obs.GetMediaInputStatus(inputName);
+                String mediaAction = MediaInputStates.ToggleActionFor(state);
+                this._log.Info($"Toggling media playback for '{inputName}': {state} -> '{mediaAction}'");
+                this._obs.TriggerMediaInputAction(inputName, mediaAction);
+            },
+            () => String.IsNullOrEmpty(inputName) ? "input name is empty" : null);
         }
 
         public void TriggerMediaInputAction(String inputName, String mediaAction)
         {
+            this.RunMutation($"trigger media action '{mediaAction}' on '{inputName}'", () =>
+            {
+                this._log.Info($"Triggering media action '{mediaAction}' on '{inputName}'");
+                this._obs.TriggerMediaInputAction(inputName, mediaAction);
+            },
+            () => String.IsNullOrEmpty(inputName) || String.IsNullOrEmpty(mediaAction) ? "input name or action is empty" : null);
+        }
+
+        public String[] GetMediaInputList()
+        {
+            return this.Query("media input list", new String[0], () => this._obs.GetMediaInputList(), warnIfDisconnected: false);
+        }
+
+        // Every OBS mutation goes through here: it runs on the background runner, is skipped with a
+        // warning while OBS isn't connected or when refusal gives a reason, and logs an OBS error
+        // instead of throwing. Messages read "Cannot <action> - <reason>" and "Failed to <action>: ...".
+        private void RunMutation(String action, Action call, Func<String> refusal = null)
+        {
             this._runInBackground(() =>
             {
                 if (!this._obs.IsConnected)
                 {
-                    this._log.Warning($"Cannot trigger media action for '{inputName}' - not connected");
+                    this._log.Warning($"Cannot {action} - not connected");
                     return;
                 }
 
-                if (String.IsNullOrEmpty(inputName) || String.IsNullOrEmpty(mediaAction))
+                String reason = refusal?.Invoke();
+                if (reason != null)
                 {
-                    this._log.Warning("Cannot trigger media action - input name or action is empty");
+                    this._log.Warning($"Cannot {action} - {reason}");
                     return;
                 }
 
                 try
                 {
-                    this._log.Info($"Triggering media action '{mediaAction}' on '{inputName}'");
-                    this._obs.TriggerMediaInputAction(inputName, mediaAction);
+                    call();
                 }
                 catch (Exception ex)
                 {
-                    this._log.Error($"Failed to trigger media action '{mediaAction}' on '{inputName}': {ex.Message}");
+                    this._log.Error($"Failed to {action}: {ex.Message}");
                 }
             });
         }
 
-        public String[] GetMediaInputList()
+        // Reads a value on the caller's thread, returning fallback while OBS isn't connected or when
+        // the request fails, so callers never see an exception.
+        private T Query<T>(String what, T fallback, Func<T> call, Boolean warnIfDisconnected = true)
         {
             if (!this._obs.IsConnected)
-                return new String[0];
+            {
+                if (warnIfDisconnected)
+                {
+                    this._log.Warning($"Cannot get {what} - not connected");
+                }
+
+                return fallback;
+            }
 
             try
             {
-                return this._obs.GetMediaInputList();
+                return call();
             }
             catch (Exception ex)
             {
-                this._log.Error($"Failed to get media input list: {ex.Message}");
-                return new String[0];
+                this._log.Error($"Failed to get {what}: {ex.Message}");
+                return fallback;
+            }
+        }
+
+        // For the render caches: reports whether the read succeeded instead of substituting a
+        // default, so the caches retry a failure later rather than store it. Silent while
+        // disconnected - the caches are cleared on disconnect anyway.
+        private Boolean TryQuery<T>(String what, Func<T> call, out T value)
+        {
+            value = default;
+            if (!this._obs.IsConnected)
+            {
+                return false;
+            }
+
+            try
+            {
+                value = call();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this._log.Error($"Failed to get {what}: {ex.Message}");
+                return false;
             }
         }
     }

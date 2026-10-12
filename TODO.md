@@ -126,10 +126,10 @@ All of these are available in obs-websocket-dotnet 5.7.0.
 - [ ] Resolve scene item IDs with `GetSceneItemId`, or keep the IDs from the scene sources load, instead of calling `GetSceneItemList` before every get and set
 - [ ] Use the cached visibility in `ToggleSourceVisibility` instead of reading it again
 
-### Assessment: OBSActionExecutor Repetition (#32)
+### Assessment: OBSActionExecutor Repetition (#32) ✅ Done
 
-- [ ] Add `RunMutation`/`Query<T>` helpers and express the connected/guard/try/log methods through them
-- [ ] Collapse `Get*`/`TryGet*` pairs whose non-`Try` version has no remaining callers
+- [x] ~~Add `RunMutation`/`Query<T>` helpers and express the connected/guard/try/log methods through them~~ ✅ Done — plus `TryQuery<T>` for the render-cache fetches; 1,242 → 657 lines
+- [x] ~~Collapse `Get*`/`TryGet*` pairs whose non-`Try` version has no remaining callers~~ ✅ Done — `GetSceneItemEnabled`, `GetMediaInputStatus`, `GetInputVolume` and `GetInputAudioMonitorType` removed
 
 ### Assessment: Forwarding Layers (#33)
 
@@ -223,7 +223,7 @@ All of these are available in obs-websocket-dotnet 5.7.0.
 
 - [ ] Multi-instance OBS support (see `docs/ai/multi-instance-obs-design.md`)
 - [x] ~~Dependency injection for StatsService (inject `Func<OBSStats>` instead of static singleton)~~ ✅ Done (assessment #17)
-- [ ] Split the 1,242-line `OBSActionExecutor` by feature area (outputs, scenes, audio, media) the next time a large change touches it (left over from assessment #23; easier after #32)
+- [ ] Split the 657-line `OBSActionExecutor` by feature area (outputs, scenes, audio, media) the next time a large change touches it (left over from assessment #23; now a mechanical move, since #32 put the shared steps in helpers)
 
 ## Recently Completed (v2.0.0)
 

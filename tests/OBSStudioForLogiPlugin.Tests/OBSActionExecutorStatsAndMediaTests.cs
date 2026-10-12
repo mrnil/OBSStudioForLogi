@@ -98,48 +98,6 @@ public class OBSActionExecutorStatsAndMediaTests
 
     // GetMediaInputStatus tests
 
-    [Fact]
-    public void GetMediaInputStatus_WhenConnected_ReturnsState()
-    {
-        this._mockObs.Setup(x => x.IsConnected).Returns(true);
-        this._mockObs.Setup(x => x.GetMediaInputStatus("Video")).Returns("OBS_MEDIA_STATE_PLAYING");
-
-        var result = this._executor.GetMediaInputStatus("Video");
-
-        Assert.Equal("OBS_MEDIA_STATE_PLAYING", result);
-    }
-
-    [Fact]
-    public void GetMediaInputStatus_WhenNotConnected_ReturnsNone()
-    {
-        this._mockObs.Setup(x => x.IsConnected).Returns(false);
-
-        var result = this._executor.GetMediaInputStatus("Video");
-
-        Assert.Equal("OBS_MEDIA_STATE_NONE", result);
-    }
-
-    [Fact]
-    public void GetMediaInputStatus_WhenInputNameEmpty_ReturnsNone()
-    {
-        this._mockObs.Setup(x => x.IsConnected).Returns(true);
-
-        var result = this._executor.GetMediaInputStatus("");
-
-        Assert.Equal("OBS_MEDIA_STATE_NONE", result);
-    }
-
-    [Fact]
-    public void GetMediaInputStatus_WhenOBSThrows_ReturnsNone()
-    {
-        this._mockObs.Setup(x => x.IsConnected).Returns(true);
-        this._mockObs.Setup(x => x.GetMediaInputStatus(It.IsAny<String>())).Throws(new Exception("error"));
-
-        var result = this._executor.GetMediaInputStatus("Video");
-
-        Assert.Equal("OBS_MEDIA_STATE_NONE", result);
-    }
-
     // TryGetMediaInputStatus tests (media state cache fetch)
 
     [Fact]
