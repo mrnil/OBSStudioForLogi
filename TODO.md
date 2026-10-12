@@ -2,6 +2,12 @@
 
 ## High Priority
 
+### Assessment: Streaming and Recording Buttons Never Redraw (#27)
+
+- [ ] Check on a device: start/stop a stream and a recording, and pause a recording, from OBS's own window, and watch the Streaming and Recording buttons
+- [ ] If confirmed, add `IStreamingAwareCommand` and `IRecordingAwareCommand`, raise them from `OnStreamStateChanged`/`OnRecordStateChanged`, and have the seven `ToggleCommandBase`/`StartStopCommandBase` commands register and call `ActionImageChanged`
+- [ ] Check on a device again after the fix, including the starting/stopping transitions
+
 ### Assessment: Source Visibility and Media Status Query OBS on Redraw (#18) ✅ Done
 
 - [x] ~~Cache source visibility per (scene, source), kept current from `SceneItemEnableStateChanged`; serve `SourcesDynamicFolder` and `SourceVisibilityAdjustableCommand` renders from it~~ ✅ Done
@@ -25,6 +31,25 @@
 
 - [ ] Have `OBSWebSocketManager` raise events (or take a callback interface) instead of calling `OBSStudioForLogiPlugin.Instance`
 - [ ] Route stats and media updates through `CommandCoordinator` instead of `StatsDisplay.Instance`, `MediaDynamicFolder.Instance` and similar
+- [ ] Put the events `OBSWebSocketManager` needs on `IOBSWebsocket` (or an event-source interface) and route its direct library calls (`_obs.GetProfileList()`, `_obs.GetSceneList()`, ...) through it, then add tests for the event handlers
+
+### Assessment: Two Reconnect Loops (#29)
+
+- [ ] Make `ConnectionManager` the only owner of connection retries; `OBSWebSocketManager` just reports `ConnectionLost`
+- [ ] Re-read the local OBS config on each retry, so a password or port change in OBS doesn't need a manual reconnect (check the stale-credentials behaviour on a device first)
+- [ ] Make `_connectingInProgress`/`_shouldReconnect` thread-safe and drop the unused `attempt` parameter of `GetReconnectDelay`
+
+### Assessment: No Scene Feedback in Studio Mode (#31)
+
+- [ ] Track the preview scene: `GetCurrentPreviewScene` in the initial load and when studio mode turns on, `CurrentPreviewSceneChanged` after that
+- [ ] Show preview and program as separate states on the scene folder, select command and Current Scene display
+- [ ] Check on a device: in studio mode, press a scene (preview state shows), then transition (program state moves)
+
+### Assessment: OBS Groups Not Handled (#28)
+
+- [ ] Expand groups through `GetGroupSceneItemList` when building scene source lists, and decide between a flat list and a sub-level in the Scene Sources folder
+- [ ] Include group children in `GetAudioInputsNotInAnyScene`'s membership set
+- [ ] Check that visibility caching works for group children (`SceneItemEnableStateChanged` reports the group as the scene)
 
 ### Assessment: Renamed Inputs Go Stale (#21) ✅ Done
 
@@ -81,9 +106,55 @@
 
 ### Transitions
 
-- [ ] Transition selection (choose type and duration)
+- [ ] Transition selection (choose type and duration): `GetSceneTransitionList`, `SetCurrentSceneTransition`, `SetCurrentSceneTransitionDuration`
+- [ ] T-bar on a dial: `SetTBarPosition` through a `PluginDynamicAdjustment` (design notes in `protocol-gap-analysis.md`)
+- [ ] Transition duration on a dial
+
+### OBS Requests Worth Adding (from the 2026-10-12 assessment)
+
+All of these are available in obs-websocket-dotnet 5.7.0.
+
+- [ ] Split recording file and add recording chapter buttons (`SplitRecordFile`, `CreateRecordChapter`; chapters need OBS 30.2+ with Hybrid MP4), with `RecordFileChanged` confirmation
+- [ ] Media elapsed/total time on media buttons (`GetMediaInputStatus` `mediaCursor`/`mediaDuration`) and scrubbing on a dial (`SetMediaInputCursor`, `OffsetMediaInputCursor`)
+- [ ] Screenshot saved confirmation flash from `ScreenshotSaved`, like the replay buffer save
+- [ ] Read `GetVersion` on connect and disable features the connected OBS doesn't support
+- [ ] Open source/scene projector button (`OpenSourceProjector`)
 
 ## Low Priority
+
+### Assessment: Source Visibility Toggle Costs Four Requests (#30)
+
+- [ ] Resolve scene item IDs with `GetSceneItemId`, or keep the IDs from the scene sources load, instead of calling `GetSceneItemList` before every get and set
+- [ ] Use the cached visibility in `ToggleSourceVisibility` instead of reading it again
+
+### Assessment: OBSActionExecutor Repetition (#32)
+
+- [ ] Add `RunMutation`/`Query<T>` helpers and express the connected/guard/try/log methods through them
+- [ ] Collapse `Get*`/`TryGet*` pairs whose non-`Try` version has no remaining callers
+
+### Assessment: Forwarding Layers (#33)
+
+- [ ] After #20, have actions depend on the facade (or small per-feature interfaces) instead of the plugin class's ~60 forwarders
+
+### Assessment: Near-Copy Select Classes (#34)
+
+- [ ] Extract a generic base for the profile/scene collection/scene select commands, and one for their folders
+
+### Assessment: String Literals and Input Kind Lists (#35)
+
+- [ ] Add a `MonitorTypes` constants class and use it and `MediaInputStates.None` instead of the literals
+- [ ] Replace or centralise `AudioInputKinds` and `mediaKinds`; consider detecting audio inputs by whether `GetInputVolume` succeeds, cached per kind
+
+### Assessment: Style Rules Not Enforced (#36)
+
+- [ ] Set `EnforceCodeStyleInBuild`, fix or suppress what it reports (155 `var` uses in `src/`), and decide whether `tests/` follows the same `.editorconfig`
+
+### Assessment: Small Robustness and Doc Items (#37)
+
+- [ ] `SceneSwitchAdjustableCommand`: wait for `CurrentProfileChanged`/`CurrentSceneCollectionChanged` (with a timeout) instead of fixed delays
+- [ ] `OBSWebSocketManager.Dispose`: detach the `InputVolumeMeters` handler
+- [ ] `AudioStatusDisplayCommand`: log in, or remove, the empty `catch { }` blocks
+- [ ] Update the version in `docs/ai/product.md` (says 1.6.1, package is 2.0.1)
 
 ### Assessment: ProfileListChanged / SceneCollectionListChanged Not Subscribed (#8) ✅ Done
 
@@ -131,12 +202,12 @@
 - [ ] Scene item transforms (position, scale, rotation)
 - [ ] Scene/source creation from hardware
 - [ ] Filter settings adjustment (not just toggle)
-- [ ] Get current preview scene (studio mode)
+- [ ] Get current preview scene (studio mode) — see assessment #31
 - [ ] Trigger OBS hotkeys from hardware (fallback for third-party plugin actions)
 
 ## Events Not Yet Subscribed
 
-- [ ] `CurrentPreviewSceneChanged` — studio mode preview tracking
+- [ ] `CurrentPreviewSceneChanged` — studio mode preview tracking (assessment #31)
 - [x] ~~`InputNameChanged` — input list sync when renamed in OBS (assessment #21)~~ ✅ Done
 - [ ] `InputAudioBalanceChanged` — audio balance display
 - [ ] `InputAudioSyncOffsetChanged` — audio sync display
@@ -145,12 +216,15 @@
 - [ ] `SourceFilterEnableStateChanged` — filter state display
 - [ ] `CurrentSceneTransitionChanged` — transition display
 - [ ] `SceneTransitionStarted` / `SceneTransitionEnded` — transition progress
+- [ ] `RecordFileChanged` — confirm a recording split
+- [ ] `ScreenshotSaved` — confirm a screenshot was saved
+- [ ] `StreamStateChanged` / `RecordStateChanged` are subscribed but don't notify commands (assessment #27)
 
 ## Architecture (Deferred)
 
 - [ ] Multi-instance OBS support (see `docs/ai/multi-instance-obs-design.md`)
 - [x] ~~Dependency injection for StatsService (inject `Func<OBSStats>` instead of static singleton)~~ ✅ Done (assessment #17)
-- [ ] Split the 1,165-line `OBSActionExecutor` by feature area (outputs, scenes, audio, media) the next time a large change touches it (left over from assessment #23)
+- [ ] Split the 1,242-line `OBSActionExecutor` by feature area (outputs, scenes, audio, media) the next time a large change touches it (left over from assessment #23; easier after #32)
 
 ## Recently Completed (v2.0.0)
 
