@@ -2,9 +2,9 @@
 
 ## Overview
 
-The project follows a TDD approach with 750 unit tests using xUnit + Moq (verified 2026-10-12, net10.0, all passing). Overall line coverage is ~37.4% (Cobertura, last measured pre-CommandCoordinator-refactor), branch coverage ~19.8%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage. Coverage has drifted down slightly since v1.5.1 (was 39.5%/22.6%) as v1.6.0 added several new Actions-layer commands (`SceneSelectCommand`, `AudioSourceSelectCommand`, `SceneCollectionsDynamicFolder`) faster than services-layer surface area grew — expected under the TDD-exemption policy, not a regression.
+The project follows a TDD approach with 763 unit tests using xUnit + Moq (verified 2026-10-12, net10.0, all passing). Overall line coverage is ~37.4% (Cobertura, last measured pre-CommandCoordinator-refactor), branch coverage ~19.8%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage. Coverage has drifted down slightly since v1.5.1 (was 39.5%/22.6%) as v1.6.0 added several new Actions-layer commands (`SceneSelectCommand`, `AudioSourceSelectCommand`, `SceneCollectionsDynamicFolder`) faster than services-layer surface area grew — expected under the TDD-exemption policy, not a regression.
 
-## Test Count: 750
+## Test Count: 763
 
 ## Test Files
 
@@ -23,7 +23,7 @@ The project follows a TDD approach with 750 unit tests using xUnit + Moq (verifi
 | `OBSWebSocketManagerReconnectionTests.cs` | Reconnection with exponential backoff; request timeout set and kept across `ConnectAsync`; failed start clears the connecting flag | 7 |
 | `OBSWebSocketManagerLoggingTests.cs` | Log output verification | ~3 |
 | `OBSWebSocketManagerEventDispatchTests.cs` | State propagation through Actions executor | 18 |
-| `OBSWebSocketManagerEventHandlingTests.cs` | The manager's OBS event handlers, driven through a mocked `IOBSWebsocket` with an inline runner: connect and the initial state load, disconnect, outputs, profile/collection/scene changes, scene item visibility (including duplicates and a failed lookup), inputs and audio, media, and unsubscribing on dispose; each checks the recorded state and the `IOBSEventListener` calls (#20) | 33 |
+| `OBSWebSocketManagerEventHandlingTests.cs` | The manager's OBS event handlers, driven through a mocked `IOBSWebsocket` with an inline runner: connect and the initial state load, disconnect, outputs (including the streaming and recording notifications, #27), profile/collection/scene changes, scene item visibility (including duplicates and a failed lookup), inputs and audio, media, and unsubscribing on dispose; each checks the recorded state and the `IOBSEventListener` calls (#20) | 37 |
 | `ReconnectionStrategyTests.cs` | Backoff delays, attempt counting, error handling | 15 |
 | `OBSConfigReaderTests.cs` | Config file parsing, validation, IsServerDisabled | 10 |
 | `OBSConnectionSettingsTests.cs` | Connection settings model, localhost validation | ~5 |
@@ -33,7 +33,7 @@ The project follows a TDD approach with 750 unit tests using xUnit + Moq (verifi
 | `CachedValueTests.cs` | Fetch once until invalidated, failed fetches not cached, a fetch invalidated mid-flight not kept (#25) | 8 |
 | `RenameHandlingTests.cs` | Scene and input renames (#21): `KeyedStateCache.RenameKeys`, `AudioStateCache.Rename`, `AudioMeterService.RenameInput` (newer state at the new name wins, in-flight fetches dropped, live order kept), `AudioSelectionState.RenameIfMatches`, and `OBSWebSocketManager.ApplyInputRename`/`ApplySceneRename` | 27 |
 | `CommandRegistryTests.cs` | Registration, deduplication, generic `GetCommands<T>()` filtering | 6 |
-| `CommandCoordinatorTests.cs` | Dispatch-by-interface for every notification type, including stats, media state and connection status (#20), per-command exception isolation | 32 |
+| `CommandCoordinatorTests.cs` | Dispatch-by-interface for every notification type, including stats, media state and connection status (#20) and streaming/recording state (#27), per-command exception isolation | 34 |
 | `AudioStateCacheTests.cs` | Non-blocking misses, single in-flight fetch, event-vs-fetch precedence, failure backoff, invalidation | 14 |
 | `KeyedStateCacheTests.cs` | Same as `AudioStateCacheTests` for the single-value cache, plus `TryFetch` failures and `RemoveWhere` | 19 |
 | `SessionGateTests.cs` | Once-per-connection gate, including concurrent opens; `Generation`/`IsCurrent` tell an old connection from a new one | 8 |
@@ -59,6 +59,7 @@ The project follows a TDD approach with 750 unit tests using xUnit + Moq (verifi
 | `Actions/ProfileSelectCommandTests.cs` | Constructor, singleton pattern | ~1 |
 | `Actions/RecordingCommandTests.cs` | Start/Stop/Pause command construction | ~3 |
 | `Actions/RecordingToggleCommandTests.cs` | Toggle command properties | ~1 |
+| `Actions/OutputStateCommandTests.cs` | The seven streaming and recording commands implement `IStreamingAwareCommand`/`IRecordingAwareCommand`, so they receive the state notifications (#27); the redraw is checked on a device | 7 |
 | `Actions/SceneCollectionSelectCommandTests.cs` | Constructor, singleton | ~1 |
 | `Actions/ScenesDynamicFolderTests.cs` | Constructor, instance property | ~2 |
 | `Actions/SceneSwitchAdjustableCommandTests.cs` | Constructor, no-op interface methods (connect/disconnect only redraw, which needs the SDK) | 4 |

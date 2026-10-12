@@ -2,9 +2,9 @@
 
 ## High Priority
 
-### Assessment: Streaming and Recording Buttons Never Redraw (#27)
+### Assessment: Streaming and Recording Buttons Never Redraw (#27) — fixed, device check to do
 
-- [ ] Add `IStreamingAwareCommand` and `IRecordingAwareCommand`, raise them from `OnStreamStateChanged`/`OnRecordStateChanged`, and have the seven `ToggleCommandBase`/`StartStopCommandBase` commands register and call `ActionImageChanged`
+- [x] ~~Add `IStreamingAwareCommand` and `IRecordingAwareCommand`, raise them from `OnStreamStateChanged`/`OnRecordStateChanged`, and have the seven `ToggleCommandBase`/`StartStopCommandBase` commands register and call `ActionImageChanged`~~ ✅ Done
 - [ ] Check on a device after the fix: start/stop a stream and a recording from the device and from OBS's own window, pause/resume a recording, and confirm the buttons follow, including the starting/stopping states
 
 ### Assessment: Source Visibility and Media Status Query OBS on Redraw (#18) ✅ Done
@@ -217,7 +217,7 @@ All of these are available in obs-websocket-dotnet 5.7.0.
 - [ ] `SceneTransitionStarted` / `SceneTransitionEnded` — transition progress
 - [ ] `RecordFileChanged` — confirm a recording split
 - [ ] `ScreenshotSaved` — confirm a screenshot was saved
-- [ ] `StreamStateChanged` / `RecordStateChanged` are subscribed but don't notify commands (assessment #27)
+- [x] ~~`StreamStateChanged` / `RecordStateChanged` are subscribed but don't notify commands (assessment #27)~~ ✅ Done
 
 ## Architecture (Deferred)
 

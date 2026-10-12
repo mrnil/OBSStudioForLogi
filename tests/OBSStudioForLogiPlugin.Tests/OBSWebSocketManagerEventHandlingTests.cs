@@ -123,6 +123,43 @@ public class OBSWebSocketManagerEventHandlingTests : IDisposable
 
     // --- Outputs ---
 
+    // Assessment #27: the streaming and recording buttons redraw from these notifications.
+    [Fact]
+    public void StreamStateChanged_RecordsStateAndNotifies()
+    {
+        this._mockObs.Raise(x => x.StreamStateChanged += null, new StreamStateChangedEventArgs(Output(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED)));
+
+        Assert.True(this._manager.IsStreaming);
+        this._mockListener.Verify(x => x.OnStreamingStateChanged(), Times.Once);
+    }
+
+    [Fact]
+    public void StreamStateChanged_WhileStarting_NotifiesSoTheButtonShowsTheTransition()
+    {
+        this._mockObs.Raise(x => x.StreamStateChanged += null, new StreamStateChangedEventArgs(Output(OutputState.OBS_WEBSOCKET_OUTPUT_STARTING)));
+
+        Assert.True(this._manager.IsStreamingChanging);
+        this._mockListener.Verify(x => x.OnStreamingStateChanged(), Times.Once);
+    }
+
+    [Fact]
+    public void RecordStateChanged_RecordsStateAndNotifies()
+    {
+        this._mockObs.Raise(x => x.RecordStateChanged += null, new RecordStateChangedEventArgs(new RecordStateChanged { StateStr = nameof(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED) }));
+
+        Assert.True(this._manager.IsRecording);
+        this._mockListener.Verify(x => x.OnRecordingStateChanged(), Times.Once);
+    }
+
+    [Fact]
+    public void RecordStateChanged_WhenPaused_RecordsPauseAndNotifies()
+    {
+        this._mockObs.Raise(x => x.RecordStateChanged += null, new RecordStateChangedEventArgs(new RecordStateChanged { StateStr = nameof(OutputState.OBS_WEBSOCKET_OUTPUT_PAUSED) }));
+
+        Assert.True(this._manager.Actions.IsRecordingPaused);
+        this._mockListener.Verify(x => x.OnRecordingStateChanged(), Times.Once);
+    }
+
     [Fact]
     public void VirtualcamStateChanged_RecordsStateAndNotifies()
     {

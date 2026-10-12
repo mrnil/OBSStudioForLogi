@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The Streaming and Recording buttons (Toggle, Start and Stop Streaming; Toggle, Start and Stop Recording; Recording Pause) now update as soon as OBS changes state, including the starting and stopping states and changes made in OBS's own window. Before, they could keep showing the old state until the page was redrawn
+
 ## [2.0.1] - 2026-09-29
 
 ### Changed

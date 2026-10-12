@@ -282,10 +282,10 @@ Lists that every command needs (scenes, inputs, profiles, scene collections) sta
 
 ### ToggleCommandBase — For Toggle Commands
 
-Extend `ToggleCommandBase` for any on/off toggle:
+Extend `ToggleCommandBase` for any on/off toggle. The base class only draws the icon; nothing redraws it unless the command registers and implements the notification interface for its state, so always do both (assessment #27 — the streaming and recording buttons shipped without them and showed stale state):
 
 ```csharp
-public class RecordingToggleCommand : ToggleCommandBase, IObsCommand
+public class RecordingToggleCommand : ToggleCommandBase, IRecordingAwareCommand
 {
     public RecordingToggleCommand()
         : base("Recording Toggle", "Toggle recording on/off", "3. Recording")
@@ -299,6 +299,7 @@ public class RecordingToggleCommand : ToggleCommandBase, IObsCommand
     protected override String GetActiveIcon() => "RecordingOn.svg";
     protected override String GetInactiveIcon() => "RecordingOff.svg";
 
+    public void OnRecordingStateChanged() => this.ActionImageChanged();
     public void OnConnected() => this.ActionImageChanged();
     public void OnDisconnected() => this.ActionImageChanged();
 }
@@ -309,7 +310,7 @@ public class RecordingToggleCommand : ToggleCommandBase, IObsCommand
 Extend `StartStopCommandBase` for start and stop command pairs:
 
 ```csharp
-public class RecordingStartCommand : StartStopCommandBase, IObsCommand
+public class RecordingStartCommand : StartStopCommandBase, IRecordingAwareCommand
 {
     public RecordingStartCommand()
         : base("Recording Start", "Start recording", "3. Recording", isStartCommand: true)

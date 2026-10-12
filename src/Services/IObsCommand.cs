@@ -58,6 +58,20 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         void OnInputsChanged(String[] inputs);
     }
 
+    // Streaming started, stopped, or is starting/stopping. Read the state from the plugin's
+    // IsStreaming.
+    public interface IStreamingAwareCommand : IObsCommand
+    {
+        void OnStreamingStateChanged();
+    }
+
+    // Recording started, stopped, paused or resumed, or is starting/stopping. Read the state from
+    // the plugin's IsRecording and IsRecordingPaused.
+    public interface IRecordingAwareCommand : IObsCommand
+    {
+        void OnRecordingStateChanged();
+    }
+
     public interface IVirtualCameraAwareCommand : IObsCommand
     {
         void OnVirtualCameraStateChanged();

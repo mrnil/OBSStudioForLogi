@@ -487,6 +487,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obsFacade.StopVirtualCamera();
         }
 
+        public void OnStreamingStateChanged()
+        {
+            this._commandCoordinator.NotifyStreamingStateChanged();
+        }
+
+        public void OnRecordingStateChanged()
+        {
+            this._commandCoordinator.NotifyRecordingStateChanged();
+        }
+
         public void OnVirtualCameraStateChanged()
         {
             this._commandCoordinator.NotifyVirtualCameraStateChanged();

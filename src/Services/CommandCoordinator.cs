@@ -66,6 +66,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void NotifyInputsChanged(String[] inputs) =>
             this.NotifyEach<IInputsListAwareCommand>(nameof(IInputsListAwareCommand.OnInputsChanged), c => c.OnInputsChanged(inputs));
 
+        public void NotifyStreamingStateChanged() =>
+            this.NotifyEach<IStreamingAwareCommand>(nameof(IStreamingAwareCommand.OnStreamingStateChanged), c => c.OnStreamingStateChanged());
+
+        public void NotifyRecordingStateChanged() =>
+            this.NotifyEach<IRecordingAwareCommand>(nameof(IRecordingAwareCommand.OnRecordingStateChanged), c => c.OnRecordingStateChanged());
+
         public void NotifyVirtualCameraStateChanged() =>
             this.NotifyEach<IVirtualCameraAwareCommand>(nameof(IVirtualCameraAwareCommand.OnVirtualCameraStateChanged), c => c.OnVirtualCameraStateChanged());
 

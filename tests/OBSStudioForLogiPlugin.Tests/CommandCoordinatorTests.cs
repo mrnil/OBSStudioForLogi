@@ -390,6 +390,36 @@ public class CommandCoordinatorTests
         sceneSourcesAware.Verify(x => x.OnSceneSourcesChanged("Scene 1", sources, audioSources), Times.Once);
     }
 
+    // --- NotifyStreamingStateChanged / NotifyRecordingStateChanged (Assessment #27) ---
+
+    [Fact]
+    public void NotifyStreamingStateChanged_CallsOnlyIStreamingAwareCommands()
+    {
+        var streamingAware = new Mock<IStreamingAwareCommand>();
+        var recordingAware = new Mock<IRecordingAwareCommand>();
+        this._coordinator.RegisterCommand(streamingAware.Object);
+        this._coordinator.RegisterCommand(recordingAware.Object);
+
+        this._coordinator.NotifyStreamingStateChanged();
+
+        streamingAware.Verify(x => x.OnStreamingStateChanged(), Times.Once);
+        recordingAware.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public void NotifyRecordingStateChanged_CallsOnlyIRecordingAwareCommands()
+    {
+        var recordingAware = new Mock<IRecordingAwareCommand>();
+        var streamingAware = new Mock<IStreamingAwareCommand>();
+        this._coordinator.RegisterCommand(recordingAware.Object);
+        this._coordinator.RegisterCommand(streamingAware.Object);
+
+        this._coordinator.NotifyRecordingStateChanged();
+
+        recordingAware.Verify(x => x.OnRecordingStateChanged(), Times.Once);
+        streamingAware.VerifyNoOtherCalls();
+    }
+
     // --- NotifyStatsUpdated / NotifyMediaStateChanged / NotifyConnectionStatusChanged (Assessment #20) ---
 
     [Fact]

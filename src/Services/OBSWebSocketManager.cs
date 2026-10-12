@@ -346,6 +346,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var state = e?.OutputState?.State ?? OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
             this.Actions.SetStreamingState(state);
             this._log.Info($"Streaming state changed to {state}");
+            this._listener?.OnStreamingStateChanged();
         }
 
         private void OnRecordStateChanged(Object sender, RecordStateChangedEventArgs e)
@@ -353,6 +354,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var state = e?.OutputState?.State ?? OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
             this.Actions.SetRecordingState(state);
             this._log.Info($"Recording state changed to {state}");
+            this._listener?.OnRecordingStateChanged();
         }
 
         private void OnVirtualCameraStateChanged(Object sender, VirtualcamStateChangedEventArgs e)

@@ -76,7 +76,7 @@ OBSStudioForLogiPlugin/
 - `MediaDynamicFolder`
 - `StatsDynamicFolder`, `StreamStatsDynamicFolder` — register as stats viewers in `Activate()`/`Deactivate()`
 
-**Toggle Commands (PluginDynamicCommand via ToggleCommandBase):**
+**Toggle Commands (PluginDynamicCommand via ToggleCommandBase):** each registers and implements its state interface (`IStreamingAwareCommand`, `IRecordingAwareCommand`, `IVirtualCameraAwareCommand`, ...) so it redraws when OBS reports a change
 
 - `StreamingToggleCommand`, `RecordingToggleCommand`, `VirtualCameraToggleCommand`
 - `ReplayBufferToggleCommand`, `StudioModeToggleCommand`
@@ -195,6 +195,8 @@ IObsCommand (OnConnected, OnDisconnected)
     ├── IInputMuteAwareCommand      (OnInputMuteChanged)
     ├── IInputVolumeAwareCommand    (OnInputVolumeChanged)
     ├── IInputsListAwareCommand     (OnInputsChanged)
+    ├── IStreamingAwareCommand      (OnStreamingStateChanged)
+    ├── IRecordingAwareCommand      (OnRecordingStateChanged)
     ├── IVirtualCameraAwareCommand  (OnVirtualCameraStateChanged)
     ├── IReplayBufferAwareCommand   (OnReplayBufferStateChanged)
     ├── IReplayBufferSavedAwareCommand(OnReplayBufferSaved)

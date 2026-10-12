@@ -8,19 +8,13 @@ Item numbers stay the same between assessments because `TODO.md`, commit message
 
 At this pass the build is clean (no warnings) and all 723 tests pass in about 7s.
 
-**Open**: #5, #9, #24, #27–#31, #33–#37. Priority order is in the [Summary Table](#summary-table).
+**Open**: #5, #9, #24, #28–#31, #33–#37. Priority order is in the [Summary Table](#summary-table).
 
 ---
 
 ## High Priority
 
-### 27. Streaming and Recording Buttons Never Redraw on State Change (Correctness)
-
-**Problem**: Seven commands never ask the SDK to redraw: Toggle Streaming, Start Streaming, Stop Streaming, Toggle Recording, Start Recording, Stop Recording and Recording Pause. They derive from `ToggleCommandBase` or `StartStopCommandBase`, don't register with `CommandCoordinator`, and never call `ActionImageChanged`. `OBSWebSocketManager.OnStreamStateChanged` and `OnRecordStateChanged` update `OBSActionExecutor`'s state but notify nothing, and there is no `IStreamingAwareCommand` or `IRecordingAwareCommand`. Virtual camera, replay buffer and studio mode follow the right pattern (`IVirtualCameraAwareCommand` etc.), so this is an oversight. Git history shows it has been this way since the commands were added, so it is not a regression. Confirmed: the stale buttons have already been seen on a device (2026-10-12).
-
-**Impact**: The buttons most likely to be on screen during a stream can show the wrong state. The state changes asynchronously after a press (starting → started), and changes made in OBS's own window never reach the buttons, so the icon only corrects itself when the SDK happens to redraw the page.
-
-**Fix**: Add `IStreamingAwareCommand` and `IRecordingAwareCommand`, raise them from the two state handlers through `IOBSEventListener` (added by #20), and have the two base classes or the seven commands register and call `ActionImageChanged`. Check on a device afterwards: start and stop a stream and a recording from both the device and OBS's own window, pause and resume a recording, and confirm the buttons follow, including the starting and stopping states.
+None open.
 
 ---
 
@@ -183,6 +177,7 @@ At this pass the build is clean (no warnings) and all 723 tests pass in about 7s
 | 23 | Code Quality | `OnApplicationStarted` (`async void`) catches and logs exceptions. The blocking `Task.Delay(100).Wait()` after a scene collection switch is gone: obs-websocket sends `CurrentSceneCollectionChanged` only after the collection has loaded, so the scene list is read straight away. `CommandCoordinator` notifies commands of a disconnect once until the next connect. Splitting `OBSActionExecutor` moved to `TODO.md` (Architecture, Deferred) | v2.0.0 |
 | 26 | Correctness | Found in the #25 device check: OBS accepts connections while starting and answers "not ready" (207) until its scene collection loads, so the one-shot initial state load failed and the input list, profiles and studio mode stayed unloaded until something changed in OBS. `InitialStateLoader` now retries every 500ms (up to 30s) while OBS isn't ready and the connection is unchanged, and stats polling starts after the load instead of at connect, so it no longer logs errors while OBS starts. Device-checked 2026-09-29: loaded on the third attempt, about 1s after connecting | v2.0.0 |
 | 20 | Architecture | `OBSWebSocketManager` reports every change through a new `IOBSEventListener` (implemented by the plugin class, which forwards to `CommandCoordinator`) instead of `OBSStudioForLogiPlugin.Instance`. The executor reports visibility toggles through a constructor callback, and `StatsService` gets its providers from the plugin. The manager now talks only to `IOBSWebsocket`, which gained the connection members, the reads the manager made directly (`GetCurrentProfileAndList`, `GetCurrentSceneCollection`, `GetCurrentProgramScene`, `GetSceneItems`) and the library events, and it takes a background runner. The plugin class no longer calls command singletons: `IStatsAwareCommand`, `IMediaStateAwareCommand` and `IConnectionStatusAwareCommand` route stats, media and connection status through the registry. `OBSWebSocketManagerEventHandlingTests` drives the event handlers through a mocked `IOBSWebsocket` | Unreleased |
+| 27 | Correctness | Streaming and recording buttons never redrew on a state change (seen on a device): the seven commands never registered and `StreamStateChanged`/`RecordStateChanged` notified nothing. `IStreamingAwareCommand` and `IRecordingAwareCommand` now carry both events through `IOBSEventListener` and `CommandCoordinator`, and Toggle/Start/Stop Streaming, Toggle/Start/Stop Recording and Recording Pause register and redraw, including on connect and disconnect. Device check after the fix still to do (`TODO.md`) | Unreleased |
 | 32 | Code Quality | `OBSActionExecutor` repeated the connected/guard/try/log steps in about 25 methods. They now go through three private helpers: `RunMutation` (background runner, "not connected" and refusal warnings, error logging), `Query<T>` (safe fallback) and `TryQuery<T>` (reports failure, for the render caches). The getters with no production callers left (`GetSceneItemEnabled`, `GetMediaInputStatus`, `GetInputVolume`, `GetInputAudioMonitorType`) are gone, since rendering reads the caches; their `TryGet*` versions stay. 1,242 → 657 lines | Unreleased |
 
 ---
@@ -193,7 +188,6 @@ Open items, in the order to work on them.
 
 | # | Priority | Area | Issue |
 |---|----------|------|-------|
-| 27 | High | Correctness | Streaming and recording buttons never redraw on state change (seen on a device) |
 | 29 | Medium | Architecture | Two reconnect loops; the timer retries stale credentials and has unsynchronised state |
 | 31 | Medium | Usability | Scene buttons give no feedback in studio mode (preview scene not tracked) |
 | 5 | Medium | Usability | Hard-coded 500ms double-tap window delays every single tap |

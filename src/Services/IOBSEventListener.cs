@@ -24,6 +24,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         void OnInputMonitorTypeChanged(String inputName);
         void OnSourceVisibilityChanged(String sceneName, String sourceName);
         void OnStudioModeStateChanged();
+        void OnStreamingStateChanged();
+        void OnRecordingStateChanged();
         void OnVirtualCameraStateChanged();
         void OnReplayBufferStateChanged();
         void OnReplayBufferSaved(String savedReplayPath);
