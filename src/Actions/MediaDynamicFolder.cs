@@ -5,7 +5,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Linq;
     using Loupedeck.OBSStudioForLogiPlugin.Helpers;
 
-    public class MediaDynamicFolder : PluginDynamicFolder, IObsCommand, IInputsListAwareCommand
+    public class MediaDynamicFolder : PluginDynamicFolder, IObsCommand, IInputsListAwareCommand, IMediaStateAwareCommand
     {
         public static MediaDynamicFolder Instance { get; private set; }
 

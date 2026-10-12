@@ -5,7 +5,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Linq;
     using Loupedeck.OBSStudioForLogiPlugin.Models;
 
-    public class StatsDynamicFolder : PluginDynamicFolder
+    public class StatsDynamicFolder : PluginDynamicFolder, IObsCommand, IStatsAwareCommand
     {
         public static StatsDynamicFolder Instance { get; private set; }
 
@@ -17,6 +17,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public StatsDynamicFolder()
         {
             Instance = this;
+            OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.DisplayName = "Stats Folder";
             this.GroupName = "1. OBS";
             this.Description = "Folder showing individual OBS performance statistics";
@@ -118,12 +119,22 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             // Display only
         }
 
-        public void UpdateDisplay()
+        public void OnStatsUpdated()
         {
-            foreach (var key in StatKeys)
+            foreach (String key in StatKeys)
             {
                 this.CommandImageChanged(key);
             }
+        }
+
+        // Stats polling starts and stops with the connection (StatsService), and the next poll
+        // redraws the buttons, so there is nothing to do here.
+        public void OnConnected()
+        {
+        }
+
+        public void OnDisconnected()
+        {
         }
 
         private static String GetLabel(String key)

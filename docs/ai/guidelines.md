@@ -162,13 +162,17 @@ A value a render cache fetches uses `TryQuery` in a `TryGet*` method instead, so
 
 ### Delayed Callback Pattern (Toggle Operations)
 
-When toggling state, add a delay before notifying UI to avoid race conditions:
+When toggling state, add a delay before notifying UI to avoid race conditions. The executor doesn't know about the plugin: it reports through a callback it was given in its constructor, which `OBSWebSocketManager` passes on to its `IOBSEventListener` (assessment #20):
 
 ```csharp
 this._obs.SetSceneItemEnabled(sceneName, sourceName, !currentState);
 await Task.Delay(OBSTimings.StateUpdateDelay);
-OBSStudioForLogiPlugin.Instance?.OnSourceVisibilityChanged(sceneName, sourceName);
+this._sourceVisibilityToggled?.Invoke(sceneName, sourceName);
 ```
+
+### No Upward Calls From the Services Layer
+
+Nothing in `src/Services` calls `OBSStudioForLogiPlugin.Instance` or a command's static `Instance` (assessment #20). `OBSWebSocketManager` reports to its `IOBSEventListener`, the executor to its callback, and `StatsService` reads stats through the providers it was constructed with. The plugin class forwards to `CommandCoordinator`, never to a command directly. This is what lets `OBSWebSocketManagerEventHandlingTests` drive the manager through a mocked `IOBSWebsocket` and `IOBSEventListener`; an upward call would need the real plugin.
 
 ---
 
@@ -447,8 +451,8 @@ public class AudioMixerDynamicFolder : PluginDynamicFolder,
 
 1. Add interface to `src/Services/IObsCommand.cs`
 2. Add `NotifyXxx()` method to `CommandCoordinator` calling `this.NotifyEach<TInterface>(nameof(TInterface.OnXxx), c => c.OnXxx(...))` — `CommandRegistry` needs no changes, its generic `GetCommands<T>()` filters for any interface automatically
-3. Add `OnXxx()` call to `OBSStudioForLogiPlugin`
-4. Implement the interface in relevant commands
+3. Call `this._commandCoordinator.NotifyXxx()` from `OBSStudioForLogiPlugin` (for an OBS event, from its `IOBSEventListener` method — see New Notification Event below)
+4. Implement the interface in relevant commands, and register them (`OBSStudioForLogiPlugin.Instance?.RegisterCommand(this)` in the constructor)
 
 ---
 
@@ -614,10 +618,11 @@ Never hardcode timing values — always use `OBSTimings` constants.
 
 1. Add interface to `IObsCommand.cs`
 2. Add `NotifyXxx()` to `CommandCoordinator` via `this.NotifyEach<TInterface>(...)` — `CommandRegistry` needs no changes
-3. Subscribe to OBS event in `OBSWebSocketManager`
-4. Call `OBSStudioForLogiPlugin.Instance?.OnXxx()` from event handler
-5. Add `OnXxx()` to `OBSStudioForLogiPlugin` calling `_commandCoordinator.NotifyXxx()`
+3. Add the library event to `IOBSWebsocket` and forward it in `OBSWebsocketAdapter` (`add => this._obs.Xxx += value;`)
+4. Subscribe to it in `OBSWebSocketManager` (and unsubscribe in `Dispose`); the handler updates any state, then calls `this._listener?.OnXxx()`
+5. Add `OnXxx()` to `IOBSEventListener` and implement it in `OBSStudioForLogiPlugin`, calling `this._commandCoordinator.NotifyXxx()`
 6. Implement interface in relevant commands
+7. Test the handler in `OBSWebSocketManagerEventHandlingTests`: raise the event on the mocked `IOBSWebsocket` and verify the listener call
 
 ---
 
@@ -625,7 +630,7 @@ Never hardcode timing values — always use `OBSTimings` constants.
 
 ### Fixed in v1.6.0 (kept here for history — do not reintroduce)
 
-- **CommandRegistry Bypass** — `OBSWebSocketManager.OnConnected`/`OnDisconnected` used to contain hardcoded singleton calls bypassing the `CommandRegistry`. Now `OBSStudioForLogiPlugin.OnOBSConnected`/`OnOBSDisconnected` call `CommandCoordinator.NotifyConnected()`/`NotifyDisconnected()`, which dispatch through the registry. New self-registering commands correctly receive `OnConnected`/`OnDisconnected` with no extra wiring — do not add hardcoded singleton calls back into `OBSWebSocketManager`.
+- **CommandRegistry Bypass** — `OBSWebSocketManager.OnConnected`/`OnDisconnected` used to contain hardcoded singleton calls bypassing the `CommandRegistry`. Now `OBSStudioForLogiPlugin.OnOBSConnected`/`OnOBSDisconnected` call `CommandCoordinator.NotifyConnected()`/`NotifyDisconnected()`, which dispatch through the registry. New self-registering commands correctly receive `OnConnected`/`OnDisconnected` with no extra wiring — do not add hardcoded singleton calls back into `OBSWebSocketManager` (since #20 it can't reach the plugin at all; it reports through `IOBSEventListener`).
 - **Scene Change Bypass** — `OnCurrentSceneChanged` used to call `SourcesDynamicFolder.Instance`/`SceneAudioSourcesDynamicFolder.Instance` directly. Now routes through `ISceneSourcesAwareCommand` via the registry.
 - **DoubleTapHelper Thread Safety** — `_tapStates` access is now wrapped in `lock(_tapStates)`; `CancellationTokenSource` objects are disposed on every path (single-tap `finally`, double-tap, and `Reset()`).
 

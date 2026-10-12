@@ -110,5 +110,35 @@ public class SourceVisibilityTests
         Assert.False(enabled);
         this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Source1") && s.Contains("OBS error"))), Times.Once);
     }
-}
 
+    // The redraw after a toggle goes to the callback the manager supplies, not the plugin singleton
+    // (assessment #20). It fires after the real OBSTimings.StateUpdateDelay, so wait with a bound.
+    [Fact]
+    public void ToggleSourceVisibility_WhenSucceeds_ReportsTheToggleToTheCallback()
+    {
+        System.Threading.Tasks.TaskCompletionSource<(String, String)> toggled = new System.Threading.Tasks.TaskCompletionSource<(String, String)>();
+        OBSActionExecutor executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object, action => action(),
+            (scene, source) => toggled.TrySetResult((scene, source)));
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+
+        executor.ToggleSourceVisibility("Scene1", "Source1");
+
+        Assert.True(toggled.Task.Wait(TimeSpan.FromSeconds(5)));
+        Assert.Equal(("Scene1", "Source1"), toggled.Task.Result);
+    }
+
+    [Fact]
+    public void ToggleSourceVisibility_WhenOBSThrows_DoesNotReportAToggle()
+    {
+        Boolean reported = false;
+        OBSActionExecutor executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object, action => action(),
+            (scene, source) => reported = true);
+        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.SetSceneItemEnabled(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<Boolean>())).Throws(new Exception("OBS error"));
+
+        executor.ToggleSourceVisibility("Scene1", "Source1");
+
+        // The notification would be scheduled synchronously after the set, so nothing is pending.
+        Assert.False(reported);
+    }
+}

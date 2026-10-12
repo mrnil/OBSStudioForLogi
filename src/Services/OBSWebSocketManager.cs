@@ -13,7 +13,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
     public class OBSWebSocketManager : IDisposable
     {
-        private readonly OBSWebsocket _obs;
+        private readonly IOBSWebsocket _obs;
+        private readonly IOBSEventListener _listener;
+        private readonly Action<Action> _runInBackground;
         private readonly Timer _reconnectTimer;
         private readonly IPluginLog _log;
         private readonly ReconnectionStrategy _reconnectionStrategy;
@@ -29,9 +31,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         // Connected means identified: the socket is open during the handshake too, before OBS will
         // accept requests.
-        public Boolean IsConnected => this._obs != null && this._obs.IsConnected && this._obs.IsIdentified;
+        public Boolean IsConnected => this._obs.IsConnected;
         public Boolean IsConnecting => this._connectingInProgress;
-        internal TimeSpan RequestTimeout => this._obs.WSTimeout;
+        internal TimeSpan RequestTimeout => this._obs.RequestTimeout;
         public Boolean ShouldReconnect => this._shouldReconnect;
         public Boolean IsStreaming => this.Actions.IsStreaming;
         public Boolean IsRecording => this.Actions.IsRecording;
@@ -60,19 +62,34 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
         }
 
-        public OBSWebSocketManager(IPluginLog log)
+        public OBSWebSocketManager(IPluginLog log) : this(null, log)
+        {
+        }
+
+        public OBSWebSocketManager(IOBSEventListener listener, IPluginLog log)
+            : this(new OBSWebsocketAdapter(new OBSWebsocket()), listener, log, action => Task.Run(action))
+        {
+        }
+
+        // listener hears about every change the manager applies (the plugin forwards it to the
+        // commands). runInBackground runs the OBS requests that event handlers start, so they don't
+        // hold up the websocket's event thread; tests pass an inline runner.
+        public OBSWebSocketManager(IOBSWebsocket obs, IOBSEventListener listener, IPluginLog log, Action<Action> runInBackground)
         {
             this._log = log;
-            this._obs = new OBSWebsocket();
+            this._obs = obs;
+            this._listener = listener;
+            this._runInBackground = runInBackground ?? (action => Task.Run(action));
 
             // Set before any connection exists: in obs-websocket-dotnet 5.7.0 the WSTimeout setter also
             // sets the live Websocket.Client's no-message ReconnectTimeout, so setting it while connected
             // would drop the connection whenever OBS went quiet for that long. ConnectAsync creates a
             // fresh client with that watchdog off but keeps this request timeout.
-            this._obs.WSTimeout = TimeSpan.FromMilliseconds(OBSTimings.RequestTimeout);
+            this._obs.RequestTimeout = TimeSpan.FromMilliseconds(OBSTimings.RequestTimeout);
             this._reconnectionStrategy = new ReconnectionStrategy(log);
             this._initialStateLoader = new InitialStateLoader(log);
-            this.Actions = new OBSActionExecutor(new OBSWebsocketAdapter(this._obs), log);
+            this.Actions = new OBSActionExecutor(this._obs, log, this._runInBackground,
+                (scene, source) => this._listener?.OnSourceVisibilityChanged(scene, source));
             this.AudioMeters = new AudioMeterService();
             this.AudioState = new AudioStateCache(this.Actions.TryGetInputAudioState, this.OnAudioStateFetched);
             this.SourceVisibility = new KeyedStateCache<(String Scene, String Source), Boolean>(
@@ -113,7 +130,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._obs.MediaInputPlaybackEnded += this.OnMediaInputPlaybackEnded;
             this._obs.MediaInputActionTriggered += this.OnMediaInputActionTriggered;
             this._obs.ReplayBufferSaved += this.OnReplayBufferSaved;
-            
+
             this._log.Info("OBSWebSocketManager initialized");
         }
 
@@ -129,10 +146,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._session.Close();
 
             this._log.Info($"Connecting to OBS WebSocket at {url}");
-            
+
             await Task.Run(() =>
             {
-                this._obs.ConnectAsync(url, password);
+                this._obs.Connect(url, password);
             });
         }
 
@@ -214,7 +231,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 if (this.AudioMeters.TryBeginMuteLookup(input.InputName))
                 {
                     String inputName = input.InputName;
-                    Task.Run(() => this.AudioMeters.CompleteMuteLookup(inputName, this.Actions.GetInputMute(inputName)));
+                    this._runInBackground(() => this.AudioMeters.CompleteMuteLookup(inputName, this.Actions.GetInputMute(inputName)));
                 }
             }
         }
@@ -235,55 +252,57 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.AudioInputMembership.Invalidate("new connection");
             this._reconnectionStrategy.Reset();
             this._reconnectTimer?.Stop();
-            
+
             // Raise plugin-level event
             this.ConnectionEstablished?.Invoke(this, EventArgs.Empty);
-            
+
             // Load the initial state once and push it to the commands - they no longer query OBS
             // for these lists themselves in OnConnected. OBS may still be starting, so the load
             // retries while it answers "not ready" - see InitialStateLoader.
             Int64 session = this._session.Generation;
-            Task.Run(async () =>
-            {
-                await this._initialStateLoader.RunAsync(this.LoadInitialState, () => this._session.IsCurrent(session));
+            this._runInBackground(() => _ = this.RunInitialStateLoadAsync(session));
+        }
 
-                if (this._session.IsCurrent(session))
-                {
-                    this.InitialStateLoadFinished?.Invoke(this, EventArgs.Empty);
-                }
-            });
+        private async Task RunInitialStateLoadAsync(Int64 session)
+        {
+            await this._initialStateLoader.RunAsync(this.LoadInitialState, () => this._session.IsCurrent(session));
+
+            if (this._session.IsCurrent(session))
+            {
+                this.InitialStateLoadFinished?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         // Throws if OBS rejects a request, including "not ready" while it is starting: the first
-        // requests go straight to the library rather than through the executor, which would
+        // requests go straight to the websocket rather than through the executor, which would
         // swallow the error and push empty lists to the commands.
         private void LoadInitialState()
         {
-            var profiles = this._obs.GetProfileList();
-            if (profiles?.CurrentProfileName != null)
+            (String currentProfile, String[] profiles) = this._obs.GetCurrentProfileAndList();
+            if (currentProfile != null)
             {
-                this.Actions.SetCurrentProfileState(profiles.CurrentProfileName);
-                this._log.Info($"Initial profile: '{profiles.CurrentProfileName}'");
-                OBSStudioForLogiPlugin.Instance?.OnProfileChanged(String.Empty, profiles.CurrentProfileName);
-                this.NotifyProfileList(profiles.Profiles, profiles.CurrentProfileName);
+                this.Actions.SetCurrentProfileState(currentProfile);
+                this._log.Info($"Initial profile: '{currentProfile}'");
+                this._listener?.OnProfileChanged(String.Empty, currentProfile);
+                this.NotifyProfileList(profiles, currentProfile);
             }
 
-            var currentCollection = this._obs.GetCurrentSceneCollection();
+            String currentCollection = this._obs.GetCurrentSceneCollection();
             if (!String.IsNullOrEmpty(currentCollection))
             {
                 this.Actions.SetCurrentSceneCollectionState(currentCollection);
                 this._log.Info($"Initial scene collection: '{currentCollection}'");
-                OBSStudioForLogiPlugin.Instance?.OnSceneCollectionChanged(String.Empty, currentCollection);
+                this._listener?.OnSceneCollectionChanged(String.Empty, currentCollection);
             }
 
             this.NotifySceneCollectionList(this.Actions.GetSceneCollectionList(), currentCollection ?? String.Empty);
 
-            var sceneList = this._obs.GetSceneList();
-            if (sceneList?.CurrentProgramSceneName != null)
+            String currentScene = this._obs.GetCurrentProgramScene();
+            if (currentScene != null)
             {
-                this.Actions.SetCurrentSceneState(sceneList.CurrentProgramSceneName);
-                this._log.Info($"Initial scene: '{sceneList.CurrentProgramSceneName}'");
-                OBSStudioForLogiPlugin.Instance?.OnCurrentSceneChanged(sceneList.CurrentProgramSceneName);
+                this.Actions.SetCurrentSceneState(currentScene);
+                this._log.Info($"Initial scene: '{currentScene}'");
+                this._listener?.OnCurrentSceneChanged(currentScene);
             }
 
             // Load initial scene list and notify commands
@@ -294,13 +313,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         private void OnDisconnected(Object sender, ObsDisconnectionInfo e)
         {
-            this._log.Warning($"WebSocket disconnected: {e.DisconnectReason}");
+            this._log.Warning($"WebSocket disconnected: {e?.DisconnectReason}");
             this._connectingInProgress = false;
             this._session.Close();
-            
+
             // Raise plugin-level event
             this.ConnectionLost?.Invoke(this, EventArgs.Empty);
-            
+
             this.Actions.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             this.Actions.SetRecordingState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             this.Actions.SetVirtualCameraState(OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
@@ -315,7 +334,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.AudioInputMembership.Invalidate("disconnected");
 
             // NotifyDisconnected is called via OBSStudioForLogiPlugin.OnOBSDisconnected → CommandCoordinator
-            
+
             if (this._shouldReconnect && !this._disposed)
             {
                 this.ScheduleNextReconnect();
@@ -341,7 +360,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var state = e?.OutputState?.State ?? OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
             this.Actions.SetVirtualCameraState(state);
             this._log.Info($"Virtual camera state changed to {state}");
-            OBSStudioForLogiPlugin.Instance?.OnVirtualCameraStateChanged();
+            this._listener?.OnVirtualCameraStateChanged();
         }
 
         private void OnReplayBufferStateChanged(Object sender, ReplayBufferStateChangedEventArgs e)
@@ -349,7 +368,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var state = e?.OutputState?.State ?? OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
             this.Actions.SetReplayBufferState(state);
             this._log.Info($"Replay buffer state changed to {state}");
-            OBSStudioForLogiPlugin.Instance?.OnReplayBufferStateChanged();
+            this._listener?.OnReplayBufferStateChanged();
         }
 
         private void OnCurrentProfileChanged(Object sender, EventArgs e)
@@ -360,20 +379,20 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         private void RefreshCurrentProfile()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 try
                 {
-                    var profiles = this._obs.GetProfileList();
-                    if (profiles?.CurrentProfileName != null)
+                    (String currentProfile, String[] profiles) = this._obs.GetCurrentProfileAndList();
+                    if (currentProfile != null)
                     {
-                        var oldProfile = this.Actions.CurrentProfile;
-                        this.Actions.SetCurrentProfileState(profiles.CurrentProfileName);
-                        this._log.Info($"Current profile changed to '{profiles.CurrentProfileName}'");
-                        
+                        String oldProfile = this.Actions.CurrentProfile;
+                        this.Actions.SetCurrentProfileState(currentProfile);
+                        this._log.Info($"Current profile changed to '{currentProfile}'");
+
                         // Notify ProfileSelectCommand
-                        OBSStudioForLogiPlugin.Instance?.OnProfileChanged(oldProfile, profiles.CurrentProfileName);
-                        this.NotifyProfileList(profiles.Profiles, profiles.CurrentProfileName);
+                        this._listener?.OnProfileChanged(oldProfile, currentProfile);
+                        this.NotifyProfileList(profiles, currentProfile);
                     }
                 }
                 catch (Exception ex)
@@ -405,26 +424,26 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.MediaState.Clear();
             this.AudioInputMembership.Invalidate("scene collection changed");
             this._log.Info($"Current scene collection changed to '{e.SceneCollectionName}'");
-            
+
             // Notify SceneCollectionSelectCommand
-            OBSStudioForLogiPlugin.Instance?.OnSceneCollectionChanged(oldSceneCollection, e.SceneCollectionName);
-            
+            this._listener?.OnSceneCollectionChanged(oldSceneCollection, e.SceneCollectionName);
+
             // Update scenes in dynamic folder and get new current scene
             this.UpdateSceneList();
-            
+
             // OBS sends this event only once the new collection has finished loading, so the current
             // scene can be read straight away. It is read here rather than left to
             // CurrentProgramSceneChanged, because OBS can send that during the load, before this event.
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 try
                 {
-                    var sceneList = this._obs.GetSceneList();
-                    if (sceneList?.CurrentProgramSceneName != null)
+                    String currentScene = this._obs.GetCurrentProgramScene();
+                    if (currentScene != null)
                     {
-                        this.Actions.SetCurrentSceneState(sceneList.CurrentProgramSceneName);
-                        this._log.Info($"Current scene updated to '{sceneList.CurrentProgramSceneName}' after collection change");
-                        OBSStudioForLogiPlugin.Instance?.OnCurrentSceneChanged(sceneList.CurrentProgramSceneName);
+                        this.Actions.SetCurrentSceneState(currentScene);
+                        this._log.Info($"Current scene updated to '{currentScene}' after collection change");
+                        this._listener?.OnCurrentSceneChanged(currentScene);
                     }
                 }
                 catch (Exception ex)
@@ -436,10 +455,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             // Creating or deleting a collection switches to another one, and OBS sends no
             // SceneCollectionListChanged for either (seen on OBS with the device check for #8).
             String currentCollection = e.SceneCollectionName;
-            Task.Run(() => this.RefreshSceneCollectionList(currentCollection));
+            this._runInBackground(() => this.RefreshSceneCollectionList(currentCollection));
         }
 
-        // Reads the collection list from the library directly: the executor returns an empty list
+        // Reads the collection list from the websocket directly: the executor returns an empty list
         // when a request fails, which would empty the folder instead of leaving the last good list.
         internal void RefreshSceneCollectionList(String currentSceneCollection)
         {
@@ -503,7 +522,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         // caches stay valid, unlike a switch (OnCurrentSceneCollectionChanged).
         private void RefreshCurrentSceneCollection(String[] collectionNames)
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 try
                 {
@@ -511,7 +530,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     String currentCollection = this._obs.GetCurrentSceneCollection() ?? String.Empty;
                     this.Actions.SetCurrentSceneCollectionState(currentCollection);
                     this._log.Info($"Current scene collection is now '{currentCollection}'");
-                    OBSStudioForLogiPlugin.Instance?.OnSceneCollectionChanged(oldCollection, currentCollection);
+                    this._listener?.OnSceneCollectionChanged(oldCollection, currentCollection);
                     this.NotifySceneCollectionList(collectionNames, currentCollection);
                 }
                 catch (Exception ex)
@@ -530,13 +549,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         private void UpdateSceneList()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 try
                 {
-                    var scenes = this.Actions.GetSceneList();
+                    String[] scenes = this.Actions.GetSceneList();
                     this._log.Debug($"Loaded {scenes.Length} scenes");
-                    OBSStudioForLogiPlugin.Instance?.OnScenesChanged(scenes);
+                    this._listener?.OnScenesChanged(scenes);
                 }
                 catch (Exception ex)
                 {
@@ -545,20 +564,20 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             });
         }
 
-        // GetProfileList already returns the full list alongside the current profile, so pass it on
-        // rather than requesting it from OBS a second time.
+        // GetCurrentProfileAndList already returns the full list alongside the current profile, so
+        // pass it on rather than requesting it from OBS a second time.
         private void NotifyProfileList(IEnumerable<String> profiles, String currentProfile)
         {
             String[] profileNames = profiles?.ToArray() ?? new String[0];
             this._log.Debug($"Loaded {profileNames.Length} profiles");
-            OBSStudioForLogiPlugin.Instance?.OnProfilesChanged(profileNames, currentProfile);
+            this._listener?.OnProfilesChanged(profileNames, currentProfile);
         }
 
         private void NotifySceneCollectionList(IEnumerable<String> sceneCollections, String currentSceneCollection)
         {
             String[] collectionNames = sceneCollections?.ToArray() ?? new String[0];
             this._log.Debug($"Loaded {collectionNames.Length} scene collections");
-            OBSStudioForLogiPlugin.Instance?.OnSceneCollectionsChanged(collectionNames, currentSceneCollection);
+            this._listener?.OnSceneCollectionsChanged(collectionNames, currentSceneCollection);
         }
 
         private void OnCurrentSceneChanged(Object sender, ProgramSceneChangedEventArgs e)
@@ -568,18 +587,18 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             this.Actions.SetCurrentSceneState(e.SceneName);
             this._log.Info($"Current scene changed to '{e.SceneName}'");
-            OBSStudioForLogiPlugin.Instance?.OnCurrentSceneChanged(e.SceneName);
+            this._listener?.OnCurrentSceneChanged(e.SceneName);
         }
 
         private void UpdateInputList()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 try
                 {
-                    var inputs = this.Actions.GetInputList();
+                    String[] inputs = this.Actions.GetInputList();
                     this._log.Debug($"Loaded {inputs.Length} inputs");
-                    OBSStudioForLogiPlugin.Instance?.OnInputsChanged(inputs);
+                    this._listener?.OnInputsChanged(inputs);
                 }
                 catch (Exception ex)
                 {
@@ -591,9 +610,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         // The cache fetched an input the buttons were showing defaults for - redraw them.
         private void OnAudioStateFetched(String inputName)
         {
-            OBSStudioForLogiPlugin.Instance?.OnInputMuteChanged(inputName);
-            OBSStudioForLogiPlugin.Instance?.OnInputVolumeChanged(inputName);
-            OBSStudioForLogiPlugin.Instance?.OnInputMonitorTypeChanged(inputName);
+            this._listener?.OnInputMuteChanged(inputName);
+            this._listener?.OnInputVolumeChanged(inputName);
+            this._listener?.OnInputMonitorTypeChanged(inputName);
         }
 
         private Boolean TryFetchSourceVisibility((String Scene, String Source) key, out Boolean enabled)
@@ -604,13 +623,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         // The cache fetched a source the buttons were showing "hidden" for - redraw them.
         private void OnSourceVisibilityFetched((String Scene, String Source) key)
         {
-            OBSStudioForLogiPlugin.Instance?.OnSourceVisibilityChanged(key.Scene, key.Source);
+            this._listener?.OnSourceVisibilityChanged(key.Scene, key.Source);
         }
 
         // The cache fetched an input the media buttons were showing "idle" for - redraw them.
         private void OnMediaStateFetched(String inputName)
         {
-            OBSStudioForLogiPlugin.Instance?.OnMediaPlaybackStateChanged(inputName);
+            this._listener?.OnMediaPlaybackStateChanged(inputName);
         }
 
         private void OnInputMuteStateChanged(Object sender, OBSWebsocketDotNet.Types.Events.InputMuteStateChangedEventArgs e)
@@ -620,7 +639,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             this.AudioMeters.SetMuted(e.InputName, e.InputMuted);
             this.AudioState.SetMuted(e.InputName, e.InputMuted);
-            OBSStudioForLogiPlugin.Instance?.OnInputMuteChanged(e.InputName);
+            this._listener?.OnInputMuteChanged(e.InputName);
         }
 
         private void OnInputVolumeChanged(Object sender, OBSWebsocketDotNet.Types.Events.InputVolumeChangedEventArgs e)
@@ -630,19 +649,19 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             PluginLog.Trace($"Input '{e.Volume.InputName}' volume changed to {e.Volume.InputVolumeMul}");
             this.AudioState.SetVolume(e.Volume.InputName, e.Volume.InputVolumeMul);
-            OBSStudioForLogiPlugin.Instance?.OnInputVolumeChanged(e.Volume.InputName);
+            this._listener?.OnInputVolumeChanged(e.Volume.InputName);
         }
 
         private void UpdateStudioModeState()
         {
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 try
                 {
-                    var enabled = this.Actions.GetStudioModeEnabled();
+                    Boolean enabled = this.Actions.GetStudioModeEnabled();
                     this.Actions.SetStudioModeState(enabled);
                     this._log.Info($"Initial studio mode state: {enabled}");
-                    OBSStudioForLogiPlugin.Instance?.OnStudioModeStateChanged();
+                    this._listener?.OnStudioModeStateChanged();
                 }
                 catch (Exception ex)
                 {
@@ -655,7 +674,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this.Actions.SetStudioModeState(e.StudioModeEnabled);
             this._log.Info($"Studio mode state changed to {e.StudioModeEnabled}");
-            OBSStudioForLogiPlugin.Instance?.OnStudioModeStateChanged();
+            this._listener?.OnStudioModeStateChanged();
         }
 
         private void OnSceneItemEnableStateChanged(Object sender, SceneItemEnableStateChangedEventArgs e)
@@ -664,25 +683,25 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return;
 
             // Event provides SceneItemId, need to get source name from scene items
-            Task.Run(() =>
+            this._runInBackground(() =>
             {
                 try
                 {
-                    var sceneItems = this._obs?.GetSceneItemList(e.SceneName);
-                    var item = sceneItems?.FirstOrDefault(i => i.ItemId == e.SceneItemId);
-                    if (item != null && !String.IsNullOrEmpty(item.SourceName))
+                    (Int32 ItemId, String SourceName)[] sceneItems = this._obs.GetSceneItems(e.SceneName);
+                    String sourceName = sceneItems.FirstOrDefault(i => i.ItemId == e.SceneItemId).SourceName;
+                    if (!String.IsNullOrEmpty(sourceName))
                     {
-                        this._log.Info($"Scene item '{item.SourceName}' visibility changed to {e.SceneItemEnabled} in scene '{e.SceneName}'");
+                        this._log.Info($"Scene item '{sourceName}' visibility changed to {e.SceneItemEnabled} in scene '{e.SceneName}'");
 
                         // Buttons show the source's first item in the scene (GetSceneItemEnabled
                         // looks the source up by name), so a duplicate item must not overwrite it.
-                        SceneItemDetails firstItem = sceneItems.First(i => i.SourceName == item.SourceName);
-                        if (firstItem.ItemId == item.ItemId)
+                        Int32 firstItemId = sceneItems.First(i => i.SourceName == sourceName).ItemId;
+                        if (firstItemId == e.SceneItemId)
                         {
-                            this.SourceVisibility.Set((e.SceneName, item.SourceName), e.SceneItemEnabled);
+                            this.SourceVisibility.Set((e.SceneName, sourceName), e.SceneItemEnabled);
                         }
 
-                        OBSStudioForLogiPlugin.Instance?.OnSourceVisibilityChanged(e.SceneName, item.SourceName);
+                        this._listener?.OnSourceVisibilityChanged(e.SceneName, sourceName);
                     }
                 }
                 catch (Exception ex)
@@ -702,7 +721,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             this._log.Info($"Input '{e.InputName}' audio monitor type changed");
             this.AudioState.SetMonitorType(e.InputName, e.MonitorType);
-            OBSStudioForLogiPlugin.Instance?.OnInputMonitorTypeChanged(e.InputName);
+            this._listener?.OnInputMonitorTypeChanged(e.InputName);
         }
 
         private void OnSceneItemCreated(Object sender, SceneItemCreatedEventArgs e)
@@ -713,7 +732,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._log.Info($"Scene item created in scene '{e.SceneName}'");
             this.SourceVisibility.RemoveWhere(key => key.Scene == e.SceneName);
             this.AudioInputMembership.Invalidate($"scene item created in '{e.SceneName}'");
-            OBSStudioForLogiPlugin.Instance?.OnSceneItemsChanged(e.SceneName);
+            this._listener?.OnSceneItemsChanged(e.SceneName);
         }
 
         private void OnSceneItemRemoved(Object sender, SceneItemRemovedEventArgs e)
@@ -724,7 +743,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._log.Info($"Scene item removed from scene '{e.SceneName}'");
             this.SourceVisibility.RemoveWhere(key => key.Scene == e.SceneName);
             this.AudioInputMembership.Invalidate($"scene item removed from '{e.SceneName}'");
-            OBSStudioForLogiPlugin.Instance?.OnSceneItemsChanged(e.SceneName);
+            this._listener?.OnSceneItemsChanged(e.SceneName);
         }
 
         private void OnInputCreated(Object sender, InputCreatedEventArgs e)
@@ -757,7 +776,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             String currentScene = this.Actions.CurrentScene;
             if (!String.IsNullOrEmpty(currentScene))
             {
-                OBSStudioForLogiPlugin.Instance?.OnSceneItemsChanged(currentScene);
+                this._listener?.OnSceneItemsChanged(currentScene);
             }
         }
 
@@ -775,7 +794,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.UpdateSceneList();
             if (wasCurrentScene)
             {
-                OBSStudioForLogiPlugin.Instance?.OnCurrentSceneChanged(e.SceneName);
+                this._listener?.OnCurrentSceneChanged(e.SceneName);
             }
         }
 
@@ -824,7 +843,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             this._log.Info($"Media playback started: '{e.InputName}'");
             this.MediaState.Set(e.InputName, MediaInputStates.Playing);
-            OBSStudioForLogiPlugin.Instance?.OnMediaPlaybackStateChanged(e.InputName);
+            this._listener?.OnMediaPlaybackStateChanged(e.InputName);
         }
 
         private void OnMediaInputPlaybackEnded(Object sender, MediaInputPlaybackEndedEventArgs e)
@@ -834,7 +853,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             this._log.Info($"Media playback ended: '{e.InputName}'");
             this.MediaState.Set(e.InputName, MediaInputStates.Ended);
-            OBSStudioForLogiPlugin.Instance?.OnMediaPlaybackStateChanged(e.InputName);
+            this._listener?.OnMediaPlaybackStateChanged(e.InputName);
         }
 
         // Pause, resume and stop only arrive as this event - there is no playback-paused event.
@@ -856,14 +875,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 this.MediaState.Remove(e.InputName);
             }
 
-            OBSStudioForLogiPlugin.Instance?.OnMediaPlaybackStateChanged(e.InputName);
+            this._listener?.OnMediaPlaybackStateChanged(e.InputName);
         }
 
         private void OnReplayBufferSaved(Object sender, ReplayBufferSavedEventArgs e)
         {
             var path = e?.SavedReplayPath ?? String.Empty;
             this._log.Info($"Replay buffer saved: '{path}'");
-            OBSStudioForLogiPlugin.Instance?.OnReplayBufferSaved(path);
+            this._listener?.OnReplayBufferSaved(path);
         }
 
         private void OnReconnectTimer(Object sender, ElapsedEventArgs e)
@@ -879,7 +898,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             this._connectingInProgress = true;
             this._reconnectionStrategy.TryReconnect(() =>
-                this._obs.ConnectAsync(this._lastUrl, this._lastPassword));
+                this._obs.Connect(this._lastUrl, this._lastPassword));
 
             if (!this.IsConnected && this._shouldReconnect && !this._disposed)
             {
@@ -945,14 +964,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     this._obs.MediaInputPlaybackEnded -= this.OnMediaInputPlaybackEnded;
                     this._obs.MediaInputActionTriggered -= this.OnMediaInputActionTriggered;
                     this._obs.ReplayBufferSaved -= this.OnReplayBufferSaved;
-                    
+
                     this._obs.Disconnect();
-                    
-                    // Dispose if OBSWebsocket implements IDisposable
-                    if (this._obs is IDisposable disposable)
-                    {
-                        disposable.Dispose();
-                    }
                 }
 
                 this._log.Info("OBSWebSocketManager disposed");

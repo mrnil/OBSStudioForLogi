@@ -4,6 +4,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Linq;
     using Newtonsoft.Json.Linq;
     using OBSWebsocketDotNet;
+    using OBSWebsocketDotNet.Communication;
+    using OBSWebsocketDotNet.Types;
+    using OBSWebsocketDotNet.Types.Events;
 
     public class OBSWebsocketAdapter : IOBSWebsocket
     {
@@ -36,6 +39,49 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         // The socket being open (the library's IsConnected) isn't enough - requests are only valid
         // once OBS has confirmed identification, and IsConnected is already true during that handshake.
         public Boolean IsConnected => this._obs != null && this._obs.IsConnected && this._obs.IsIdentified;
+
+        // In obs-websocket-dotnet 5.7.0 the WSTimeout setter also sets the live client's no-message
+        // ReconnectTimeout, so set this only while disconnected - see OBSWebSocketManager.
+        public TimeSpan RequestTimeout
+        {
+            get => this._obs.WSTimeout;
+            set => this._obs.WSTimeout = value;
+        }
+
+        // The library's ConnectAsync starts the connection and returns straight away; the outcome
+        // arrives as Connected or Disconnected.
+        public void Connect(String url, String password)
+        {
+            this._obs.ConnectAsync(url, password);
+        }
+
+        public void Disconnect()
+        {
+            this._obs.Disconnect();
+        }
+
+        public (String CurrentProfile, String[] Profiles) GetCurrentProfileAndList()
+        {
+            GetProfileListInfo profiles = this._obs.GetProfileList();
+            return (profiles?.CurrentProfileName, profiles?.Profiles?.ToArray() ?? new String[0]);
+        }
+
+        public String GetCurrentSceneCollection()
+        {
+            return this._obs.GetCurrentSceneCollection();
+        }
+
+        public String GetCurrentProgramScene()
+        {
+            return this._obs.GetCurrentProgramScene();
+        }
+
+        public (Int32 ItemId, String SourceName)[] GetSceneItems(String sceneName)
+        {
+            return this._obs.GetSceneItemList(sceneName)?
+                .Select(item => (item.ItemId, item.SourceName))
+                .ToArray() ?? new (Int32, String)[0];
+        }
 
         public void SetCurrentProgramScene(String sceneName)
         {
@@ -352,6 +398,182 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return inputs.Where(input => mediaKinds.Contains(input.InputKind))
                          .Select(input => input.InputName)
                          .ToArray();
+        }
+
+        // Events forward straight to the library's own, so subscribing and unsubscribing behave
+        // exactly as on the library - including the InputVolumeMeters opt-in.
+        public event EventHandler Connected
+        {
+            add => this._obs.Connected += value;
+            remove => this._obs.Connected -= value;
+        }
+
+        public event EventHandler<ObsDisconnectionInfo> Disconnected
+        {
+            add => this._obs.Disconnected += value;
+            remove => this._obs.Disconnected -= value;
+        }
+
+        public event EventHandler<StreamStateChangedEventArgs> StreamStateChanged
+        {
+            add => this._obs.StreamStateChanged += value;
+            remove => this._obs.StreamStateChanged -= value;
+        }
+
+        public event EventHandler<RecordStateChangedEventArgs> RecordStateChanged
+        {
+            add => this._obs.RecordStateChanged += value;
+            remove => this._obs.RecordStateChanged -= value;
+        }
+
+        public event EventHandler<VirtualcamStateChangedEventArgs> VirtualcamStateChanged
+        {
+            add => this._obs.VirtualcamStateChanged += value;
+            remove => this._obs.VirtualcamStateChanged -= value;
+        }
+
+        public event EventHandler<ReplayBufferStateChangedEventArgs> ReplayBufferStateChanged
+        {
+            add => this._obs.ReplayBufferStateChanged += value;
+            remove => this._obs.ReplayBufferStateChanged -= value;
+        }
+
+        public event EventHandler<ReplayBufferSavedEventArgs> ReplayBufferSaved
+        {
+            add => this._obs.ReplayBufferSaved += value;
+            remove => this._obs.ReplayBufferSaved -= value;
+        }
+
+        public event EventHandler<CurrentProfileChangedEventArgs> CurrentProfileChanged
+        {
+            add => this._obs.CurrentProfileChanged += value;
+            remove => this._obs.CurrentProfileChanged -= value;
+        }
+
+        public event EventHandler<ProfileListChangedEventArgs> ProfileListChanged
+        {
+            add => this._obs.ProfileListChanged += value;
+            remove => this._obs.ProfileListChanged -= value;
+        }
+
+        public event EventHandler<CurrentSceneCollectionChangingEventArgs> CurrentSceneCollectionChanging
+        {
+            add => this._obs.CurrentSceneCollectionChanging += value;
+            remove => this._obs.CurrentSceneCollectionChanging -= value;
+        }
+
+        public event EventHandler<CurrentSceneCollectionChangedEventArgs> CurrentSceneCollectionChanged
+        {
+            add => this._obs.CurrentSceneCollectionChanged += value;
+            remove => this._obs.CurrentSceneCollectionChanged -= value;
+        }
+
+        public event EventHandler<SceneCollectionListChangedEventArgs> SceneCollectionListChanged
+        {
+            add => this._obs.SceneCollectionListChanged += value;
+            remove => this._obs.SceneCollectionListChanged -= value;
+        }
+
+        public event EventHandler<SceneListChangedEventArgs> SceneListChanged
+        {
+            add => this._obs.SceneListChanged += value;
+            remove => this._obs.SceneListChanged -= value;
+        }
+
+        public event EventHandler<ProgramSceneChangedEventArgs> CurrentProgramSceneChanged
+        {
+            add => this._obs.CurrentProgramSceneChanged += value;
+            remove => this._obs.CurrentProgramSceneChanged -= value;
+        }
+
+        public event EventHandler<SceneNameChangedEventArgs> SceneNameChanged
+        {
+            add => this._obs.SceneNameChanged += value;
+            remove => this._obs.SceneNameChanged -= value;
+        }
+
+        public event EventHandler<StudioModeStateChangedEventArgs> StudioModeStateChanged
+        {
+            add => this._obs.StudioModeStateChanged += value;
+            remove => this._obs.StudioModeStateChanged -= value;
+        }
+
+        public event EventHandler<SceneItemEnableStateChangedEventArgs> SceneItemEnableStateChanged
+        {
+            add => this._obs.SceneItemEnableStateChanged += value;
+            remove => this._obs.SceneItemEnableStateChanged -= value;
+        }
+
+        public event EventHandler<SceneItemCreatedEventArgs> SceneItemCreated
+        {
+            add => this._obs.SceneItemCreated += value;
+            remove => this._obs.SceneItemCreated -= value;
+        }
+
+        public event EventHandler<SceneItemRemovedEventArgs> SceneItemRemoved
+        {
+            add => this._obs.SceneItemRemoved += value;
+            remove => this._obs.SceneItemRemoved -= value;
+        }
+
+        public event EventHandler<InputCreatedEventArgs> InputCreated
+        {
+            add => this._obs.InputCreated += value;
+            remove => this._obs.InputCreated -= value;
+        }
+
+        public event EventHandler<InputRemovedEventArgs> InputRemoved
+        {
+            add => this._obs.InputRemoved += value;
+            remove => this._obs.InputRemoved -= value;
+        }
+
+        public event EventHandler<InputNameChangedEventArgs> InputNameChanged
+        {
+            add => this._obs.InputNameChanged += value;
+            remove => this._obs.InputNameChanged -= value;
+        }
+
+        public event EventHandler<InputMuteStateChangedEventArgs> InputMuteStateChanged
+        {
+            add => this._obs.InputMuteStateChanged += value;
+            remove => this._obs.InputMuteStateChanged -= value;
+        }
+
+        public event EventHandler<InputVolumeChangedEventArgs> InputVolumeChanged
+        {
+            add => this._obs.InputVolumeChanged += value;
+            remove => this._obs.InputVolumeChanged -= value;
+        }
+
+        public event EventHandler<InputAudioMonitorTypeChangedEventArgs> InputAudioMonitorTypeChanged
+        {
+            add => this._obs.InputAudioMonitorTypeChanged += value;
+            remove => this._obs.InputAudioMonitorTypeChanged -= value;
+        }
+
+        public event EventHandler<MediaInputPlaybackStartedEventArgs> MediaInputPlaybackStarted
+        {
+            add => this._obs.MediaInputPlaybackStarted += value;
+            remove => this._obs.MediaInputPlaybackStarted -= value;
+        }
+
+        public event EventHandler<MediaInputPlaybackEndedEventArgs> MediaInputPlaybackEnded
+        {
+            add => this._obs.MediaInputPlaybackEnded += value;
+            remove => this._obs.MediaInputPlaybackEnded -= value;
+        }
+
+        public event EventHandler<MediaInputActionTriggeredEventArgs> MediaInputActionTriggered
+        {
+            add => this._obs.MediaInputActionTriggered += value;
+            remove => this._obs.MediaInputActionTriggered -= value;
+        }
+
+        public event EventHandler<InputVolumeMetersEventArgs> InputVolumeMeters
+        {
+            add => this._obs.InputVolumeMeters += value;
+            remove => this._obs.InputVolumeMeters -= value;
         }
     }
 }

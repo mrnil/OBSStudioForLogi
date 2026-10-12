@@ -11,7 +11,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     // that keeps this button registered as a stats viewer. The probe timer invalidates the image
     // every second, so a visible button keeps renewing the lease and one scrolled into view asks
     // to be drawn, and drops the viewer once requests stop.
-    public class StatsDisplay : PluginDynamicCommand, IObsCommand
+    public class StatsDisplay : PluginDynamicCommand, IObsCommand, IStatsAwareCommand
     {
         public static StatsDisplay Instance { get; private set; }
 
@@ -58,7 +58,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             // Display only
         }
 
-        public void UpdateDisplay()
+        public void OnStatsUpdated()
         {
             this.ActionImageChanged("");
         }

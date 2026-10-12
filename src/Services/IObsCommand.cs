@@ -87,4 +87,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     {
         void OnSceneSourcesChanged(String sceneName, String[] sources, String[] audioSources);
     }
+
+    // StatsService finished a poll; read the new values from OBSStudioForLogiPlugin.GetCurrentStats
+    // and GetCurrentStreamStats.
+    public interface IStatsAwareCommand : IObsCommand
+    {
+        void OnStatsUpdated();
+    }
+
+    public interface IMediaStateAwareCommand : IObsCommand
+    {
+        void OnMediaStateChanged(String inputName);
+    }
+
+    // Connected, disconnected, or found the WebSocket server disabled in OBS's config. Unlike
+    // OnDisconnected, it is sent every time, including the server-disabled case.
+    public interface IConnectionStatusAwareCommand : IObsCommand
+    {
+        void OnConnectionStatusChanged();
+    }
 }

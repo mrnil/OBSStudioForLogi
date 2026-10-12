@@ -2,9 +2,9 @@
 
 ## Overview
 
-The project follows a TDD approach with 710 unit tests using xUnit + Moq (verified 2026-10-12, net10.0, all passing). Overall line coverage is ~37.4% (Cobertura, last measured pre-CommandCoordinator-refactor), branch coverage ~19.8%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage. Coverage has drifted down slightly since v1.5.1 (was 39.5%/22.6%) as v1.6.0 added several new Actions-layer commands (`SceneSelectCommand`, `AudioSourceSelectCommand`, `SceneCollectionsDynamicFolder`) faster than services-layer surface area grew — expected under the TDD-exemption policy, not a regression.
+The project follows a TDD approach with 750 unit tests using xUnit + Moq (verified 2026-10-12, net10.0, all passing). Overall line coverage is ~37.4% (Cobertura, last measured pre-CommandCoordinator-refactor), branch coverage ~19.8%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage. Coverage has drifted down slightly since v1.5.1 (was 39.5%/22.6%) as v1.6.0 added several new Actions-layer commands (`SceneSelectCommand`, `AudioSourceSelectCommand`, `SceneCollectionsDynamicFolder`) faster than services-layer surface area grew — expected under the TDD-exemption policy, not a regression.
 
-## Test Count: 710
+## Test Count: 750
 
 ## Test Files
 
@@ -23,6 +23,7 @@ The project follows a TDD approach with 710 unit tests using xUnit + Moq (verifi
 | `OBSWebSocketManagerReconnectionTests.cs` | Reconnection with exponential backoff; request timeout set and kept across `ConnectAsync`; failed start clears the connecting flag | 7 |
 | `OBSWebSocketManagerLoggingTests.cs` | Log output verification | ~3 |
 | `OBSWebSocketManagerEventDispatchTests.cs` | State propagation through Actions executor | 18 |
+| `OBSWebSocketManagerEventHandlingTests.cs` | The manager's OBS event handlers, driven through a mocked `IOBSWebsocket` with an inline runner: connect and the initial state load, disconnect, outputs, profile/collection/scene changes, scene item visibility (including duplicates and a failed lookup), inputs and audio, media, and unsubscribing on dispose; each checks the recorded state and the `IOBSEventListener` calls (#20) | 33 |
 | `ReconnectionStrategyTests.cs` | Backoff delays, attempt counting, error handling | 15 |
 | `OBSConfigReaderTests.cs` | Config file parsing, validation, IsServerDisabled | 10 |
 | `OBSConnectionSettingsTests.cs` | Connection settings model, localhost validation | ~5 |
@@ -32,7 +33,7 @@ The project follows a TDD approach with 710 unit tests using xUnit + Moq (verifi
 | `CachedValueTests.cs` | Fetch once until invalidated, failed fetches not cached, a fetch invalidated mid-flight not kept (#25) | 8 |
 | `RenameHandlingTests.cs` | Scene and input renames (#21): `KeyedStateCache.RenameKeys`, `AudioStateCache.Rename`, `AudioMeterService.RenameInput` (newer state at the new name wins, in-flight fetches dropped, live order kept), `AudioSelectionState.RenameIfMatches`, and `OBSWebSocketManager.ApplyInputRename`/`ApplySceneRename` | 27 |
 | `CommandRegistryTests.cs` | Registration, deduplication, generic `GetCommands<T>()` filtering | 6 |
-| `CommandCoordinatorTests.cs` | Dispatch-by-interface for every notification type, per-command exception isolation | 24 |
+| `CommandCoordinatorTests.cs` | Dispatch-by-interface for every notification type, including stats, media state and connection status (#20), per-command exception isolation | 32 |
 | `AudioStateCacheTests.cs` | Non-blocking misses, single in-flight fetch, event-vs-fetch precedence, failure backoff, invalidation | 14 |
 | `KeyedStateCacheTests.cs` | Same as `AudioStateCacheTests` for the single-value cache, plus `TryFetch` failures and `RemoveWhere` | 19 |
 | `SessionGateTests.cs` | Once-per-connection gate, including concurrent opens; `Generation`/`IsCurrent` tell an old connection from a new one | 8 |
@@ -43,7 +44,7 @@ The project follows a TDD approach with 710 unit tests using xUnit + Moq (verifi
 | `OBSWebsocketAdapterStatsTests.cs` | Null-tolerant `GetStats` parsing | 4 |
 | `LogThrottleTests.cs` | Repeat suppression window, suppressed-count reporting, per-message independence, pruning | 6 |
 | `VolumeConverterTests.cs` | Volume mul→dB conversion and formatting | 10 |
-| `SourceVisibilityTests.cs` | Source visibility toggle, `TryGetSceneItemEnabled` cache fetch | 9 |
+| `SourceVisibilityTests.cs` | Source visibility toggle and its redraw callback, `TryGetSceneItemEnabled` cache fetch | 11 |
 | `VirtualCameraCommandTests.cs` | Virtual camera state and toggle | ~5 |
 | `ManualReconnectTests.cs` | Manual reconnect trigger | ~1 |
 | `OBSActionExecutorStatsAndMediaTests.cs` | Stats, stream status, media input methods, `TryGetMediaInputStatus` cache fetch, `ToggleMediaInputPlayback` | 23 |
@@ -84,7 +85,7 @@ The project follows a TDD approach with 710 unit tests using xUnit + Moq (verifi
 | **OBSConfigReader** | 91% | 90% | Excellent coverage |
 | **OBSLifecycleManager** | 79-100% | 75-100% | Good coverage |
 | **OBSConnectionSettings** | 100% | 100% | Perfect |
-| **OBSWebSocketManager** | 34% | 17% | Event handlers hard to unit test |
+| **OBSWebSocketManager** | 34%* | 17%* | *Measured before #20; the event handlers are now tested through a mocked `IOBSWebsocket`, not yet re-measured |
 | **CommandRegistry** | 100% | 100% | Store + generic filter, fully covered |
 | **OBSFacade** | 71% | 37% | Query/state methods covered, action delegation partially |
 | **CommandCoordinator** | 100%* | 100%* | Now owns dispatch + exception isolation, directly tested (26 tests); *not yet re-measured with Cobertura since the refactor |
@@ -177,9 +178,9 @@ public void GetInputVolume_WhenOBSThrows_LogsErrorAndReturnsDefault()
 
 ### Should Add Tests For
 
-1. **OBSWebSocketManager event handlers (null-guard branches)** — `OnStreamStateChanged`, `OnRecordStateChanged`, etc. contain null-coalescing fallbacks (`e?.OutputState?.State ?? STOPPED`) that only fire if OBS sends malformed events. These are private methods triggered by the real `OBSWebsocket` library and can't be invoked directly without `InternalsVisibleTo`. The actual state-setting logic they delegate to is fully tested via `OBSActionExecutor` and `OBSWebSocketManagerEventDispatchTests`.
+1. **OBSWebSocketManager event handlers (null-guard branches)** — `OBSWebSocketManagerEventHandlingTests` drives every handler through a mocked `IOBSWebsocket` (#20), but not yet the null-event-args branches (`e?.OutputState?.State ?? STOPPED` and similar), which only fire if OBS sends malformed events.
 2. **Reconnection timer logic** — `OnReconnectTimer` complexity reduced to 4 after extracting `ReconnectionStrategy` (fully tested with 15 tests). Remaining untested branches are the guard clause (`_disposed || !_shouldReconnect`) and scheduling condition.
-3. **`AudioInputMembership` clearing (#25)** — `OBSWebSocketManager` clears the cache from the same private event handlers as item 1 (scene item, input, scene list and collection events). `CachedValueTests` covers the cache itself; step 6 of `docs/device-checks/on-demand-loading.md` covers the wiring.
+3. **`AudioInputMembership` clearing (#25)** — `OBSWebSocketManager` clears the cache from its scene item, input, scene list and collection event handlers. Those handlers are now testable (#20), but no test yet asserts the invalidation; `CachedValueTests` covers the cache itself and step 6 of `docs/device-checks/on-demand-loading.md` covers the wiring.
 
 ### Intentionally Not Tested
 

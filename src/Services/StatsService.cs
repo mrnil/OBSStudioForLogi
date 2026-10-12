@@ -29,11 +29,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Services
         public OBSStreamStats CurrentStreamStats { get; private set; }
         public event EventHandler StatsUpdated;
 
-        public StatsService(Int32 intervalMs = 5000)
-            : this(intervalMs, () => OBSStudioForLogiPlugin.Instance?.GetStats(), () => OBSStudioForLogiPlugin.Instance?.GetStreamStatus())
-        {
-        }
-
         public StatsService(Int32 intervalMs, Func<OBSStats> getStats, Func<OBSStreamStats> getStreamStats)
             : this(intervalMs, getStats, getStreamStats, action => Task.Run(action))
         {

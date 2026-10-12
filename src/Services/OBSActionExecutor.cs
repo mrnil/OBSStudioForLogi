@@ -10,6 +10,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly IOBSWebsocket _obs;
         private readonly IPluginLog _log;
         private readonly Action<Action> _runInBackground;
+        private readonly Action<String, String> _sourceVisibilityToggled;
         private OutputState _recordingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
         private OutputState _streamingState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
         private OutputState _virtualCameraState = OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
@@ -43,10 +44,18 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         // OBS mutations run off the caller's thread so a slow OBS never stalls a button press.
         // runInBackground lets tests run that work inline instead of sleeping until Task.Run finishes.
         public OBSActionExecutor(IOBSWebsocket obs, IPluginLog log, Action<Action> runInBackground)
+            : this(obs, log, runInBackground, null)
+        {
+        }
+
+        // sourceVisibilityToggled is told (scene, source) shortly after a visibility toggle, so the
+        // buttons redraw; OBSWebSocketManager passes it on to its listener.
+        public OBSActionExecutor(IOBSWebsocket obs, IPluginLog log, Action<Action> runInBackground, Action<String, String> sourceVisibilityToggled)
         {
             this._obs = obs;
             this._log = log;
             this._runInBackground = runInBackground ?? (action => Task.Run(action));
+            this._sourceVisibilityToggled = sourceVisibilityToggled;
         }
 
         public void SetCurrentScene(String sceneName)
@@ -390,7 +399,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             try
             {
                 await Task.Delay(OBSTimings.StateUpdateDelay);
-                OBSStudioForLogiPlugin.Instance?.OnSourceVisibilityChanged(sceneName, sourceName);
+                this._sourceVisibilityToggled?.Invoke(sceneName, sourceName);
             }
             catch (Exception ex)
             {

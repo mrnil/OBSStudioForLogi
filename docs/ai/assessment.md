@@ -8,7 +8,7 @@ Item numbers stay the same between assessments because `TODO.md`, commit message
 
 At this pass the build is clean (no warnings) and all 723 tests pass in about 7s.
 
-**Open**: #5, #9, #20, #24, #27–#31, #33–#37. Priority order is in the [Summary Table](#summary-table).
+**Open**: #5, #9, #24, #27–#31, #33–#37. Priority order is in the [Summary Table](#summary-table).
 
 ---
 
@@ -20,7 +20,7 @@ At this pass the build is clean (no warnings) and all 723 tests pass in about 7s
 
 **Impact**: The buttons most likely to be on screen during a stream can show the wrong state. The state changes asynchronously after a press (starting → started), and changes made in OBS's own window never reach the buttons, so the icon only corrects itself when the SDK happens to redraw the page.
 
-**Fix**: Add `IStreamingAwareCommand` and `IRecordingAwareCommand`, raise them from the two state handlers (through the plugin class, or through #20's events if that lands first), and have the two base classes or the seven commands register and call `ActionImageChanged`. Check on a device afterwards: start and stop a stream and a recording from both the device and OBS's own window, pause and resume a recording, and confirm the buttons follow, including the starting and stopping states.
+**Fix**: Add `IStreamingAwareCommand` and `IRecordingAwareCommand`, raise them from the two state handlers through `IOBSEventListener` (added by #20), and have the two base classes or the seven commands register and call `ActionImageChanged`. Check on a device afterwards: start and stop a stream and a recording from both the device and OBS's own window, pause and resume a recording, and confirm the buttons follow, including the starting and stopping states.
 
 ---
 
@@ -61,20 +61,6 @@ At this pass the build is clean (no warnings) and all 723 tests pass in about 7s
 **Impact**: Users who organise scenes with groups can't reach those sources from the device, and the scene audio folder misplaces their audio inputs.
 
 **Fix**: Expand groups (items with `isGroup`) through `GetGroupSceneItemList` when building scene source lists and the scene membership set. Decide whether the Scene Sources folder shows group children flat or as a sub-level. Note that `SceneItemEnableStateChanged` for a group child reports the group's name as the scene, so the visibility cache key needs checking too.
-
----
-
-### 20. Services and Plugin Class Still Reach Into Singletons (Architecture)
-
-**Problem**: #1 and #2 routed command notifications through `CommandCoordinator`, but the same bypass remains in other places:
-
-- The service layer depends upward on the plugin class. `OBSWebSocketManager` calls `OBSStudioForLogiPlugin.Instance?.On…` about a dozen times (profile, scene collection, scene, virtual camera, replay buffer and media events). `OBSActionExecutor` calls it for source visibility changes, and `StatsService`'s default constructor calls it for its stats providers.
-- `OBSStudioForLogiPlugin` calls specific commands directly: `MediaDynamicFolder.Instance`, `StatsDisplay.Instance`, `StatsDynamicFolder.Instance`, `StreamStatsDynamicFolder.Instance` and `ConnectionStatusDisplay.Instance`.
-- `OBSWebSocketManager` holds the concrete library `OBSWebsocket`, not `IOBSWebsocket`. It subscribes to the library's events directly, and its initial load and refreshes call the library directly too (`_obs.GetProfileList()`, `_obs.GetSceneList()`, `_obs.GetSceneItemList()` and others), so those paths can't be driven by the mocked interface the rest of the tests use. At the 2026-10-12 pass, `src/Services` referenced `OBSStudioForLogiPlugin.Instance` 35 times.
-
-**Impact**: Services can't be tested without the static plugin instance. That is why `OBSWebSocketManager` event handling has so little coverage. Adding a new stats or media display also means editing the plugin class instead of implementing an interface, which is the same maintenance trap #1 described.
-
-**Fix**: Have `OBSWebSocketManager` raise its own events, or take a callback interface in its constructor, and let the plugin class subscribe and forward them to `CommandCoordinator`. Add `IStatsAwareCommand` and `IMediaStateAwareCommand` (or similar) so the displays and the media folder receive updates through the registry. Put the events the manager needs on `IOBSWebsocket` (or a separate event-source interface) and route the manager's direct library calls through it, so the event handlers can be tested with the existing mocks. Doing this together with #27 and #32 avoids touching the same code three times.
 
 ---
 
@@ -120,7 +106,7 @@ At this pass the build is clean (no warnings) and all 723 tests pass in about 7s
 
 **Impact**: Every new OBS operation needs the same method added in three places, and the plugin class mixes SDK lifecycle with an API surface.
 
-**Fix**: Once #20 lands, let actions depend on the facade, or on small per-feature interfaces it implements, instead of the plugin class. Keep the plugin class for lifecycle, configuration and event wiring.
+**Fix**: Now that #20 has removed the services' upward calls, let actions depend on the facade, or on small per-feature interfaces it implements, instead of the plugin class. Keep the plugin class for lifecycle, configuration and event wiring.
 
 ---
 
@@ -196,6 +182,7 @@ At this pass the build is clean (no warnings) and all 723 tests pass in about 7s
 | 25 | Performance | OBS data loaded on demand. Scene source lists load only while the Scene Sources or Mixer for Scene Audio folder is open, which shows loading tiles until they arrive. The "audio inputs not in any scene" list (one request per scene) is cached in `OBSWebSocketManager.AudioInputMembership` and cleared by the events that change it, so a scene change costs one request instead of about N+5. Stats poll only while a stats folder is open or the summary button is visible, with an immediate first poll. Device-checked 2026-09-29 (`docs/device-checks/on-demand-loading.md`), including the loading tiles | v2.0.0 |
 | 23 | Code Quality | `OnApplicationStarted` (`async void`) catches and logs exceptions. The blocking `Task.Delay(100).Wait()` after a scene collection switch is gone: obs-websocket sends `CurrentSceneCollectionChanged` only after the collection has loaded, so the scene list is read straight away. `CommandCoordinator` notifies commands of a disconnect once until the next connect. Splitting `OBSActionExecutor` moved to `TODO.md` (Architecture, Deferred) | v2.0.0 |
 | 26 | Correctness | Found in the #25 device check: OBS accepts connections while starting and answers "not ready" (207) until its scene collection loads, so the one-shot initial state load failed and the input list, profiles and studio mode stayed unloaded until something changed in OBS. `InitialStateLoader` now retries every 500ms (up to 30s) while OBS isn't ready and the connection is unchanged, and stats polling starts after the load instead of at connect, so it no longer logs errors while OBS starts. Device-checked 2026-09-29: loaded on the third attempt, about 1s after connecting | v2.0.0 |
+| 20 | Architecture | `OBSWebSocketManager` reports every change through a new `IOBSEventListener` (implemented by the plugin class, which forwards to `CommandCoordinator`) instead of `OBSStudioForLogiPlugin.Instance`. The executor reports visibility toggles through a constructor callback, and `StatsService` gets its providers from the plugin. The manager now talks only to `IOBSWebsocket`, which gained the connection members, the reads the manager made directly (`GetCurrentProfileAndList`, `GetCurrentSceneCollection`, `GetCurrentProgramScene`, `GetSceneItems`) and the library events, and it takes a background runner. The plugin class no longer calls command singletons: `IStatsAwareCommand`, `IMediaStateAwareCommand` and `IConnectionStatusAwareCommand` route stats, media and connection status through the registry. `OBSWebSocketManagerEventHandlingTests` drives the event handlers through a mocked `IOBSWebsocket` | Unreleased |
 | 32 | Code Quality | `OBSActionExecutor` repeated the connected/guard/try/log steps in about 25 methods. They now go through three private helpers: `RunMutation` (background runner, "not connected" and refusal warnings, error logging), `Query<T>` (safe fallback) and `TryQuery<T>` (reports failure, for the render caches). The getters with no production callers left (`GetSceneItemEnabled`, `GetMediaInputStatus`, `GetInputVolume`, `GetInputAudioMonitorType`) are gone, since rendering reads the caches; their `TryGet*` versions stay. 1,242 → 657 lines | Unreleased |
 
 ---
@@ -207,7 +194,6 @@ Open items, in the order to work on them.
 | # | Priority | Area | Issue |
 |---|----------|------|-------|
 | 27 | High | Correctness | Streaming and recording buttons never redraw on state change (seen on a device) |
-| 20 | Medium | Architecture | Services call `OBSStudioForLogiPlugin.Instance`, the plugin calls command singletons directly, and `OBSWebSocketManager` bypasses `IOBSWebsocket` |
 | 29 | Medium | Architecture | Two reconnect loops; the timer retries stale credentials and has unsynchronised state |
 | 31 | Medium | Usability | Scene buttons give no feedback in studio mode (preview scene not tracked) |
 | 5 | Medium | Usability | Hard-coded 500ms double-tap window delays every single tap |

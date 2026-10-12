@@ -26,11 +26,11 @@
 
 ## Medium Priority
 
-### Assessment: Services and Plugin Class Reach Into Singletons (#20)
+### Assessment: Services and Plugin Class Reach Into Singletons (#20) ✅ Done
 
-- [ ] Have `OBSWebSocketManager` raise events (or take a callback interface) instead of calling `OBSStudioForLogiPlugin.Instance`
-- [ ] Route stats and media updates through `CommandCoordinator` instead of `StatsDisplay.Instance`, `MediaDynamicFolder.Instance` and similar
-- [ ] Put the events `OBSWebSocketManager` needs on `IOBSWebsocket` (or an event-source interface) and route its direct library calls (`_obs.GetProfileList()`, `_obs.GetSceneList()`, ...) through it, then add tests for the event handlers
+- [x] ~~Have `OBSWebSocketManager` raise events (or take a callback interface) instead of calling `OBSStudioForLogiPlugin.Instance`~~ ✅ Done — `IOBSEventListener`, implemented by the plugin class
+- [x] ~~Route stats and media updates through `CommandCoordinator` instead of `StatsDisplay.Instance`, `MediaDynamicFolder.Instance` and similar~~ ✅ Done — `IStatsAwareCommand`, `IMediaStateAwareCommand`, `IConnectionStatusAwareCommand`
+- [x] ~~Put the events `OBSWebSocketManager` needs on `IOBSWebsocket` (or an event-source interface) and route its direct library calls (`_obs.GetProfileList()`, `_obs.GetSceneList()`, ...) through it, then add tests for the event handlers~~ ✅ Done — `OBSWebSocketManagerEventHandlingTests`
 
 ### Assessment: Two Reconnect Loops (#29)
 
@@ -67,7 +67,7 @@
 - [x] ~~Poll stats only while a stats folder is open or the summary button is visible, polling straight away for the first viewer~~ ✅ Done
 - [x] ~~Check on a device: follow `docs/device-checks/on-demand-loading.md`~~ ✅ Done 2026-09-29 on a Loupedeck device: loads skipped with no folder open, cache hits after the first load, cache cleared on source add/remove, folder reloads after an OBS restart, stats poll only while shown
 - [x] ~~Check how the loading tiles look~~ ✅ Done 2026-09-29: the message sits right of the Back button and reads correctly across both tiles
-- [ ] Consider: `MediaDynamicFolder` still requests the full input list on every input list change, and the initial state load requests the scene list twice
+- [ ] Consider: `MediaDynamicFolder` still requests the full input list on every input list change (the initial state load now reads the current scene with `GetCurrentProgramScene`, so it requests the scene list once)
 
 ### Assessment: Initial State Not Loaded When OBS Is Still Starting (#26) ✅ Done
 

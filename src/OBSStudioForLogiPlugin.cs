@@ -5,7 +5,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using Loupedeck.OBSStudioForLogiPlugin.Models;
     using Loupedeck.OBSStudioForLogiPlugin.Services;
 
-    public class OBSStudioForLogiPlugin : Plugin
+    public class OBSStudioForLogiPlugin : Plugin, IOBSEventListener
     {
         public static OBSStudioForLogiPlugin Instance { get; private set; }
         private readonly ConnectionManager _connectionManager;
@@ -28,13 +28,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var pluginConfig = LoadPluginConfiguration();
             DiscoverScreenshotPath();
             
-            var obsManager = new OBSWebSocketManager();
+            // The manager reports OBS changes to this class (IOBSEventListener), which forwards them
+            // to the commands, so the coordinator has to exist first.
+            this._commandCoordinator = new CommandCoordinator();
+            OBSWebSocketManager obsManager = new OBSWebSocketManager(this, new PluginLogAdapter());
             this._obsConfigReader = new OBSConfigReader();
             this._connectionManager = new ConnectionManager(obsManager, this._obsConfigReader, new OBSLifecycleManager());
             this._connectionManager.SetPluginConfig(pluginConfig);
-            this._commandCoordinator = new CommandCoordinator();
             this._obsFacade = new OBSFacade(obsManager);
-            this._statsService = new StatsService(pluginConfig?.StatsPollingInterval ?? 5000);
+            this._statsService = new StatsService(pluginConfig?.StatsPollingInterval ?? 5000,
+                () => this._obsFacade.GetStats(), () => this._obsFacade.GetStreamStatus());
             this._statsService.StatsUpdated += this.OnStatsUpdated;
             obsManager.InitialStateLoadFinished += this.OnInitialStateLoadFinished;
             obsManager.SceneCollectionSwitchStarted += (s, e) => this._statsService.Pause("scene collection switching");
@@ -200,7 +203,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             PluginLog.Info("OBS WebSocket connected");
             this.ReportPluginStatus(Loupedeck.PluginStatus.Normal, null);
             this._commandCoordinator.NotifyConnected();
-            ConnectionStatusDisplay.Instance?.UpdateStatus();
+            this._commandCoordinator.NotifyConnectionStatusChanged();
         }
 
         // Stats polling waits for the initial state load: while OBS is still starting it rejects
@@ -216,14 +219,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.ReportPluginStatus(Loupedeck.PluginStatus.Warning, "OBS is offline. Please launch OBS");
             this._statsService.Stop();
             this._commandCoordinator.NotifyDisconnected();
-            ConnectionStatusDisplay.Instance?.UpdateStatus();
+            this._commandCoordinator.NotifyConnectionStatusChanged();
         }
 
         private void OnWebSocketServerDisabled(Object sender, EventArgs e)
         {
             PluginLog.Warning("OBS WebSocket server is disabled");
             this.ReportPluginStatus(Loupedeck.PluginStatus.Warning, "OBS WebSocket server is disabled. Enable it in OBS Tools menu.");
-            ConnectionStatusDisplay.Instance?.UpdateStatus();
+            this._commandCoordinator.NotifyConnectionStatusChanged();
         }
 
         private void ReportPluginStatus(Loupedeck.PluginStatus status, String message)
@@ -431,7 +434,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void OnMediaPlaybackStateChanged(String inputName)
         {
             PluginLog.Debug($"Media playback state changed for '{inputName}'");
-            MediaDynamicFolder.Instance?.OnMediaStateChanged(inputName);
+            this._commandCoordinator.NotifyMediaStateChanged(inputName);
         }
 
         public Models.OBSStats GetCurrentStats()
@@ -457,9 +460,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         private void OnStatsUpdated(Object sender, EventArgs e)
         {
-            StatsDisplay.Instance?.UpdateDisplay();
-            StatsDynamicFolder.Instance?.UpdateDisplay();
-            StreamStatsDynamicFolder.Instance?.UpdateDisplay();
+            this._commandCoordinator.NotifyStatsUpdated();
         }
 
         public Boolean IsRecording => this._obsFacade.IsRecording;

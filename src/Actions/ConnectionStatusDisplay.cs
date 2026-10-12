@@ -2,7 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
 
-    public class ConnectionStatusDisplay : PluginDynamicCommand
+    public class ConnectionStatusDisplay : PluginDynamicCommand, IObsCommand, IConnectionStatusAwareCommand
     {
         public static ConnectionStatusDisplay Instance { get; private set; }
 
@@ -10,6 +10,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             : base(displayName: "Connection Status", description: "Shows OBS connection status", groupName: "1. OBS")
         {
             Instance = this;
+            OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
             this.IsWidget = true;
             this.AddParameter("", "Connection Status", groupName: "1. OBS");
         }
@@ -46,9 +47,19 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             // Display only, no action
         }
 
-        public void UpdateStatus()
+        public void OnConnectionStatusChanged()
         {
             this.ActionImageChanged("");
+        }
+
+        // OnConnectionStatusChanged covers connect and disconnect too, and also the WebSocket
+        // server being disabled, which OnDisconnected doesn't.
+        public void OnConnected()
+        {
+        }
+
+        public void OnDisconnected()
+        {
         }
     }
 }

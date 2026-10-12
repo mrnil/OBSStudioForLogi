@@ -84,6 +84,15 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void NotifySceneSourcesChanged(String sceneName, String[] sources, String[] audioSources) =>
             this.NotifyEach<ISceneSourcesAwareCommand>(nameof(ISceneSourcesAwareCommand.OnSceneSourcesChanged), c => c.OnSceneSourcesChanged(sceneName, sources, audioSources));
 
+        public void NotifyStatsUpdated() =>
+            this.NotifyEach<IStatsAwareCommand>(nameof(IStatsAwareCommand.OnStatsUpdated), c => c.OnStatsUpdated());
+
+        public void NotifyMediaStateChanged(String inputName) =>
+            this.NotifyEach<IMediaStateAwareCommand>(nameof(IMediaStateAwareCommand.OnMediaStateChanged), c => c.OnMediaStateChanged(inputName));
+
+        public void NotifyConnectionStatusChanged() =>
+            this.NotifyEach<IConnectionStatusAwareCommand>(nameof(IConnectionStatusAwareCommand.OnConnectionStatusChanged), c => c.OnConnectionStatusChanged());
+
         // Each command is invoked in isolation so one throwing does not stop the remaining commands from being notified.
         private void NotifyEach<T>(String eventName, Action<T> action) where T : IObsCommand
         {

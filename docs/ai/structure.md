@@ -36,15 +36,16 @@ OBSStudioForLogiPlugin/
 
 | File | Responsibility |
 |------|---------------|
-| `OBSWebSocketManager.cs` | WebSocket lifecycle, event subscription, reconnection timer |
-| `OBSActionExecutor.cs` | All OBS operations with state tracking and error handling |
+| `OBSWebSocketManager.cs` | WebSocket lifecycle, event subscription, reconnection timer. Talks only to `IOBSWebsocket` and reports every change to an `IOBSEventListener`; takes a background runner so tests run its work inline |
+| `OBSActionExecutor.cs` | All OBS operations with state tracking. Every call goes through `RunMutation`, `Query<T>` or `TryQuery<T>`, which hold the connection guard, background runner and error handling; visibility toggles are reported through a constructor callback |
 | `OBSWebsocketAdapter.cs` | Thin wrapper over obs-websocket-dotnet library; `IsConnected` requires `IsIdentified`; parses `GetStats` null-tolerantly |
-| `IOBSWebsocket.cs` | Interface for testability (mocked in all tests) |
+| `IOBSWebsocket.cs` | Everything used from obs-websocket-dotnet: connection, requests and the library events (mocked in all tests) |
+| `IOBSEventListener.cs` | What `OBSWebSocketManager` reports after applying an OBS event; the plugin class implements it and forwards to `CommandCoordinator` |
 | `OBSFacade.cs` | Simplified public interface over OBSWebSocketManager |
 | `ConnectionManager.cs` | Connection lifecycle: config discovery, connect/disconnect, retrying every `ConnectRetryDelay` while OBS isn't running; `ReconnectAsync` ignores manual reconnects while connected or mid-attempt |
 | `CommandCoordinator.cs` | Owns event dispatch: per-command exception isolation via generic `NotifyEach<T>()` |
 | `CommandRegistry.cs` | Command store: registration/dedup + generic `GetCommands<T>()` interface filter |
-| `IObsCommand.cs` | 15 notification interfaces (IObsCommand + 14 specialised) |
+| `IObsCommand.cs` | Notification interfaces (`IObsCommand` + the specialised ones below) |
 | `OBSConfigReader.cs` | Reads OBS WebSocket config from disk |
 | `OBSLifecycleManager.cs` | Port availability checking |
 | `PluginConfigReader.cs` | Read/write plugin config JSON; keeps the remote password out of the file, in an `ISecretStore`, and moves plaintext passwords left by older versions into it |
@@ -198,12 +199,17 @@ IObsCommand (OnConnected, OnDisconnected)
     ├── IReplayBufferAwareCommand   (OnReplayBufferStateChanged)
     ├── IReplayBufferSavedAwareCommand(OnReplayBufferSaved)
     ├── IStudioModeAwareCommand     (OnStudioModeStateChanged)
-    └── IInputMonitorAwareCommand   (OnInputMonitorTypeChanged)
+    ├── IInputMonitorAwareCommand   (OnInputMonitorTypeChanged)
+    ├── ISceneSourcesAwareCommand   (OnSceneSourcesChanged)
+    ├── ISceneCollectionsListAwareCommand (OnSceneCollectionsChanged)
+    ├── IStatsAwareCommand          (OnStatsUpdated)
+    ├── IMediaStateAwareCommand     (OnMediaStateChanged)
+    └── IConnectionStatusAwareCommand (OnConnectionStatusChanged)
 ```
 
 ### 4. Singleton Instance Pattern
 
-Every command exposes a static `Instance` property set in its constructor. This enables direct access from `OBSWebSocketManager` and `OBSStudioForLogiPlugin` for cases not yet routed through the registry.
+Commands expose a static `Instance` property set in their constructor, mainly for tests. Nothing in `src/Services` or the plugin class uses them: all notifications go through `CommandCoordinator` (assessment #20).
 
 ### 5. Facade Pattern
 
@@ -214,8 +220,9 @@ Every command exposes a static `Instance` property set in its constructor. This 
 ```
 OBS fires event
     → obs-websocket-dotnet raises C# event
-    → OBSWebSocketManager handler
-    → OBSStudioForLogiPlugin.OnXxx() callback
+    → IOBSWebsocket (OBSWebsocketAdapter forwards the library event)
+    → OBSWebSocketManager handler (updates executor state and caches)
+    → IOBSEventListener.OnXxx() — implemented by OBSStudioForLogiPlugin
     → CommandCoordinator.NotifyXxx() — filters via CommandRegistry.GetCommands<T>(), dispatches per-command with exception isolation
     → Command calls CommandImageChanged(parameter)
     → Loupedeck framework calls GetCommandImage()

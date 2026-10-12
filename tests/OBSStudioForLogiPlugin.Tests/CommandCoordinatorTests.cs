@@ -390,6 +390,77 @@ public class CommandCoordinatorTests
         sceneSourcesAware.Verify(x => x.OnSceneSourcesChanged("Scene 1", sources, audioSources), Times.Once);
     }
 
+    // --- NotifyStatsUpdated / NotifyMediaStateChanged / NotifyConnectionStatusChanged (Assessment #20) ---
+
+    [Fact]
+    public void NotifyStatsUpdated_CallsOnlyIStatsAwareCommands()
+    {
+        var statsAware = new Mock<IStatsAwareCommand>();
+        var nonAware = new Mock<ISceneAwareCommand>();
+        this._coordinator.RegisterCommand(statsAware.Object);
+        this._coordinator.RegisterCommand(nonAware.Object);
+
+        this._coordinator.NotifyStatsUpdated();
+
+        statsAware.Verify(x => x.OnStatsUpdated(), Times.Once);
+        nonAware.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public void NotifyMediaStateChanged_CallsOnlyIMediaStateAwareCommands()
+    {
+        var mediaAware = new Mock<IMediaStateAwareCommand>();
+        var nonAware = new Mock<ISceneAwareCommand>();
+        this._coordinator.RegisterCommand(mediaAware.Object);
+        this._coordinator.RegisterCommand(nonAware.Object);
+
+        this._coordinator.NotifyMediaStateChanged("Video");
+
+        mediaAware.Verify(x => x.OnMediaStateChanged("Video"), Times.Once);
+        nonAware.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public void NotifyConnectionStatusChanged_CallsOnlyIConnectionStatusAwareCommands()
+    {
+        var statusAware = new Mock<IConnectionStatusAwareCommand>();
+        var nonAware = new Mock<ISceneAwareCommand>();
+        this._coordinator.RegisterCommand(statusAware.Object);
+        this._coordinator.RegisterCommand(nonAware.Object);
+
+        this._coordinator.NotifyConnectionStatusChanged();
+
+        statusAware.Verify(x => x.OnConnectionStatusChanged(), Times.Once);
+        nonAware.VerifyNoOtherCalls();
+    }
+
+    // Not deduplicated like OnDisconnected: the display must also follow "server disabled".
+    [Fact]
+    public void NotifyConnectionStatusChanged_CalledTwice_NotifiesBothTimes()
+    {
+        var statusAware = new Mock<IConnectionStatusAwareCommand>();
+        this._coordinator.RegisterCommand(statusAware.Object);
+
+        this._coordinator.NotifyConnectionStatusChanged();
+        this._coordinator.NotifyConnectionStatusChanged();
+
+        statusAware.Verify(x => x.OnConnectionStatusChanged(), Times.Exactly(2));
+    }
+
+    [Fact]
+    public void NotifyStatsUpdated_WhenOneCommandThrows_StillNotifiesTheOthers()
+    {
+        var throwing = new Mock<IStatsAwareCommand>();
+        throwing.Setup(x => x.OnStatsUpdated()).Throws(new InvalidOperationException("boom"));
+        var healthy = new Mock<IStatsAwareCommand>();
+        this._coordinator.RegisterCommand(throwing.Object);
+        this._coordinator.RegisterCommand(healthy.Object);
+
+        this._coordinator.NotifyStatsUpdated();
+
+        healthy.Verify(x => x.OnStatsUpdated(), Times.Once);
+    }
+
     // --- Multiple interface support ---
 
     [Fact]
