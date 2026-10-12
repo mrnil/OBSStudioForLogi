@@ -39,14 +39,66 @@ public class SourceVisibilityTests
         Assert.Empty(result);
     }
 
-    [Fact]
-    public void ToggleSourceVisibility_WhenConnected_CallsObs()
+    private void SetUpSceneItems(params (Int32 ItemId, String SourceName, Boolean Enabled)[] items)
     {
         this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this._mockObs.Setup(x => x.GetSceneItems("Scene1")).Returns(items);
+    }
+
+    [Fact]
+    public void ToggleSourceVisibility_WhenHidden_ShowsTheItemById()
+    {
+        this.SetUpSceneItems((3, "Camera", true), (7, "Source1", false));
 
         this._executor.ToggleSourceVisibility("Scene1", "Source1");
 
-        this._mockObs.Verify(x => x.SetSceneItemEnabled("Scene1", "Source1", It.IsAny<Boolean>()), Times.Once);
+        this._mockObs.Verify(x => x.SetSceneItemEnabled("Scene1", 7, true), Times.Once);
+    }
+
+    [Fact]
+    public void ToggleSourceVisibility_WhenVisible_HidesTheItemById()
+    {
+        this.SetUpSceneItems((7, "Source1", true));
+
+        this._executor.ToggleSourceVisibility("Scene1", "Source1");
+
+        this._mockObs.Verify(x => x.SetSceneItemEnabled("Scene1", 7, false), Times.Once);
+    }
+
+    // Assessment #30: a toggle used to cost four requests (list + get, list + set).
+    [Fact]
+    public void ToggleSourceVisibility_MakesOneListRequestAndOneSet()
+    {
+        this.SetUpSceneItems((7, "Source1", false));
+
+        this._executor.ToggleSourceVisibility("Scene1", "Source1");
+
+        this._mockObs.Verify(x => x.GetSceneItems("Scene1"), Times.Once);
+        this._mockObs.Verify(x => x.GetSceneItemEnabled(It.IsAny<String>(), It.IsAny<String>()), Times.Never);
+        this._mockObs.Verify(x => x.SetSceneItemEnabled(It.IsAny<String>(), It.IsAny<Int32>(), It.IsAny<Boolean>()), Times.Once);
+    }
+
+    // Buttons show the source's first item in the scene, so that is the one toggled.
+    [Fact]
+    public void ToggleSourceVisibility_WhenSourceIsInTheSceneTwice_TogglesTheFirstItem()
+    {
+        this.SetUpSceneItems((4, "Source1", true), (9, "Source1", false));
+
+        this._executor.ToggleSourceVisibility("Scene1", "Source1");
+
+        this._mockObs.Verify(x => x.SetSceneItemEnabled("Scene1", 4, false), Times.Once);
+        this._mockObs.Verify(x => x.SetSceneItemEnabled("Scene1", 9, It.IsAny<Boolean>()), Times.Never);
+    }
+
+    [Fact]
+    public void ToggleSourceVisibility_WhenSourceNotInScene_WarnsAndDoesNotSet()
+    {
+        this.SetUpSceneItems((3, "Camera", true));
+
+        this._executor.ToggleSourceVisibility("Scene1", "Source1");
+
+        this._mockObs.Verify(x => x.SetSceneItemEnabled(It.IsAny<String>(), It.IsAny<Int32>(), It.IsAny<Boolean>()), Times.Never);
+        this._mockLog.Verify(x => x.Warning(It.Is<String>(s => s.Contains("Source1") && s.Contains("not in scene 'Scene1'"))), Times.Once);
     }
 
     [Fact]
@@ -56,7 +108,8 @@ public class SourceVisibilityTests
 
         this._executor.ToggleSourceVisibility("Scene1", "Source1");
 
-        this._mockObs.Verify(x => x.SetSceneItemEnabled(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<Boolean>()), Times.Never);
+        this._mockObs.Verify(x => x.GetSceneItems(It.IsAny<String>()), Times.Never);
+        this._mockObs.Verify(x => x.SetSceneItemEnabled(It.IsAny<String>(), It.IsAny<Int32>(), It.IsAny<Boolean>()), Times.Never);
     }
 
     // --- TryGetSceneItemEnabled (source visibility cache fetch) ---
@@ -119,7 +172,7 @@ public class SourceVisibilityTests
         System.Threading.Tasks.TaskCompletionSource<(String, String)> toggled = new System.Threading.Tasks.TaskCompletionSource<(String, String)>();
         OBSActionExecutor executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object, action => action(),
             (scene, source) => toggled.TrySetResult((scene, source)));
-        this._mockObs.Setup(x => x.IsConnected).Returns(true);
+        this.SetUpSceneItems((7, "Source1", false));
 
         executor.ToggleSourceVisibility("Scene1", "Source1");
 
@@ -128,13 +181,26 @@ public class SourceVisibilityTests
     }
 
     [Fact]
+    public void ToggleSourceVisibility_WhenSourceNotInScene_DoesNotReportAToggle()
+    {
+        Boolean reported = false;
+        OBSActionExecutor executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object, action => action(),
+            (scene, source) => reported = true);
+        this.SetUpSceneItems((3, "Camera", true));
+
+        executor.ToggleSourceVisibility("Scene1", "Source1");
+
+        Assert.False(reported);
+    }
+
+    [Fact]
     public void ToggleSourceVisibility_WhenOBSThrows_DoesNotReportAToggle()
     {
         Boolean reported = false;
         OBSActionExecutor executor = new OBSActionExecutor(this._mockObs.Object, this._mockLog.Object, action => action(),
             (scene, source) => reported = true);
-        this._mockObs.Setup(x => x.IsConnected).Returns(true);
-        this._mockObs.Setup(x => x.SetSceneItemEnabled(It.IsAny<String>(), It.IsAny<String>(), It.IsAny<Boolean>())).Throws(new Exception("OBS error"));
+        this.SetUpSceneItems((7, "Source1", false));
+        this._mockObs.Setup(x => x.SetSceneItemEnabled(It.IsAny<String>(), It.IsAny<Int32>(), It.IsAny<Boolean>())).Throws(new Exception("OBS error"));
 
         executor.ToggleSourceVisibility("Scene1", "Source1");
 

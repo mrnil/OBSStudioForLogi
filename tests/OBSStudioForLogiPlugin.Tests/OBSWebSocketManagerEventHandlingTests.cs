@@ -309,7 +309,7 @@ public class OBSWebSocketManagerEventHandlingTests : IDisposable
     [Fact]
     public void SceneItemEnableStateChanged_CachesVisibilityAndNotifies()
     {
-        this._mockObs.Setup(x => x.GetSceneItems("Scene1")).Returns(new[] { (1, "Camera"), (2, "Overlay") });
+        this._mockObs.Setup(x => x.GetSceneItems("Scene1")).Returns(new[] { (1, "Camera", true), (2, "Overlay", true) });
 
         this._mockObs.Raise(x => x.SceneItemEnableStateChanged += null, new SceneItemEnableStateChangedEventArgs("Scene1", 2, true));
 
@@ -321,7 +321,7 @@ public class OBSWebSocketManagerEventHandlingTests : IDisposable
     public void SceneItemEnableStateChanged_ForADuplicateItem_DoesNotOverwriteTheFirstItemsState()
     {
         this._manager.SourceVisibility.Set(("Scene1", "Camera"), true);
-        this._mockObs.Setup(x => x.GetSceneItems("Scene1")).Returns(new[] { (1, "Camera"), (5, "Camera") });
+        this._mockObs.Setup(x => x.GetSceneItems("Scene1")).Returns(new[] { (1, "Camera", true), (5, "Camera", false) });
 
         this._mockObs.Raise(x => x.SceneItemEnableStateChanged += null, new SceneItemEnableStateChangedEventArgs("Scene1", 5, false));
 

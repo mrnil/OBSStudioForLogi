@@ -384,9 +384,19 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             this.RunMutation($"toggle source visibility for '{sourceName}'", () =>
             {
-                Boolean currentState = this._obs.GetSceneItemEnabled(sceneName, sourceName);
+                // Two requests: one list gives the item's ID and its live visibility, then the set by
+                // ID (assessment #30). Buttons show the source's first item, so toggle that one.
+                (Int32 ItemId, String SourceName, Boolean Enabled)[] items = this._obs.GetSceneItems(sceneName);
+                Int32 index = Array.FindIndex(items, item => item.SourceName == sourceName);
+                if (index < 0)
+                {
+                    this._log.Warning($"Cannot toggle source visibility for '{sourceName}' - not in scene '{sceneName}'");
+                    return;
+                }
+
+                (Int32 itemId, String _, Boolean currentState) = items[index];
                 this._log.Info($"Toggling source '{sourceName}' visibility from {currentState} to {!currentState}");
-                this._obs.SetSceneItemEnabled(sceneName, sourceName, !currentState);
+                this._obs.SetSceneItemEnabled(sceneName, itemId, !currentState);
                 _ = this.NotifySourceVisibilityChangedAsync(sceneName, sourceName);
             },
             () => String.IsNullOrEmpty(sceneName) || String.IsNullOrEmpty(sourceName) ? "scene or source name is empty" : null);

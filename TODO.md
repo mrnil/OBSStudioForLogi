@@ -123,10 +123,11 @@ All of these are available in obs-websocket-dotnet 5.7.0.
 
 ## Low Priority
 
-### Assessment: Source Visibility Toggle Costs Four Requests (#30)
+### Assessment: Source Visibility Toggle Costs Four Requests (#30) ✅ Done
 
-- [ ] Resolve scene item IDs with `GetSceneItemId`, or keep the IDs from the scene sources load, instead of calling `GetSceneItemList` before every get and set
-- [ ] Use the cached visibility in `ToggleSourceVisibility` instead of reading it again
+- [x] ~~Resolve scene item IDs with `GetSceneItemId`, or keep the IDs from the scene sources load, instead of calling `GetSceneItemList` before every get and set~~ ✅ Done — `GetSceneItemList`'s raw response carries each item's ID and visibility, so a toggle is one list and one set by ID, and a cache fetch one list
+- [x] ~~Use the cached visibility in `ToggleSourceVisibility` instead of reading it again~~ Not done on purpose — the list the toggle needs for the ID already carries the live state, which is safer than a cache that may still hold its default
+- [ ] Consider: the Scene Sources folder's list load already reads the scene's items, so it could seed the visibility cache and save one fetch per tile when the folder opens. Needs a cache write that doesn't overwrite a newer event (`KeyedStateCache.Set` is for events)
 
 ### Assessment: OBSActionExecutor Repetition (#32) ✅ Done
 

@@ -78,7 +78,7 @@ The `SetInputMute` call appeared twice in `OBSActionExecutor.CycleInputAudioMoni
 
 ### 1. Scene Item ID vs Source Name
 
-The protocol uses `sceneItemId` (Int32) for all scene item operations. The adapter resolves name→ID internally via `GetSceneItemList`. However, if a source appears multiple times in a scene (duplicates), `FirstOrDefault` returns the first match only. This is an edge case but could cause incorrect toggling.
+The protocol uses `sceneItemId` (Int32) for all scene item operations. The adapter's `GetSceneItems` reads `GetSceneItemList`'s raw response, which gives each item's ID, source name and `sceneItemEnabled` in one request (the library's `SceneItemDetails` drops the visibility), so a toggle is that list plus `SetSceneItemEnabled` by ID (assessment #30). A source in a scene more than once is handled by its first item, which is the one the buttons show; `OBSWebSocketManager` ignores visibility events for the later duplicates for the same reason.
 
 ### 2. Volume Range
 

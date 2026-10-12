@@ -2,9 +2,9 @@
 
 ## Overview
 
-The project follows a TDD approach with 770 unit tests using xUnit + Moq (verified 2026-10-12, net10.0, all passing). Overall line coverage is ~37.4% (Cobertura, last measured pre-CommandCoordinator-refactor), branch coverage ~19.8%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage. Coverage has drifted down slightly since v1.5.1 (was 39.5%/22.6%) as v1.6.0 added several new Actions-layer commands (`SceneSelectCommand`, `AudioSourceSelectCommand`, `SceneCollectionsDynamicFolder`) faster than services-layer surface area grew — expected under the TDD-exemption policy, not a regression.
+The project follows a TDD approach with 779 unit tests using xUnit + Moq (verified 2026-10-12, net10.0, all passing). Overall line coverage is ~37.4% (Cobertura, last measured pre-CommandCoordinator-refactor), branch coverage ~19.8%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage. Coverage has drifted down slightly since v1.5.1 (was 39.5%/22.6%) as v1.6.0 added several new Actions-layer commands (`SceneSelectCommand`, `AudioSourceSelectCommand`, `SceneCollectionsDynamicFolder`) faster than services-layer surface area grew — expected under the TDD-exemption policy, not a regression.
 
-## Test Count: 770
+## Test Count: 779
 
 ## Test Files
 
@@ -42,9 +42,10 @@ The project follows a TDD approach with 770 unit tests using xUnit + Moq (verifi
 | `StatsServiceTests.cs` | Poll stores stats, overlapping polls skipped, a throwing provider doesn't block later polls; polling only while connected with a viewer, an immediate poll for the first viewer, resuming after reconnect (#25); paused during a scene collection switch, with a fresh poll on resume and the pause cleared by reconnecting | 24 |
 | `LoadingTilesTests.cs` | Loading tile parameters, tile index parsing, begin/end state, two tiles to fit beside the Back button, font size that fits the message (#25); rendering is SDK-dependent and checked on a device | 17 |
 | `OBSWebsocketAdapterStatsTests.cs` | Null-tolerant `GetStats` parsing | 4 |
+| `OBSWebsocketAdapterSceneItemsTests.cs` | `GetSceneItemList` raw-response parsing: ID, name and visibility in OBS order, missing visibility, empty and missing lists (#30) | 4 |
 | `LogThrottleTests.cs` | Repeat suppression window, suppressed-count reporting, per-message independence, pruning | 6 |
 | `VolumeConverterTests.cs` | Volume mul→dB conversion and formatting | 10 |
-| `SourceVisibilityTests.cs` | Source visibility toggle and its redraw callback, `TryGetSceneItemEnabled` cache fetch | 11 |
+| `SourceVisibilityTests.cs` | Source visibility toggle (shows/hides by item ID, one list request and one set, first item of a duplicated source, source not in the scene) and its redraw callback, `TryGetSceneItemEnabled` cache fetch | 16 |
 | `VirtualCameraCommandTests.cs` | Virtual camera state and toggle | ~5 |
 | `ManualReconnectTests.cs` | Manual reconnect trigger | ~1 |
 | `OBSActionExecutorStatsAndMediaTests.cs` | Stats, stream status, media input methods, `TryGetMediaInputStatus` cache fetch, `ToggleMediaInputPlayback` | 23 |
@@ -187,7 +188,7 @@ public void GetInputVolume_WhenOBSThrows_LogsErrorAndReturnsDefault()
 
 1. **All Actions/ command classes** — SDK-dependent, exempt per TDD rules
 2. **ButtonImageHelper / ButtonTextRenderer** — Rendering code requiring SDK
-3. **OBSWebsocketAdapter** — Pass-through wrapper
+3. **OBSWebsocketAdapter** — Pass-through wrapper, apart from the two raw-response parsers (`ParseStats`, `ParseSceneItems`), which are tested
 4. **OBSStudioForLogiPlugin main class** — Orchestration requiring full plugin runtime
 
 ## Test Timing Constants

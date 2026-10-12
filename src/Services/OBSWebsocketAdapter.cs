@@ -76,11 +76,24 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._obs.GetCurrentProgramScene();
         }
 
-        public (Int32 ItemId, String SourceName)[] GetSceneItems(String sceneName)
+        // Reads the raw response rather than the library's GetSceneItemList: OBS sends each item's
+        // sceneItemEnabled, which the library's SceneItemDetails drops, and having it here saves a
+        // GetSceneItemEnabled request for every visibility read and toggle (assessment #30).
+        public (Int32 ItemId, String SourceName, Boolean Enabled)[] GetSceneItems(String sceneName)
         {
-            return this._obs.GetSceneItemList(sceneName)?
-                .Select(item => (item.ItemId, item.SourceName))
-                .ToArray() ?? new (Int32, String)[0];
+            return ParseSceneItems(this._obs.SendRequest("GetSceneItemList", new JObject { { "sceneName", sceneName } }));
+        }
+
+        internal static (Int32 ItemId, String SourceName, Boolean Enabled)[] ParseSceneItems(JObject response)
+        {
+            if (!(response?["sceneItems"] is JArray items))
+            {
+                return new (Int32, String, Boolean)[0];
+            }
+
+            return items.OfType<JObject>()
+                .Select(item => ((Int32?)item["sceneItemId"] ?? 0, (String)item["sourceName"], (Boolean?)item["sceneItemEnabled"] ?? false))
+                .ToArray();
         }
 
         public void SetCurrentProgramScene(String sceneName)
@@ -211,25 +224,23 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return sourceNames;
         }
 
+        // One request: the item list carries each item's visibility (see GetSceneItems).
         public Boolean GetSceneItemEnabled(String sceneName, String sourceName)
         {
-            var sceneItems = this._obs?.GetSceneItemList(sceneName);
-            var item = sceneItems?.FirstOrDefault(i => i.SourceName == sourceName);
-            if (item == null)
-                return false;
-            
-            var sceneItemEnabled = this._obs?.GetSceneItemEnabled(sceneName, item.ItemId);
-            return sceneItemEnabled ?? false;
+            foreach ((Int32 _, String itemSource, Boolean enabled) in this.GetSceneItems(sceneName))
+            {
+                if (itemSource == sourceName)
+                {
+                    return enabled;
+                }
+            }
+
+            return false;
         }
 
-        public void SetSceneItemEnabled(String sceneName, String sourceName, Boolean enabled)
+        public void SetSceneItemEnabled(String sceneName, Int32 sceneItemId, Boolean enabled)
         {
-            var sceneItems = this._obs?.GetSceneItemList(sceneName);
-            var item = sceneItems?.FirstOrDefault(i => i.SourceName == sourceName);
-            if (item != null)
-            {
-                this._obs?.SetSceneItemEnabled(sceneName, item.ItemId, enabled);
-            }
+            this._obs.SetSceneItemEnabled(sceneName, sceneItemId, enabled);
         }
 
         public String[] GetInputList()

@@ -8,7 +8,7 @@ Item numbers stay the same between assessments because `TODO.md`, commit message
 
 At this pass the build is clean (no warnings) and all 723 tests pass in about 7s.
 
-**Open**: #5, #9, #24, #28, #30, #31, #33–#37. Priority order is in the [Summary Table](#summary-table).
+**Open**: #5, #9, #24, #28, #31, #33–#37. Priority order is in the [Summary Table](#summary-table).
 
 ---
 
@@ -66,16 +66,6 @@ None open.
 **Problem**: obs-websocket-dotnet 5.7.0 raises `Connected` on every `ReIdentify`. `SessionGate` works around this inside the plugin. The library fix is on `mrnil/obs-websocket-dotnet` branch `fix/connected-raised-on-reidentify`, and the upstream PR and release are still pending.
 
 **Fix**: Open the upstream PR and upgrade once it is released. Keep `SessionGate` after upgrading: it also guards against any other source of duplicate `Connected` events, and it is cheap.
-
----
-
-### 30. Source Visibility Toggle Costs Four OBS Requests (Performance)
-
-**Problem**: `OBSWebsocketAdapter.GetSceneItemEnabled` and `SetSceneItemEnabled` each call `GetSceneItemList` to turn the source name into a scene item ID, then make the real request. `OBSActionExecutor.ToggleSourceVisibility` reads and then sets, so one press is four round trips. Cache fetches through `TryGetSceneItemEnabled` cost two.
-
-**Impact**: Toggles are slower than they need to be, especially on a remote OBS or a scene with many items.
-
-**Fix**: Resolve the ID with `GetSceneItemId` (in obs-websocket-dotnet 5.7.0), or keep the IDs from the `GetSceneItemList` call the scene sources load already makes. The toggle can also use the cached state from `KeyedStateCache` instead of reading it again.
 
 ---
 
@@ -162,6 +152,7 @@ None open.
 | 23 | Code Quality | `OnApplicationStarted` (`async void`) catches and logs exceptions. The blocking `Task.Delay(100).Wait()` after a scene collection switch is gone: obs-websocket sends `CurrentSceneCollectionChanged` only after the collection has loaded, so the scene list is read straight away. `CommandCoordinator` notifies commands of a disconnect once until the next connect. Splitting `OBSActionExecutor` moved to `TODO.md` (Architecture, Deferred) | v2.0.0 |
 | 26 | Correctness | Found in the #25 device check: OBS accepts connections while starting and answers "not ready" (207) until its scene collection loads, so the one-shot initial state load failed and the input list, profiles and studio mode stayed unloaded until something changed in OBS. `InitialStateLoader` now retries every 500ms (up to 30s) while OBS isn't ready and the connection is unchanged, and stats polling starts after the load instead of at connect, so it no longer logs errors while OBS starts. Device-checked 2026-09-29: loaded on the third attempt, about 1s after connecting | v2.0.0 |
 | 20 | Architecture | `OBSWebSocketManager` reports every change through a new `IOBSEventListener` (implemented by the plugin class, which forwards to `CommandCoordinator`) instead of `OBSStudioForLogiPlugin.Instance`. The executor reports visibility toggles through a constructor callback, and `StatsService` gets its providers from the plugin. The manager now talks only to `IOBSWebsocket`, which gained the connection members, the reads the manager made directly (`GetCurrentProfileAndList`, `GetCurrentSceneCollection`, `GetCurrentProgramScene`, `GetSceneItems`) and the library events, and it takes a background runner. The plugin class no longer calls command singletons: `IStatsAwareCommand`, `IMediaStateAwareCommand` and `IConnectionStatusAwareCommand` route stats, media and connection status through the registry. `OBSWebSocketManagerEventHandlingTests` drives the event handlers through a mocked `IOBSWebsocket` | Unreleased |
+| 30 | Performance | A source visibility toggle cost four OBS requests (list + get, list + set) and a cache fetch two. `OBSWebsocketAdapter.GetSceneItems` reads `GetSceneItemList`'s raw response, which carries each item's `sceneItemEnabled` (the library's `SceneItemDetails` drops it), so a cache fetch is one request and a toggle two: the list gives the first item's ID and live state, then `SetSceneItemEnabled` by ID. The name-based setter is gone. A toggle for a source not in the scene now warns instead of silently doing nothing | Unreleased |
 | 29 | Architecture/Correctness | Two reconnect loops: `ConnectionManager` retried while the port was closed, and `OBSWebSocketManager` had its own backoff timer that retried the first attempt's URL and password forever, always scheduled another attempt (it checked `IsConnected` straight after a fire-and-forget connect), and shared plain `Boolean` flags across threads. The manager's timer is gone: `ConnectionManager` is the only thing that retries, with backoff after a drop or failed attempt (`ReconnectionStrategy.BeginAttempt`, reset on connect) and the fixed delay while OBS isn't up. Every attempt re-reads the connection settings, so a password or port changed in OBS is picked up. Retries stop on `Disconnect`, are skipped if a newer attempt connected first, and survive an attempt that throws. Device check for a password change still to do (`TODO.md`) | Unreleased |
 | 27 | Correctness | Streaming and recording buttons never redrew on a state change (seen on a device): the seven commands never registered and `StreamStateChanged`/`RecordStateChanged` notified nothing. `IStreamingAwareCommand` and `IRecordingAwareCommand` now carry both events through `IOBSEventListener` and `CommandCoordinator`, and Toggle/Start/Stop Streaming, Toggle/Start/Stop Recording and Recording Pause register and redraw, including on connect and disconnect. Device check after the fix still to do (`TODO.md`) | Unreleased |
 | 32 | Code Quality | `OBSActionExecutor` repeated the connected/guard/try/log steps in about 25 methods. They now go through three private helpers: `RunMutation` (background runner, "not connected" and refusal warnings, error logging), `Query<T>` (safe fallback) and `TryQuery<T>` (reports failure, for the render caches). The getters with no production callers left (`GetSceneItemEnabled`, `GetMediaInputStatus`, `GetInputVolume`, `GetInputAudioMonitorType`) are gone, since rendering reads the caches; their `TryGet*` versions stay. 1,242 → 657 lines | Unreleased |
@@ -177,7 +168,6 @@ Open items, in the order to work on them.
 | 31 | Medium | Usability | Scene buttons give no feedback in studio mode (preview scene not tracked) |
 | 5 | Medium | Usability | Hard-coded 500ms double-tap window delays every single tap |
 | 28 | Medium | Correctness | OBS groups not handled in scene source lists or scene audio membership |
-| 30 | Low | Performance | A source visibility toggle costs four OBS requests |
 | 9 | Low | Feature | Recording duration display (parity with stream stats) |
 | 33 | Low | Architecture | Button calls pass through plugin class, facade and executor forwarders |
 | 34 | Low | Code Quality | Profile, scene collection and scene select classes are near copies |

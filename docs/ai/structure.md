@@ -38,7 +38,7 @@ OBSStudioForLogiPlugin/
 |------|---------------|
 | `OBSWebSocketManager.cs` | WebSocket lifecycle (one connection attempt at a time; retrying is `ConnectionManager`'s job) and event subscription. Talks only to `IOBSWebsocket` and reports every change to an `IOBSEventListener`; takes a background runner so tests run its work inline |
 | `OBSActionExecutor.cs` | All OBS operations with state tracking. Every call goes through `RunMutation`, `Query<T>` or `TryQuery<T>`, which hold the connection guard, background runner and error handling; visibility toggles are reported through a constructor callback |
-| `OBSWebsocketAdapter.cs` | Thin wrapper over obs-websocket-dotnet library; `IsConnected` requires `IsIdentified`; parses `GetStats` null-tolerantly |
+| `OBSWebsocketAdapter.cs` | Thin wrapper over obs-websocket-dotnet library; `IsConnected` requires `IsIdentified`; parses `GetStats` null-tolerantly, and reads `GetSceneItemList` raw so each item's visibility comes with its ID in one request (#30) |
 | `IOBSWebsocket.cs` | Everything used from obs-websocket-dotnet: connection, requests and the library events (mocked in all tests) |
 | `IOBSEventListener.cs` | What `OBSWebSocketManager` reports after applying an OBS event; the plugin class implements it and forwards to `CommandCoordinator` |
 | `OBSFacade.cs` | Simplified public interface over OBSWebSocketManager |

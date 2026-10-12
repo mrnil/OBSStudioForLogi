@@ -42,10 +42,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         String GetCurrentProgramScene();
         void SaveSourceScreenshot(String sourceName, String imageFormat, String imageFilePath, Int32 imageWidth, Int32 imageHeight);
         String[] GetSceneItemList(String sceneName);
-        // The scene's items in OBS order (top first), with the IDs that scene item events carry.
-        (Int32 ItemId, String SourceName)[] GetSceneItems(String sceneName);
+        // The scene's items in OBS order (top first), with the IDs that scene item events carry and
+        // each item's visibility - one request.
+        (Int32 ItemId, String SourceName, Boolean Enabled)[] GetSceneItems(String sceneName);
+        // The visibility of the source's first item in the scene, or false if it isn't there.
         Boolean GetSceneItemEnabled(String sceneName, String sourceName);
-        void SetSceneItemEnabled(String sceneName, String sourceName, Boolean enabled);
+        void SetSceneItemEnabled(String sceneName, Int32 sceneItemId, Boolean enabled);
         String[] GetInputList();
         Boolean GetInputMute(String inputName);
         void ToggleInputMute(String inputName);

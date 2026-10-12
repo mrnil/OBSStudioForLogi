@@ -509,7 +509,7 @@ public class OBSActionExecutorTests
     public void ToggleSourceVisibility_WhenOBSThrows_LogsError()
     {
         this._mockObs.Setup(x => x.IsConnected).Returns(true);
-        this._mockObs.Setup(x => x.GetSceneItemEnabled(It.IsAny<String>(), It.IsAny<String>())).Throws(new Exception("OBS error"));
+        this._mockObs.Setup(x => x.GetSceneItems(It.IsAny<String>())).Throws(new Exception("OBS error"));
 
         this._executor.ToggleSourceVisibility("Scene1", "Source1");
 

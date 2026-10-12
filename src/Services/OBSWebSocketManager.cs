@@ -674,7 +674,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             {
                 try
                 {
-                    (Int32 ItemId, String SourceName)[] sceneItems = this._obs.GetSceneItems(e.SceneName);
+                    (Int32 ItemId, String SourceName, Boolean Enabled)[] sceneItems = this._obs.GetSceneItems(e.SceneName);
                     String sourceName = sceneItems.FirstOrDefault(i => i.ItemId == e.SceneItemId).SourceName;
                     if (!String.IsNullOrEmpty(sourceName))
                     {
