@@ -4,9 +4,8 @@
 
 ### Assessment: Streaming and Recording Buttons Never Redraw (#27)
 
-- [ ] Check on a device: start/stop a stream and a recording, and pause a recording, from OBS's own window, and watch the Streaming and Recording buttons
-- [ ] If confirmed, add `IStreamingAwareCommand` and `IRecordingAwareCommand`, raise them from `OnStreamStateChanged`/`OnRecordStateChanged`, and have the seven `ToggleCommandBase`/`StartStopCommandBase` commands register and call `ActionImageChanged`
-- [ ] Check on a device again after the fix, including the starting/stopping transitions
+- [ ] Add `IStreamingAwareCommand` and `IRecordingAwareCommand`, raise them from `OnStreamStateChanged`/`OnRecordStateChanged`, and have the seven `ToggleCommandBase`/`StartStopCommandBase` commands register and call `ActionImageChanged`
+- [ ] Check on a device after the fix: start/stop a stream and a recording from the device and from OBS's own window, pause/resume a recording, and confirm the buttons follow, including the starting/stopping states
 
 ### Assessment: Source Visibility and Media Status Query OBS on Redraw (#18) ✅ Done
 

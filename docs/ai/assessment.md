@@ -16,11 +16,11 @@ At this pass the build is clean (no warnings) and all 723 tests pass in about 7s
 
 ### 27. Streaming and Recording Buttons Never Redraw on State Change (Correctness)
 
-**Problem**: Seven commands never ask the SDK to redraw: Toggle Streaming, Start Streaming, Stop Streaming, Toggle Recording, Start Recording, Stop Recording and Recording Pause. They derive from `ToggleCommandBase` or `StartStopCommandBase`, don't register with `CommandCoordinator`, and never call `ActionImageChanged`. `OBSWebSocketManager.OnStreamStateChanged` and `OnRecordStateChanged` update `OBSActionExecutor`'s state but notify nothing, and there is no `IStreamingAwareCommand` or `IRecordingAwareCommand`. Virtual camera, replay buffer and studio mode follow the right pattern (`IVirtualCameraAwareCommand` etc.), so this looks like an oversight. Git history shows it has been this way since the commands were added, so it is not a regression.
+**Problem**: Seven commands never ask the SDK to redraw: Toggle Streaming, Start Streaming, Stop Streaming, Toggle Recording, Start Recording, Stop Recording and Recording Pause. They derive from `ToggleCommandBase` or `StartStopCommandBase`, don't register with `CommandCoordinator`, and never call `ActionImageChanged`. `OBSWebSocketManager.OnStreamStateChanged` and `OnRecordStateChanged` update `OBSActionExecutor`'s state but notify nothing, and there is no `IStreamingAwareCommand` or `IRecordingAwareCommand`. Virtual camera, replay buffer and studio mode follow the right pattern (`IVirtualCameraAwareCommand` etc.), so this is an oversight. Git history shows it has been this way since the commands were added, so it is not a regression. Confirmed: the stale buttons have already been seen on a device (2026-10-12).
 
 **Impact**: The buttons most likely to be on screen during a stream can show the wrong state. The state changes asynchronously after a press (starting → started), and changes made in OBS's own window never reach the buttons, so the icon only corrects itself when the SDK happens to redraw the page.
 
-**Fix**: First check on a device: start and stop a recording and a stream from OBS's own window, and pause a recording, and watch the buttons. If confirmed, add `IStreamingAwareCommand` and `IRecordingAwareCommand`, raise them from the two state handlers (through the plugin class, or through #20's events if that lands first), and have the two base classes or the seven commands register and call `ActionImageChanged`.
+**Fix**: Add `IStreamingAwareCommand` and `IRecordingAwareCommand`, raise them from the two state handlers (through the plugin class, or through #20's events if that lands first), and have the two base classes or the seven commands register and call `ActionImageChanged`. Check on a device afterwards: start and stop a stream and a recording from both the device and OBS's own window, pause and resume a recording, and confirm the buttons follow, including the starting and stopping states.
 
 ---
 
@@ -215,7 +215,7 @@ Open items, in the order to work on them.
 
 | # | Priority | Area | Issue |
 |---|----------|------|-------|
-| 27 | High | Correctness | Streaming and recording buttons never redraw on state change (confirm on a device first) |
+| 27 | High | Correctness | Streaming and recording buttons never redraw on state change (seen on a device) |
 | 20 | Medium | Architecture | Services call `OBSStudioForLogiPlugin.Instance`, the plugin calls command singletons directly, and `OBSWebSocketManager` bypasses `IOBSWebsocket` |
 | 29 | Medium | Architecture | Two reconnect loops; the timer retries stale credentials and has unsynchronised state |
 | 31 | Medium | Usability | Scene buttons give no feedback in studio mode (preview scene not tracked) |
