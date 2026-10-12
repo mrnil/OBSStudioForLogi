@@ -1,5 +1,7 @@
 namespace Loupedeck.OBSStudioForLogiPlugin.Tests;
 
+using System.Linq;
+using System.Threading.Tasks;
 using Moq;
 
 public class ReconnectionStrategyTests
@@ -26,82 +28,89 @@ public class ReconnectionStrategyTests
     [Fact]
     public void Reset_AfterAttempts_ResetsToZero()
     {
-        this._strategy.TryReconnect(() => { });
-        this._strategy.TryReconnect(() => { });
+        this._strategy.BeginAttempt();
+        this._strategy.BeginAttempt();
 
         this._strategy.Reset();
 
         Assert.Equal(0, this._strategy.Attempts);
     }
 
-    // --- TryReconnect ---
+    // --- BeginAttempt ---
 
     [Fact]
-    public void TryReconnect_IncrementsAttempts()
+    public void BeginAttempt_IncrementsAttempts()
     {
-        this._strategy.TryReconnect(() => { });
+        this._strategy.BeginAttempt();
 
         Assert.Equal(1, this._strategy.Attempts);
     }
 
     [Fact]
-    public void TryReconnect_CalledMultipleTimes_IncrementsEachTime()
+    public void BeginAttempt_CalledMultipleTimes_IncrementsEachTime()
     {
-        this._strategy.TryReconnect(() => { });
-        this._strategy.TryReconnect(() => { });
-        this._strategy.TryReconnect(() => { });
+        this._strategy.BeginAttempt();
+        this._strategy.BeginAttempt();
+        this._strategy.BeginAttempt();
 
         Assert.Equal(3, this._strategy.Attempts);
     }
 
     [Fact]
-    public void TryReconnect_InvokesConnectAction()
+    public void BeginAttempt_FirstAttempt_ReturnsDelayInFirstRange()
     {
-        var called = false;
+        Int32 delay = this._strategy.BeginAttempt();
 
-        this._strategy.TryReconnect(() => called = true);
-
-        Assert.True(called);
+        Assert.InRange(delay, 850, 1150); // 1000 * 0.85-1.15
     }
 
     [Fact]
-    public void TryReconnect_WhenActionSucceeds_ReturnsTrue()
+    public void BeginAttempt_SecondAttempt_ReturnsDelayInSecondRange()
     {
-        var result = this._strategy.TryReconnect(() => { });
+        this._strategy.BeginAttempt();
 
-        Assert.True(result);
+        Int32 delay = this._strategy.BeginAttempt();
+
+        Assert.InRange(delay, 1700, 2300); // 2000 * 0.85-1.15
     }
 
     [Fact]
-    public void TryReconnect_WhenActionThrows_ReturnsFalse()
+    public void BeginAttempt_LogsAttemptNumberAndDelay()
     {
-        var result = this._strategy.TryReconnect(() => throw new Exception("Connection refused"));
+        Int32 delay = this._strategy.BeginAttempt();
 
-        Assert.False(result);
+        this._mockLog.Verify(x => x.Info(It.Is<String>(s => s.Contains("attempt 1") && s.Contains($"{delay}ms"))), Times.Once);
+    }
+
+    // Connects and drops are reported on different threads (#29).
+    [Fact]
+    public void BeginAttempt_FromManyThreads_CountsEveryAttempt()
+    {
+        Parallel.For(0, 200, _ => this._strategy.BeginAttempt());
+
+        Assert.Equal(200, this._strategy.Attempts);
+    }
+
+    // --- Custom delays ---
+
+    [Fact]
+    public void Constructor_WithBackoffDelays_UsesThemInOrderThenRepeatsTheLast()
+    {
+        ReconnectionStrategy strategy = new ReconnectionStrategy(this._mockLog.Object, new[] { 100, 1000 });
+
+        Int32[] delays = Enumerable.Range(0, 3).Select(_ => strategy.BeginAttempt()).ToArray();
+
+        Assert.InRange(delays[0], 85, 115);
+        Assert.InRange(delays[1], 850, 1150);
+        Assert.InRange(delays[2], 850, 1150);
     }
 
     [Fact]
-    public void TryReconnect_WhenActionThrows_LogsWarning()
+    public void Constructor_WithEmptyBackoffDelays_UsesTheDefaults()
     {
-        this._strategy.TryReconnect(() => throw new Exception("Connection refused"));
+        ReconnectionStrategy strategy = new ReconnectionStrategy(this._mockLog.Object, new Int32[0]);
 
-        this._mockLog.Verify(x => x.Warning(It.Is<String>(s => s.Contains("Connection refused"))), Times.Once);
-    }
-
-    [Fact]
-    public void TryReconnect_WhenActionThrows_StillIncrementsAttempts()
-    {
-        this._strategy.TryReconnect(() => throw new Exception("fail"));
-
-        Assert.Equal(1, this._strategy.Attempts);
-    }
-
-    [Fact]
-    public void TryReconnect_LogsAttemptNumber()
-    {
-        this._strategy.TryReconnect(() => { });
-
-        this._mockLog.Verify(x => x.Info(It.Is<String>(s => s.Contains("1"))), Times.Once);
+        Assert.InRange(strategy.GetNextDelay(), 850, 1150);
     }
 
     // --- GetNextDelay ---
@@ -109,17 +118,25 @@ public class ReconnectionStrategyTests
     [Fact]
     public void GetNextDelay_FirstAttempt_ReturnsDelayInFirstRange()
     {
-        var delay = this._strategy.GetNextDelay();
+        Int32 delay = this._strategy.GetNextDelay();
 
         Assert.InRange(delay, 850, 1150); // 1000 * 0.85-1.15
     }
 
     [Fact]
+    public void GetNextDelay_DoesNotCountAnAttempt()
+    {
+        this._strategy.GetNextDelay();
+
+        Assert.Equal(0, this._strategy.Attempts);
+    }
+
+    [Fact]
     public void GetNextDelay_AfterOneAttempt_ReturnsDelayInSecondRange()
     {
-        this._strategy.TryReconnect(() => { });
+        this._strategy.BeginAttempt();
 
-        var delay = this._strategy.GetNextDelay();
+        Int32 delay = this._strategy.GetNextDelay();
 
         Assert.InRange(delay, 1700, 2300); // 2000 * 0.85-1.15
     }
@@ -127,10 +144,12 @@ public class ReconnectionStrategyTests
     [Fact]
     public void GetNextDelay_AfterManyAttempts_CapsAtMaxDelay()
     {
-        for (var i = 0; i < 20; i++)
-            this._strategy.TryReconnect(() => { });
+        for (Int32 i = 0; i < 20; i++)
+        {
+            this._strategy.BeginAttempt();
+        }
 
-        var delay = this._strategy.GetNextDelay();
+        Int32 delay = this._strategy.GetNextDelay();
 
         Assert.InRange(delay, 25500, 34500); // 30000 * 0.85-1.15
     }
@@ -138,11 +157,11 @@ public class ReconnectionStrategyTests
     [Fact]
     public void GetNextDelay_AfterReset_ReturnsFirstRange()
     {
-        this._strategy.TryReconnect(() => { });
-        this._strategy.TryReconnect(() => { });
+        this._strategy.BeginAttempt();
+        this._strategy.BeginAttempt();
         this._strategy.Reset();
 
-        var delay = this._strategy.GetNextDelay();
+        Int32 delay = this._strategy.GetNextDelay();
 
         Assert.InRange(delay, 850, 1150);
     }
@@ -152,12 +171,8 @@ public class ReconnectionStrategyTests
     [Fact]
     public void FullSequence_AttemptsEscalateAndReset()
     {
-        // Simulate failed attempts with escalating delays
-        this._strategy.TryReconnect(() => throw new Exception("fail"));
-        var delay1 = this._strategy.GetNextDelay();
-
-        this._strategy.TryReconnect(() => throw new Exception("fail"));
-        var delay2 = this._strategy.GetNextDelay();
+        Int32 delay1 = this._strategy.BeginAttempt();
+        Int32 delay2 = this._strategy.BeginAttempt();
 
         Assert.True(delay2 > delay1); // Delays escalate
 
@@ -165,7 +180,7 @@ public class ReconnectionStrategyTests
         this._strategy.Reset();
         Assert.Equal(0, this._strategy.Attempts);
 
-        var delayAfterReset = this._strategy.GetNextDelay();
+        Int32 delayAfterReset = this._strategy.GetNextDelay();
         Assert.InRange(delayAfterReset, 850, 1150); // Back to base
     }
 }

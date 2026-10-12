@@ -8,7 +8,7 @@ Item numbers stay the same between assessments because `TODO.md`, commit message
 
 At this pass the build is clean (no warnings) and all 723 tests pass in about 7s.
 
-**Open**: #5, #9, #24, #28–#31, #33–#37. Priority order is in the [Summary Table](#summary-table).
+**Open**: #5, #9, #24, #28, #30, #31, #33–#37. Priority order is in the [Summary Table](#summary-table).
 
 ---
 
@@ -19,21 +19,6 @@ None open.
 ---
 
 ## Medium Priority
-
-### 29. Two Reconnect Loops, One Using Stale Credentials (Architecture/Correctness)
-
-**Problem**: Connections are retried in two places. `ConnectionManager` retries the initial connection every `ConnectRetryDelay` while the local port is closed. `OBSWebSocketManager` has its own `_reconnectTimer` with `ReconnectionStrategy` backoff for dropped connections. Within the second loop:
-
-- `OnReconnectTimer` calls the library's fire-and-forget `ConnectAsync` and then checks `IsConnected` straight away, which is almost always still false, so it schedules another attempt every time. `OnConnected` stopping the timer is what actually ends the loop.
-- `_connectingInProgress` and `_shouldReconnect` are plain `Boolean` fields written and read from the timer, socket and caller threads.
-- `GetReconnectDelay(Int32 attempt)` ignores its argument.
-- The timer retries with the stored `_lastUrl` and `_lastPassword`. It never re-reads OBS's `config.json`, so if the user changes the WebSocket password or port in OBS while the plugin is running, the plugin retries the old values until Reconnect is pressed (not yet verified on a device).
-
-**Impact**: Reconnect behaviour is hard to reason about and test, and a password or port change in OBS needs a manual reconnect.
-
-**Fix**: Make `ConnectionManager` the only owner of retries. It already knows how to read the local config, so each attempt picks up current settings. Have `OBSWebSocketManager` only report `ConnectionLost`, and make the remaining connection-state fields `volatile` or `Interlocked`. Drop the unused `attempt` parameter.
-
----
 
 ### 31. Scene Buttons Give No Feedback in Studio Mode (Usability)
 
@@ -177,6 +162,7 @@ None open.
 | 23 | Code Quality | `OnApplicationStarted` (`async void`) catches and logs exceptions. The blocking `Task.Delay(100).Wait()` after a scene collection switch is gone: obs-websocket sends `CurrentSceneCollectionChanged` only after the collection has loaded, so the scene list is read straight away. `CommandCoordinator` notifies commands of a disconnect once until the next connect. Splitting `OBSActionExecutor` moved to `TODO.md` (Architecture, Deferred) | v2.0.0 |
 | 26 | Correctness | Found in the #25 device check: OBS accepts connections while starting and answers "not ready" (207) until its scene collection loads, so the one-shot initial state load failed and the input list, profiles and studio mode stayed unloaded until something changed in OBS. `InitialStateLoader` now retries every 500ms (up to 30s) while OBS isn't ready and the connection is unchanged, and stats polling starts after the load instead of at connect, so it no longer logs errors while OBS starts. Device-checked 2026-09-29: loaded on the third attempt, about 1s after connecting | v2.0.0 |
 | 20 | Architecture | `OBSWebSocketManager` reports every change through a new `IOBSEventListener` (implemented by the plugin class, which forwards to `CommandCoordinator`) instead of `OBSStudioForLogiPlugin.Instance`. The executor reports visibility toggles through a constructor callback, and `StatsService` gets its providers from the plugin. The manager now talks only to `IOBSWebsocket`, which gained the connection members, the reads the manager made directly (`GetCurrentProfileAndList`, `GetCurrentSceneCollection`, `GetCurrentProgramScene`, `GetSceneItems`) and the library events, and it takes a background runner. The plugin class no longer calls command singletons: `IStatsAwareCommand`, `IMediaStateAwareCommand` and `IConnectionStatusAwareCommand` route stats, media and connection status through the registry. `OBSWebSocketManagerEventHandlingTests` drives the event handlers through a mocked `IOBSWebsocket` | Unreleased |
+| 29 | Architecture/Correctness | Two reconnect loops: `ConnectionManager` retried while the port was closed, and `OBSWebSocketManager` had its own backoff timer that retried the first attempt's URL and password forever, always scheduled another attempt (it checked `IsConnected` straight after a fire-and-forget connect), and shared plain `Boolean` flags across threads. The manager's timer is gone: `ConnectionManager` is the only thing that retries, with backoff after a drop or failed attempt (`ReconnectionStrategy.BeginAttempt`, reset on connect) and the fixed delay while OBS isn't up. Every attempt re-reads the connection settings, so a password or port changed in OBS is picked up. Retries stop on `Disconnect`, are skipped if a newer attempt connected first, and survive an attempt that throws. Device check for a password change still to do (`TODO.md`) | Unreleased |
 | 27 | Correctness | Streaming and recording buttons never redrew on a state change (seen on a device): the seven commands never registered and `StreamStateChanged`/`RecordStateChanged` notified nothing. `IStreamingAwareCommand` and `IRecordingAwareCommand` now carry both events through `IOBSEventListener` and `CommandCoordinator`, and Toggle/Start/Stop Streaming, Toggle/Start/Stop Recording and Recording Pause register and redraw, including on connect and disconnect. Device check after the fix still to do (`TODO.md`) | Unreleased |
 | 32 | Code Quality | `OBSActionExecutor` repeated the connected/guard/try/log steps in about 25 methods. They now go through three private helpers: `RunMutation` (background runner, "not connected" and refusal warnings, error logging), `Query<T>` (safe fallback) and `TryQuery<T>` (reports failure, for the render caches). The getters with no production callers left (`GetSceneItemEnabled`, `GetMediaInputStatus`, `GetInputVolume`, `GetInputAudioMonitorType`) are gone, since rendering reads the caches; their `TryGet*` versions stay. 1,242 → 657 lines | Unreleased |
 
@@ -188,7 +174,6 @@ Open items, in the order to work on them.
 
 | # | Priority | Area | Issue |
 |---|----------|------|-------|
-| 29 | Medium | Architecture | Two reconnect loops; the timer retries stale credentials and has unsynchronised state |
 | 31 | Medium | Usability | Scene buttons give no feedback in studio mode (preview scene not tracked) |
 | 5 | Medium | Usability | Hard-coded 500ms double-tap window delays every single tap |
 | 28 | Medium | Correctness | OBS groups not handled in scene source lists or scene audio membership |

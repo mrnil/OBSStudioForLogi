@@ -36,13 +36,13 @@ OBSStudioForLogiPlugin/
 
 | File | Responsibility |
 |------|---------------|
-| `OBSWebSocketManager.cs` | WebSocket lifecycle, event subscription, reconnection timer. Talks only to `IOBSWebsocket` and reports every change to an `IOBSEventListener`; takes a background runner so tests run its work inline |
+| `OBSWebSocketManager.cs` | WebSocket lifecycle (one connection attempt at a time; retrying is `ConnectionManager`'s job) and event subscription. Talks only to `IOBSWebsocket` and reports every change to an `IOBSEventListener`; takes a background runner so tests run its work inline |
 | `OBSActionExecutor.cs` | All OBS operations with state tracking. Every call goes through `RunMutation`, `Query<T>` or `TryQuery<T>`, which hold the connection guard, background runner and error handling; visibility toggles are reported through a constructor callback |
 | `OBSWebsocketAdapter.cs` | Thin wrapper over obs-websocket-dotnet library; `IsConnected` requires `IsIdentified`; parses `GetStats` null-tolerantly |
 | `IOBSWebsocket.cs` | Everything used from obs-websocket-dotnet: connection, requests and the library events (mocked in all tests) |
 | `IOBSEventListener.cs` | What `OBSWebSocketManager` reports after applying an OBS event; the plugin class implements it and forwards to `CommandCoordinator` |
 | `OBSFacade.cs` | Simplified public interface over OBSWebSocketManager |
-| `ConnectionManager.cs` | Connection lifecycle: config discovery, connect/disconnect, retrying every `ConnectRetryDelay` while OBS isn't running; `ReconnectAsync` ignores manual reconnects while connected or mid-attempt |
+| `ConnectionManager.cs` | Connection lifecycle and the only place that retries (#29): config discovery, connect/disconnect, a fixed `ConnectRetryDelay` while the local port is closed, and `ReconnectionStrategy` backoff after a drop or failed attempt. Every attempt re-reads the connection settings. Retries stop on `Disconnect`/`Dispose`, are skipped if a newer attempt already connected, and continue after an attempt that throws. `ReconnectAsync` ignores manual reconnects while connected or mid-attempt, including during the websocket handshake |
 | `CommandCoordinator.cs` | Owns event dispatch: per-command exception isolation via generic `NotifyEach<T>()` |
 | `CommandRegistry.cs` | Command store: registration/dedup + generic `GetCommands<T>()` interface filter |
 | `IObsCommand.cs` | Notification interfaces (`IObsCommand` + the specialised ones below) |
@@ -50,7 +50,7 @@ OBSStudioForLogiPlugin/
 | `OBSLifecycleManager.cs` | Port availability checking |
 | `PluginConfigReader.cs` | Read/write plugin config JSON; keeps the remote password out of the file, in an `ISecretStore`, and moves plaintext passwords left by older versions into it |
 | `ISecretStore.cs` | Encrypted value storage; the plugin backs it with the SDK's plugin settings (`PluginSettingsSecretStore`, nested in the plugin class) |
-| `ReconnectionStrategy.cs` | Exponential backoff with jitter |
+| `ReconnectionStrategy.cs` | Exponential backoff with jitter; `BeginAttempt` counts an attempt (atomically) and returns its delay, `Reset` on connect |
 | `StatsService.cs` | Timer-based stats polling; skips a tick while the previous poll is still running. Polls only while connected and while at least one viewer (a stats folder, the summary button) is registered, with an immediate poll for the first viewer. Pauses while OBS switches scene collection (`Pause`/`Resume`, driven by `OBSWebSocketManager.SceneCollectionSwitchStarted`/`Finished`) |
 | `AudioMeterService.cs` | Latest per-input audio meter levels fed by `InputVolumeMeters` (expire after `OBSTimings.AudioMeterStaleThreshold`), the live-input list, and a cached per-input mute state |
 | `AudioStateCache.cs` | Non-blocking per-input mute/volume/monitor type for button rendering: fetches a miss once in the background, kept current by OBS change events |

@@ -6,16 +6,29 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using Loupedeck.OBSStudioForLogiPlugin.Helpers;
     using Loupedeck.OBSStudioForLogiPlugin.Models;
 
+    // Owns the connection lifecycle and is the only place that retries (assessment #29). Every
+    // attempt goes through ConnectAsync, which reads the connection settings afresh - OBS's own
+    // config for a local OBS, the plugin config for a remote one - so a password or port changed
+    // while the plugin is running is picked up by the next attempt.
+    //
+    // Two kinds of retry:
+    // - OBS isn't up yet (local port closed): retry after a fixed delay.
+    // - The connection dropped, or an attempt failed (OBS refused it, wrong password): retry with
+    //   exponential backoff, reset once connected.
+    // Both stop when Disconnect or Dispose is called, until the next ConnectAsync.
     public class ConnectionManager
     {
         private readonly OBSWebSocketManager _obsManager;
         private readonly OBSConfigReader _configReader;
         private readonly OBSLifecycleManager _lifecycleManager;
         private readonly TimeSpan _retryDelay;
+        private readonly TimeSpan _connectionDelay;
+        private readonly ReconnectionStrategy _reconnection;
         private PluginConfig _pluginConfig;
         private Int32 _connectAttempts;
         private CancellationTokenSource _pendingRetry;
-        private Boolean _disposed;
+        private volatile Boolean _shouldReconnect;
+        private volatile Boolean _disposed;
 
         public event EventHandler Connected;
         public event EventHandler Disconnected;
@@ -27,8 +40,18 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         }
 
         public ConnectionManager(OBSWebSocketManager obsManager, OBSConfigReader configReader, OBSLifecycleManager lifecycleManager, TimeSpan retryDelay)
+            : this(obsManager, configReader, lifecycleManager, retryDelay,
+                TimeSpan.FromMilliseconds(OBSTimings.ConnectionDelay), new ReconnectionStrategy(new PluginLogAdapter()))
+        {
+        }
+
+        // connectionDelay and reconnection let tests run attempts without the real delays.
+        internal ConnectionManager(OBSWebSocketManager obsManager, OBSConfigReader configReader, OBSLifecycleManager lifecycleManager,
+            TimeSpan retryDelay, TimeSpan connectionDelay, ReconnectionStrategy reconnection)
         {
             this._retryDelay = retryDelay;
+            this._connectionDelay = connectionDelay;
+            this._reconnection = reconnection;
             this._obsManager = obsManager;
             this._configReader = configReader;
             this._lifecycleManager = lifecycleManager;
@@ -40,8 +63,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Boolean IsConnected => this._obsManager?.IsConnected ?? false;
 
         // True while a ConnectAsync call is still waiting for the port, the connection delay or
-        // the websocket start.
-        public Boolean IsConnecting => Volatile.Read(ref this._connectAttempts) > 0;
+        // the websocket start, and while the websocket handshake that follows is in progress.
+        public Boolean IsConnecting => Volatile.Read(ref this._connectAttempts) > 0 || (this._obsManager?.IsConnecting ?? false);
 
         public Boolean IsWebSocketServerDisabled => this._configReader?.IsServerDisabled ?? false;
 
@@ -53,12 +76,24 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private void OnConnectionEstablished(Object sender, EventArgs e)
         {
             this.CancelPendingRetry();
+            this._reconnection.Reset();
             this.Connected?.Invoke(this, EventArgs.Empty);
         }
 
+        // Raised for a dropped connection and for a failed attempt alike. A deliberate Disconnect
+        // raises it too, later and on another thread, so _shouldReconnect decides whether to retry.
         private void OnConnectionLost(Object sender, EventArgs e)
         {
             this.Disconnected?.Invoke(this, EventArgs.Empty);
+
+            if (!this._shouldReconnect || this._disposed)
+            {
+                return;
+            }
+
+            Int32 delayMs = this._reconnection.BeginAttempt();
+            PluginLog.Info($"Connection to OBS lost - reconnecting in {delayMs}ms");
+            this.ScheduleRetry(TimeSpan.FromMilliseconds(delayMs));
         }
 
         public void SetPluginConfig(PluginConfig config)
@@ -95,6 +130,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             // This attempt supersedes any retry that was waiting to run.
             this.CancelPendingRetry();
+            this._shouldReconnect = true;
             Interlocked.Increment(ref this._connectAttempts);
             try
             {
@@ -122,7 +158,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 };
                 PluginLog.Info($"Using remote OBS connection: {settings.IpAddress}:{settings.Port}");
 
-                await Task.Delay(OBSTimings.ConnectionDelay);
+                await Task.Delay(this._connectionDelay);
                 PluginLog.Info($"Initiating connection to remote OBS at {settings.GetWebSocketUrl()}");
                 await this._obsManager.ConnectAsync(settings.GetWebSocketUrl(), settings.Password);
             }
@@ -145,32 +181,32 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 }
 
                 PluginLog.Debug($"Waiting for local OBS WebSocket port {settings.Port} to be ready");
-                var portReady = await this._lifecycleManager.WaitForPortAsync("127.0.0.1", settings.Port);
+                Boolean portReady = await this._lifecycleManager.WaitForPortAsync("127.0.0.1", settings.Port);
 
                 if (portReady)
                 {
-                    await Task.Delay(OBSTimings.ConnectionDelay);
+                    await Task.Delay(this._connectionDelay);
                     PluginLog.Info($"Initiating connection to local OBS at {settings.GetWebSocketUrl()}");
                     await this._obsManager.ConnectAsync(settings.GetWebSocketUrl(), settings.Password);
                 }
                 else
                 {
-                    // OBS isn't running (yet). Once connected, dropped connections are retried by
-                    // OBSWebSocketManager's reconnect timer, but nothing retried this initial case -
-                    // the plugin stayed disconnected until the user pressed Reconnect.
+                    // OBS isn't running (yet). Without this the plugin stayed disconnected until
+                    // the user pressed Reconnect.
                     PluginLog.Warning($"OBS WebSocket port did not become available - retrying in {this._retryDelay.TotalSeconds:0}s");
-                    this.ScheduleRetry();
+                    this.ScheduleRetry(this._retryDelay);
                 }
             }
         }
 
         public void Disconnect()
         {
+            this._shouldReconnect = false;
             this.CancelPendingRetry();
             this._obsManager?.Disconnect();
         }
 
-        private void ScheduleRetry()
+        private void ScheduleRetry(TimeSpan delay)
         {
             if (this._disposed)
             {
@@ -179,21 +215,43 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             CancellationTokenSource retry = new CancellationTokenSource();
             Interlocked.Exchange(ref this._pendingRetry, retry)?.Cancel();
-            _ = this.RetryAfterDelayAsync(retry.Token);
+            _ = this.RetryAfterDelayAsync(delay, retry.Token);
         }
 
-        private async Task RetryAfterDelayAsync(CancellationToken cancellationToken)
+        private async Task RetryAfterDelayAsync(TimeSpan delay, CancellationToken cancellationToken)
         {
             try
             {
-                await Task.Delay(this._retryDelay, cancellationToken);
+                await Task.Delay(delay, cancellationToken);
             }
             catch (OperationCanceledException)
             {
                 return;
             }
 
-            await this.ConnectAsync();
+            // A Disconnected for an earlier connection can arrive after a newer attempt has
+            // started (the library reports it on another thread), so its retry may find the
+            // plugin connected, or connecting, by the time it runs.
+            if (this.IsConnected || this.IsConnecting)
+            {
+                PluginLog.Debug("Retry skipped - already connected or connecting to OBS");
+                return;
+            }
+
+            try
+            {
+                await this.ConnectAsync();
+            }
+            catch (Exception ex)
+            {
+                // Nothing awaits a retry, so an attempt that throws (an invalid remote address, say)
+                // would otherwise end the retries silently.
+                PluginLog.Warning($"Connection attempt failed: {ex.Message}");
+                if (this._shouldReconnect && !this._disposed)
+                {
+                    this.ScheduleRetry(TimeSpan.FromMilliseconds(this._reconnection.BeginAttempt()));
+                }
+            }
         }
 
         private void CancelPendingRetry()
@@ -204,6 +262,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public void Dispose()
         {
             this._disposed = true;
+            this._shouldReconnect = false;
             this.CancelPendingRetry();
             this._obsManager.ConnectionEstablished -= this.OnConnectionEstablished;
             this._obsManager.ConnectionLost -= this.OnConnectionLost;

@@ -172,7 +172,7 @@ public class OBSWebSocketManagerEventDispatchTests
     [Fact]
     public void Disconnect_DoesNotResetOutputStates()
     {
-        // Disconnect() only sets _shouldReconnect=false and stops timer.
+        // Disconnect() only closes the socket; retrying is ConnectionManager's job (#29).
         // Output state reset happens in OnDisconnected event handler
         // which fires asynchronously from the OBS WebSocket library.
         this._manager.Actions.SetStreamingState(OutputState.OBS_WEBSOCKET_OUTPUT_STARTED);
@@ -181,15 +181,13 @@ public class OBSWebSocketManagerEventDispatchTests
 
         // Streaming state is NOT reset by Disconnect() - only by OnDisconnected
         Assert.True(this._manager.IsStreaming);
-        Assert.False(this._manager.ShouldReconnect);
     }
 
     [Fact]
-    public void Disconnect_DisablesReconnection()
+    public void Disconnect_LeavesManagerDisconnected()
     {
         this._manager.Disconnect();
 
         Assert.False(this._manager.IsConnected);
-        Assert.False(this._manager.ShouldReconnect);
     }
 }

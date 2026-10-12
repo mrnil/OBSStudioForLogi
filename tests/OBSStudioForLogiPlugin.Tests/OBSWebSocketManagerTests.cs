@@ -20,7 +20,6 @@ public class OBSWebSocketManagerTests
         manager.Dispose();
         
         Assert.False(manager.IsConnected);
-        Assert.False(manager.ShouldReconnect);
     }
 
     [Fact]
@@ -33,18 +32,6 @@ public class OBSWebSocketManagerTests
         manager.Dispose();
         
         Assert.False(manager.IsConnected);
-    }
-
-    [Fact]
-    public void Dispose_WhileReconnecting_ShouldStopReconnection()
-    {
-        var manager = new OBSWebSocketManager();
-        manager.ConnectAsync("ws://localhost:4455", "").Wait();
-        System.Threading.Thread.Sleep(OBSTimings.TestAsyncDelay);
-        
-        manager.Dispose();
-        
-        Assert.False(manager.ShouldReconnect);
     }
 }
 

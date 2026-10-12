@@ -451,6 +451,38 @@ public class OBSWebSocketManagerEventHandlingTests : IDisposable
         this._mockListener.Verify(x => x.OnMediaPlaybackStateChanged("Video"), Times.Once);
     }
 
+    // --- Connecting (Assessment #29) ---
+
+    [Fact]
+    public async Task ConnectAsync_WhileWaitingForOBS_IsConnecting()
+    {
+        await this._manager.ConnectAsync("ws://127.0.0.1:4455", "");
+
+        Assert.True(this._manager.IsConnecting);
+        this._mockObs.Verify(x => x.Connect("ws://127.0.0.1:4455", ""), Times.Once);
+    }
+
+    [Fact]
+    public async Task ConnectAsync_WhenTheStartThrows_ClearsConnectingAndRethrows()
+    {
+        this._mockObs.Setup(x => x.Connect(It.IsAny<String>(), It.IsAny<String>())).Throws(new ArgumentException("Invalid url"));
+
+        await Assert.ThrowsAsync<ArgumentException>(() => this._manager.ConnectAsync("http://bad", ""));
+
+        Assert.False(this._manager.IsConnecting);
+    }
+
+    [Fact]
+    public async Task Disconnected_AfterConnectAsync_ClearsConnecting()
+    {
+        await this._manager.ConnectAsync("ws://127.0.0.1:4455", "");
+        ObsDisconnectionInfo info = new ObsDisconnectionInfo(ObsCloseCodes.AuthenticationFailed, "Authentication failed", null);
+
+        this._mockObs.Raise(x => x.Disconnected += null, this._mockObs.Object, info);
+
+        Assert.False(this._manager.IsConnecting);
+    }
+
     // --- Disposal ---
 
     [Fact]

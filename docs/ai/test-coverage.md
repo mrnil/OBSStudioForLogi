@@ -2,9 +2,9 @@
 
 ## Overview
 
-The project follows a TDD approach with 763 unit tests using xUnit + Moq (verified 2026-10-12, net10.0, all passing). Overall line coverage is ~37.4% (Cobertura, last measured pre-CommandCoordinator-refactor), branch coverage ~19.8%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage. Coverage has drifted down slightly since v1.5.1 (was 39.5%/22.6%) as v1.6.0 added several new Actions-layer commands (`SceneSelectCommand`, `AudioSourceSelectCommand`, `SceneCollectionsDynamicFolder`) faster than services-layer surface area grew — expected under the TDD-exemption policy, not a regression.
+The project follows a TDD approach with 770 unit tests using xUnit + Moq (verified 2026-10-12, net10.0, all passing). Overall line coverage is ~37.4% (Cobertura, last measured pre-CommandCoordinator-refactor), branch coverage ~19.8%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage. Coverage has drifted down slightly since v1.5.1 (was 39.5%/22.6%) as v1.6.0 added several new Actions-layer commands (`SceneSelectCommand`, `AudioSourceSelectCommand`, `SceneCollectionsDynamicFolder`) faster than services-layer surface area grew — expected under the TDD-exemption policy, not a regression.
 
-## Test Count: 763
+## Test Count: 770
 
 ## Test Files
 
@@ -18,13 +18,13 @@ The project follows a TDD approach with 763 unit tests using xUnit + Moq (verifi
 | `OBSActionExecutorSceneSwitchingTests.cs` | Scene switching with studio mode behavior | ~6 |
 | `OBSActionExecutorStudioModeTests.cs` | Studio mode toggle, state management | ~8 |
 | `OBSActionExecutorStudioModeTransitionTests.cs` | Studio mode transition command | ~6 |
-| `OBSWebSocketManagerTests.cs` | Manager lifecycle, disposal | ~4 |
+| `OBSWebSocketManagerTests.cs` | Manager lifecycle, disposal | 3 |
 | `OBSWebSocketManagerStateTests.cs` | State properties delegation | ~6 |
-| `OBSWebSocketManagerReconnectionTests.cs` | Reconnection with exponential backoff; request timeout set and kept across `ConnectAsync`; failed start clears the connecting flag | 7 |
+| `OBSWebSocketManagerReconnectionTests.cs` | Real-socket connection checks: request timeout set and kept across `ConnectAsync`; failed start clears the connecting flag (retrying moved to `ConnectionManager`, #29) | 3 |
 | `OBSWebSocketManagerLoggingTests.cs` | Log output verification | ~3 |
 | `OBSWebSocketManagerEventDispatchTests.cs` | State propagation through Actions executor | 18 |
-| `OBSWebSocketManagerEventHandlingTests.cs` | The manager's OBS event handlers, driven through a mocked `IOBSWebsocket` with an inline runner: connect and the initial state load, disconnect, outputs (including the streaming and recording notifications, #27), profile/collection/scene changes, scene item visibility (including duplicates and a failed lookup), inputs and audio, media, and unsubscribing on dispose; each checks the recorded state and the `IOBSEventListener` calls (#20) | 37 |
-| `ReconnectionStrategyTests.cs` | Backoff delays, attempt counting, error handling | 15 |
+| `OBSWebSocketManagerEventHandlingTests.cs` | The manager's OBS event handlers, driven through a mocked `IOBSWebsocket` with an inline runner: connect and the initial state load, disconnect, outputs (including the streaming and recording notifications, #27), profile/collection/scene changes, scene item visibility (including duplicates and a failed lookup), inputs and audio, media, and unsubscribing on dispose; each checks the recorded state and the `IOBSEventListener` calls (#20); connecting clears its flag when the start throws or fails (#29) | 40 |
+| `ReconnectionStrategyTests.cs` | Backoff delays, `BeginAttempt` counting (including from many threads), custom delays, reset | 16 |
 | `OBSConfigReaderTests.cs` | Config file parsing, validation, IsServerDisabled | 10 |
 | `OBSConnectionSettingsTests.cs` | Connection settings model, localhost validation | ~5 |
 | `OBSLifecycleManagerTests.cs` | Port checking, wait logic | ~3 |
@@ -38,7 +38,7 @@ The project follows a TDD approach with 763 unit tests using xUnit + Moq (verifi
 | `KeyedStateCacheTests.cs` | Same as `AudioStateCacheTests` for the single-value cache, plus `TryFetch` failures and `RemoveWhere` | 19 |
 | `SessionGateTests.cs` | Once-per-connection gate, including concurrent opens; `Generation`/`IsCurrent` tell an old connection from a new one | 8 |
 | `InitialStateLoaderTests.cs` | Initial state load retried while OBS answers "not ready" (207), given up after the last attempt, not retried for other errors, abandoned when the connection goes (#26) | 10 |
-| `ConnectionManagerTests.cs` | `IsConnecting` during a port wait; `ReconnectAsync` ignores presses mid-attempt; retries while the port never comes up, stopped by `Disconnect`/`Dispose` | 8 |
+| `ConnectionManagerTests.cs` | `IsConnecting` during a port wait and the websocket handshake; `ReconnectAsync` ignores presses mid-attempt; retries while the port never comes up, stopped by `Disconnect`/`Dispose`; after a drop (#29): reconnects, with settings changed in OBS's config, not after `Disconnect`, not once connected again, counting backoff attempts, reset on connect, and continuing after an attempt that throws | 16 |
 | `StatsServiceTests.cs` | Poll stores stats, overlapping polls skipped, a throwing provider doesn't block later polls; polling only while connected with a viewer, an immediate poll for the first viewer, resuming after reconnect (#25); paused during a scene collection switch, with a fresh poll on resume and the pause cleared by reconnecting | 24 |
 | `LoadingTilesTests.cs` | Loading tile parameters, tile index parsing, begin/end state, two tiles to fit beside the Back button, font size that fits the message (#25); rendering is SDK-dependent and checked on a device | 17 |
 | `OBSWebsocketAdapterStatsTests.cs` | Null-tolerant `GetStats` parsing | 4 |
@@ -180,7 +180,7 @@ public void GetInputVolume_WhenOBSThrows_LogsErrorAndReturnsDefault()
 ### Should Add Tests For
 
 1. **OBSWebSocketManager event handlers (null-guard branches)** — `OBSWebSocketManagerEventHandlingTests` drives every handler through a mocked `IOBSWebsocket` (#20), but not yet the null-event-args branches (`e?.OutputState?.State ?? STOPPED` and similar), which only fire if OBS sends malformed events.
-2. **Reconnection timer logic** — `OnReconnectTimer` complexity reduced to 4 after extracting `ReconnectionStrategy` (fully tested with 15 tests). Remaining untested branches are the guard clause (`_disposed || !_shouldReconnect`) and scheduling condition.
+2. **Reconnection timing** — the manager's reconnect timer is gone (#29); `ConnectionManagerTests` covers the retry decisions with short injected delays. The real `OBSTimings.ConnectionDelay` and backoff values are checked on a device.
 3. **`AudioInputMembership` clearing (#25)** — `OBSWebSocketManager` clears the cache from its scene item, input, scene list and collection event handlers. Those handlers are now testable (#20), but no test yet asserts the invalidation; `CachedValueTests` covers the cache itself and step 6 of `docs/device-checks/on-demand-loading.md` covers the wiring.
 
 ### Intentionally Not Tested
@@ -189,7 +189,6 @@ public void GetInputVolume_WhenOBSThrows_LogsErrorAndReturnsDefault()
 2. **ButtonImageHelper / ButtonTextRenderer** — Rendering code requiring SDK
 3. **OBSWebsocketAdapter** — Pass-through wrapper
 4. **OBSStudioForLogiPlugin main class** — Orchestration requiring full plugin runtime
-5. **ConnectionManager** — Thin async delegation, hard to test without real WebSocket
 
 ## Test Timing Constants
 

@@ -155,6 +155,160 @@ public class ConnectionManagerTests : IDisposable
         Assert.Equal(afterDispose, PortWaits(lifecycle));
     }
 
+    // --- Reconnecting after the connection drops (Assessment #29) ---
+    //
+    // ConnectionManager is the only thing that retries. These drive it through a manager on a
+    // mocked IOBSWebsocket, so a dropped connection is a raised Disconnected event.
+
+    private sealed class Rig : IDisposable
+    {
+        public Mock<IOBSWebsocket> Obs { get; } = new Mock<IOBSWebsocket>();
+        public ReconnectionStrategy Strategy { get; }
+        public ConnectionManager Manager { get; }
+
+        public Rig(String configFile, Int32 reconnectDelayMs)
+        {
+            this.Obs.SetupProperty(x => x.RequestTimeout);
+            Mock<OBSLifecycleManager> lifecycle = new Mock<OBSLifecycleManager>(new Mock<IPluginLog>().Object);
+            lifecycle
+                .Setup(x => x.WaitForPortAsync(It.IsAny<String>(), It.IsAny<Int32>(), It.IsAny<Int32>(), It.IsAny<Int32>()))
+                .ReturnsAsync(true);
+            this.Strategy = new ReconnectionStrategy(new Mock<IPluginLog>().Object, new[] { reconnectDelayMs });
+            OBSWebSocketManager obsManager = new OBSWebSocketManager(this.Obs.Object, null, new Mock<IPluginLog>().Object, action => action());
+            this.Manager = new ConnectionManager(obsManager, new OBSConfigReader { ConfigPath = configFile }, lifecycle.Object,
+                TimeSpan.FromMilliseconds(50), TimeSpan.Zero, this.Strategy);
+        }
+
+        public Int32 ConnectCalls => this.Obs.Invocations.Count(i => i.Method.Name == nameof(IOBSWebsocket.Connect));
+
+        public void DropConnection()
+        {
+            OBSWebsocketDotNet.Communication.ObsDisconnectionInfo info =
+                new OBSWebsocketDotNet.Communication.ObsDisconnectionInfo(OBSWebsocketDotNet.Communication.ObsCloseCodes.UnknownReason, "dropped", null);
+            this.Obs.Raise(x => x.Disconnected += null, this.Obs.Object, info);
+        }
+
+        public void Dispose()
+        {
+            this.Manager.Dispose();
+        }
+    }
+
+    private void WriteObsConfig(Int32 port, String password)
+    {
+        File.WriteAllText(this._configFile, $@"{{ ""server_enabled"": true, ""server_port"": {port}, ""server_password"": ""{password}"" }}");
+    }
+
+    [Fact]
+    public async Task ConnectionLost_AfterConnecting_Reconnects()
+    {
+        using Rig rig = new Rig(this._configFile, 10);
+        await rig.Manager.ConnectAsync();
+
+        rig.DropConnection();
+
+        Assert.True(WaitFor(() => rig.ConnectCalls >= 2), $"Expected a reconnect, saw {rig.ConnectCalls} connect calls");
+    }
+
+    // The old reconnect timer retried the URL and password of the first attempt forever, so a
+    // password or port changed in OBS while the plugin was running needed a manual Reconnect.
+    [Fact]
+    public async Task ConnectionLost_AfterObsSettingsChanged_ReconnectsWithTheNewSettings()
+    {
+        using Rig rig = new Rig(this._configFile, 10);
+        await rig.Manager.ConnectAsync();
+        rig.Obs.Verify(x => x.Connect("ws://127.0.0.1:4455", ""), Times.Once);
+
+        this.WriteObsConfig(4460, "changed");
+        rig.DropConnection();
+
+        Assert.True(WaitFor(() => rig.ConnectCalls >= 2));
+        rig.Obs.Verify(x => x.Connect("ws://127.0.0.1:4460", "changed"), Times.Once);
+    }
+
+    [Fact]
+    public async Task ConnectionLost_AfterDisconnect_DoesNotReconnect()
+    {
+        using Rig rig = new Rig(this._configFile, 10);
+        await rig.Manager.ConnectAsync();
+
+        // The library reports a deliberate disconnect as Disconnected too, on another thread.
+        rig.Manager.Disconnect();
+        rig.DropConnection();
+        Thread.Sleep(200);
+
+        Assert.Equal(1, rig.ConnectCalls);
+    }
+
+    [Fact]
+    public async Task ConnectionLost_WhenConnectedAgainBeforeTheRetry_SkipsTheRetry()
+    {
+        using Rig rig = new Rig(this._configFile, 150);
+        await rig.Manager.ConnectAsync();
+
+        rig.DropConnection();
+        rig.Obs.Setup(x => x.IsConnected).Returns(true);
+        Thread.Sleep(400);
+
+        Assert.Equal(1, rig.ConnectCalls);
+    }
+
+    [Fact]
+    public async Task ConnectionLost_RepeatedFailures_CountEachAttemptForBackoff()
+    {
+        using Rig rig = new Rig(this._configFile, 10);
+        await rig.Manager.ConnectAsync();
+
+        rig.DropConnection();
+        Assert.True(WaitFor(() => rig.ConnectCalls >= 2));
+        rig.DropConnection();
+        Assert.True(WaitFor(() => rig.ConnectCalls >= 3));
+
+        Assert.Equal(2, rig.Strategy.Attempts);
+    }
+
+    [Fact]
+    public async Task ConnectionEstablished_ResetsBackoffAndCancelsThePendingRetry()
+    {
+        using Rig rig = new Rig(this._configFile, 300);
+        await rig.Manager.ConnectAsync();
+        rig.DropConnection();
+        Assert.Equal(1, rig.Strategy.Attempts);
+
+        rig.Obs.Raise(x => x.Connected += null, EventArgs.Empty);
+        Thread.Sleep(500);
+
+        Assert.Equal(0, rig.Strategy.Attempts);
+        Assert.Equal(1, rig.ConnectCalls);
+    }
+
+    // Nothing awaits a retry, so one that threw used to end the retries for good.
+    [Fact]
+    public async Task ConnectionLost_WhenTheRetryThrows_KeepsRetrying()
+    {
+        using Rig rig = new Rig(this._configFile, 10);
+        await rig.Manager.ConnectAsync();
+        rig.Obs.SetupSequence(x => x.Connect(It.IsAny<String>(), It.IsAny<String>()))
+            .Throws(new InvalidOperationException("socket error"))
+            .Pass();
+
+        rig.DropConnection();
+
+        Assert.True(WaitFor(() => rig.ConnectCalls >= 3), $"Expected a retry after the failure, saw {rig.ConnectCalls} connect calls");
+        Assert.Equal(2, rig.Strategy.Attempts);
+    }
+
+    [Fact]
+    public async Task IsConnecting_WhileTheHandshakeIsInProgress_ReturnsTrue()
+    {
+        using Rig rig = new Rig(this._configFile, 10);
+
+        // The mock never answers, so the handshake stays in progress.
+        await rig.Manager.ConnectAsync();
+
+        Assert.True(rig.Manager.IsConnecting);
+    }
+
     [Fact]
     public void ReconnectAsync_WhenIdle_StartsConnectAttempt()
     {

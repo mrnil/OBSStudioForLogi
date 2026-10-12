@@ -32,11 +32,13 @@
 - [x] ~~Route stats and media updates through `CommandCoordinator` instead of `StatsDisplay.Instance`, `MediaDynamicFolder.Instance` and similar~~ ✅ Done — `IStatsAwareCommand`, `IMediaStateAwareCommand`, `IConnectionStatusAwareCommand`
 - [x] ~~Put the events `OBSWebSocketManager` needs on `IOBSWebsocket` (or an event-source interface) and route its direct library calls (`_obs.GetProfileList()`, `_obs.GetSceneList()`, ...) through it, then add tests for the event handlers~~ ✅ Done — `OBSWebSocketManagerEventHandlingTests`
 
-### Assessment: Two Reconnect Loops (#29)
+### Assessment: Two Reconnect Loops (#29) — fixed, device check to do
 
-- [ ] Make `ConnectionManager` the only owner of connection retries; `OBSWebSocketManager` just reports `ConnectionLost`
-- [ ] Re-read the local OBS config on each retry, so a password or port change in OBS doesn't need a manual reconnect (check the stale-credentials behaviour on a device first)
-- [ ] Make `_connectingInProgress`/`_shouldReconnect` thread-safe and drop the unused `attempt` parameter of `GetReconnectDelay`
+- [x] ~~Make `ConnectionManager` the only owner of connection retries; `OBSWebSocketManager` just reports `ConnectionLost`~~ ✅ Done
+- [x] ~~Re-read the local OBS config on each retry, so a password or port change in OBS doesn't need a manual reconnect~~ ✅ Done — every retry goes through `ConnectAsync`, which reads the settings afresh
+- [x] ~~Make `_connectingInProgress`/`_shouldReconnect` thread-safe and drop the unused `attempt` parameter of `GetReconnectDelay`~~ ✅ Done — the flags are `volatile`, `ReconnectionStrategy` counts atomically, and `GetReconnectDelay` went with the manager's timer
+- [ ] Check on a device: change the WebSocket password in OBS while connected (OBS drops the connection), and confirm the plugin reconnects with the new password without pressing Reconnect; then quit and restart OBS and confirm it reconnects
+- [ ] Consider: every reconnect waits `OBSTimings.ConnectionDelay` (2s) before connecting, which was meant for OBS starting up; a reconnect to an OBS that is still running could skip it
 
 ### Assessment: No Scene Feedback in Studio Mode (#31)
 

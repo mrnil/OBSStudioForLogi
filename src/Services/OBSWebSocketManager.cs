@@ -4,7 +4,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Timers;
     using Loupedeck.OBSStudioForLogiPlugin.Helpers;
     using OBSWebsocketDotNet;
     using OBSWebsocketDotNet.Communication;
@@ -16,25 +15,21 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private readonly IOBSWebsocket _obs;
         private readonly IOBSEventListener _listener;
         private readonly Action<Action> _runInBackground;
-        private readonly Timer _reconnectTimer;
         private readonly IPluginLog _log;
-        private readonly ReconnectionStrategy _reconnectionStrategy;
         private readonly Object _disposeLock = new Object();
         private readonly HashSet<String> _volumeMeterOwners = new HashSet<String>();
         private readonly SessionGate _session = new SessionGate();
         private readonly InitialStateLoader _initialStateLoader;
-        private String _lastUrl;
-        private String _lastPassword;
-        private Boolean _shouldReconnect = false;
         private Boolean _disposed = false;
-        private Boolean _connectingInProgress = false;
+
+        // Written on the connecting thread and the websocket's event thread, read from others.
+        private volatile Boolean _connectingInProgress = false;
 
         // Connected means identified: the socket is open during the handshake too, before OBS will
         // accept requests.
         public Boolean IsConnected => this._obs.IsConnected;
         public Boolean IsConnecting => this._connectingInProgress;
         internal TimeSpan RequestTimeout => this._obs.RequestTimeout;
-        public Boolean ShouldReconnect => this._shouldReconnect;
         public Boolean IsStreaming => this.Actions.IsStreaming;
         public Boolean IsRecording => this.Actions.IsRecording;
         public Boolean IsStreamingChanging => this.Actions.IsStreamingChanging;
@@ -86,7 +81,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             // would drop the connection whenever OBS went quiet for that long. ConnectAsync creates a
             // fresh client with that watchdog off but keeps this request timeout.
             this._obs.RequestTimeout = TimeSpan.FromMilliseconds(OBSTimings.RequestTimeout);
-            this._reconnectionStrategy = new ReconnectionStrategy(log);
             this._initialStateLoader = new InitialStateLoader(log);
             this.Actions = new OBSActionExecutor(this._obs, log, this._runInBackground,
                 (scene, source) => this._listener?.OnSourceVisibilityChanged(scene, source));
@@ -98,9 +92,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 this.Actions.TryGetMediaInputStatus, this.OnMediaStateFetched, MediaInputStates.None, "media state");
             this.AudioInputMembership = new CachedValue<Models.AudioInputSceneMembership>(
                 this.Actions.TryGetAudioInputSceneMembership, "audio input scene membership");
-            this._reconnectTimer = new Timer();
-            this._reconnectTimer.Elapsed += this.OnReconnectTimer;
-            this._reconnectTimer.AutoReset = false;
 
             this._obs.Disconnected += this.OnDisconnected;
             this._obs.Connected += this.OnConnected;
@@ -134,11 +125,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._log.Info("OBSWebSocketManager initialized");
         }
 
+        // Starts one connection attempt; the outcome arrives as ConnectionEstablished or
+        // ConnectionLost. Retrying is ConnectionManager's job (assessment #29).
         public async Task ConnectAsync(String url, String password)
         {
-            this._lastUrl = url;
-            this._lastPassword = password;
-            this._shouldReconnect = true;
             this._connectingInProgress = true;
 
             // A fresh connection starts a fresh session, even if the previous one's Disconnected
@@ -147,26 +137,27 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
             this._log.Info($"Connecting to OBS WebSocket at {url}");
 
-            await Task.Run(() =>
+            try
             {
-                this._obs.Connect(url, password);
-            });
+                await Task.Run(() =>
+                {
+                    this._obs.Connect(url, password);
+                });
+            }
+            catch
+            {
+                // No Connected or Disconnected follows a start that throws, so nothing else would
+                // clear the flag, and ConnectionManager skips retries while it is set.
+                this._connectingInProgress = false;
+                throw;
+            }
         }
-
-
 
         public void Disconnect()
         {
             this._log.Info("Disconnecting from OBS WebSocket");
-            this._shouldReconnect = false;
-            this._reconnectTimer?.Stop();
             this._session.Close();
             this._obs?.Disconnect();
-        }
-
-        public Int32 GetReconnectDelay(Int32 attempt)
-        {
-            return this._reconnectionStrategy.GetNextDelay();
         }
 
         // InputVolumeMeters is a high-volume event (fires ~20x/sec) - the library's event accessor
@@ -250,8 +241,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.SourceVisibility.Clear();
             this.MediaState.Clear();
             this.AudioInputMembership.Invalidate("new connection");
-            this._reconnectionStrategy.Reset();
-            this._reconnectTimer?.Stop();
 
             // Raise plugin-level event
             this.ConnectionEstablished?.Invoke(this, EventArgs.Empty);
@@ -333,12 +322,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this.MediaState.Clear();
             this.AudioInputMembership.Invalidate("disconnected");
 
-            // NotifyDisconnected is called via OBSStudioForLogiPlugin.OnOBSDisconnected → CommandCoordinator
-
-            if (this._shouldReconnect && !this._disposed)
-            {
-                this.ScheduleNextReconnect();
-            }
+            // NotifyDisconnected is called via OBSStudioForLogiPlugin.OnOBSDisconnected → CommandCoordinator,
+            // and ConnectionManager decides whether to reconnect.
         }
 
         private void OnStreamStateChanged(Object sender, StreamStateChangedEventArgs e)
@@ -887,35 +872,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             this._listener?.OnReplayBufferSaved(path);
         }
 
-        private void OnReconnectTimer(Object sender, ElapsedEventArgs e)
-        {
-            if (this._disposed || !this._shouldReconnect)
-                return;
-
-            if (this.IsConnected || this._connectingInProgress)
-            {
-                this._log.Debug("Already connected or connection in progress, skipping reconnection attempt");
-                return;
-            }
-
-            this._connectingInProgress = true;
-            this._reconnectionStrategy.TryReconnect(() =>
-                this._obs.Connect(this._lastUrl, this._lastPassword));
-
-            if (!this.IsConnected && this._shouldReconnect && !this._disposed)
-            {
-                this.ScheduleNextReconnect();
-            }
-        }
-
-        private void ScheduleNextReconnect()
-        {
-            var delay = this._reconnectionStrategy.GetNextDelay();
-            this._log.Info($"Scheduling next reconnection attempt in {delay}ms");
-            this._reconnectTimer.Interval = delay;
-            this._reconnectTimer.Start();
-        }
-
         public void Dispose()
         {
             lock (this._disposeLock)
@@ -925,15 +881,6 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
                 this._log.Info("Disposing OBSWebSocketManager");
                 this._disposed = true;
-                this._shouldReconnect = false;
-
-                // Stop and dispose timer
-                if (this._reconnectTimer != null)
-                {
-                    this._reconnectTimer.Stop();
-                    this._reconnectTimer.Elapsed -= this.OnReconnectTimer;
-                    this._reconnectTimer.Dispose();
-                }
 
                 // Unsubscribe from all events
                 if (this._obs != null)
