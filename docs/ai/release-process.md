@@ -97,6 +97,7 @@ Verify:
 - Display name is correct
 - Supported platforms are correct
 - The package root contains `actionsymbols/` with one SVG per action class (`ActionSymbolTests` checks the source folder)
+- `metadata/` holds only `Icon256x256.png` and `LoupedeckPackage.yaml`: the build copies package files but never deletes them, so a file removed from `src/package/` stays in `bin/Release` until you delete it there (`PluginIconTests` checks the source icon)
 
 ### 10. Push to Git
 
