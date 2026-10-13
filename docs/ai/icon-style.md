@@ -61,7 +61,7 @@ Most of the set was exported from Figma and isn't defined in `generate_icons.py`
 
 ## Action Symbols
 
-Action symbols are the small glyphs the Options+ and Loupedeck action picker shows next to each action's name. They're separate from button icons: they live in `src/package/actionsymbols/`, ship in the package root, and are never loaded by code.
+Action symbols are the small glyphs the Options+ action picker shows next to each action's name. The Loupedeck software doesn't show them. They're separate from button icons: they live in `src/package/actionsymbols/`, ship in the package root, and are never loaded by code.
 
 - **SDK rules:** SVG, single-colour **black** strokes and fills, transparent background. A missing symbol is replaced by a generic one.
 - **Naming:** the action class's full name, `Loupedeck.OBSStudioForLogiPlugin.<Class>.svg`. Parameter-specific symbols (`<Class>___<parameter>.svg`) are optional and not used.
