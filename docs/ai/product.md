@@ -4,105 +4,96 @@
 
 - **Name**: Streaming Assistant (package display name) / OBSStudioForLogiPlugin (assembly name)
 - **Package ID**: OBSStudioForLogi
-- **Current Version**: 1.6.1
+- **Current version**: see `version:` in `src/package/metadata/LoupedeckPackage.yaml` (2.0.1 at the time of writing)
 - **Author**: Stephen Moretti
 - **License**: MIT
 - **Repository**: <https://github.com/mrnil/OBSStudioForLogi>
 
-## Purpose and Value Proposition
+## Purpose
 
-A Logitech/Loupedeck hardware plugin that enables direct, real-time control of OBS Studio from physical devices (MX Creative Console, Loupedeck CT, Loupedeck Live). It bridges the Logi Actions SDK with the OBS WebSocket 5.x protocol, providing tactile hardware control over streaming, recording, scenes, audio, and media — without touching the mouse or keyboard.
+A Logitech/Loupedeck hardware plugin for controlling OBS Studio from physical devices (MX Creative Console, Loupedeck CT, Loupedeck Live). It connects the Logi Actions SDK to the OBS WebSocket 5.x protocol, so streaming, recording, scenes, audio and media can be controlled from the device instead of with the mouse and keyboard.
 
-The plugin is **not** an OBS extension or plugin. It is a Logi Plugin Service plugin that communicates with OBS via its WebSocket server.
+The plugin is **not** an OBS extension. It is a Logi Plugin Service plugin that talks to OBS's built-in WebSocket server.
 
 ## Target Users
 
-- Streamers and content creators using Logitech MX Creative Console or Loupedeck devices
-- Users who want hardware-button control over OBS during live streams or recordings
-- Power users who need configurable, per-button OBS actions (user-defined action group)
+- Streamers and content creators using a Logitech MX Creative Console or a Loupedeck device
+- Users who want hardware buttons for OBS during live streams or recordings
+- Power users who want configurable, per-button OBS actions (the "User defined" actions)
 
-## Primary Device
+## Devices
 
-- **MX Creative Console** (primary) — uses dial/wheel for volume, adjustment tiles for audio
-- **Loupedeck CT / Loupedeck Live** — first-class citizens; encoder rotation and touch buttons supported
+- **MX Creative Console**: the main target. Dials and the big wheel for volume, adjustment tiles for audio
+- **Loupedeck CT / Live**: fully supported, including encoder rotation and touch buttons
 
 ## Feature Groups
 
-### Group 1 — OBS
+The numbered groups are the `GroupName` prefixes shown in the action list. `###` sub-groups appear nested under their group.
 
-- Screenshot capture (auto-detects Pictures/Documents/Desktop path)
-- Manual reconnect button
-- Studio mode toggle and transition
-- Connection status display (green=connected, red=disconnected, orange=WebSocket disabled)
-- Stats Summary (FPS, CPU%, dropped frames — colour-coded)
-- Stats Folder (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped, Disk Space, Render Time)
-- Plugin Settings (configure local/remote OBS, stats polling interval)
+### 1. OBS
 
-### Group 2 — Streaming
+- Screenshot (saves to Pictures, Documents or Desktop)
+- Reconnect to OBS, Connection Status (green connected, red disconnected, orange WebSocket server disabled)
+- Toggle Studio Mode, Studio Mode Transition
+- Stats Summary (FPS, CPU%, dropped frames, colour-coded) and Stats Folder (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped, Disk Space, Render Time)
+- Plugin Settings (local or remote OBS, stats polling interval, audio meter refresh rate)
 
-- Toggle, start, stop streaming
-- Stream Stats Folder (duration, bytes sent, congestion, skipped frames, total frames — colour-coded)
+### 2. Streaming
 
-### Group 3 — Recording
+- Toggle/Start/Stop Streaming. Start and Stop are greyed out when they can't act
+- Stream Stats Folder (duration, bytes sent, congestion, skipped frames, total frames)
 
-- Toggle, start, stop, pause/resume recording
+### 3. Recording
 
-### Group 4 — Replay Buffer
+- Toggle/Start/Stop Recording and Recording Pause. Toggle Recording is a status key (red record dot while recording, green stop square while not)
 
-- Toggle replay buffer, save replay buffer (green flash confirmation on save)
+### 4. Replay Buffer
 
-### Group 5 — Virtual Camera
+- Toggle Replay Buffer, Save Replay (flashes green when saved)
 
-- Toggle, start, stop virtual camera
+### 5. Virtual Camera
 
-### Group 6 — Profiles
+- Toggle/Start/Stop Virtual Camera
 
-- **Available Profiles** sub-group: Profile Select (multi-state), Profiles Dynamic Folder
-- Current Profile Display
+### 6. Profiles
 
-### Group 7 — Scenes
+- Profiles folder, Current Profile display, and one select button per profile (`Available Profiles`)
 
-- **Available Scenes** sub-group: Scene Select (multi-state — new in v1.6.0)
-- **Available Collections** sub-group: Scene Collection Select, Scene Collections Dynamic Folder (new in v1.6.0)
-- **User Defined** sub-group: Switch to Scene, Toggle Source Visibility
-- Sources Folder (visibility toggle), Current Scene Display, Current Scene Collection Display
-- Studio mode aware: switches to preview when studio mode enabled, program when disabled
+### 7. Scenes
 
-### Group 8 — Audio
+- Scenes folder, Scene Sources folder (toggle visibility), Scene Collections folder
+- Current Scene and Current Collection displays
+- One select button per scene (`Available Scenes`) and per scene collection (`Available Collections`)
+- `User Defined`: Switch to Scene (optional profile and collection first), Toggle Source Visibility (comma-separated sources, optional scene)
+- In studio mode, scene buttons set the preview scene; otherwise the program scene
 
-- Audio Mixer Folder (all inputs, mute/unmute, volume in dB, real-time updates)
-- Scene Audio Folder (inputs in current scene + inputs not in any scene)
-- Audio Select Folder (dedicated source selection for wheel/dial control)
-- Audio Volume Folder (MX big wheel-compatible adjustment tiles)
-- Live Audio Folder (real-time per-channel VU meters on a dB scale for live inputs, tap to mute, configurable refresh rate)
-- Audio Meter per-source action (same meter for one chosen input on any button; grey/red crossed-out speaker when not live/muted)
-- Selected Source Volume Adjustment (standalone dial/wheel adjustment)
+### 8. Audio
 
-### Group 9 — Media
+- Live Audio Folder: real-time VU meters for the inputs OBS reports as live, tap to mute
+- Mixer for All Audio and Mixer for Scene Audio: single tap selects the input for the dial, double tap mutes, encoder adjusts volume and press cycles monitoring; volume in dB
+- Audio Select folder (selection only), Audio Volume folder (adjustment tiles for the MX big wheel)
+- Selected Source Volume adjustment for any dial or wheel
+- `Meters`: one Audio Meter per input, live or not
+- `Available Sources`: one mute button per input
+- `User Defined`: Toggle Audio Mute, Cycle Audio Monitoring, Select Audio Source, Audio Source Status
 
-- Media Controls Folder (play/pause/stop with single/double tap, colour-coded state)
+### 9. Media
 
-### Group 99 — User Defined Actions
+- Media Controls folder: single tap plays or pauses, double tap stops; colour shows the state
+- Media Action (User Defined): play, pause, stop, restart, next or previous on a named source
 
-- Switch to Scene (configurable profile, collection, scene)
-- Toggle Source Visibility (comma-separated sources, optional scene)
-- Toggle Audio Mute (named source)
-- Cycle Audio Monitoring (None → Monitor Only → Monitor & Output)
-- Select Audio Source (toggle global selection for wheel/dial)
-- Audio Source Status Display (real-time volume dB, mute state, monitoring type)
-- Media Action (named source + action listbox: Play, Pause, Stop, Restart, Next, Previous)
+## Connection
 
-## Connection Architecture
+- **Local OBS**: reads the WebSocket port and password from `%AppData%\obs-studio\plugin_config\obs-websocket\config.json`
+- **Remote OBS**: IP address, port and password set through Plugin Settings; the password is kept in the SDK's encrypted plugin settings
+- **Reconnection**: `ConnectionManager` retries with backoff (1s to 30s, ±15% jitter) and re-reads the settings on every attempt
+- **Connection states**: Connected, Disconnected, WebSocket Disabled
 
-- **Local OBS**: Auto-discovers WebSocket settings from `%AppData%\obs-studio\plugin_config\obs-websocket\config.json`
-- **Remote OBS**: Configurable IP/port/password via Plugin Settings action
-- **Resilient reconnection**: Exponential backoff (1s–30s) with ±15% jitter
-- **Three connection states**: Connected, Disconnected, WebSocket Disabled
+## Non-Functional Characteristics
 
-## Key Non-Functional Characteristics
-
-- All OBS operations are async (Task.Run) to prevent UI thread blocking
-- Real-time event-driven updates via OBS WebSocket events (no polling for state)
-- Stats polling is configurable (2s, 5s, 10s intervals)
-- Cross-platform build (Windows primary, macOS supported via pluginFolderMac)
-- 362 unit tests; TDD approach for services layer
+- OBS writes run on a background runner, so a slow OBS never holds up a button press
+- Buttons render from cached state kept current by OBS events, and never wait on OBS
+- Data that only one folder or button shows is loaded only while it is on screen
+- Stats polling interval is configurable (2s, 5s or 10s)
+- Windows is the main platform; the package also declares a macOS plugin folder
+- Services are developed test first (see `test-coverage.md` for the current count and coverage)

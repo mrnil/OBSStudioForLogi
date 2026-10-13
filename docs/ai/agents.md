@@ -31,7 +31,7 @@ Every build of `src/OBSStudioForLogiPlugin.csproj` writes the Logi Plugin Servic
 dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj -p:PluginDir=<scratch-dir>/pluginlink/
 ```
 
-The build still asks the service to reload the plugin, which is harmless. Run tests in one worktree at a time: the fire-and-forget timing flakiness noted in `test-coverage.md` gets worse under CPU load.
+The build still asks the service to reload the plugin, which is harmless. Prefer running tests in one worktree at a time: a few tests (`DoubleTapHelperTests`, `ConnectionManagerTests`) wait on real timers and are the first to fail under heavy CPU load.
 
 ## Changing an Agent
 

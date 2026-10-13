@@ -9,7 +9,7 @@ The plugin builds every button image with two small static helpers in `src/Helpe
 - `ButtonImageHelper` draws embedded SVG icons.
 - `ButtonTextRenderer` draws text, sized to fit the button.
 
-These are the only rendering helpers. Older versions of this document described `StateIcon`, `Text`, `StateText`, `TextWithIcon` and `StateTextWithIcon`; none of them exist. Choose a state-dependent icon or colour with a conditional at the call site instead.
+These are the only rendering helpers: there is no `StateIcon`, `StateText` or `TextWithIcon`. Choose a state-dependent icon or colour with a conditional at the call site.
 
 ## ButtonImageHelper API
 
@@ -83,7 +83,7 @@ public class ScreenshotCommand : PluginDynamicCommand
 Toggle and start/stop commands extend `ToggleCommandBase` or `StartStopCommandBase`, which call `ButtonImageHelper.Icon` for you. The subclass only names the icons:
 
 ```csharp
-public class RecordingToggleCommand : ToggleCommandBase, IObsCommand
+public class RecordingToggleCommand : ToggleCommandBase, IRecordingAwareCommand
 {
     protected override Boolean GetState() => OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
     protected override String GetActiveIcon() => "RecordingOn.svg";
@@ -172,50 +172,3 @@ The Loupedeck framework calls `GetCommandImage()`:
 - When you call `ActionImageChanged()`
 
 The framework handles caching internally - you don't need to implement your own caching logic.
-
-## Migration from Old System
-
-**Before (complex):**
-
-```csharp
-private readonly ActionImageStore<StateImageData> imageStore;
-
-public RecordingToggleCommand()
-{
-    this.imageStore = new ActionImageStore<StateImageData>(new StateImageFactory());
-}
-
-protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
-{
-    Boolean isRecording = OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
-
-    StateImageData imageData = new StateImageData
-    {
-        Id = "recording-toggle",
-        IsActive = isRecording,
-        ActiveIconPath = "Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOn.svg",
-        InactiveIconPath = "Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOff.svg"
-    };
-
-    this.imageStore.UpdateImage(imageData.Id, imageData);
-
-    if (this.imageStore.TryGetImage(imageData.Id, imageSize, out BitmapImage image))
-    {
-        return image;
-    }
-
-    return EmbeddedResources.ReadImage(imageData.InactiveIconPath);
-}
-```
-
-**After (simple):**
-
-```csharp
-protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
-{
-    Boolean isRecording = OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
-    return ButtonImageHelper.Icon(isRecording ? "RecordingOn.svg" : "RecordingOff.svg", imageSize);
-}
-```
-
-**Result:** ~80% reduction in code, same functionality.

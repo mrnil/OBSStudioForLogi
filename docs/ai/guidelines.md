@@ -206,7 +206,9 @@ Always guard against null/empty actionParameter:
 public override void RunCommand(String actionParameter)
 {
     if (String.IsNullOrEmpty(actionParameter))
+    {
         return;
+    }
 
     OBSStudioForLogiPlugin.Instance?.SwitchScene(actionParameter);
 }
@@ -233,7 +235,9 @@ Refresh only the specific button that changed, not the entire folder:
 public void OnInputMuteChanged(String inputName)
 {
     if (this.AudioInputs.Contains(inputName))
+    {
         this.CommandImageChanged(inputName);
+    }
 }
 
 // WRONG — rebuilds all buttons
@@ -242,6 +246,28 @@ public void OnInputMuteChanged(String inputName)
     this.ButtonActionNamesChanged(); // ❌ too expensive
 }
 ```
+
+When the "current" item moves (scene, profile, scene collection), redraw both the old and the new one:
+
+```csharp
+public void OnSceneChanged(String sceneName)
+{
+    String previous = this._currentScene;
+    this._currentScene = sceneName ?? String.Empty;
+
+    if (!String.IsNullOrEmpty(previous) && previous != this._currentScene)
+    {
+        this.CommandImageChanged(previous);
+    }
+
+    if (!String.IsNullOrEmpty(this._currentScene))
+    {
+        this.CommandImageChanged(this._currentScene);
+    }
+}
+```
+
+Keep `ButtonActionNamesChanged()` for when the list itself changes. After a toggle the plugin starts, don't redraw in `RunCommand`: OBS hasn't applied the change yet. Wait for the OBS event or the executor's callback (see "Delayed Callback Pattern" above).
 
 ### OnConnected / OnDisconnected Pattern
 
@@ -341,7 +367,7 @@ public class MyAdjustableCommand : ActionEditorCommand, IObsCommand
         OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
         this.Name = "MyAction";
         this.DisplayName = "My Action";
-        this.GroupName = "99. User Defined Actions";
+        this.GroupName = "8. Audio###User Defined";
         this.Description = "Description of what this does";
         this.ActionEditor.AddControlEx(new ActionEditorTextbox(SourceNameControlName, "Source Name (required)"));
     }
@@ -350,10 +376,13 @@ public class MyAdjustableCommand : ActionEditorCommand, IObsCommand
 
     protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
     {
-        if (!actionParameters.TryGetString(SourceNameControlName, out var sourceName) || String.IsNullOrEmpty(sourceName))
+        if (!actionParameters.TryGetString(SourceNameControlName, out String sourceName) || String.IsNullOrEmpty(sourceName))
+        {
             return false;
+        }
 
-        Task.Run(() => OBSStudioForLogiPlugin.Instance?.DoSomething(sourceName));
+        // The executor already runs OBS writes on its background runner.
+        OBSStudioForLogiPlugin.Instance?.DoSomething(sourceName);
         return true;
     }
 
@@ -583,8 +612,9 @@ All timing values are centralised in `OBSTimings`:
 
 ```csharp
 OBSTimings.StateUpdateDelay      // 100ms — wait after OBS API call before refreshing UI
-OBSTimings.ProfileSwitchDelay    // delay between profile switch and next operation
-OBSTimings.CollectionSwitchDelay // delay between collection switch and next operation
+OBSTimings.ProfileSwitchDelay    // 1500ms — between a profile switch and the next step (see #37)
+OBSTimings.CollectionSwitchDelay // 1500ms — between a collection switch and the next step (see #37)
+OBSTimings.RequestTimeout        // 3000ms — library request timeout
 OBSTimings.TestAsyncDelay        // 500ms — test wait for real-timer code only (e.g. DoubleTapHelper)
 ```
 
@@ -628,16 +658,9 @@ Never hardcode timing values — always use `OBSTimings` constants.
 
 ---
 
-## Known Issues to Be Aware Of
+## Known Issues
 
-### Fixed in v1.6.0 (kept here for history — do not reintroduce)
+Open findings are in the Summary Table of `assessment.md`. Two past bugs that are easy to reintroduce:
 
-- **CommandRegistry Bypass** — `OBSWebSocketManager.OnConnected`/`OnDisconnected` used to contain hardcoded singleton calls bypassing the `CommandRegistry`. Now `OBSStudioForLogiPlugin.OnOBSConnected`/`OnOBSDisconnected` call `CommandCoordinator.NotifyConnected()`/`NotifyDisconnected()`, which dispatch through the registry. New self-registering commands correctly receive `OnConnected`/`OnDisconnected` with no extra wiring — do not add hardcoded singleton calls back into `OBSWebSocketManager` (since #20 it can't reach the plugin at all; it reports through `IOBSEventListener`).
-- **Scene Change Bypass** — `OnCurrentSceneChanged` used to call `SourcesDynamicFolder.Instance`/`SceneAudioSourcesDynamicFolder.Instance` directly. Now routes through `ISceneSourcesAwareCommand` via the registry.
-- **DoubleTapHelper Thread Safety** — `_tapStates` access is now wrapped in `lock(_tapStates)`; `CancellationTokenSource` objects are disposed on every path (single-tap `finally`, double-tap, and `Reset()`).
-
-See `assessment.md` items #1, #2, #4 for the original write-ups and `test-coverage.md` for the tests added alongside each fix.
-
-### Still Open
-
-See the Summary Table in `assessment.md` for the current priority order.
+- Don't call a command's static `Instance` or `OBSStudioForLogiPlugin.Instance` from `src/Services`; report through `IOBSEventListener` or a constructor callback (#1, #2, #20).
+- A command that shows OBS state must implement the matching notification interface and register, or it never redraws (#27).

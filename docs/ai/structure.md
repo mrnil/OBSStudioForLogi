@@ -5,30 +5,31 @@
 ```
 OBSStudioForLogiPlugin/
 ├── src/                          # Plugin source code
-│   ├── Actions/                  # Loupedeck SDK command/folder classes (51 files)
-│   ├── Helpers/                  # Utility classes (17 files)
+│   ├── Actions/                  # Loupedeck SDK command/folder classes (50 files)
+│   ├── Helpers/                  # Utility classes (18 files)
 │   ├── Models/                   # Data models (7 files)
-│   ├── Services/                 # Business logic and OBS integration (21 files)
-│   ├── Resources/icons/          # SVG button icons (40 files; rules in docs/ai/icon-style.md)
+│   ├── Services/                 # Business logic and OBS integration (22 files)
+│   ├── Resources/icons/          # SVG button icons (42 files; rules in docs/ai/icon-style.md)
 │   ├── package/metadata/         # LoupedeckPackage.yaml + plugin icon
+│   ├── package/profiles/         # Default device profiles
 │   ├── package/actionsymbols/    # Action picker symbols, one per action class (generated)
 │   ├── OBSStudioForLogiPlugin.cs # Main plugin class (orchestration)
 │   ├── OBSStudioForLogiApplication.cs
 │   └── OBSStudioForLogiPlugin.csproj
 ├── tests/
 │   └── OBSStudioForLogiPlugin.Tests/
-│       ├── Actions/              # Action-layer integration tests (22 files)
-│       └── *.cs                  # Services-layer unit tests (43 files)
+│       ├── Actions/              # Action-layer integration tests (23 files)
+│       └── *.cs                  # Services, helpers and models unit tests (49 files)
 ├── docs/ai/                      # AI coding rules and architecture docs (Claude Code, etc.)
+├── docs/device-checks/           # Step-by-step device check scripts
 ├── .claude/agents/               # Claude Code subagents (see docs/ai/agents.md)
 ├── .github/workflows/            # CI: dependency-check.yml, markdown-lint.yml
 ├── bin/                          # Build output (Debug/Release)
 ├── ci/                           # CI-only PluginApi.dll stub
 ├── tools/icons/                  # Icon generator, csproj sync and reference sheet (Python)
 ├── OBSStudioForLogiPlugin.sln
-├── CHANGELOG.md
-├── README.md
-├── USER_MANUAL.md
+├── CHANGELOG.md, RELEASE_NOTES_v*.md
+├── README.md, USER_MANUAL.md, INSTALL.md, CONFIGURATION.md, CONTRIBUTING.md
 └── TODO.md
 ```
 
@@ -71,8 +72,8 @@ OBSStudioForLogiPlugin/
 
 **Dynamic Folders (PluginDynamicFolder):**
 
-- `ScenesDynamicFolder`, `SourcesDynamicFolder`, `ProfilesDynamicFolder`, `SceneCollectionsDynamicFolder` (added v1.6.0). `SourcesDynamicFolder` and `SceneAudioSourcesDynamicFolder` register as scene source viewers in `Activate()`/`Deactivate()`, so their lists load only while open, and show `LoadingTiles` until the first list arrives
-- `AudioMixerDynamicFolder`, `SceneAudioSourcesDynamicFolder`
+- `ScenesDynamicFolder`, `SourcesDynamicFolder` ("Scene Sources"), `ProfilesDynamicFolder`, `SceneCollectionsDynamicFolder`. `SourcesDynamicFolder` and `SceneAudioSourcesDynamicFolder` register as scene source viewers in `Activate()`/`Deactivate()`, so their lists load only while open, and show `LoadingTiles` until the first list arrives
+- `AudioMixerDynamicFolder` ("Mixer for All Audio"), `SceneAudioSourcesDynamicFolder` ("Mixer for Scene Audio")
 - `AudioSelectDynamicFolder`, `AudioVolumeDynamicFolder`
 - `AudioMetersDynamicFolder` ("Live Audio Folder") — real-time VU meters; subscribes to `InputVolumeMeters` in `Activate()` and unsubscribes in `Deactivate()`; its button list is the live-input list from `AudioMeterService`, re-checked on every refresh tick
 - `MediaDynamicFolder`
@@ -91,7 +92,8 @@ OBSStudioForLogiPlugin/
 
 **Multi-State Select Commands:**
 
-- `ProfileSelectCommand`, `SceneSelectCommand` (added v1.6.0), `SceneCollectionSelectCommand`, `AudioSourceSelectCommand` (added v1.6.0)
+- `ProfileSelectCommand`, `SceneSelectCommand`, `SceneCollectionSelectCommand`: one parameter per item, ticked when current
+- `AudioSourceSelectCommand`: one mute button per audio input (`8. Audio###Available Sources`)
 
 **Parameterised Display Commands:**
 
@@ -116,7 +118,7 @@ OBSStudioForLogiPlugin/
 
 `StatsDisplay` registers as a stats viewer through an `ActivityLease` renewed by image requests, like `AudioMeterCommand`.
 
-Note: as of v1.6.0 the `99. User Defined Actions` group has been retired — all configurable (`ActionEditorCommand`) actions now live in sub-groups alongside their related controls (e.g. `8. Audio › User Defined`, `7. Scenes › User Defined`).
+Configurable (`ActionEditorCommand`) actions live in `User Defined` sub-groups next to their related controls (`7. Scenes###User Defined`, `8. Audio###User Defined`); Media Action is in `9. Media`.
 
 ### `src/Helpers/`
 
@@ -146,6 +148,7 @@ Note: as of v1.6.0 the `99. User Defined Actions` group has been retired — all
 | File | Contents |
 |------|---------|
 | `AudioMeterLevels.cs` | Plugin-owned per-channel meter levels, decoupled from the library's `InputVolumeMeter` type |
+| `AudioInputState.cs` | Cached mute, volume and monitor type for one input, plus the `OBS_MONITORING_TYPE_NONE` constant |
 | `AudioInputSceneMembership.cs` | The audio input names and the audio inputs not in any scene, cached together for the scene audio folder |
 | `OBSConnectionSettings.cs` | IP, port, password — with localhost validation |
 | `OBSStats.cs` | Stats model with derived properties (FPS, CPU%, render lag %) |
@@ -233,10 +236,6 @@ OBS fires event
     → Loupedeck framework calls GetCommandImage()
     → Button icon updates
 ```
-
-## Architectural Inconsistency (Fixed in v1.6.0)
-
-Previously, `OBSWebSocketManager.OnConnected`/`OnDisconnected` bypassed the `CommandRegistry` via hardcoded singleton calls, and `OnCurrentSceneChanged` bypassed it for `SourcesDynamicFolder`/`SceneAudioSourcesDynamicFolder`. Both are fixed: `OBSStudioForLogiPlugin.OnOBSConnected`/`OnOBSDisconnected` now route through `CommandCoordinator.NotifyConnected()`/`NotifyDisconnected()`, and scene-source updates route through the registry via `ISceneSourcesAwareCommand`. New self-registering commands now correctly receive all lifecycle notifications with no extra wiring. See `assessment.md` items #1 and #2.
 
 ## Build Output
 

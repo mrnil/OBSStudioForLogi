@@ -45,11 +45,13 @@ To control OBS running on a different computer on your network:
    - Enter the **IP Address** of the remote machine
    - Enter the **Port** (default 4455)
    - Enter the **Password** (set in OBS WebSocket Server Settings on the remote machine)
-   - Choose a **Stats Polling Interval** (2s, 5s, or 10s)
+   - Choose a **Stats Polling Interval** (2s, 5s, or 10s) and an **Audio Meter Refresh Rate** (20, 10 or 5 fps)
 3. Press the button to save and reconnect
 4. Clear the **Password** field and save the action again. The password is kept, encrypted, in the plugin's settings. An empty field keeps it, but a value left in the field is stored unencrypted in your device profile. To remove a saved password, tick **Clear Saved Password** and press the button.
 
 Settings persist between sessions. To switch back to local OBS, check "Use Local OBS" and press the button again.
+
+Enter an IP address, not a computer name: a value the plugin can't read as an IP address is replaced with the local address (127.0.0.1). The connection to OBS isn't encrypted. Your password isn't sent over it, but everything else is, so only connect to a remote OBS over a network you trust.
 
 ---
 
@@ -59,11 +61,11 @@ Here's a suggested button layout for a basic streaming setup:
 
 | Button | Action | What it does |
 |--------|--------|-------------|
-| 1 | Streaming Toggle | Start/stop your stream with one tap |
-| 2 | Recording Toggle | Start/stop recording alongside your stream |
-| 3 | Scenes Folder | Open to switch between scenes (e.g., Starting Soon, Live, BRB, Ending) |
-| 4 | Current Scene Display | Always shows which scene is live |
-| 5 | Audio Mixer Folder | Quick access to mute/unmute any audio source |
+| 1 | Toggle Streaming | Start/stop your stream with one tap |
+| 2 | Toggle Recording | Start/stop recording alongside your stream |
+| 3 | Scenes | Open to switch between scenes (e.g., Starting Soon, Live, BRB, Ending) |
+| 4 | Current Scene | Always shows which scene is live |
+| 5 | Mixer for All Audio | Quick access to every audio source (double-tap to mute/unmute) |
 | 6 | Screenshot | Capture a moment from your stream |
 
 ### How to set up
@@ -82,96 +84,99 @@ For recording-focused workflows:
 
 | Button | Action | What it does |
 |--------|--------|-------------|
-| 1 | Recording Toggle | Start/stop recording |
+| 1 | Toggle Recording | Start/stop recording |
 | 2 | Recording Pause | Pause/resume without creating a new file |
-| 3 | Scenes Folder | Switch between camera angles or screen shares |
-| 4 | Sources Folder | Toggle source visibility (show/hide overlays) |
-| 5 | Audio Mixer Folder | Mute/unmute microphone or desktop audio |
-| 6 | Current Scene Display | See which scene is active |
+| 3 | Scenes | Switch between camera angles or screen shares |
+| 4 | Scene Sources | Toggle source visibility (show/hide overlays) |
+| 5 | Toggle Audio Mute (User defined) | One button to mute/unmute your microphone |
+| 6 | Current Scene | See which scene is active |
 
 ---
 
 ## All Available Actions
 
-### OBS (Group 1)
+### 1. OBS
 
 | Action | Type | Description |
 |--------|------|-------------|
 | Screenshot | Button | Captures a screenshot of the current scene. Saves to your Pictures, Documents, or Desktop folder. |
-| Reconnect | Button | Manually retry connection to OBS if it disconnects. |
-| Studio Mode Toggle | Button | Enable/disable OBS studio mode. When enabled, you can preview scenes before sending them live. |
+| Reconnect to OBS | Button | Manually retry the connection to OBS. Its colour shows the connection state. |
+| Toggle Studio Mode | Button | Enable/disable OBS studio mode. When enabled, you can preview scenes before sending them live. |
 | Studio Mode Transition | Button | Send the preview scene to program (live). Only works when studio mode is on. |
 | Connection Status | Display | Shows "Connected" (green), "Disconnected" (red), or "WebSocket Disabled" (orange). Read-only. |
 | Stats Summary | Display | Shows FPS, CPU%, and dropped frames. Green = healthy, red = problems. |
 | Stats Folder | Folder | Individual tiles: FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped, Disk Space, Render Time. Colour-coded thresholds. |
-| Plugin Settings | Button | Configure OBS connection (local/remote), IP, port, password, and stats polling interval. Press to save. |
+| Plugin Settings | Button | Configure the OBS connection (local/remote), IP, port, password, stats polling interval and audio meter refresh rate. Press to save. |
 
-### Streaming (Group 2)
+### 2. Streaming
 
 | Action | Type | Description |
 |--------|------|-------------|
-| Streaming Toggle | Button | Start streaming if stopped, stop if streaming. Single button for both. |
-| Streaming Start | Button | Start streaming only. Greyed out, and does nothing when pressed, while streaming or while OBS is starting or stopping the stream. |
-| Streaming Stop | Button | Stop streaming only. Greyed out, and does nothing when pressed, while not streaming or while OBS is starting or stopping the stream. |
+| Toggle Streaming | Button | Start streaming if stopped, stop if streaming. Single button for both. |
+| Start Streaming | Button | Start streaming only. Greyed out, and does nothing when pressed, while streaming or while OBS is starting or stopping the stream. |
+| Stop Streaming | Button | Stop streaming only. Greyed out, and does nothing when pressed, while not streaming or while OBS is starting or stopping the stream. |
 | Stream Stats Folder | Folder | Live stream statistics: Duration, Bytes Sent, Network Congestion, Skipped Frames, Total Frames. Shows "Offline" when not streaming. |
 
-### Recording (Group 3)
+### 3. Recording
 
 | Action | Type | Description |
 |--------|------|-------------|
-| Recording Toggle | Button | Start recording if stopped, stop if recording. The icon is red while recording and green while not. |
-| Recording Start | Button | Start recording only. Greyed out, and does nothing when pressed, while recording or while OBS is starting or stopping the recording. |
-| Recording Stop | Button | Stop recording only. Greyed out, and does nothing when pressed, while not recording or while OBS is starting or stopping the recording. |
+| Toggle Recording | Button | Start recording if stopped, stop if recording. The icon is red while recording and green while not. |
+| Start Recording | Button | Start recording only. Greyed out, and does nothing when pressed, while recording or while OBS is starting or stopping the recording. |
+| Stop Recording | Button | Stop recording only. Greyed out, and does nothing when pressed, while not recording or while OBS is starting or stopping the recording. |
 | Recording Pause | Button | Pause active recording. Tap again to resume. Useful for breaks without creating a new file. Greyed out, and does nothing when pressed, while nothing is recording. |
 
-### Replay Buffer (Group 4)
+### 4. Replay Buffer
 
 | Action | Type | Description |
 |--------|------|-------------|
-| Replay Buffer Toggle | Button | Start/stop the replay buffer. |
-| Save Replay Buffer | Button | Save the last N seconds to disk (configured in OBS). Button flashes green on successful save. Great for capturing highlights. |
+| Toggle Replay Buffer | Button | Start/stop the replay buffer. |
+| Save Replay | Button | Save the last N seconds to disk (configured in OBS). Button flashes green on successful save. Great for capturing highlights. |
 
-### Virtual Camera (Group 5)
-
-| Action | Type | Description |
-|--------|------|-------------|
-| Virtual Camera Toggle | Button | Start/stop the virtual camera output. Useful for video calls. |
-| Virtual Camera Start | Button | Start virtual camera only. Greyed out while the virtual camera is on. |
-| Virtual Camera Stop | Button | Stop virtual camera only. Greyed out while the virtual camera is off. |
-
-### Profiles (Group 6)
+### 5. Virtual Camera
 
 | Action | Type | Description |
 |--------|------|-------------|
-| Profile Select | Multi-state | Switch between OBS profiles. Shows which profile is active. |
-| Profiles Folder | Folder | Opens a folder showing all available profiles. Tap one to switch. |
+| Toggle Virtual Camera | Button | Start/stop the virtual camera output. Useful for video calls. |
+| Start Virtual Camera | Button | Start virtual camera only. Greyed out while the virtual camera is on or starting. |
+| Stop Virtual Camera | Button | Stop virtual camera only. Greyed out while the virtual camera is off or stopping. |
+
+### 6. Profiles
+
+| Action | Type | Description |
+|--------|------|-------------|
+| Available Profiles | Button (one per profile) | Switch to that profile. Ticked while it is active. |
+| Profiles | Folder | Opens a folder showing all available profiles. Tap one to switch. |
 | Current Profile | Display | Shows the name of the active profile. Read-only. |
 
-### Scenes (Group 7)
+### 7. Scenes
 
 | Action | Type | Description |
 |--------|------|-------------|
-| Scene Collection Select | Multi-state | Switch between scene collections. Shows which is active. |
-| Scenes Folder | Folder | Opens a folder showing all scenes. Tap to switch. In studio mode, this sets the preview (not live). |
-| Sources Folder | Folder | Opens a folder showing all sources in the current scene. Tap to toggle visibility on/off. |
+| Available Scenes | Button (one per scene) | Switch to that scene. Ticked while it is live. In studio mode, this sets the preview. |
+| Available Collections | Button (one per collection) | Switch to that scene collection. Ticked while it is active. |
+| Scenes | Folder | Opens a folder showing all scenes. Tap to switch. In studio mode, this sets the preview (not live). |
+| Scene Collections | Folder | Opens a folder showing all scene collections. Tap to switch. |
+| Scene Sources | Folder | Opens a folder showing all sources in the current scene. Tap to toggle visibility on/off. |
 | Current Scene | Display | Shows the name of the active scene. Read-only. |
 | Current Collection | Display | Shows the name of the active scene collection. Read-only. |
 
-### Audio (Group 8)
+### 8. Audio
 
 | Action | Type | Description |
 |--------|------|-------------|
-| Audio Mixer Folder | Folder | All audio inputs. Single-tap to select for wheel control, double-tap to mute/unmute. Shows volume % and monitoring mode. |
-| Scene Audio Folder | Folder | Same as Audio Mixer but filtered to audio sources in the current scene. |
-| Audio Select Folder | Folder | Selection-only folder. Single tap to select/deselect a source for global wheel/dial control. No mute action. |
-| Audio Volume Folder | Folder | MX big wheel compatible. Tap a tile to arm the wheel for that source's volume, then turn the wheel to adjust. |
+| Mixer for All Audio | Folder | All audio inputs. Single-tap to select for wheel control, double-tap to mute/unmute. Shows volume in dB and monitoring mode. |
+| Mixer for Scene Audio | Folder | Same as Mixer for All Audio, for the audio sources in the current scene plus audio inputs that aren't in any scene. |
+| Available Sources | Button (one per input) | Mute/unmute that audio input. |
+| Audio Select | Folder | Selection-only folder. Single tap to select/deselect a source for global wheel/dial control. No mute action. |
+| Audio Volume | Folder | MX big wheel compatible. Tap a tile to arm the wheel for that source's volume, then turn the wheel to adjust. |
 | Selected Source Volume | Adjustment | Standalone volume control. Drag onto any wheel or dial. Controls volume of the globally selected audio source. Press to reset to 100%. |
 | Live Audio Folder | Folder | Live VU meters for audio sources that are currently live in OBS. Tap a tile to mute/unmute. See [Audio Meters](#audio-meters). |
 | Audio Meter | Button (one per source) | A VU meter for one specific audio source, live or not. Tap to mute/unmute. See [Audio Meters](#audio-meters). |
 
-### User Defined Actions (Group 99)
+### User Defined Actions
 
-These actions are configurable — you type in the names of the OBS items you want to control:
+These actions are configurable: you type in the names of the OBS items you want to control. They are in the **User Defined** sub-groups of Scenes and Audio; Media Action is under Media.
 
 | Action | Configuration | Description |
 |--------|--------------|-------------|
@@ -180,14 +185,14 @@ These actions are configurable — you type in the names of the OBS items you wa
 | Toggle Audio Mute | Audio source name (required) | Mute/unmute a specific audio source. |
 | Cycle Audio Monitoring | Audio source name (required) | Cycle: None → Monitor Only → Monitor & Output. |
 | Select Audio Source | Audio source name (required) | Toggle this source as the globally selected audio source for wheel/dial control. |
-| Audio Source Status | Audio source name (required) | Display-only. Shows mute state, volume %, monitoring mode, and selection border. Updates in real-time. |
+| Audio Source Status | Audio source name (required) | Display-only. Shows mute state, volume in dB, monitoring mode, and selection border. Updates in real-time. |
 | Media Action | Source name (required), Action (required) | Trigger a media action on a named source. Actions: Play, Pause, Stop, Restart, Next, Previous. |
 
 ---
 
 ## Media Controls
 
-The **Media Controls Folder** (Group 9) shows all media sources in OBS (video clips, VLC sources, slideshows, text sources).
+The **Media Controls** folder (`9. Media`) shows all media sources in OBS (video clips, VLC sources, slideshows, text sources).
 
 ### Tap Behaviour
 
@@ -224,8 +229,9 @@ The plugin offers several ways to control audio, each suited to different workfl
 
 ### Muting/Unmuting
 
-- **Audio Mixer Folder** — double-tap any source to toggle mute
-- **Toggle Audio Mute (User defined)** — assign a dedicated button to mute a specific source
+- **Mixer for All Audio** / **Mixer for Scene Audio**: double-tap any source to toggle mute
+- **Available Sources**, **Audio Meter** and **Live Audio Folder**: a single tap toggles mute
+- **Toggle Audio Mute (User defined)**: a dedicated button that mutes a specific source
 
 ### Volume Control
 
@@ -233,14 +239,14 @@ Volume requires two steps: **select** a source, then **adjust** with a wheel/dia
 
 **Selecting a source:**
 
-- Single-tap in Audio Mixer or Scene Audio folders
-- Tap in Audio Select folder
+- Single-tap in Mixer for All Audio or Mixer for Scene Audio
+- Tap in the Audio Select folder
 - Use "Select Audio Source" user-defined action
 
 **Adjusting volume:**
 
-- **MX Creative Console** — use Audio Volume folder (tap tile, turn big wheel)
-- **Loupedeck CT** — use the encoder wheel while in Audio Mixer/Scene Audio folders
+- **MX Creative Console**: use the Audio Volume folder (tap tile, turn big wheel)
+- **Loupedeck CT**: use the encoder wheel while in one of the mixer folders
 - **Any device** — drag "Selected Source Volume" onto any wheel or dial
 
 ### Visual Feedback
@@ -260,7 +266,7 @@ Monitoring controls whether you hear a source in your headphones:
 - **Monitor Only** — source plays in your headphones only (not stream)
 - **Monitor & Output** — source plays in headphones AND goes to stream
 
-Cycle through these with the "Cycle Audio Monitoring" user-defined action, or press the encoder in Audio Mixer/Scene Audio folders.
+Cycle through these with the "Cycle Audio Monitoring" user-defined action, or press the encoder in the mixer folders.
 
 ### Audio Meters
 
@@ -286,8 +292,8 @@ Change how often the meters redraw (20, 10 or 5 fps) in Plugin Settings.
 
 Studio mode lets you preview a scene before sending it live:
 
-1. Enable studio mode with the **Studio Mode Toggle** button
-2. When you tap a scene in the Scenes Folder, it goes to **preview** (not live)
+1. Enable studio mode with the **Toggle Studio Mode** button
+2. When you tap a scene in the Scenes folder, it goes to **preview** (not live). The scene buttons don't show the preview scene yet, so the tick stays on the live scene until you transition
 3. When you're ready, tap **Studio Mode Transition** to send preview to program (live)
 
 This is essential for professional broadcasts where you need to verify a scene before the audience sees it.
@@ -326,7 +332,7 @@ To find the exact name of a source in OBS:
 
 ### Example: One-Button Scene Switch with Context
 
-1. Drag "Switch to Scene (Adjustable)" onto a button
+1. Drag "Switch to Scene (User Defined)" onto a button
 2. Configure:
    - Profile Name: `Streaming` (optional)
    - Collection Name: `Main Show` (optional)
@@ -339,13 +345,13 @@ To find the exact name of a source in OBS:
 
 ### MX Creative Console
 
-- **Big wheel volume**: Use the **Audio Volume Folder**. Tap a tile on the Keypad to arm the wheel on the Dialpad, then turn to adjust.
+- **Big wheel volume**: Use the **Audio Volume** folder. Tap a tile on the Keypad to arm the wheel on the Dialpad, then turn to adjust.
 - **Standalone volume**: Drag **Selected Source Volume** onto the big wheel. Select a source using the Audio Select folder or user-defined action.
 - If only the Keypad is connected (no Dialpad), tapping an adjustment tile shows on-screen +/- controls.
 
 ### Loupedeck
 
-- **Encoder wheel**: Works inside Audio Mixer and Scene Audio folders. Select a source with single-tap, then turn the encoder to adjust volume.
+- **Encoder wheel**: Works inside the Mixer for All Audio and Mixer for Scene Audio folders. Select a source with single-tap, then turn the encoder to adjust volume.
 - **Encoder press**: Cycles monitoring type for the selected source.
 - **Dials**: Drag **Selected Source Volume** onto any dial for dedicated volume control.
 
@@ -357,20 +363,22 @@ To find the exact name of a source in OBS:
 
 - **Is OBS running?** The plugin needs OBS to be open
 - **Is WebSocket enabled?** In OBS: *Tools → WebSocket Server Settings* — ensure "Enable WebSocket server" is checked. If it's disabled, the Connection Status button will show "WebSocket Disabled" (orange).
-- **Firewall blocking?** The plugin connects to localhost (127.0.0.1) only — it should not be blocked
+- **Firewall blocking?** A local OBS is reached on 127.0.0.1, which firewalls don't usually block. For a remote OBS, allow the WebSocket port (default 4455) on the remote machine
 - **Try Reconnect button** — tap the Reconnect action to force a retry
 - **Restart Logi Plugin Service** — sometimes a fresh restart resolves connection issues
 
-### Buttons show "Disconnected" or appear disabled
+### Buttons show "Disconnected" or appear greyed out
 
-- All actions are disabled until the plugin connects to OBS
-- Wait a few seconds for automatic connection, or tap Reconnect
-- If OBS crashed, restart OBS and the plugin will reconnect automatically (within 1-30 seconds)
+- Actions are greyed out until the plugin connects to OBS
+- Wait a few seconds for the automatic connection, or tap Reconnect to OBS
+- If OBS crashed, restart OBS and the plugin reconnects automatically (it retries after 1s, then backs off to every 30s)
+- If you changed the WebSocket password or port in OBS, the plugin picks up the new settings on its next attempt
 
 ### Audio source not responding
 
 - Ensure you typed the **exact** source name (case-sensitive)
 - Check the Audio Mixer in OBS to verify the source exists
+- Renaming a source in OBS breaks user-defined buttons that use the old name: update the name in the button's settings
 - Some sources may not be audio sources (e.g., video captures without audio)
 
 ### Scene switch not working
@@ -389,20 +397,20 @@ To find the exact name of a source in OBS:
 
 ## Current Limitations
 
-- **ActionEditorCommand grouping** — User Defined Actions do not appear in their named group in the Logi software (SDK limitation, reported as bug). They appear ungrouped.
-- **No dynamic dropdowns** — User Defined Actions require you to type exact names. The SDK does not support populating dropdowns from OBS at runtime.
-- **Volume only via selection** — You must select a source before adjusting volume. There is no per-source dedicated volume knob.
-- **No filter controls** — Toggling audio/video filters is not yet available.
-- **No transition selection** — Cannot choose or configure scene transitions from the device.
-- **Monitoring refresh** — After cycling audio monitoring mode via the user-defined action, the monitoring state updates on the status display but may not update in all dynamic folders until you re-open them.
+- **Typed names**: User Defined Actions require you to type exact names; there are no lists to pick from yet.
+- **Volume only via selection**: You must select a source before adjusting volume. There is no per-source dedicated volume knob.
+- **Studio mode preview**: Scene buttons show the live scene, not the preview scene.
+- **OBS groups**: Sources inside an OBS group can't be toggled from the Scene Sources folder; the group shows as one button.
+- **No filter controls**: Toggling audio/video filters is not yet available.
+- **No transition selection**: Cannot choose or configure scene transitions from the device.
 
 ---
 
 ## Tips & Best Practices
 
-1. **Start simple** — begin with Streaming Toggle, Recording Toggle, and Scenes Folder. Add more as you get comfortable.
-2. **Use folders for discovery** — the Audio Mixer and Scenes folders show everything available, which helps you learn your source names.
-3. **Use User Defined Actions for frequent operations** — if you mute your mic often, a dedicated mute button is faster than opening the Audio Mixer folder.
+1. **Start simple** — begin with Toggle Streaming, Toggle Recording, and the Scenes folder. Add more as you get comfortable.
+2. **Use folders for discovery** — the Mixer for All Audio and Scenes folders show everything available, which helps you learn your source names.
+3. **Use dedicated buttons for frequent operations** — if you mute your mic often, a Toggle Audio Mute or Available Sources button is faster than opening a mixer folder.
 4. **Selected Source Volume is the most flexible** — drag it onto any wheel/dial and pair with Audio Select for quick access.
 5. **Screenshot during streams** — the Screenshot button captures exactly what your viewers see, great for social media clips.
 6. **Studio Mode for safety** — if you're worried about accidentally showing the wrong scene, enable Studio Mode and use the transition button.

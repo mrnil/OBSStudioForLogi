@@ -5,7 +5,7 @@
 | Item | Value |
 |------|-------|
 | Language | C# |
-| Target Framework | .NET 10.0 (`net10.0`) — migrated from net8.0 in commit `5d04506` (2026-08) |
+| Target Framework | .NET 10.0 (`net10.0`) |
 | Nullable Reference Types | Disabled in plugin project; Enabled in test project |
 | Implicit Usings | Enabled |
 | Root Namespace | `Loupedeck.OBSStudioForLogiPlugin` |
@@ -41,7 +41,7 @@
 | `PluginDynamicCommand` | All toggle/start/stop/display commands |
 | `PluginDynamicFolder` | All dynamic folder commands |
 | `PluginDynamicAdjustment` | `SelectedSourceVolumeAdjustment` |
-| `ActionEditorCommand` | All user-defined (Group 99) commands + `PluginSettingsCommand` |
+| `ActionEditorCommand` | All user-defined commands + `PluginSettingsCommand` |
 | `BitmapBuilder` | `ButtonTextRenderer` |
 | `BitmapImage` | Return type of all `GetCommandImage` overrides |
 | `BitmapColor` | Colour constants and custom colours |
@@ -57,7 +57,7 @@
 
 ## Code Style — EditorConfig Enforced Rules
 
-The `.editorconfig` in `src/` enforces the following (warnings, not errors):
+The `.editorconfig` in `src/` sets the following as warnings. The editor shows them, but the build doesn't report them because `EnforceCodeStyleInBuild` isn't set, and the file doesn't apply to `tests/` (assessment #36):
 
 - **`this.` qualification required** for all fields, methods, properties, events
 - **No `var`** — explicit types always (`csharp_style_var_*` = false)
@@ -115,7 +115,7 @@ LogiPluginTool metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiP
 
 ## Version Management
 
-Version is defined in two places — both must be updated for a release:
+The version is defined in two places, and a release updates both (see `release-process.md`). At v2.0.1 the `.csproj` was missed and still says 2.0.0 (assessment #39):
 
 1. `src/OBSStudioForLogiPlugin.csproj` — `<Version>`, `<AssemblyVersion>`, `<FileVersion>`
 2. `src/package/metadata/LoupedeckPackage.yaml` — `version:`
@@ -123,7 +123,8 @@ Version is defined in two places — both must be updated for a release:
 ## CI/CD
 
 - **GitHub Actions**: `.github/workflows/dependency-check.yml` — dependency vulnerability scanning + build validation
-- **Tests**: Run locally only. They were kept out of CI because fire-and-forget `Task.Run` tests raced the thread pool; that race is fixed (assessment #15), but CI hasn't been switched on yet
+- **GitHub Actions**: `.github/workflows/markdown-lint.yml` — `rumdl` on every Markdown file
+- **Tests**: run locally only. They were kept out of CI because fire-and-forget tests raced the thread pool. That race is fixed (#15), but CI hasn't been switched on yet (#42)
 - **Dependabot**: `.github/dependabot.yml` — automated dependency update PRs
 
 ## OBS WebSocket Protocol
@@ -138,8 +139,7 @@ Version is defined in two places — both must be updated for a release:
 ## Test Architecture
 
 - **Framework**: xUnit 2.9.3
-- **Mocking**: Moq 4.20.72 — `IOBSWebsocket` and `IPluginLog` are the primary mock targets
+- **Mocking**: Moq 4.21.0 — `IOBSWebsocket` and `IPluginLog` are the primary mock targets
 - **Pattern**: Arrange-Act-Assert
 - **Async testing**: background work goes through an injected `Action<Action>` runner; tests pass `action => action()` to run it inline instead of sleeping (see `guidelines.md`)
-- **Test count**: 389 unit tests (verified 2026-08-21, all passing on net10.0)
-- **Coverage**: ~37.4% line / ~19.8% branch (Cobertura, measured 2026-08-21) — services layer 80-100%, actions layer exempt from strict TDD. Coverage % has drifted down slightly from prior 39.5%/22.6% as more Actions-layer (SDK-exempt) commands were added faster than services-layer surface area grew.
+- **Test count and coverage**: see `test-coverage.md`

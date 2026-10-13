@@ -13,7 +13,6 @@ tools: WebFetch, Read, Grep, Glob
 1. **This repo's notes**, which record what has already been learned, sometimes from device checks the official docs don't cover:
    - `docs/ai/sdk-quick-reference.md`
    - `docs/ai/adjustable-command-pattern.md`
-   - `docs/ai/icon-update-patterns.md`
    - `docs/ai/image-rendering-simplified.md`
    - `docs/ai/icon-style.md` (action symbols, icon tinting)
    - `docs/ai/tech.md` ("Loupedeck SDK Base Classes Used")

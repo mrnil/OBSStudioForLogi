@@ -1,14 +1,10 @@
-# OBS WebSocket API - Complete Feature Reference
+# OBS WebSocket API — Plugin Coverage
 
 ## Overview
 
-This document catalogs all available features in the OBS WebSocket 5.x API (via obs-websocket-dotnet 5.7.0) and tracks which features are implemented in the OBSStudioForLogiPlugin.
+Which OBS WebSocket 5.x requests and events the plugin uses, through obs-websocket-dotnet 5.7.0. Everything the plugin uses goes through `IOBSWebsocket` (`src/Services/IOBSWebsocket.cs`), so that file is the authoritative list; this one adds which feature uses each call. Planned features are in `TODO.md`, and library notes and design ideas are in `protocol-gap-analysis.md`.
 
-**Legend:**
-
-- ✅ Fully Implemented
-- 🟡 Partially Implemented
-- ❌ Not Implemented
+**Legend:** ✅ used, 🟡 partly used, ❌ not used.
 
 ---
 
@@ -16,434 +12,153 @@ This document catalogs all available features in the OBS WebSocket 5.x API (via 
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Connect to WebSocket | ✅ | Automatic connection with config discovery |
-| Disconnect | ✅ | Manual disconnect supported |
-| Reconnection with backoff | ✅ | Exponential backoff (1s-30s) with jitter |
-| Authentication | ✅ | Password from OBS config |
-| Get Version | ❌ | Not exposed to plugin |
-| Get Stats | ❌ | Not implemented |
+| Connect / disconnect | ✅ | `ConnectionManager` with config discovery; the only place that retries |
+| Reconnection with backoff | ✅ | `ReconnectionStrategy`: 1s, 2s, 4s, 8s, 15s, 30s with ±15% jitter |
+| Authentication | ✅ | Local password from OBS's config; remote password from the SDK's encrypted plugin settings |
+| `GetVersion` | ❌ | Could disable features the connected OBS doesn't support |
+| `GetStats` | ✅ | `StatsService` polling, shown by Stats Summary and Stats Folder |
 
 ---
 
-## 2. Outputs (Streaming/Recording/Virtual Camera)
-
-### Streaming
+## 2. Outputs
 
 | Feature | Status | Implementation |
 |---------|--------|----------------|
-| Start Streaming | ✅ | `StreamingStartCommand` |
-| Stop Streaming | ✅ | `StreamingStopCommand` |
-| Toggle Streaming | ✅ | `StreamingToggleCommand` |
-| Get Streaming Status | ✅ | `IsStreaming` property |
-| Stream State Events | ✅ | `StreamStateChanged` event |
-| Get Stream Settings | ❌ | Not implemented |
-| Set Stream Settings | ❌ | Not implemented |
-
-### Recording
-
-| Feature | Status | Implementation |
-|---------|--------|----------------|
-| Start Recording | ✅ | `RecordingStartCommand` |
-| Stop Recording | ✅ | `RecordingStopCommand` |
-| Toggle Recording | ✅ | `RecordingToggleCommand` |
-| Pause Recording | ✅ | `RecordingPauseToggleCommand` |
-| Resume Recording | ✅ | `RecordingPauseToggleCommand` |
-| Get Recording Status | ✅ | `IsRecording`, `IsRecordingPaused` |
-| Record State Events | ✅ | `RecordStateChanged` event |
-| Get Recording Folder | ❌ | Not implemented |
-| Set Recording Folder | ❌ | Not implemented |
-
-### Virtual Camera
-
-| Feature | Status | Implementation |
-|---------|--------|----------------|
-| Start Virtual Camera | ✅ | `VirtualCameraStartCommand` |
-| Stop Virtual Camera | ✅ | `VirtualCameraStopCommand` |
-| Toggle Virtual Camera | ✅ | `VirtualCameraToggleCommand` |
-| Get Virtual Camera Status | ✅ | `IsVirtualCameraActive` property |
-| Virtual Camera State Events | ✅ | `VirtualcamStateChanged` event |
-
-### Replay Buffer
-
-| Feature | Status | Implementation |
-|---------|--------|----------------|
-| Start Replay Buffer | ✅ | `ReplayBufferToggleCommand` |
-| Stop Replay Buffer | ✅ | `ReplayBufferToggleCommand` |
-| Toggle Replay Buffer | ✅ | `ReplayBufferToggleCommand` |
-| Save Replay Buffer | ✅ | `ReplayBufferSaveCommand` |
-| Get Replay Buffer Status | ✅ | `IsReplayBufferActive` property |
-| Replay Buffer State Events | ✅ | `ReplayBufferStateChanged` event |
-| Get Last Replay | ❌ | Not implemented |
+| Start/stop/toggle stream | ✅ | `StreamingStartCommand`, `StreamingStopCommand`, `StreamingToggleCommand` |
+| `GetStreamStatus` | ✅ | Stream Stats Folder (polled) |
+| Get/set stream settings | ❌ | |
+| Start/stop/toggle/pause/resume record | ✅ | `RecordingStartCommand`, `RecordingStopCommand`, `RecordingToggleCommand`, `RecordingPauseToggleCommand` |
+| `GetRecordStatus` | ❌ | Recording duration display (#9) |
+| `GetRecordDirectory` / `SetRecordDirectory` | ❌ | `SetRecordDirectory` is new in library 5.7.0 |
+| `SplitRecordFile`, `CreateRecordChapter` | ❌ | New in library 5.7.0; chapters need OBS 30.2+ with Hybrid MP4 |
+| Start/stop/toggle virtual camera | ✅ | `VirtualCameraStartCommand`, `VirtualCameraStopCommand`, `VirtualCameraToggleCommand` |
+| Start/stop/toggle/save replay buffer | ✅ | `ReplayBufferToggleCommand`, `ReplayBufferSaveCommand` |
+| `GetLastReplayBufferReplay` | ❌ | |
+| `GetOutputList`, `ToggleOutput` and the other generic output requests | ❌ | Would reach third-party outputs such as multi-RTMP plugins |
 
 ---
 
-## 3. Scenes
+## 3. Scenes and Scene Items
 
 | Feature | Status | Implementation |
 |---------|--------|----------------|
-| Get Scene List | ✅ | `GetSceneList()` |
-| Get Current Program Scene | ✅ | `CurrentScene` property |
-| Set Current Program Scene | ✅ | `ScenesDynamicFolder` |
-| Get Current Preview Scene | ❌ | Not implemented |
-| Set Current Preview Scene | ✅ | Used in studio mode |
-| Scene List Changed Event | ✅ | `SceneListChanged` event |
-| Current Scene Changed Event | ✅ | `CurrentProgramSceneChanged` event |
-| Create Scene | ❌ | Not implemented |
-| Remove Scene | ❌ | Not implemented |
-| Set Scene Name | ❌ | Not implemented |
-| Get Scene Item List | ✅ | `GetSceneItemList()` |
-| Get Scene Item Enabled | ✅ | `GetSceneItemEnabled()` |
-| Set Scene Item Enabled | ✅ | `SourcesDynamicFolder` visibility toggle |
-| Get Scene Item Transform | ❌ | Not implemented |
-| Set Scene Item Transform | ❌ | Not implemented |
-| Get Scene Item Index | ❌ | Not implemented |
-| Set Scene Item Index | ❌ | Not implemented |
+| `GetSceneList`, `GetCurrentProgramScene` | ✅ | Initial state load; Scenes folder, select command, Current Scene display |
+| `SetCurrentProgramScene` | ✅ | Scene buttons while studio mode is off |
+| `SetCurrentPreviewScene` | ✅ | Scene buttons while studio mode is on |
+| `GetCurrentPreviewScene` | ❌ | Needed for studio mode feedback (#31) |
+| Create/remove/rename scene | ❌ | |
+| `GetSceneItemList` | ✅ | Read raw, so each item's ID and visibility come in one request (#30) |
+| `GetSceneItemEnabled` | ✅ | Visibility cache fetch |
+| `SetSceneItemEnabled` | ✅ | Scene Sources folder, Toggle Source Visibility (User defined); by item ID |
+| `GetGroupSceneItemList` | ❌ | Groups aren't expanded (#28) |
+| Scene item transform, index, `GetSceneItemSource` | ❌ | |
 
 ---
 
-## 4. Scene Collections
+## 4. Scene Collections and Profiles
 
 | Feature | Status | Implementation |
 |---------|--------|----------------|
-| Get Scene Collection List | ✅ | `GetSceneCollectionList()` |
-| Get Current Scene Collection | ✅ | `CurrentSceneCollection` property |
-| Set Current Scene Collection | ✅ | `SceneCollectionSelectCommand` |
-| Scene Collection Changed Event | ✅ | `CurrentSceneCollectionChanged` event |
-| Create Scene Collection | ❌ | Not implemented |
-| Remove Scene Collection | ❌ | Not implemented |
+| `GetSceneCollectionList`, `SetCurrentSceneCollection` | ✅ | Scene Collections folder, select command, display |
+| `GetProfileList`, `SetCurrentProfile` | ✅ | Profiles folder, select command, display |
+| Create/remove collection or profile, profile parameters | ❌ | |
 
 ---
 
-## 5. Profiles
+## 5. Inputs and Audio
 
 | Feature | Status | Implementation |
 |---------|--------|----------------|
-| Get Profile List | ✅ | `GetProfileList()` |
-| Get Current Profile | ✅ | `CurrentProfile` property |
-| Set Current Profile | ✅ | `ProfileSelectCommand`, `ProfilesDynamicFolder` |
-| Profile Changed Event | ✅ | `CurrentProfileChanged` event |
-| Create Profile | ❌ | Not implemented |
-| Remove Profile | ❌ | Not implemented |
-| Get Profile Parameter | ❌ | Not implemented |
-| Set Profile Parameter | ❌ | Not implemented |
+| `GetInputList` | 🟡 | Filtered to the `AudioInputKinds` and media allow-lists in `OBSWebsocketAdapter` (#35) |
+| Input settings, create/remove/rename input | ❌ | |
+| `GetInputMute`, `ToggleInputMute` | ✅ | Audio folders, Audio Meter, Toggle Audio Mute (User defined) |
+| `SetInputMute` | ✅ | Only to mute an input switched to Monitor Only, as OBS's own mixer does |
+| `GetInputVolume`, `SetInputVolume` | ✅ | Audio Volume folder, Selected Source Volume; full 0.0–20.0 range shown in dB |
+| `GetInputAudioMonitorType`, `SetInputAudioMonitorType` | ✅ | Cycle Audio Monitoring (User defined), encoder press in the audio folders |
+| Audio balance, sync offset, tracks | ❌ | |
+| `InputVolumeMeters` (high-volume event) | ✅ | Live Audio Folder and Audio Meter, subscribed only while a meter is on screen |
 
 ---
 
-## 6. Inputs (Sources)
+## 6. Filters
 
-### Input Discovery
+| Feature | Status | Notes |
+|---------|--------|-------|
+| All source filter requests | ❌ | Filter toggle folder planned (`TODO.md`); design notes in `protocol-gap-analysis.md` |
+
+---
+
+## 7. Transitions and Studio Mode
 
 | Feature | Status | Implementation |
 |---------|--------|----------------|
-| Get Input List | ✅ | `GetInputList()` - filtered for audio |
-| Get Input Kind | ✅ | `GetInputKind()` |
-| Get Input Settings | ❌ | Not implemented |
-| Set Input Settings | ❌ | Not implemented |
-| Get Input Default Settings | ❌ | Not implemented |
-| Create Input | ❌ | Not implemented |
-| Remove Input | ❌ | Not implemented |
-| Set Input Name | ❌ | Not implemented |
+| `GetStudioModeEnabled`, `SetStudioModeEnabled` | ✅ | `StudioModeToggleCommand` |
+| `TriggerStudioModeTransition` | ✅ | `StudioModeTransitionCommand` |
+| Transition list, current transition, duration, settings | ❌ | Planned (`TODO.md`) |
+| `SetTBarPosition` | ❌ | Planned for a dial |
 
-### Audio Control
+---
+
+## 8. Media Inputs
 
 | Feature | Status | Implementation |
 |---------|--------|----------------|
-| Get Input Mute | ✅ | `GetInputMute()` |
-| Set Input Mute | ❌ | Not exposed (uses toggle) |
-| Toggle Input Mute | ✅ | `AudioMixerDynamicFolder`, `SceneAudioSourcesDynamicFolder` |
-| Input Mute Changed Event | ✅ | `InputMuteStateChanged` event |
-| Get Input Volume | ✅ | `GetInputVolume()` - displays on buttons |
-| Set Input Volume | ✅ | `SetInputVolume()` - volume folder and adjustment |
-| Input Volume Changed Event | ✅ | `InputVolumeChanged` event |
-| Get Input Audio Balance | ❌ | Not implemented |
-| Set Input Audio Balance | ❌ | Not implemented |
-| Get Input Audio Sync Offset | ❌ | Not implemented |
-| Set Input Audio Sync Offset | ❌ | Not implemented |
-| Get Input Audio Monitor Type | ✅ | `GetInputAudioMonitorType()` |
-| Set Input Audio Monitor Type | ✅ | `CycleInputAudioMonitorType()` |
-| Get Input Audio Tracks | ❌ | Not implemented |
-| Set Input Audio Tracks | ❌ | Not implemented |
+| `GetMediaInputStatus` | 🟡 | `mediaState` drives the Media Controls folder; `mediaCursor` and `mediaDuration` aren't read |
+| `TriggerMediaInputAction` | ✅ | Media Controls folder (play, pause, stop, restart), Media Action (User Defined) (also next, previous) |
+| `SetMediaInputCursor`, `OffsetMediaInputCursor` | ❌ | |
 
-### Audio Monitoring
+---
+
+## 9. Screenshots, Hotkeys and UI
 
 | Feature | Status | Implementation |
 |---------|--------|----------------|
-| Monitor Type: None | ✅ | `CycleInputAudioMonitorType()` |
-| Monitor Type: Monitor Only | ✅ | Cycles through states |
-| Monitor Type: Monitor & Output | ✅ | Cycles through states |
+| `SaveSourceScreenshot` | ✅ | `ScreenshotCommand` |
+| `GetSourceScreenshot` | ❌ | |
+| Hotkey requests | ❌ | `TriggerHotkeyByName` planned |
+| Projectors, properties/filters/interact dialogs, monitor list | ❌ | `OpenSourceProjector` planned |
 
 ---
 
-## 7. Filters
+## 10. Events
 
-| Feature | Status | Implementation |
-|---------|--------|----------------|
-| Get Source Filter List | ❌ | Not implemented |
-| Get Source Filter | ❌ | Not implemented |
-| Get Source Filter Default Settings | ❌ | Not implemented |
-| Create Source Filter | ❌ | Not implemented |
-| Remove Source Filter | ❌ | Not implemented |
-| Set Source Filter Name | ❌ | Not implemented |
-| Get Source Filter Enabled | ❌ | Not implemented |
-| Set Source Filter Enabled | ❌ | Not implemented |
-| Get Source Filter Settings | ❌ | Not implemented |
-| Set Source Filter Settings | ❌ | Not implemented |
-| Get Source Filter Index | ❌ | Not implemented |
-| Set Source Filter Index | ❌ | Not implemented |
+### Subscribed
 
----
+Every handler is in `OBSWebSocketManager` and is unsubscribed in `Dispose`, except `InputVolumeMeters` (#37).
 
-## 8. Transitions
+| Event | Used for |
+|-------|----------|
+| `Connected`, `Disconnected` | Connection state, initial state load (`SessionGate`, `InitialStateLoader`) |
+| `StreamStateChanged`, `RecordStateChanged`, `VirtualcamStateChanged`, `ReplayBufferStateChanged` | Output buttons, including starting/stopping states |
+| `ReplayBufferSaved` | Save confirmation flash |
+| `CurrentProfileChanged`, `ProfileListChanged` | Profile folder, select command, display |
+| `CurrentSceneCollectionChanging`, `CurrentSceneCollectionChanged`, `SceneCollectionListChanged` | Collection buttons; pausing stats polling during a switch |
+| `SceneListChanged`, `CurrentProgramSceneChanged`, `SceneNameChanged` | Scene buttons; renames move cached state |
+| `StudioModeStateChanged` | Studio mode toggle |
+| `SceneItemEnableStateChanged`, `SceneItemCreated`, `SceneItemRemoved` | Visibility cache, scene source lists, audio membership cache |
+| `InputCreated`, `InputRemoved`, `InputNameChanged` | Input lists; renames move cached state |
+| `InputMuteStateChanged`, `InputVolumeChanged`, `InputAudioMonitorTypeChanged` | `AudioStateCache` and audio buttons |
+| `MediaInputPlaybackStarted`, `MediaInputPlaybackEnded`, `MediaInputActionTriggered` | Media state cache |
+| `InputVolumeMeters` | Audio meters, only while one is on screen |
 
-| Feature | Status | Implementation |
-|---------|--------|----------------|
-| Get Transition List | ❌ | Not implemented |
-| Get Current Scene Transition | ❌ | Not implemented |
-| Set Current Scene Transition | ❌ | Not implemented |
-| Get Transition Duration | ❌ | Not implemented |
-| Set Transition Duration | ❌ | Not implemented |
-| Get Transition Settings | ❌ | Not implemented |
-| Set Transition Settings | ❌ | Not implemented |
-| Trigger Studio Mode Transition | ✅ | `StudioModeTransitionCommand` |
-| Set T-Bar Position | ❌ | Not implemented |
+### Not Subscribed
 
----
-
-## 9. Studio Mode
-
-| Feature | Status | Implementation |
-|---------|--------|----------------|
-| Get Studio Mode Enabled | ✅ | `GetStudioModeEnabled()` |
-| Set Studio Mode Enabled | ✅ | `StudioModeToggleCommand` |
-| Studio Mode State Changed Event | ✅ | `StudioModeStateChanged` event |
-| Trigger Studio Mode Transition | ✅ | `StudioModeTransitionCommand` |
-| Get Current Preview Scene | ❌ | Not exposed to plugin |
-| Set Current Preview Scene | ✅ | Used internally when studio mode enabled |
-
----
-
-## 10. Media Inputs
-
-| Feature | Status | Implementation |
-|---------|--------|----------------|
-| Get Media Input Status | ✅ | `GetMediaInputStatus()` |
-| Set Media Input Cursor | ❌ | Not implemented |
-| Offset Media Input Cursor | ❌ | Not implemented |
-| Trigger Media Input Action | ✅ | `TriggerMediaInputAction()` |
-| - Play | ✅ | `MediaDynamicFolder`, `MediaActionCommand` |
-| - Pause | ✅ | `MediaDynamicFolder`, `MediaActionCommand` |
-| - Stop | ✅ | `MediaDynamicFolder`, `MediaActionCommand` |
-| - Restart | ✅ | `MediaDynamicFolder`, `MediaActionCommand` |
-| - Next | ✅ | `MediaActionCommand` |
-| - Previous | ✅ | `MediaActionCommand` |
-
----
-
-## 11. Screenshots
-
-| Feature | Status | Implementation |
-|---------|--------|----------------|
-| Save Source Screenshot | ✅ | `ScreenshotCommand` |
-| Get Screenshot | ❌ | Not implemented (returns base64) |
-
----
-
-## 12. Hotkeys
-
-| Feature | Status | Implementation |
-|---------|--------|----------------|
-| Get Hotkey List | ❌ | Not implemented |
-| Trigger Hotkey by Name | ❌ | Not implemented |
-| Trigger Hotkey by Key Sequence | ❌ | Not implemented |
-
----
-
-## 13. UI
-
-| Feature | Status | Implementation |
-|---------|--------|----------------|
-| Get Studio Mode Enabled | ✅ | Implemented |
-| Open Source Properties Dialog | ❌ | Not implemented |
-| Open Source Filters Dialog | ❌ | Not implemented |
-| Open Source Interact Dialog | ❌ | Not implemented |
-| Get Monitor List | ❌ | Not implemented |
-| Open Video Mix Projector | ❌ | Not implemented |
-| Open Source Projector | ❌ | Not implemented |
-
----
-
-## 14. Statistics
-
-| Feature | Status | Implementation |
-|---------|--------|----------------|
-| Get Stats | ✅ | `StatsDisplay`, `StatsDynamicFolder` via polling |
-| - CPU Usage | ✅ | Displayed with colour thresholds |
-| - Memory Usage | ✅ | Displayed in MB |
-| - FPS | ✅ | Derived from AverageFrameTime |
-| - Render Lag | ✅ | RenderMissedFrames with percentage |
-| - Dropped Frames | ✅ | OutputSkippedFrames with percentage |
-| - Output Skipped Frames | ✅ | Combined total displayed |
-| - Disk Space | ✅ | Displayed in GB |
-| - Frame Time | ✅ | Displayed in ms |
-| Get Stream Status | ✅ | `StreamStatsDynamicFolder` via polling |
-| - Duration | ✅ | Formatted HH:MM:SS |
-| - Bytes Sent | ✅ | Displayed in MB/GB |
-| - Congestion | ✅ | Colour-coded percentage |
-| - Skipped Frames | ✅ | Count with percentage |
-| - Total Frames | ✅ | Frame count |
-
----
-
-## 15. Events (Subscribed)
-
-### Currently Subscribed Events
-
-| Event | Status | Handler |
-|-------|--------|---------|
-| Connected | ✅ | `OnConnected()` |
-| Disconnected | ✅ | `OnDisconnected()` |
-| StreamStateChanged | ✅ | `OnStreamStateChanged()` |
-| RecordStateChanged | ✅ | `OnRecordStateChanged()` |
-| VirtualcamStateChanged | ✅ | `OnVirtualCameraStateChanged()` |
-| ReplayBufferStateChanged | ✅ | `OnReplayBufferStateChanged()` |
-| CurrentProfileChanged | ✅ | `OnCurrentProfileChanged()` |
-| CurrentSceneCollectionChanged | ✅ | `OnCurrentSceneCollectionChanged()` |
-| SceneListChanged | ✅ | `OnSceneListChanged()` |
-| CurrentProgramSceneChanged | ✅ | `OnCurrentSceneChanged()` |
-| InputMuteStateChanged | ✅ | `OnInputMuteStateChanged()` |
-| InputVolumeChanged | ✅ | `OnInputVolumeChanged()` |
-| StudioModeStateChanged | ✅ | `OnStudioModeStateChanged()` |
-| SceneItemEnableStateChanged | ✅ | `OnSceneItemEnableStateChanged()` |
-| InputAudioMonitorTypeChanged | ✅ | `OnInputAudioMonitorTypeChanged()` |
-| SceneItemCreated | ✅ | `OnSceneItemCreated()` |
-| SceneItemRemoved | ✅ | `OnSceneItemRemoved()` |
-| InputCreated | ✅ | `OnInputCreated()` |
-| InputRemoved | ✅ | `OnInputRemoved()` |
-| InputNameChanged | ✅ | `OnInputNameChanged()` |
-| SceneNameChanged | ✅ | `OnSceneNameChanged()` |
-| MediaInputPlaybackStarted | ✅ | `OnMediaInputPlaybackStarted()` |
-| MediaInputPlaybackEnded | ✅ | `OnMediaInputPlaybackEnded()` |
-| ReplayBufferSaved | ✅ | `OnReplayBufferSaved()` |
-
-### Available But Not Subscribed
-
-| Event | Status | Potential Use |
-|-------|--------|---------------|
-| CurrentPreviewSceneChanged | ❌ | Studio mode preview tracking |
-| InputVolumeMeters | ❌ | Real-time VU meters (**deferred** — high-volume event, requires library Reidentify support; see vu-meters-learnings.md) |
-| SceneItemTransformChanged | ❌ | Source position/scale tracking |
-| InputAudioBalanceChanged | ❌ | Audio balance display |
-| InputAudioSyncOffsetChanged | ❌ | Audio sync display |
-| InputAudioTracksChanged | ❌ | Track assignment display |
-| SourceFilterCreated | ❌ | Filter list updates |
-| SourceFilterRemoved | ❌ | Filter list updates |
-| SourceFilterEnableStateChanged | ❌ | Filter state display |
-| SourceFilterListReindexed | ❌ | Filter order updates |
-| MediaInputActionTriggered | ✅ | Media control feedback |
-| CurrentSceneTransitionChanged | ❌ | Transition display |
-| CurrentSceneTransitionDurationChanged | ❌ | Transition duration display |
-| SceneTransitionStarted | ❌ | Transition progress |
-| SceneTransitionEnded | ❌ | Transition completion |
-| SceneTransitionVideoEnded | ❌ | Transition video completion |
-| ProfileListChanged | ✅ | Keep profile list fresh |
-| SceneCollectionListChanged | ✅ | Keep collection list fresh |
-
----
-
-## Implementation Summary
-
-### ✅ Fully Implemented Categories
-
-1. **Connection Management** - Auto-connect, reconnect, authentication
-2. **Streaming Controls** - Start, stop, toggle, status, live stats
-3. **Recording Controls** - Start, stop, toggle, pause/resume, status
-4. **Virtual Camera** - Start, stop, toggle, status
-5. **Replay Buffer** - Start, stop, toggle, save, status
-6. **Scene Management** - List, switch, current scene tracking
-7. **Scene Collections** - List, switch, current collection tracking
-8. **Profiles** - List, switch, current profile tracking
-9. **Source Visibility** - Toggle visibility in scenes
-10. **Audio Mute** - Mute/unmute, status display
-11. **Audio Volume Display** - Show volume percentage
-12. **Studio Mode** - Toggle, transition, status
-13. **Screenshots** - Capture to file
-14. **Statistics** - CPU, memory, FPS, render lag, encoding lag, dropped frames, stream stats
-15. **Media Controls** - Play, pause, stop, restart, next, previous, status display
-
-### 🟡 Partially Implemented Categories
-
-1. **Inputs** - Discovery ✅, Audio Control ✅, Settings ❌, Creation ❌
-
-### ❌ Not Implemented Categories
-
-1. **Filters** - List, enable/disable, settings
-2. **Transitions** - List, select, duration, settings
-3. **Audio Advanced** - Balance, sync offset, track assignment
-4. **Scene Item Transforms** - Position, scale, rotation, crop
-5. **Hotkeys** - Trigger hotkeys
-6. **UI Dialogs** - Open properties, filters, projectors
-7. **Scene/Source Creation** - Create/remove scenes, sources, filters
-
----
-
-## Priority Recommendations
-
-### High Priority (User-Requested Features)
-
-1. **Volume Adjustment Controls** - ✅ Multiple approaches (AudioVolumeDynamicFolder, SelectedSourceVolumeAdjustment)
-2. **Audio Monitoring Toggle** - ✅ CycleInputAudioMonitorType implemented
-3. **Media Source Controls** - ✅ Play/pause/stop/restart with dynamic folder and user-defined actions
-4. **Filter Enable/Disable** - Toggle audio/video filters
-
-### Medium Priority (Professional Features)
-
-1. **Audio Level Meters** - Real-time VU meters (**deferred** - requires obs-websocket-dotnet to support InputVolumeMeters high-volume event; see vu-meters-learnings.md)
-2. **Transition Selection** - Choose transition and duration, T-bar encoder
-3. **Audio Sync Offset** - Fix audio/video sync
-4. **Audio Track Assignment** - Multi-track recording
-5. **Hotkey Triggers** - Execute OBS hotkeys from hardware
-
-### Low Priority (Advanced Features)
-
-1. **Scene Item Transforms** - Position, scale, rotation
-2. **Audio Balance** - Stereo balance control
-3. **Scene/Source Creation** - Create new scenes/sources
-4. **Filter Settings** - Adjust filter parameters
-
----
-
-## Technical Notes
-
-### API Wrapper Architecture
-
-- **IOBSWebsocket** - Interface for testability
-- **OBSWebsocketAdapter** - Wraps obs-websocket-dotnet library
-- **OBSActionExecutor** - Business logic layer
-- **OBSWebSocketManager** - Connection and event management
-
-### Event Handling Pattern
-
-1. OBS fires event → obs-websocket-dotnet
-2. Event → OBSWebSocketManager handler
-3. Handler → OBSStudioForLogiPlugin callback
-4. Plugin → Command.OnStateChanged()
-5. Command → UI update (CommandImageChanged)
-
-### Adding New Features Checklist
-
-1. Add method to `IOBSWebsocket` interface
-2. Implement in `OBSWebsocketAdapter`
-3. Add business logic to `OBSActionExecutor`
-4. Wire up in `OBSStudioForLogiPlugin`
-5. Create command class in `Actions/`
-6. Add tests for all layers
-7. Update documentation
+| Event | Would be used for |
+|-------|-------------------|
+| `CurrentPreviewSceneChanged` | Studio mode preview feedback (#31) |
+| `CurrentSceneTransitionChanged`, `CurrentSceneTransitionDurationChanged` | Transition display |
+| `SceneTransitionStarted`, `SceneTransitionEnded`, `SceneTransitionVideoEnded` | Transition progress |
+| `SourceFilterCreated`, `SourceFilterRemoved`, `SourceFilterEnableStateChanged`, `SourceFilterListReindexed` | Filter folder |
+| `InputAudioBalanceChanged`, `InputAudioSyncOffsetChanged`, `InputAudioTracksChanged` | Advanced audio controls |
+| `InputSettingsChanged` | Refreshing input-dependent buttons |
+| `SceneItemTransformChanged` | Transform controls |
+| `RecordFileChanged` | Confirming a recording split |
+| `ScreenshotSaved` | Confirming a screenshot |
 
 ---
 
 ## Version Information
 
-- **OBS WebSocket Protocol**: 5.x
+- **OBS WebSocket protocol**: 5.x
 - **obs-websocket-dotnet**: 5.7.0
-- **OBS Studio**: 28.0+ required
-- **Plugin Version**: 2.0.0
+- **OBS Studio**: 28.0+

@@ -7,7 +7,7 @@
 * Validate port numbers are in valid range (1-65535)
 * Validate file paths before reading/writing (prevent path traversal)
 * Handle JSON parsing exceptions gracefully with proper error messages
-* Validate IP addresses are localhost (127.0.0.1 or ::1) before connecting
+* Validate the remote IP address before connecting (`OBSConnectionSettings` parses it; see assessment #38 for its gaps)
 
 ## Error Handling and Logging
 
@@ -37,10 +37,10 @@
 
 ## Communication Security
 
-* WebSocket connections must only connect to localhost (127.0.0.1 or ::1)
-* Validate IP address is localhost before connecting
+* Local OBS is reached on localhost; a remote OBS only at the address the user set in Plugin Settings
+* The connection is `ws://`, not `wss://`. Authentication is a SHA256 challenge-response, so the password isn't sent, but everything after the handshake is unencrypted. Remote connections belong on a trusted network, and the user docs say so
 * Use OBS's built-in WebSocket authentication
-* Handle connection failures gracefully with retry logic
+* Handle connection failures gracefully; `ConnectionManager` is the only place that retries
 
 ## File Operations
 

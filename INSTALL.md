@@ -45,6 +45,8 @@ The `.lplug4` package contains:
 ```
 bin/                    # Plugin DLL and dependencies
 metadata/               # Plugin metadata and icon
+profiles/               # Default device profiles
+actionsymbols/          # Symbols shown next to each action in the Options+ action picker
 ```
 
 ### 2. Install to Plugin Directory
@@ -54,7 +56,7 @@ metadata/               # Plugin metadata and icon
 - Open File Explorer
 - Type in address bar: `%LocalAppData%\Logi\LogiPluginService\Plugins`
 - Create folder: `OBSStudioForLogiPlugin`
-- Copy `bin` and `metadata` folders into it
+- Copy all the extracted folders into it
 
 **macOS:**
 
@@ -62,7 +64,7 @@ metadata/               # Plugin metadata and icon
 - Press Cmd+Shift+G
 - Go to: `~/Library/Application Support/Logi/LogiPluginService/Plugins`
 - Create folder: `OBSStudioForLogiPlugin`
-- Copy `bin` and `metadata` folders into it
+- Copy all the extracted folders into it
 
 ### 3. Restart Logi Plugin Service
 
@@ -78,94 +80,20 @@ metadata/               # Plugin metadata and icon
 
 ### 4. Verify Installation
 
-- Open Loupedeck software
-- Check for "Streaming Assistant" plugin in available plugins
-- Commands should appear in groups:
-  - **1. OBS**: Screenshot, Reconnect, Studio Mode, Connection Status, OBS Stats, Plugin Settings
-  - **2. Streaming**: Start, Stop, Toggle streaming, Stream Stats
-  - **3. Recording**: Start, Stop, Toggle, Pause/Resume recording
-  - **4. Replay Buffer**: Toggle, Save replay buffer
-  - **5. Virtual Camera**: Start, Stop, Toggle virtual camera
-  - **6. Profiles**: Profile selection and folder
-  - **7. Scenes**: Scene collections, scenes folder, sources folder
-  - **8. Audio**: Audio Mixer folder, Scene Audio folder, Audio Select, Audio Volume
-  - **9. Media**: Media Controls folder
-  - **99. User Defined Actions**: Scene switch, source visibility, audio mute/monitoring/select, media action
+- Open Logi Options+ or the Loupedeck software
+- Check for the "Streaming Assistant" plugin in the available plugins
+- Its actions appear in groups `1. OBS` to `9. Media` (OBS, Streaming, Recording, Replay Buffer, Virtual Camera, Profiles, Scenes, Audio, Media). The configurable actions are in the `User Defined` sub-groups of Scenes and Audio. See [USER_MANUAL.md](USER_MANUAL.md) for every action
 
 ## Requirements
 
 - **OBS Studio** 28.0+ with obs-websocket 5.0+ enabled
 - **Logi Plugin Service** installed and running
 - **OBS WebSocket** configured (automatically detected from OBS config)
-- **Supported Devices**: Loupedeck CT, Live, Live S, Razer Stream Controller, Razer Stream Controller X
+- **Devices**: MX Creative Console, Loupedeck CT, Loupedeck Live
 
 ## Features
 
-### Connection Management
-
-- Automatic connection discovery from OBS configuration
-- Remote OBS support: connect to OBS on another machine via IP/port/password
-- Resilient reconnection with exponential backoff (1s to 30s)
-- Manual reconnect button
-- Real-time connection status display
-- Persistent plugin settings via Plugin Settings action
-
-### Performance Monitoring
-
-- OBS Stats Summary button (FPS, CPU%, dropped frames)
-- OBS Stats Folder with individual tiles (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped, Disk Space, Render Time)
-- Stream Stats Folder (Duration, Bytes Sent, Congestion, Skipped Frames, Total Frames)
-- Colour-coded thresholds (green/yellow/red)
-- Configurable polling interval (2s, 5s, 10s)
-
-### Streaming & Recording
-
-- Start, stop, toggle streaming
-- Start, stop, toggle, pause/resume recording
-- Replay buffer control and save
-- Virtual camera control
-- Visual state indicators on all buttons
-
-### Scene Management
-
-- Switch between scene collections
-- Dynamic scenes folder with all available scenes
-- Studio mode support (preview/program workflow)
-- Source visibility toggle
-- Auto-refresh when sources added/removed in OBS
-
-### Audio Control
-
-- Audio Mixer folder with all audio inputs
-- Scene Audio folder with scene-specific audio
-- Audio Select folder for global source selection
-- Audio Volume folder for MX big wheel
-- Standalone volume adjustment for any wheel/dial
-- Mute/unmute toggle with visual feedback (green=unmuted, red=muted)
-- Real-time volume display (0-100%)
-- Audio monitoring cycle (None/Monitor Only/Monitor & Output)
-- Auto-refresh when inputs added/removed or monitoring changed in OBS
-
-### Media Controls
-
-- Media Controls folder (ffmpeg, VLC, slideshow, text sources)
-- Single tap: Play/Pause toggle; Double tap: Stop
-- Colour-coded state (green=playing, yellow=paused, grey=stopped)
-- User-defined media action command (Play, Pause, Stop, Restart, Next, Previous)
-- Real-time updates when media starts/finishes
-
-### Profile Management
-
-- Switch between OBS profiles
-- Dynamic profiles folder
-- Current profile display
-
-### User Defined Actions
-
-- Scene switching with profile/collection context
-- Source visibility toggle (comma-separated)
-- Audio mute/monitoring/selection toggles
-- Media actions on named sources
+See [README.md](README.md) for the feature list and [USER_MANUAL.md](USER_MANUAL.md) for how to use each action.
 
 ## Configuration
 
@@ -191,10 +119,12 @@ Example config.json:
   "useLocalObs": true,
   "remoteIpAddress": "127.0.0.1",
   "remotePort": 4455,
-  "remotePassword": "",
-  "statsPollingInterval": 5000
+  "statsPollingInterval": 5000,
+  "audioMeterRefreshInterval": 100
 }
 ```
+
+The remote OBS password isn't stored in this file: set it with the **Plugin Settings** action, which keeps it encrypted.
 
 ## Troubleshooting
 
@@ -204,9 +134,9 @@ Example config.json:
 - Check Logi Plugin Service logs: `%LocalAppData%\Logi\LogiPluginService\Logs`
 - Ensure all DLL files are present in `bin` folder
 
-**Commands disabled:**
+**Buttons greyed out:**
 
-- Plugin only enables when connected to OBS
+- The plugin isn't connected to OBS yet
 - Wait for automatic connection or use manual reconnect button
 - Restart OBS Studio if connection fails
 
@@ -214,7 +144,7 @@ Example config.json:
 
 - Verify OBS WebSocket is enabled: Tools → WebSocket Server Settings
 - Check OBS WebSocket port (default 4455)
-- Ensure firewall isn't blocking localhost connections
+- For remote OBS, ensure the firewall on the OBS machine allows the WebSocket port
 - For remote OBS: verify IP, port, and password in Plugin Settings
 - Review plugin logs for connection errors
 - Try manual reconnect button in plugin
@@ -222,13 +152,13 @@ Example config.json:
 **Audio controls not working:**
 
 - Ensure audio inputs exist in OBS
-- Check that inputs are not browser sources or other non-audio types
-- Verify inputs are added to scenes for Scene Audio folder
+- Inputs of kinds the plugin doesn't recognise as audio (for example `monitor_capture`) don't appear in the audio folders yet
+- Mixer for Scene Audio shows the inputs in the current scene, plus audio inputs that aren't in any scene
 
 **Folder icons not appearing:**
 
-- Restart Logi Plugin Service
-- Verify all icon files are present in plugin directory
+- Restart Logi Plugin Service (it reads the action symbols only at start-up)
+- Button icons are embedded in the plugin DLL; reinstall the package if they are missing
 - Check Logi Plugin Service logs for errors
 
 ## Logs

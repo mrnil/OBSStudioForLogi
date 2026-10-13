@@ -15,44 +15,45 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 1. Clone the repository
 2. Open `OBSStudioForLogiPlugin.sln` in Visual Studio
-3. Build the solution: `dotnet build`
-4. Run tests: `dotnet test`
+3. Build the plugin: `dotnet build src/OBSStudioForLogiPlugin.csproj` (this also links it into Logi Plugin Service and reloads it)
+4. Run tests: `dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj`
 
 ## Development Guidelines
 
 ### Code Style
 
 - Follow the conventions in `docs/ai/guidelines.md`
-- Use BCL type names (`String`, `Boolean`, `Int32`) instead of C# keywords
+- Use BCL type names (`String`, `Boolean`, `Int32`) instead of C# keywords, and explicit types instead of `var`
+- Qualify members with `this.`, and use Allman braces, always with braces around single-line bodies
 - Prefix private fields with underscore (`_fieldName`)
 - Use PascalCase for classes, methods, and properties
 - Use camelCase for parameters and local variables
+- Markdown must pass `rumdl` (run in CI by `markdown-lint.yml`)
 
 ### Test-Driven Development
 
 - Write tests before or alongside implementation
 - All business logic must have accompanying tests
 - Maintain 80%+ test coverage for services layer
-- Run all tests before committing: `dotnet test`
+- Run all tests before committing
 
 ### Commit Messages
 
-- Use conventional commit format: `type: description`
-- Types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`
+- Use conventional commit format: `type(scope): description`
+- Types: `feat`, `fix`, `perf`, `docs`, `test`, `refactor`, `build`, `chore`
 - Include detailed body explaining what changed and why
 - Example:
 
   ```
-  feat: add audio mixer mute/unmute controls
+  fix(outputs): redraw streaming and recording buttons on state change (#27)
 
-  Implemented AudioMixerMuteCommand and AudioMixerUnmuteCommand to control
-  audio source muting in OBS Studio. Commands use multi-state buttons to
-  show muted/unmuted state with visual indicators.
+  The seven streaming and recording commands never registered, and
+  StreamStateChanged/RecordStateChanged notified nothing, so the buttons
+  kept showing the old state until the page was redrawn.
 
-  Added 6 unit tests covering mute/unmute operations and state management.
-
-  Why: Users need quick access to mute audio sources during live streams
-  without switching to OBS window.
+  Add IStreamingAwareCommand and IRecordingAwareCommand, route both
+  events through IOBSEventListener and CommandCoordinator, and have the
+  commands register and redraw.
   ```
 
 ### Pull Request Process
@@ -60,7 +61,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 1. Create a feature branch from `main`
 2. Implement changes with tests
 3. Ensure all tests pass
-4. Update documentation (README, TODO, `docs/ai/`)
+4. Update documentation (README, USER_MANUAL, TODO, CHANGELOG, `docs/ai/`)
 5. Commit with conventional commit messages
 6. Create pull request with detailed description
 
@@ -78,19 +79,21 @@ Thank you for your interest in contributing! This document provides guidelines f
    - `ActionEditorCommand` for user-configurable actions
 3. Implement `IObsCommand` interface for connection state awareness
 4. Register with `OBSStudioForLogiPlugin.Instance?.RegisterCommand(this)` in constructor
-5. Use ButtonImageHelper for all image rendering
-6. Add icon resources to `src/Resources/icons/`
-7. Update `.csproj` with embedded resources
+5. Implement the notification interface for any OBS state the button shows, or it won't redraw
+6. Use `ButtonImageHelper`/`ButtonTextRenderer` for all image rendering
+7. Add icons with the scripts in `tools/icons/` (see `docs/ai/icon-style.md`), including the action symbol for the new class
 8. Add tests in `tests/OBSStudioForLogiPlugin.Tests/`
-9. Update README, TODO, and `docs/ai/`
+9. Update README, USER_MANUAL, CHANGELOG, TODO, and `docs/ai/`
+
+The full checklist is under "Adding a New Feature" in `docs/ai/guidelines.md`.
 
 ### Adding OBS Integration
 
 1. Add method to `IOBSWebsocket.cs` interface
 2. Implement in `OBSWebsocketAdapter.cs`
-3. Add business logic to `OBSActionExecutor.cs`
-4. Add tests with Moq for all layers
-5. Wire up in `OBSStudioForLogiPlugin.cs`
+3. Add business logic to `OBSActionExecutor.cs` through its `RunMutation`/`Query`/`TryQuery` helpers
+4. Expose it through `OBSFacade.cs` and `OBSStudioForLogiPlugin.cs`
+5. Add tests with Moq for the connected, disconnected and error paths
 
 ## Testing
 
@@ -98,16 +101,16 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ```bash
 # Run all tests
-dotnet test
+dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj
 
 # Run with coverage
-dotnet test /p:CollectCoverage=true
+dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj --collect:"XPlat Code Coverage"
 
 # Run specific test class
-dotnet test --filter "FullyQualifiedName~OBSActionExecutorTests"
+dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj --filter "FullyQualifiedName~OBSActionExecutorTests"
 ```
 
-**Important:** All tests must pass locally before committing. The GitHub Actions workflow performs dependency checking and build validation but does not run tests.
+**Important:** All tests must pass locally before committing. The GitHub Actions workflows check dependencies, validate the build and lint the Markdown, but don't run the tests yet.
 
 ### Writing Tests
 
@@ -116,7 +119,7 @@ dotnet test --filter "FullyQualifiedName~OBSActionExecutorTests"
 - Follow Arrange-Act-Assert pattern
 - Name tests: `MethodName_Condition_ExpectedBehavior`
 - For fire-and-forget methods, construct the class with an inline background runner (`action => action()`) and assert directly — don't `Thread.Sleep` and hope the work has finished
-- Current test count: 393
+- See `docs/ai/test-coverage.md` for the test files and current coverage
 
 ## Documentation
 
@@ -141,6 +144,7 @@ Reference material for both human contributors and AI coding assistants (Claude 
 - `secure-coding.md`: Security principles for this project
 - `commit-conventions.md`: Commit message format and rules
 - `assessment.md` / `test-coverage.md` / `release-process.md`: Findings backlog, test architecture, release checklist
+- `agents.md`: The Claude subagents in `.claude/agents/`
 
 ## Questions?
 

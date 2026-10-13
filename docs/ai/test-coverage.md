@@ -2,9 +2,18 @@
 
 ## Overview
 
-The project follows a TDD approach with 801 unit tests using xUnit + Moq (verified 2026-10-12, net10.0, all passing). Overall line coverage is ~37.4% (Cobertura, last measured pre-CommandCoordinator-refactor), branch coverage ~19.8%. The headline number is lower than expected because the Loupedeck SDK-dependent Action/Command classes (which are exempt from TDD) drag down the average — the testable services layer has much higher coverage. Coverage has drifted down slightly since v1.5.1 (was 39.5%/22.6%) as v1.6.0 added several new Actions-layer commands (`SceneSelectCommand`, `AudioSourceSelectCommand`, `SceneCollectionsDynamicFolder`) faster than services-layer surface area grew — expected under the TDD-exemption policy, not a regression.
+801 unit tests using xUnit and Moq, all passing on net10.0 (verified 2026-10-13, about 6s). Coverage measured with Cobertura (`--collect:"XPlat Code Coverage"`) on the same date:
 
-## Test Count: 801
+| Layer | Line | Branch |
+|-------|------|--------|
+| Overall | 49.0% | 36.5% |
+| `src/Services/` | 83.3% | 61.1% |
+| `src/Models/` | 98.6% | 88.9% |
+| `src/Helpers/` | 56.1% | 47.8% |
+| `src/Actions/` (SDK-dependent, exempt) | 15.0% | 5.0% |
+| Plugin class (SDK-dependent) | 0.5% | 0% |
+
+The overall figure is low because the Actions layer, which needs the SDK runtime, is about 40% of the code and exempt from the TDD targets. Rendering helpers (`ButtonImageHelper`, `ButtonTextRenderer`) pull the Helpers figure down for the same reason.
 
 ## Test Files
 
@@ -44,6 +53,11 @@ The project follows a TDD approach with 801 unit tests using xUnit + Moq (verifi
 | `OBSWebsocketAdapterStatsTests.cs` | Null-tolerant `GetStats` parsing | 4 |
 | `OBSWebsocketAdapterSceneItemsTests.cs` | `GetSceneItemList` raw-response parsing: ID, name and visibility in OBS order, missing visibility, empty and missing lists (#30) | 4 |
 | `LogThrottleTests.cs` | Repeat suppression window, suppressed-count reporting, per-message independence, pruning | 6 |
+| `ListChangeHandlingTests.cs` | Profile and scene collection list events (#8): the list is pushed as sent, the current item re-read when it is missing from the list, the last collection list kept when a re-read fails | 8 |
+| `ActivityLeaseTests.cs` | Touch-renewed lease: activates once, expires when idle, renews, releases | 10 |
+| `AudioMeterServiceTests.cs` | Meter level updates and reads, staleness, live-input order, clearing, cached mute state and its lookups | 35 |
+| `VuMeterRendererTests.cs` | dB scaling, bar heights, colour zones, tile state (inactive/muted/meter), display peaks for zero-channel inputs | 36 |
+| `DoubleTapHelperTests.cs` | Single and double tap detection and reset (waits on the real timer with a bounded poll) | 7 |
 | `VolumeConverterTests.cs` | Volume mul→dB conversion and formatting | 10 |
 | `SourceVisibilityTests.cs` | Source visibility toggle (shows/hides by item ID, one list request and one set, first item of a duplicated source, source not in the scene) and its redraw callback, `TryGetSceneItemEnabled` cache fetch | 16 |
 | `VirtualCameraCommandTests.cs` | Virtual camera state and toggle | ~5 |
@@ -76,24 +90,31 @@ The project follows a TDD approach with 801 unit tests using xUnit + Moq (verifi
 | `Actions/AudioSelectDynamicFolderTests.cs` | Constructor, interface methods, deselect on disconnect | ~6 |
 | `Actions/AudioVolumeDynamicFolderTests.cs` | Constructor, interface methods, event handlers | ~5 |
 | `Actions/SelectedSourceVolumeAdjustmentTests.cs` | Constructor, interface methods | ~3 |
-| `Actions/AudioSourceSelectCommandTests.cs` | Constructor, interface methods (added v1.6.0) | ~3 |
+| `Actions/AudioSourceSelectCommandTests.cs` | Constructor, interface methods | ~3 |
 | `Actions/AudioStatusDisplayCommandTests.cs` | Constructor, interface methods | ~3 |
 | `Actions/MediaDynamicFolderTests.cs` | Constructor, `IInputsListAwareCommand` behaviour | ~3 |
-| `Actions/SceneCollectionsDynamicFolderTests.cs` | Constructor, instance property (added v1.6.0) | ~2 |
-| `Actions/SceneSelectCommandTests.cs` | Constructor, interface methods (added v1.6.0) | ~3 |
+| `Actions/SceneCollectionsDynamicFolderTests.cs` | Constructor, instance property | ~2 |
+| `Actions/SceneSelectCommandTests.cs` | Constructor, interface methods | ~3 |
+| `Actions/AudioMeterCommandTests.cs` | Constructor | 1 |
+| `Actions/AudioMetersDynamicFolderTests.cs` | Constructor, group | 2 |
 
 ## Coverage by Class (Key Classes)
 
-| Class | Line Coverage | Branch Coverage | Notes |
-|-------|-------------|-----------------|-------|
-| **OBSActionExecutor** | 90% | 83% | Core business logic, excellent coverage |
-| **OBSConfigReader** | 91% | 90% | Excellent coverage |
-| **OBSLifecycleManager** | 79-100% | 75-100% | Good coverage |
-| **OBSConnectionSettings** | 100% | 100% | Perfect |
-| **OBSWebSocketManager** | 34%* | 17%* | *Measured before #20; the event handlers are now tested through a mocked `IOBSWebsocket`, not yet re-measured |
-| **CommandRegistry** | 100% | 100% | Store + generic filter, fully covered |
-| **OBSFacade** | 71% | 37% | Query/state methods covered, action delegation partially |
-| **CommandCoordinator** | 100%* | 100%* | Now owns dispatch + exception isolation, directly tested (26 tests); *not yet re-measured with Cobertura since the refactor |
+Measured 2026-10-13.
+
+| Class | Line | Branch | Notes |
+|-------|------|--------|-------|
+| `OBSActionExecutor` | 94.6% | 87.5% | |
+| `OBSWebSocketManager` | 89.0% | 60.8% | Event handlers driven through a mocked `IOBSWebsocket` (#20) |
+| `CommandCoordinator`, `CommandRegistry` | 100% | 100% | |
+| `StatsService` | 92.0% | 81.8% | |
+| `AudioStateCache` / `KeyedStateCache` | 94.2% / 96.0% | 90.3% / 86.2% | |
+| `OBSConfigReader` | 91.3% | 90.0% | |
+| `OBSLifecycleManager` | 86.7% | 75.0% | |
+| `ConnectionManager` | 76.4% | 61.5% | Below the 80% services target |
+| `OBSFacade` | 70.4% | 41.4% | Below target; the forwarders and their logging aren't covered (see below and #33) |
+| `OBSWebsocketAdapter` | 31.9% | 6.7% | Pass-through to the library; only the raw-response parsers are tested |
+| `OBSConnectionSettings` | 100% | 100% | |
 
 ## Why Some Classes Show 0% Despite Tests
 
@@ -117,6 +138,8 @@ All `Actions/` classes inherit from SDK base classes (`PluginDynamicCommand`, `P
 
 ## Running Tests
 
+Tests run locally only; CI doesn't run them yet (#42). An agent working in another worktree adds `-p:PluginDir=<scratch-dir>/pluginlink/` so the build doesn't take over the device (see `agents.md`).
+
 ```bash
 # Run all tests
 dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj
@@ -134,17 +157,17 @@ dotnet test --filter "FullyQualifiedName~OBSActionExecutorAudioTests"
 
 ```csharp
 [Fact]
-public void GetInputVolume_WhenConnected_ReturnsVolume()
+public void GetInputMute_WhenConnected_ReturnsMuteState()
 {
     // Arrange
     this._mockObs.Setup(x => x.IsConnected).Returns(true);
-    this._mockObs.Setup(x => x.GetInputVolume("Microphone")).Returns(0.75f);
+    this._mockObs.Setup(x => x.GetInputMute("Microphone")).Returns(true);
 
     // Act
-    var result = this._executor.GetInputVolume("Microphone");
+    Boolean result = this._executor.GetInputMute("Microphone");
 
     // Assert
-    Assert.Equal(0.75f, result);
+    Assert.True(result);
 }
 ```
 
@@ -167,14 +190,14 @@ public void SetInputVolume_WhenConnected_CallsObs()
 
 ```csharp
 [Fact]
-public void GetInputVolume_WhenOBSThrows_LogsErrorAndReturnsDefault()
+public void GetInputMute_WhenOBSThrows_LogsErrorAndReturnsDefault()
 {
     this._mockObs.Setup(x => x.IsConnected).Returns(true);
-    this._mockObs.Setup(x => x.GetInputVolume(It.IsAny<String>())).Throws(new Exception("OBS error"));
+    this._mockObs.Setup(x => x.GetInputMute(It.IsAny<String>())).Throws(new Exception("OBS error"));
 
-    var result = this._executor.GetInputVolume("Microphone");
+    Boolean result = this._executor.GetInputMute("Microphone");
 
-    Assert.Equal(1.0f, result);
+    Assert.False(result);
     this._mockLog.Verify(x => x.Error(It.Is<String>(s => s.Contains("Microphone"))), Times.Once);
 }
 ```
@@ -186,6 +209,7 @@ public void GetInputVolume_WhenOBSThrows_LogsErrorAndReturnsDefault()
 1. **OBSWebSocketManager event handlers (null-guard branches)** — `OBSWebSocketManagerEventHandlingTests` drives every handler through a mocked `IOBSWebsocket` (#20), but not yet the null-event-args branches (`e?.OutputState?.State ?? STOPPED` and similar), which only fire if OBS sends malformed events.
 2. **Reconnection timing** — the manager's reconnect timer is gone (#29); `ConnectionManagerTests` covers the retry decisions with short injected delays. The real `OBSTimings.ConnectionDelay` and backoff values are checked on a device.
 3. **`AudioInputMembership` clearing (#25)** — `OBSWebSocketManager` clears the cache from its scene item, input, scene list and collection event handlers. Those handlers are now testable (#20), but no test yet asserts the invalidation; `CachedValueTests` covers the cache itself and step 6 of `docs/device-checks/on-demand-loading.md` covers the wiring.
+4. **`OBSFacade` and `ConnectionManager`** — both are below the 80% services target (70.4% and 76.4% line). The facade's untested branches are mostly forwarders that log through the static `PluginLog`, which the tests can't capture.
 
 ### Intentionally Not Tested
 
@@ -198,6 +222,6 @@ public void GetInputVolume_WhenOBSThrows_LogsErrorAndReturnsDefault()
 
 Defined in `src/Helpers/OBSTimings.cs`:
 
-- `TestAsyncDelay = 500ms` — wait for code driven by a real timer (`DoubleTapHelperTests`) only
+- `TestAsyncDelay = 500ms` — wait for code driven by a real timer (`DoubleTapHelperTests`) only. `ConnectionManagerTests` inject short retry delays instead
 
 `OBSActionExecutor` tests don't wait at all: they inject an inline background runner. The fixed 500ms sleeps they used to have raced the thread pool under full-suite load (assessment #15).

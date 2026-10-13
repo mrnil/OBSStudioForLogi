@@ -1,299 +1,94 @@
 # Release Process
 
-## Overview
-
-This document describes the complete process for creating and publishing a new release of the OBSStudioForLogiPlugin.
+How to build, package and publish a release. Paths assume the repo is at `b:\development\OBSStudioForLogiPlugin`.
 
 ## Prerequisites
 
-- All code changes committed to git
-- All tests passing
-- Documentation updated (README, CHANGELOG, memory bank)
+- All changes committed, and all tests passing (`dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj`)
+- Any device checks the release depends on are done (see "Device Checks Outstanding" in `TODO.md`)
+- `README.md`, `USER_MANUAL.md` and `docs/ai/` describe the new behaviour
 
-## Release Steps
+## Steps
 
-### 1. Update Version Number
+### 1. Update the Version
 
-Update version in `src/package/metadata/LoupedeckPackage.yaml`:
+Update the version in **both** places (SemVer: major for breaking changes, minor for features, patch for fixes only):
 
-```yaml
-version: "0.9.1"  # Update to new version
+- `src/package/metadata/LoupedeckPackage.yaml`: `version:`
+- `src/OBSStudioForLogiPlugin.csproj`: `<Version>`, `<AssemblyVersion>` and `<FileVersion>`
+
+### 2. Update CHANGELOG.md
+
+Turn the `## [Unreleased]` section into `## [{VERSION}] - {DATE}`, and start a new, empty `## [Unreleased]` above it. Use [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) sections (`### Added`, `### Changed`, `### Fixed`, `### Removed`, `### Security`). Every release needs a changelog entry: release notes don't replace it.
+
+### 3. Write Release Notes
+
+Create `RELEASE_NOTES_v{VERSION}.md` in the repo root, written for users: what's new, what's fixed, anything they need to do (for example re-entering a setting), and the requirements. `RELEASE_NOTES_v2.0.1.md` is a good model.
+
+### 4. Commit and Tag
+
+```bash
+git add src/package/metadata/LoupedeckPackage.yaml src/OBSStudioForLogiPlugin.csproj CHANGELOG.md RELEASE_NOTES_v{VERSION}.md
+git commit -m "docs: add release notes and changelog entry for v{VERSION}"
+git tag -a v{VERSION} -m "Release v{VERSION} - {TITLE}"
 ```
 
-### 2. Build Release Configuration
+### 5. Build Release
 
 ```bash
 dotnet build src/OBSStudioForLogiPlugin.csproj -c Release
 ```
 
-This will:
+This builds into `bin/Release/`, copies `src/package/` into it, writes the plugin `.link` file and reloads the plugin.
 
-- Build the DLL to `bin/Release/bin/OBSStudioForLogiPlugin.dll`
-- Copy all dependencies
-- Copy metadata files
-- Create plugin link file
-- Trigger hot-reload
+The build copies package files but never deletes them, so a file removed from `src/package/` stays in `bin/Release/` until you delete it there. Check `bin/Release/metadata/` holds only `Icon256x256.png` and `LoupedeckPackage.yaml`.
 
-### 3. Create Release Notes
-
-Create `RELEASE_NOTES_v{VERSION}.md` with:
-
-- Bug fixes
-- New features
-- UI/UX improvements
-- Technical details
-- Installation instructions
-- Requirements
-- Acknowledgments
-
-### 4. Update CHANGELOG.md
-
-Add a new `## [{VERSION}] - {DATE}` entry at the top (below the header, above the previous latest version), in [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format (`### Added` / `### Changed` / `### Fixed` / `### Security` / etc). This step was skipped for v1.5.1, v1.6.0, and v1.6.1 despite release notes existing for all three — do not skip it again; a `RELEASE_NOTES_v{VERSION}.md` file is not a substitute for a `CHANGELOG.md` entry.
-
-### 5. Commit Release Notes and Changelog
-
-```bash
-git add RELEASE_NOTES_v{VERSION}.md CHANGELOG.md
-git commit -m "docs: add release notes and changelog entry for v{VERSION}"
-```
-
-### 6. Create Git Tag
-
-```bash
-git tag -a v{VERSION} -m "Release v{VERSION} - {TITLE}
-
-{SUMMARY OF CHANGES}"
-```
-
-### 7. Create .lplug4 Package
-
-Use LogiPluginTool (installed as dotnet global tool):
+### 6. Package, Verify and Check Metadata
 
 ```bash
 LogiPluginTool pack "b:\development\OBSStudioForLogiPlugin\bin\Release" "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
-```
-
-**Note:** LogiPluginTool is available as:
-
-- dotnet global tool: `C:\Users\steph\.dotnet\tools\logiplugintool.exe` (preferred, callable as `LogiPluginTool` from any directory)
-- SDK tools copy: `B:\development\LogitechBeta\LogiPluginSdkTools\LogiPluginTool.exe`
-- ❌ `C:\Program Files\Logi\LogiPluginService\LogiPluginTool.exe` — BROKEN (missing companion DLL, do NOT use)
-
-### 8. Verify Package
-
-```bash
 LogiPluginTool verify "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
-```
-
-### 9. Check Package Metadata
-
-```bash
 LogiPluginTool metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
 ```
 
-Verify:
+Use the dotnet global tool (`C:\Users\steph\.dotnet\tools\logiplugintool.exe`), or the SDK tools copy at `B:\development\LogitechBeta\LogiPluginSdkTools\LogiPluginTool.exe`. Don't use `C:\Program Files\Logi\LogiPluginService\LogiPluginTool.exe`: it is missing a companion DLL.
 
-- Version number is correct
-- Display name is correct
-- Supported platforms are correct
-- The package root contains `actionsymbols/` with one SVG per action class (`ActionSymbolTests` checks the source folder)
-- `metadata/` holds only `Icon256x256.png` and `LoupedeckPackage.yaml`: the build copies package files but never deletes them, so a file removed from `src/package/` stays in `bin/Release` until you delete it there (`PluginIconTests` checks the source icon)
+In the metadata output, check:
 
-### 10. Push to Git
+- The version, display name and supported platforms
+- The package root has `actionsymbols/` with one SVG per action class (`ActionSymbolTests` checks the source folder)
+
+`LogiPluginTool install <package>` installs the package locally, which is a useful last check before publishing.
+
+### 7. Push
 
 ```bash
 git push origin main
 git push origin v{VERSION}
 ```
 
-### 11. Create GitHub Release
+### 8. Create the GitHub Release
 
-1. Go to GitHub repository
-2. Click "Releases" → "Draft a new release"
-3. Select the tag `v{VERSION}`
-4. Set release title: `v{VERSION} - {TITLE}`
-5. Copy content from `RELEASE_NOTES_v{VERSION}.md`
-6. Attach the `.lplug4` file
-7. Mark as pre-release if applicable
-8. Publish release
-
-## LogiPluginTool Commands Reference
-
-### Pack Plugin
-
-```bash
-LogiPluginTool pack <InputDirectoryPath> <OutputPackagePath>
-```
-
-- `<InputDirectoryPath>`: Path to `bin/Release` directory
-- `<OutputPackagePath>`: Path where `.lplug4` file will be created
-
-### Verify Plugin
-
-```bash
-LogiPluginTool verify <PackagePath>
-```
-
-- Unpacks and verifies the plugin package
-- Checks for errors and missing files
-
-### Show Metadata
-
-```bash
-LogiPluginTool metadata <PackagePath>
-```
-
-- Displays plugin metadata in JSON format
-- Shows version, name, supported platforms, etc.
-
-### Install Plugin
-
-```bash
-LogiPluginTool install <PackagePath>
-```
-
-- Installs plugin to Logi Plugin Service
-- Useful for testing before distribution
-
-### Uninstall Plugin
-
-```bash
-LogiPluginTool uninstall <PluginName>
-```
-
-- Removes plugin from Logi Plugin Service
-
-## Version Numbering
-
-Follow Semantic Versioning (SemVer):
-
-- **Major** (X.0.0): Breaking changes, major new features
-- **Minor** (0.X.0): New features, backward compatible
-- **Patch** (0.0.X): Bug fixes, backward compatible
-
-Examples:
-
-- `v0.9.0`: Added audio volume display (minor feature)
-- `v0.9.1`: Fixed icon update bugs (patch)
-- `v1.0.0`: First stable release (major)
-
-## Release Types
-
-### Patch Release (0.0.X)
-
-- Bug fixes only
-- No new features
-- Backward compatible
-- Example: v0.9.1
-
-### Minor Release (0.X.0)
-
-- New features
-- Bug fixes
-- Backward compatible
-- Example: v0.9.0
-
-### Major Release (X.0.0)
-
-- Breaking changes
-- Major new features
-- May not be backward compatible
-- Example: v1.0.0
+1. On GitHub, open **Releases** → **Draft a new release**
+2. Select the tag `v{VERSION}` and set the title to `v{VERSION} - {TITLE}`
+3. Paste the content of `RELEASE_NOTES_v{VERSION}.md`
+4. Attach the `.lplug4` file
+5. Mark it as a pre-release if applicable, then publish
 
 ## Checklist
 
-Before creating a release, verify:
-
-- [ ] All code changes committed
-- [ ] All tests passing
-- [ ] Version number updated in `LoupedeckPackage.yaml`
-- [ ] README.md updated with new features
-- [ ] CHANGELOG.md updated
-- [ ] TODO.md updated
-- [ ] Memory bank documentation updated
-- [ ] Release notes created
-- [ ] Git tag created
-- [ ] .lplug4 package created
-- [ ] Package verified
-- [ ] Package metadata checked
-- [ ] Git pushed (commits and tags)
-- [ ] GitHub release created
-- [ ] .lplug4 file attached to release
-
-## Post-Release
-
-After publishing:
-
-1. Announce release on relevant channels
-2. Update any external documentation
-3. Monitor for bug reports
-4. Plan next release based on feedback
+- [ ] Tests pass and outstanding device checks are done
+- [ ] Version updated in `LoupedeckPackage.yaml` **and** the `.csproj`
+- [ ] `CHANGELOG.md` entry, with a new empty `[Unreleased]` section
+- [ ] `RELEASE_NOTES_v{VERSION}.md`
+- [ ] `README.md`, `USER_MANUAL.md`, `TODO.md` and `docs/ai/` up to date
+- [ ] Commit and tag
+- [ ] Release build, package created, verified and metadata checked
+- [ ] Commits and tag pushed
+- [ ] GitHub release published with the `.lplug4` attached
 
 ## Troubleshooting
 
-### Package Creation Fails
-
-- Ensure Release build completed successfully
-- Check that `bin/Release` directory exists
-- Verify all dependencies are present
-- Check LogiPluginTool output for errors
-
-### Package Verification Fails
-
-- Check package file is not corrupted
-- Ensure all required files are in `bin/Release`
-- Verify metadata files are present in `metadata/` folder
-
-### Version Mismatch
-
-- Update version in `LoupedeckPackage.yaml`
-- Rebuild Release configuration
-- Recreate .lplug4 package
-
-## File Locations
-
-- **Source**: `src/OBSStudioForLogiPlugin.csproj`
-- **Build Output**: `bin/Release/`
-- **Metadata**: `src/package/metadata/LoupedeckPackage.yaml`
-- **Release Package**: `OBSStudioForLogiPlugin-v{VERSION}.lplug4`
-- **Release Notes**: `RELEASE_NOTES_v{VERSION}.md`
-- **LogiPluginTool**: `C:\Users\steph\.dotnet\tools\logiplugintool.exe` (dotnet global tool, callable as `LogiPluginTool` from any directory)
-- **LogiPluginTool (alt)**: `B:\development\LogitechBeta\LogiPluginSdkTools\LogiPluginTool.exe`
-- ❌ **NOT**: `C:\Program Files\Logi\LogiPluginService\LogiPluginTool.exe` (broken, missing DLL)
-
-## Example Release Commands
-
-Complete release for v0.9.1:
-
-```bash
-# 1. Update version in LoupedeckPackage.yaml (manual)
-
-# 2. Build
-dotnet build src/OBSStudioForLogiPlugin.csproj -c Release
-
-# 3. Create release notes (manual)
-
-# 4. Update CHANGELOG.md with a new [0.9.1] entry (manual)
-
-# 5. Commit release notes and changelog
-git add RELEASE_NOTES_v0.9.1.md CHANGELOG.md
-git commit -m "docs: add release notes and changelog entry for v0.9.1"
-
-# 6. Create tag
-git tag -a v0.9.1 -m "Release v0.9.1 - Bug Fixes and Icon Updates"
-
-# 7. Create package (LogiPluginTool is a dotnet global tool, callable from any directory)
-LogiPluginTool pack "b:\development\OBSStudioForLogiPlugin\bin\Release" "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v0.9.1.lplug4"
-
-# 8. Verify package
-LogiPluginTool verify "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v0.9.1.lplug4"
-
-# 9. Check metadata
-LogiPluginTool metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v0.9.1.lplug4"
-
-# 10. Push to git
-git push origin main
-git push origin v0.9.1
-
-# 11. Create GitHub release (manual via web interface)
-```
+- **Pack fails**: make sure the Release build succeeded and `bin/Release/` has `bin/` and `metadata/`.
+- **Verify fails**: check that `metadata/LoupedeckPackage.yaml` and `metadata/Icon256x256.png` are present, and that no stale files are left in `bin/Release/`.
+- **Wrong version in the package**: update the YAML, rebuild Release, and pack again.

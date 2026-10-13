@@ -2,7 +2,7 @@
 
 ## Overview
 
-Action Editor commands use the ActionEditorCommand base class to create configurable actions with user-defined parameters. These commands allow users to configure actions through textboxes, dropdowns, and other controls in the Loupedeck software.
+Action Editor commands use the `ActionEditorCommand` base class to create actions the user configures per button, through textboxes, listboxes and checkboxes in Options+ or the Loupedeck software. In this plugin they are the "User defined" actions, plus Plugin Settings. The plugin has no `ActionEditorAdjustment` yet; the SDK section below shows it for completeness.
 
 ## Pattern Implementation
 
@@ -60,8 +60,8 @@ public class SceneSwitchAdjustableCommand : ActionEditorCommand, IObsCommand
         OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
 
         this.Name = "SceneSwitchAdjustable";
-        this.DisplayName = "Switch to Scene (Adjustable)";
-        this.GroupName = "7. Scenes";
+        this.DisplayName = "Switch to Scene (User Defined)";
+        this.GroupName = "7. Scenes###User Defined";
         this.Description = "Switch to a specific scene with optional profile and collection switching";
 
         // Add configuration controls
@@ -75,13 +75,17 @@ public class SceneSwitchAdjustableCommand : ActionEditorCommand, IObsCommand
     protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
     {
         // Get user-configured values
-        if (!actionParameters.TryGetString(SceneNameControlName, out var sceneName) || String.IsNullOrEmpty(sceneName))
+        if (!actionParameters.TryGetString(SceneNameControlName, out String sceneName) || String.IsNullOrEmpty(sceneName))
+        {
             return false;
+        }
 
-        actionParameters.TryGetString(ProfileNameControlName, out var profileName);
-        actionParameters.TryGetString(CollectionNameControlName, out var collectionName);
+        actionParameters.TryGetString(ProfileNameControlName, out String profileName);
+        actionParameters.TryGetString(CollectionNameControlName, out String collectionName);
 
-        // Execute action
+        // A sequence of steps with waits needs its own background task. A single OBS call
+        // doesn't: the executor already runs writes in the background. The fixed delays
+        // here are assessment #37.
         Task.Run(async () =>
         {
             if (!String.IsNullOrEmpty(profileName))
@@ -114,27 +118,21 @@ public class SceneSwitchAdjustableCommand : ActionEditorCommand, IObsCommand
 Parameters configured by the user in the Loupedeck software:
 
 ```csharp
-// Get string parameter
-if (actionParameters.TryGetString("ControlName", out var value))
+if (actionParameters.TryGetString("ControlName", out String value))
 {
     // Use value
-}
-
-// Get integer parameter
-if (actionParameters.TryGetInt("ControlName", out var intValue))
-{
-    // Use intValue
 }
 ```
 
 ### Configuration Controls
 
-Available control types:
+Control types used in this plugin:
 
-- **ActionEditorTextbox**: Single-line text input
-- **ActionEditorDropdown**: Dropdown selection
-- **ActionEditorCheckbox**: Boolean checkbox
-- **ActionEditorSlider**: Numeric slider
+- **ActionEditorTextbox**: single-line text (names of scenes, sources, inputs)
+- **ActionEditorListbox**: a list whose items the plugin supplies from `ActionEditor.ListboxItemsRequested` (`MediaActionCommand`'s actions, `PluginSettingsCommand`'s intervals)
+- **ActionEditorCheckbox**: a Boolean (`PluginSettingsCommand`)
+
+Check the SDK docs (`sdk-researcher`) before using any other control type.
 
 ### Control Names
 
@@ -179,12 +177,6 @@ this.ActionEditor.AddControlEx(new ActionEditorTextbox(ProfileNameControlName, "
 - Toggle global selection for wheel/dial volume control
 - Pairs with SelectedSourceVolumeAdjustment
 
-### Audio Volume Adjustment
-
-- Configure audio input name
-- Encoder adjusts volume for that specific input
-- No need for dynamic folders
-
 ## Implementation Checklist
 
 When creating an ActionEditorCommand:
@@ -195,26 +187,16 @@ When creating an ActionEditorCommand:
 - [ ] Add controls with `ActionEditor.AddControlEx()`
 - [ ] Override `OnLoad()` to return true
 - [ ] Override `RunCommand()` or `ApplyAdjustment()`
-- [ ] Extract parameters with `TryGetString()`, `TryGetInt()`, etc.
+- [ ] Extract parameters with `TryGetString()` (textboxes, listboxes) or `TryGetBoolean()` (checkboxes), using explicit types
 - [ ] Validate required parameters
 - [ ] Execute action with parameters
 - [ ] Implement `IObsCommand` for connection state
 - [ ] Register command with plugin in constructor
 
-## Benefits
-
-- **Configurable**: Users customize behavior per button
-- **Reusable**: Same command, different configurations
-- **Flexible**: Supports optional and required parameters
-- **Type-Safe**: Parameter extraction with type checking
-- **User-Friendly**: Configuration UI in Loupedeck software
-
 ## Limitations
 
-- **Static Configuration**: Parameters set at design time, not runtime
-- **No Dynamic Lists**: Can't populate dropdowns from OBS
-- **Manual Entry**: Users must type exact names (profiles, scenes, etc.)
-- **No Validation**: Invalid names fail silently at runtime
+- **Typed names**: users type exact scene, source and input names. A typo only shows as a log warning when the button is pressed, and a rename in OBS breaks the button. Listboxes filled from OBS may fix this (assessment #40)
+- **Plaintext values**: values typed into a control are saved in plaintext in the device profile, so a secret must be moved elsewhere on save (see `secure-coding.md`)
 
 ## Best Practices
 

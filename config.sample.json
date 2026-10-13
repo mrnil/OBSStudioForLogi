@@ -3,6 +3,6 @@
   "useLocalObs": true,
   "remoteIpAddress": "127.0.0.1",
   "remotePort": 4455,
-  "remotePassword": "",
-  "statsPollingInterval": 5000
+  "statsPollingInterval": 5000,
+  "audioMeterRefreshInterval": 100
 }

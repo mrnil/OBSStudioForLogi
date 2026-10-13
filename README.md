@@ -12,7 +12,7 @@ Control OBS Studio directly from your Logitech/Loupedeck hardware device with de
 
 ## NOTE
 
-Please note that this is not a plugin or an extension for OBS. This project is not supported by or affliated with OBS Project and is not listed in their community.
+Please note that this is not a plugin or an extension for OBS. This project is not supported by or affiliated with the OBS Project and is not listed in their community.
 
 This project interacts with the websocket server using [obs-websocket-dotnet](https://github.com/BarRaider/obs-websocket-dotnet) and is a plugin for Logitech Option+ and Loupedeck software that utilise the underlying LogiPluginService and [Logi Actions SDK](https://logitech.github.io/actions-sdk-docs/). See [the project structure](https://github.com/mrnil/OBSStudioForLogi/blob/main/docs/ai/structure.md) for further details.
 
@@ -24,14 +24,14 @@ An AI Coding Assistant has been used to support the development of this project 
 - **Streaming Controls**: Start, stop, toggle streaming with visual state indicators
 - **Recording Controls**: Start, stop, toggle, pause/resume recording with visual state indicators
 - **Virtual Camera**: Start, stop, toggle virtual camera output
-- **Scene Management**: Switch scenes with dynamic folder and visual feedback
+- **Scene Management**: Switch scenes with a dynamic folder or per-scene buttons, with visual feedback
 - **Source Visibility**: Toggle visibility of sources in current scene
-- **Audio Mixer**: Mute/unmute audio inputs with visual feedback (red=muted, green=unmuted)
+- **Audio Mixers**: Mute/unmute audio inputs with visual feedback (red=muted, green=unmuted)
 - **Audio Volume Control**: Adjust volume via MX big wheel (folder tiles) or standalone dial adjustment
 - **Audio Display**: Volume shown in dB format with full OBS range support (up to +26 dB)
 - **Audio Source Selection**: Global audio source selection for wheel/dial volume control
 - **Audio Meters**: Real-time per-channel VU meters on a dB scale matching OBS's own mixer — a Live Audio Folder of everything currently live, plus a per-source meter action for any button
-- **User Defined Actions**: Configurable actions for source visibility, audio mute, monitoring, audio selection, and audio status display
+- **User Defined Actions**: Configurable actions for scene switching, source visibility, audio mute, monitoring, audio selection, audio status display and media actions
 - **Profile Management**: Switch between OBS profiles with selection indicators and dynamic folder
 - **Scene Collections**: Switch between scene collections with selection indicators
 - **Screenshot Capture**: Take screenshots with automatic path detection
@@ -50,34 +50,27 @@ An AI Coding Assistant has been used to support the development of this project 
 
 ## Installation
 
-1. Build the project:
+Download the latest `.lplug4` from the [Releases page](https://github.com/mrnil/OBSStudioForLogi/releases) and double-click it, or see [INSTALL.md](INSTALL.md). Launch OBS Studio and the plugin connects automatically.
 
-   ```bash
-   dotnet build src/OBSStudioForLogiPlugin.csproj -c Release
-   ```
-
-2. The plugin automatically installs to Logi Plugin Service via the `.link` file
-
-3. Launch OBS Studio and the plugin connects automatically
+To build from source instead, run `dotnet build src/OBSStudioForLogiPlugin.csproj -c Release`. The build links the plugin into Logi Plugin Service through a `.link` file.
 
 ## Available Controls
 
 ### OBS (Group 1)
 
 - **Screenshot**: Capture screenshot to Pictures/Documents/Desktop folder
-- **Reconnect**: Manually retry connection to OBS
-- **Studio Mode Toggle**: Enable/disable OBS studio mode for preview/program workflow
+- **Reconnect to OBS**: Manually retry the connection to OBS; its colour shows the connection state
+- **Toggle Studio Mode**: Enable/disable OBS studio mode for preview/program workflow
 - **Studio Mode Transition**: Transition preview scene to program (only works when studio mode is enabled)
 - **Connection Status Display**: Shows "Connected" (green), "Disconnected" (red), or "WebSocket Disabled" (orange)
 - **Stats Summary**: Single button showing FPS, CPU%, and dropped frames (colour-coded)
 - **Stats Folder**: Dynamic folder with individual tiles per stat (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped, Disk Space, Render Time)
-- **Plugin Settings**: Configure OBS connection (local/remote) and stats polling interval
+- **Plugin Settings**: Configure the OBS connection (local/remote), stats polling interval and audio meter refresh rate
 
 ### Streaming (Group 2)
 
-- **Streaming Toggle**: Toggle streaming on/off
-- **Streaming Start**: Start streaming
-- **Streaming Stop**: Stop streaming
+- **Toggle Streaming**: Toggle streaming on/off
+- **Start Streaming** / **Stop Streaming**: Greyed out when they can't act (Start while streaming, Stop while not, either while OBS is starting or stopping the stream)
 - **Stream Stats Folder**: Dynamic folder showing live stream statistics
   - Duration, Bytes Sent (MB/GB), Network Congestion, Skipped Frames, Total Frames
   - Colour-coded: green=healthy, yellow=warning, red=problem
@@ -85,58 +78,53 @@ An AI Coding Assistant has been used to support the development of this project 
 
 ### Recording (Group 3)
 
-- **Recording Toggle**: Toggle recording on/off
-- **Recording Start**: Start recording
-- **Recording Stop**: Stop recording
-- **Recording Pause/Resume**: Pause or resume active recording
+- **Toggle Recording**: Toggle recording on/off. A status key: red record dot while recording, green stop square while not
+- **Start Recording** / **Stop Recording**: Greyed out when they can't act
+- **Recording Pause**: Pause or resume the active recording; greyed out while nothing is recording
 
 ### Replay Buffer (Group 4)
 
-- **Replay Buffer Toggle**: Start/stop replay buffer
-- **Save Replay Buffer**: Save the current replay buffer to disk (green confirmation flash on success)
+- **Toggle Replay Buffer**: Start/stop replay buffer
+- **Save Replay**: Save the current replay buffer to disk (green confirmation flash on success)
 
 ### Virtual Camera (Group 5)
 
-- **Virtual Camera Toggle**: Toggle virtual camera on/off
-- **Virtual Camera Start**: Start virtual camera
-- **Virtual Camera Stop**: Stop virtual camera
+- **Toggle Virtual Camera**: Toggle virtual camera on/off
+- **Start Virtual Camera** / **Stop Virtual Camera**: Greyed out when they can't act
 
 ### Profiles (Group 6)
 
-- **Profile Select**: Switch between OBS profiles (multi-state buttons)
-- **Profiles Folder**: Dynamic folder with all available profiles
+- **Available Profiles**: One button per profile, ticked when current
+- **Profiles**: Dynamic folder with all available profiles
 - **Current Profile Display**: Shows active profile name
 
 ### Scenes (Group 7)
 
-- **Scene Collection Select**: Switch between scene collections (multi-state buttons)
-- **Scene Collections Folder**: Dynamic folder with all available scene collections
-- **Scenes Folder**: Dynamic folder with all available scenes
+- **Available Scenes** / **Available Collections**: One button per scene or scene collection, ticked when current
+- **Scene Collections**: Dynamic folder with all available scene collections
+- **Scenes**: Dynamic folder with all available scenes
   - When studio mode is disabled: Switches scene to program (live)
-  - When studio mode is enabled: Switches scene to preview (not live yet)
-- **Sources Folder**: Dynamic folder with sources in current scene (toggle visibility)
-- **Current Scene Display**: Shows active scene name
-- **Current Scene Collection Display**: Shows active scene collection name
+  - When studio mode is enabled: Switches scene to preview (not live yet). The buttons don't show the preview scene yet
+- **Scene Sources**: Dynamic folder with the sources in the current scene (toggle visibility)
+- **Current Scene** / **Current Collection**: Show the active scene and scene collection names
 
 ### Audio (Group 8)
 
-- **Audio Mixer Folder**: Dynamic folder with all audio inputs (mute/unmute toggle, volume display)
-  - Visual feedback: Green text = unmuted, Red text = muted
-  - Displays input name and current volume percentage (0-100%)
-  - Real-time updates when mute state or volume changes in OBS
-  - Toggle mute by pressing the button
-- **Scene Audio Folder**: Dynamic folder with audio sources in the current scene
-  - Shows only audio inputs present in the active scene
-  - Same mute/unmute controls, volume display, and visual feedback as Audio Mixer
-  - Updates automatically when switching scenes or changing volume
-- **Audio Select Folder**: Dynamic folder for selecting the global audio source
+- **Mixer for All Audio**: Dynamic folder with all audio inputs
+  - Single tap selects the input for wheel/dial control; double tap toggles mute
+  - Shows the input name, volume in dB and monitoring mode; green text = unmuted, red = muted, white border = selected
+  - On a Loupedeck, the encoder adjusts the selected input's volume and pressing it cycles monitoring
+  - Real-time updates when mute state, volume or monitoring changes in OBS
+- **Mixer for Scene Audio**: The same, for the audio sources in the current scene plus audio inputs that aren't in any scene
+- **Available Sources**: One mute button per audio input
+- **Audio Select**: Dynamic folder for selecting the global audio source
   - Single tap selects/deselects an audio source
   - Displays mute state, volume, and monitoring mode for each source
   - Selection persists after folder is closed
   - Selected source is used by volume wheel/dial controls
-- **Audio Volume Folder**: Dynamic folder with adjustment tiles for MX big wheel
+- **Audio Volume**: Dynamic folder with adjustment tiles for MX big wheel
   - Tap a tile to arm the MX big wheel for that source's volume
-  - Displays volume percentage and mute state (green/red)
+  - Displays volume in dB and mute state (green/red)
   - Compatible with MX Creative Console Dialpad
 - **Selected Source Volume**: Standalone adjustment for wheel/dial
   - Controls volume of the globally selected audio source
@@ -153,9 +141,11 @@ An AI Coding Assistant has been used to support the development of this project 
   - Tap to toggle mute for that input
   - Refresh rate configurable in Plugin Settings (20/10/5 fps, default 10)
 
-### User Defined Actions (Group 99)
+### User Defined Actions
 
-- **Switch to Scene (Adjustable)**: Switch to a specific scene with optional profile and collection switching
+These are in the `User Defined` sub-groups of Scenes and Audio; Media Action is under Media.
+
+- **Switch to Scene (User Defined)**: Switch to a specific scene with optional profile and collection switching
   - Configure profile name, collection name, and scene name via textboxes
 - **Toggle Source Visibility (User defined)**: Toggle visibility of one or more sources
   - Comma-separate multiple source names
@@ -173,13 +163,13 @@ An AI Coding Assistant has been used to support the development of this project 
 
 ### Media (Group 9)
 
-- **Media Controls Folder**: Dynamic folder of media sources (ffmpeg, VLC, slideshow, text)
+- **Media Controls**: Dynamic folder of media sources (ffmpeg, VLC, slideshow, text)
   - Single tap while stopped/paused: Play (uses Restart for stopped/ended sources)
   - Single tap while playing: Pause
   - Double tap: Stop (reset to beginning)
   - Colour-coded: Green = Playing, Yellow = Paused, Grey = Stopped/Ended
   - Real-time updates when media starts/finishes naturally
-- **Media Action (User defined)**: Trigger media actions on a named source
+- **Media Action (User Defined)**: Trigger media actions on a named source
   - Actions: Play, Pause, Stop, Restart, Next, Previous
   - Source name textbox + action listbox
 
@@ -214,7 +204,7 @@ dotnet build src/OBSStudioForLogiPlugin.csproj
 dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj
 ```
 
-**Note:** Tests are run locally only. The GitHub Actions workflow performs dependency checking and build validation but does not run tests due to timing issues with fire-and-forget Task.Run patterns in CI environments.
+**Note:** Tests are run locally only. The GitHub Actions workflows check dependencies, validate the build and lint the Markdown, but don't run the tests yet.
 
 ### Clean
 
@@ -224,13 +214,15 @@ dotnet clean OBSStudioForLogiPlugin.sln
 
 ## Architecture
 
-- **TDD Approach**: Comprehensive test coverage with 362 unit tests
-- **Dependency Injection**: Interface-based design for testability
-- **Async Operations**: All OBS operations wrapped in Task.Run to prevent UI freezing
-- **Event-Driven**: Real-time updates via OBS WebSocket events
-- **Singleton Pattern**: Command instances accessible via static Instance properties
-- **Resilient Reconnection**: Timer-based reconnection with exponential backoff (1s to 30s) and jitter (0.85-1.15x)
-- **Command Base Classes**: ToggleCommandBase and StartStopCommandBase eliminate duplication across similar commands
+- **TDD Approach**: The services layer is developed test first; see [test coverage](docs/ai/test-coverage.md) for the current count and coverage
+- **Dependency Injection**: Interface-based design for testability; OBS is mocked through `IOBSWebsocket`
+- **Non-Blocking**: OBS writes run on a background runner, and buttons render from cached state, so a slow OBS never freezes the device
+- **Event-Driven**: Real-time updates via OBS WebSocket events, dispatched to commands through `CommandCoordinator`
+- **On-Demand Loading**: Data only one folder or button shows is loaded only while it is on screen
+- **Resilient Reconnection**: `ConnectionManager` retries with exponential backoff (1s to 30s) and ±15% jitter, re-reading the connection settings each time
+- **Command Base Classes**: `ToggleCommandBase` and `StartStopCommandBase` share the logic of the output buttons
+
+See [docs/ai/structure.md](docs/ai/structure.md) for the full architecture.
 
 ## Troubleshooting
 
@@ -241,10 +233,10 @@ dotnet clean OBSStudioForLogiPlugin.sln
 - Check logs in Logi Plugin Service
 - For remote OBS: verify IP address, port, and password in Plugin Settings
 
-**Commands disabled:**
+**Buttons greyed out or showing "Disconnected":**
 
-- Plugin only enables when connected to OBS
-- Wait for automatic connection or restart OBS Studio
+- The plugin isn't connected to OBS yet
+- Wait for the automatic connection, press Reconnect to OBS, or restart OBS Studio
 
 ## License
 

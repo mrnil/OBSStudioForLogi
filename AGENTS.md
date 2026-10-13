@@ -25,9 +25,10 @@ Read these before making changes — they are kept current and are the source of
 
 Deeper reference material (read only when relevant to the task at hand):
 
-- `sdk-quick-reference.md`, `adjustable-command-pattern.md`, `icon-update-patterns.md`, `image-rendering-simplified.md` — Loupedeck SDK command patterns
-- `obs-websocket-api-complete.md`, `obs-audio-api-analysis.md`, `protocol-gap-analysis.md` — OBS WebSocket protocol coverage
-- `refactoring-patterns.md`, `vu-meters-learnings.md`, `multi-instance-obs-design.md` — past decisions and design notes
+- `sdk-quick-reference.md`, `adjustable-command-pattern.md`, `image-rendering-simplified.md` — Loupedeck SDK command and rendering patterns
+- `obs-websocket-api-complete.md` (which OBS requests and events the plugin uses), `protocol-gap-analysis.md` (library behaviour, protocol details, design notes for planned features)
+- `vu-meters-learnings.md`, `multi-instance-obs-design.md` — design decisions
+- `docs/device-checks/` — step-by-step device check scripts
 - `icon-style.md` — canvas, palette, state language and naming rules for button icons; read before adding or changing an icon
 
 ## When SDK or plugin knowledge is missing
@@ -41,8 +42,8 @@ If you hit a question about SDK behavior that isn't answered by `docs/ai/sdk-qui
 - Follow `docs/ai/guidelines.md` exactly for code style — this project's `.editorconfig` enforces BCL type names (`String`, not `string`), no `var`, mandatory `this.` qualification, and Allman braces as warnings, but the convention is followed strictly regardless.
 - All new business logic needs tests (see `docs/ai/guidelines.md` TDD Scope and `docs/ai/test-coverage.md`). The `src/Actions/` (Loupedeck SDK) layer is exempt from strict coverage targets — see the same section for why.
 - Commits follow Conventional Commits and must explain **why**, not just what — see `docs/ai/commit-conventions.md`.
-- Tests run locally only; CI (`.github/workflows/dependency-check.yml`) does not run them — do not add them to CI without first fixing the fire-and-forget timing flakiness noted in `docs/ai/test-coverage.md`.
-- When you fix something tracked in `docs/ai/assessment.md` or `TODO.md`, update those files in the same change — they drift fast otherwise (this has already happened once).
+- Tests run locally only; CI (`.github/workflows/dependency-check.yml`) does not run them yet. Adding them is tracked as `assessment.md` #42 — follow its notes (Windows runner, `-p:PluginDir=` scratch folder) rather than adding a bare `dotnet test` step.
+- When you fix something tracked in `docs/ai/assessment.md` or `TODO.md`, update those files in the same change: move the item to the assessment's Resolved table and delete it from `TODO.md` (which lists open work only). They drift fast otherwise.
 - Every `.md` file you write or edit must pass `rumdl` (config: `.markdownlint.json`, enforced in CI by `.github/workflows/markdown-lint.yml`). The rules that actually get hit in practice:
   - Blank line before **and** after every heading, list block, and fenced code block (MD022/MD032/MD031).
   - No bare URLs — use `[text](url)` or wrap in `<angle brackets>` (MD034).

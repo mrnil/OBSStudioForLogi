@@ -121,8 +121,8 @@ public class ItemsDynamicFolder : PluginDynamicFolder
 
         if (loadData)
         {
-            var items = GetItems();
-            foreach (var item in items)
+            Item[] items = this.GetItems();
+            foreach (Item item in items)
             {
                 this.AddParameter(item.Id, item.Name, this.GroupName)
                     .Description = $"Select {item.Name}";
@@ -136,9 +136,11 @@ public class ItemsDynamicFolder : PluginDynamicFolder
     public override void RunCommand(String actionParameter)
     {
         if (String.IsNullOrEmpty(actionParameter))
+        {
             return;
+        }
 
-        ProcessItem(actionParameter);
+        this.ProcessItem(actionParameter);
     }
 
     public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
@@ -222,69 +224,21 @@ protected override void RunCommand(String actionParameter)
 
 ### Async Operations
 
+`RunCommand` runs on the SDK's thread, so it must return quickly. In this plugin, OBS calls already run on the executor's background runner (see `guidelines.md`), so a command just calls the plugin:
+
 ```csharp
 protected override void RunCommand(String actionParameter)
 {
-    Task.Run(async () =>
-    {
-        try
-        {
-            await PerformActionAsync(actionParameter);
-        }
-        catch (Exception ex)
-        {
-            PluginLog.Error(ex, "Action failed");
-        }
-    });
+    OBSStudioForLogiPlugin.Instance?.ToggleRecording();
 }
 ```
 
 ### Resource Loading
 
 ```csharp
-// Short name (preferred)
-var icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("icon.svg"));
-
-// Via ButtonImageHelper (best)
+// Always go through ButtonImageHelper: it keeps the multicolour marker that stops
+// the device tinting the icon white (see image-rendering-simplified.md)
 return ButtonImageHelper.Icon("icon.svg", imageSize);
-```
-
-## Package Metadata Template
-
-```yaml
-pluginName: MyPlugin
-displayName: "My Plugin"
-version: 1.0.0
-author: "Your Name"
-supportedDevices:
-    - LoupedeckCtFamily
-minimumLoupedeckVersion: 6.0
-license: MIT
-homepageUrl: https://example.com
-category: "Productivity"
-keywords: ["automation", "control", "workflow"]
-```
-
-## Build Commands
-
-```bash
-# Development build with hot-reload
-dotnet build
-
-# Release build for packaging
-dotnet build --configuration Release
-
-# Create package
-LogiPluginTool pack ./bin/Release ./MyPlugin.lplug4
-
-# Verify package
-LogiPluginTool verify ./MyPlugin.lplug4
-
-# Install package
-LogiPluginTool install ./MyPlugin.lplug4
-
-# View metadata
-LogiPluginTool metadata ./MyPlugin.lplug4
 ```
 
 ## Common Mistakes to Avoid
@@ -326,10 +280,10 @@ protected override void RunCommand(String actionParameter)
     PerformAction();
 }
 
-// GOOD - async operation
+// GOOD - the executor runs the OBS call in the background
 protected override void RunCommand(String actionParameter)
 {
-    Task.Run(() => PerformAction());
+    OBSStudioForLogiPlugin.Instance?.ToggleRecording();
 }
 ```
 
@@ -346,7 +300,10 @@ protected override void RunCommand(String actionParameter)
 protected override void RunCommand(String actionParameter)
 {
     if (String.IsNullOrEmpty(actionParameter))
+    {
         return;
+    }
+
     ProcessParameter(actionParameter);
 }
 ```
@@ -364,13 +321,4 @@ protected override void RunCommand(String actionParameter)
 - [ ] Error handling works
 - [ ] Logging provides context
 
-## Deployment Checklist
-
-- [ ] Build in Release configuration
-- [ ] Update version in LoupedeckPackage.yaml
-- [ ] Add/update category and keywords
-- [ ] Test on target devices
-- [ ] Verify package with LogiPluginTool
-- [ ] Test installation on clean machine
-- [ ] Update documentation
-- [ ] Create release notes
+For building, packaging and releasing, see `tech.md` and `release-process.md`.

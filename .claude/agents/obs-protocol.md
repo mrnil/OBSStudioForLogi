@@ -12,8 +12,7 @@ The plugin talks to OBS through obs-websocket-dotnet (NuGet `obs-websocket-dotne
 
 1. **This repo's notes**:
    - `docs/ai/obs-websocket-api-complete.md`: every request and event, and whether the plugin uses it.
-   - `docs/ai/protocol-gap-analysis.md`: unused requests and design notes.
-   - `docs/ai/obs-audio-api-analysis.md`: audio requests and events.
+   - `docs/ai/protocol-gap-analysis.md`: library behaviour, protocol details and design notes for planned features.
    - `docs/ai/multi-instance-obs-design.md`, `docs/ai/vu-meters-learnings.md`: past decisions.
 2. **The library source**, a local clone at `B:\development\obs-websocket-dotnet` (Windows path; in Bash use `/b/development/obs-websocket-dotnet`):
    - `obs-websocket-dotnet/OBSWebsocket_Requests.cs` (requests), `Events.cs` (events), `Types/` (response models), `IOBSWebsocket.cs`, `Communication/`.

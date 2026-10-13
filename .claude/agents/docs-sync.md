@@ -29,8 +29,8 @@ Read the current doc before judging it. Check only what the change touches; don'
 | Doc | Must change when |
 |-----|------------------|
 | `docs/ai/assessment.md` | The change fixes, partly fixes or invalidates a numbered finding. Fixed findings move to **Resolved**, and the **Summary Table** matches. A newly found problem the change doesn't fix belongs here too. |
-| `TODO.md` | The change completes a checkbox or a whole section (mark `✅ Done`), or leaves a follow-up such as a device check that still has to happen. |
-| `docs/ai/test-coverage.md` | Tests are added, removed or renamed. Count the `[Fact]` and `[Theory]` attributes in each changed test file (`grep -c`) and compare against the table row; check the **Test Count** heading and the total in the overview against the real total. A new test file needs a new row in the right table. |
+| `TODO.md` | The change completes a checkbox or a whole section (delete it: `TODO.md` lists open work only, and the change log and Resolved table record what was done), or leaves a follow-up such as a device check that still has to happen. |
+| `docs/ai/test-coverage.md` | Tests are added, removed or renamed. Count the `[Fact]` and `[Theory]` attributes in each changed test file (`grep -c`) and compare against the table row; check the total in the overview against the real total. A new test file needs a new row in the right table. |
 | `docs/ai/structure.md` | A file, folder, class or layer is added, moved, renamed or removed, or the event flow or a pattern described there changes. |
 | `docs/ai/guidelines.md` | The change introduces a new pattern other code should follow, or breaks one described there. Methods and helpers named in the doc must still exist. |
 | `docs/ai/tech.md` | A dependency, version, target framework, build command or CI step changes. |

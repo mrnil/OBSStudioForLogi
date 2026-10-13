@@ -8,13 +8,14 @@ The OBSStudioForLogiPlugin supports configuration via a JSON file or the **Plugi
 
 ### Method 1: Plugin Settings Action (Recommended)
 
-1. Drag **Plugin Settings** (from Group 1. OBS) onto a button
+1. Drag **Plugin Settings** (from `1. OBS`) onto a button
 2. Configure the settings in Logi Options+
 3. Press the button to save and apply
+4. If you entered a password, clear the **Password** field and save the action again (see [Remote Password](#remote-password))
 
 ### Method 2: Manual JSON File
 
-For advanced users or automation, you can edit the config file directly.
+For advanced users or automation, you can edit the config file directly. The remote password can't be set this way: see [Remote Password](#remote-password).
 
 ## Configuration File Location
 
@@ -59,7 +60,6 @@ Controls how the plugin connects to OBS Studio.
 | `useLocalObs` | Boolean | `true` | When true, auto-discovers local OBS WebSocket settings. When false, uses manual remote settings. |
 | `remoteIpAddress` | String | `"127.0.0.1"` | IP address of the remote OBS machine (used when `useLocalObs` is false) |
 | `remotePort` | Integer | `4455` | WebSocket port (used when `useLocalObs` is false) |
-| `remotePassword` | String | `""` | WebSocket password (used when `useLocalObs` is false) |
 
 ### Stats Settings
 
@@ -68,6 +68,18 @@ Controls performance statistics polling.
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | `statsPollingInterval` | Integer | `5000` | How often to poll OBS for stats, in milliseconds. Valid values: 2000, 5000, 10000 |
+
+### Audio Meter Settings
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `audioMeterRefreshInterval` | Integer | `100` | How often the Live Audio Folder and Audio Meter buttons redraw, in milliseconds. Valid values: 50 (20 fps), 100 (10 fps), 200 (5 fps) |
+
+### Remote Password
+
+The remote OBS password isn't stored in `config.json`. Plugin Settings saves it encrypted in the plugin's settings, which the Logi Plugin Service manages. A `remotePassword` left in `config.json` by a version before 2.0.0 is moved there automatically and removed from the file.
+
+Anything typed into the Plugin Settings **Password** field is also saved, unencrypted, in your device profile. After saving, clear the field and save the action again: an empty field keeps the saved password. To remove the saved password, tick **Clear Saved Password** and press the button.
 
 ## Full Example Configuration
 
@@ -79,8 +91,8 @@ Controls performance statistics polling.
   "useLocalObs": true,
   "remoteIpAddress": "127.0.0.1",
   "remotePort": 4455,
-  "remotePassword": "",
-  "statsPollingInterval": 5000
+  "statsPollingInterval": 5000,
+  "audioMeterRefreshInterval": 100
 }
 ```
 
@@ -92,7 +104,6 @@ Controls performance statistics polling.
   "useLocalObs": false,
   "remoteIpAddress": "192.168.1.50",
   "remotePort": 4455,
-  "remotePassword": "my-obs-password",
   "statsPollingInterval": 2000
 }
 ```
@@ -105,7 +116,6 @@ Controls performance statistics polling.
   "useLocalObs": true,
   "remoteIpAddress": "127.0.0.1",
   "remotePort": 4455,
-  "remotePassword": "",
   "statsPollingInterval": 5000
 }
 ```
@@ -125,7 +135,8 @@ Plugin logs are written to the Logi Plugin Service log file:
 - When `useLocalObs` is `true`, the plugin reads OBS's own WebSocket config file to discover port and password automatically. The remote settings are ignored.
 - When `useLocalObs` is `false`, the plugin connects directly to the specified IP/port without waiting for port availability (since it can't detect a remote OBS process).
 - Changes made via the Plugin Settings action overwrite the config file.
-- If the config file doesn't exist or is invalid, the plugin uses defaults (local OBS, Info logging, 5s polling).
+- If the config file doesn't exist or is invalid, the plugin uses defaults (local OBS, Info logging, 5s stats polling, 10 fps meters).
+- The remote IP address must be an IPv4 or IPv6 address. Host names aren't accepted yet: an invalid value falls back to `127.0.0.1`, with only a warning in the log.
 
 ## Troubleshooting
 
@@ -151,3 +162,6 @@ If the configuration file contains invalid JSON, the plugin will:
 3. Check the IP address is reachable from your machine
 4. Verify the port and password match the remote OBS settings
 5. Check firewall rules allow the connection
+6. Check the log for an `Invalid IP address format` warning: an address the plugin can't parse is replaced with `127.0.0.1`
+
+The connection to OBS isn't encrypted (`ws://`). The password isn't sent over it, but everything else is, so only connect to a remote OBS over a network you trust.
