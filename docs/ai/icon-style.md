@@ -33,7 +33,7 @@ Don't introduce other colours. The VU meter bars are drawn in code and have thei
 | Not selected | The plain glyph, with no badge. |
 | Muted | The off treatment in `#E5484D`. |
 
-Start and Stop buttons use their family's On and Off glyphs. When the action isn't available (Start while already running, Stop while idle) they use the grey `Disabled` variant. They never show the opposite state in full colour, because that looks pressable.
+Start and Stop buttons use their family's On and Off glyphs. When the action isn't available (Start while already running, Stop while idle, either while OBS is starting or stopping the output, or while disconnected) they use the grey `Disabled` variant, and the button ignores presses. They never show the opposite state in full colour, because that looks pressable. Recording Pause follows the same rule: while nothing is recording it shows `RecordingOnDisabled.svg`. The rule itself is `OutputButtonAvailability` in code.
 
 ## Naming
 

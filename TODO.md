@@ -2,10 +2,10 @@
 
 ## High Priority
 
-### Assessment: Streaming and Recording Buttons Never Redraw (#27) — fixed, device check to do
+### Assessment: Streaming and Recording Buttons Never Redraw (#27) ✅ Done
 
 - [x] ~~Add `IStreamingAwareCommand` and `IRecordingAwareCommand`, raise them from `OnStreamStateChanged`/`OnRecordStateChanged`, and have the seven `ToggleCommandBase`/`StartStopCommandBase` commands register and call `ActionImageChanged`~~ ✅ Done
-- [ ] Check on a device after the fix: start/stop a stream and a recording from the device and from OBS's own window, pause/resume a recording, and confirm the buttons follow, including the starting/stopping states
+- [x] ~~Check on a device after the fix: start/stop a stream and a recording from the device and from OBS's own window, pause/resume a recording, and confirm the buttons follow, including the starting/stopping states~~ ✅ Done 2026-10-13: the buttons follow changes made in OBS
 
 ### Assessment: Source Visibility and Media Status Query OBS on Redraw (#18) ✅ Done
 
@@ -120,6 +120,11 @@ All of these are available in obs-websocket-dotnet 5.7.0.
 - [ ] Screenshot saved confirmation flash from `ScreenshotSaved`, like the replay buffer save
 - [ ] Read `GetVersion` on connect and disable features the connected OBS doesn't support
 - [ ] Open source/scene projector button (`OpenSourceProjector`)
+
+### Greyed-Out Start, Stop and Pause Buttons
+
+- [x] ~~Grey out Start while running and Stop while stopped (streaming, recording, virtual camera), and Recording Pause while nothing is recording; ignore presses while greyed~~ ✅ Done — `OutputButtonAvailability`; both are also greyed while OBS is starting or stopping the output, and while disconnected
+- [ ] Check on a device: with nothing running, Start Streaming/Recording are blue and Stop/Pause grey, and pressing a grey one does nothing; start each and watch the buttons swap, including the starting state; pause and resume a recording; disconnect from OBS and confirm all of them grey out
 
 ## Low Priority
 

@@ -111,8 +111,8 @@ For recording-focused workflows:
 | Action | Type | Description |
 |--------|------|-------------|
 | Streaming Toggle | Button | Start streaming if stopped, stop if streaming. Single button for both. |
-| Streaming Start | Button | Start streaming only. Does nothing if already streaming. |
-| Streaming Stop | Button | Stop streaming only. Does nothing if not streaming. |
+| Streaming Start | Button | Start streaming only. Greyed out, and does nothing when pressed, while streaming or while OBS is starting or stopping the stream. |
+| Streaming Stop | Button | Stop streaming only. Greyed out, and does nothing when pressed, while not streaming or while OBS is starting or stopping the stream. |
 | Stream Stats Folder | Folder | Live stream statistics: Duration, Bytes Sent, Network Congestion, Skipped Frames, Total Frames. Shows "Offline" when not streaming. |
 
 ### Recording (Group 3)
@@ -120,9 +120,9 @@ For recording-focused workflows:
 | Action | Type | Description |
 |--------|------|-------------|
 | Recording Toggle | Button | Start recording if stopped, stop if recording. |
-| Recording Start | Button | Start recording only. |
-| Recording Stop | Button | Stop recording only. |
-| Recording Pause | Button | Pause active recording. Tap again to resume. Useful for breaks without creating a new file. |
+| Recording Start | Button | Start recording only. Greyed out, and does nothing when pressed, while recording or while OBS is starting or stopping the recording. |
+| Recording Stop | Button | Stop recording only. Greyed out, and does nothing when pressed, while not recording or while OBS is starting or stopping the recording. |
+| Recording Pause | Button | Pause active recording. Tap again to resume. Useful for breaks without creating a new file. Greyed out, and does nothing when pressed, while nothing is recording. |
 
 ### Replay Buffer (Group 4)
 
@@ -136,8 +136,8 @@ For recording-focused workflows:
 | Action | Type | Description |
 |--------|------|-------------|
 | Virtual Camera Toggle | Button | Start/stop the virtual camera output. Useful for video calls. |
-| Virtual Camera Start | Button | Start virtual camera only. |
-| Virtual Camera Stop | Button | Stop virtual camera only. |
+| Virtual Camera Start | Button | Start virtual camera only. Greyed out while the virtual camera is on. |
+| Virtual Camera Stop | Button | Stop virtual camera only. Greyed out while the virtual camera is off. |
 
 ### Profiles (Group 6)
 

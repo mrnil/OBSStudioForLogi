@@ -466,6 +466,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Boolean IsRecording => this._obsFacade.IsRecording;
         public Boolean IsRecordingPaused => this._obsFacade.IsRecordingPaused;
         public Boolean IsStreaming => this._obsFacade.IsStreaming;
+        // OBS is starting or stopping the output: it is neither running nor stopped yet.
+        public Boolean IsStreamingChanging => this._obsFacade.IsStreamingChanging;
+        public Boolean IsRecordingChanging => this._obsFacade.IsRecordingChanging;
         public Boolean IsVirtualCameraActive => this._obsFacade.IsVirtualCameraActive;
         public Boolean IsReplayBufferActive => this._obsFacade.IsReplayBufferActive;
         public Boolean IsStudioModeEnabled => this._obsFacade.IsStudioModeEnabled;

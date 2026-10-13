@@ -28,6 +28,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return OBSStudioForLogiPlugin.Instance?.IsStreaming ?? false;
         }
 
+        protected override Boolean IsChanging()
+        {
+            return OBSStudioForLogiPlugin.Instance?.IsStreamingChanging ?? false;
+        }
+
         protected override String GetEnabledIcon()
         {
             return "StreamingOff.svg";

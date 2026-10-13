@@ -28,6 +28,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
         }
 
+        protected override Boolean IsChanging()
+        {
+            return OBSStudioForLogiPlugin.Instance?.IsRecordingChanging ?? false;
+        }
+
         protected override String GetEnabledIcon()
         {
             return "RecordingOn.svg";

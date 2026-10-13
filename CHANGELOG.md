@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Start and Stop buttons for streaming, recording and the virtual camera are greyed out when they can't do anything (Start while running, Stop while stopped, either while OBS is starting or stopping the output, or while disconnected), and ignore presses while greyed. Recording Pause is greyed out while nothing is recording
 - Toggling a source's visibility now takes two requests to OBS instead of four, so it responds faster, especially with a remote OBS. A toggle for a source that isn't in the scene now logs a warning
 
 ### Fixed

@@ -63,8 +63,8 @@ OBSStudioForLogiPlugin/
 
 **Base classes:**
 
-- `ToggleCommandBase` — shared logic for all toggle commands
-- `StartStopCommandBase` — shared logic for start/stop command pairs
+- `ToggleCommandBase` — shared logic for all toggle commands; a toggle can override `IsAvailable`/`GetUnavailableIcon` to grey out and ignore presses (Recording Pause does)
+- `StartStopCommandBase` — shared logic for start/stop command pairs; greys out and ignores presses when `OutputButtonAvailability.StartStop` says the press can't act (subclasses supply `IsChanging` for outputs with starting/stopping states)
 - `AudioInputDynamicFolderBase` — shared audio folder logic (mute, volume, selection, encoder)
 
 **Dynamic Folders (PluginDynamicFolder):**
@@ -129,6 +129,7 @@ Note: as of v1.6.0 the `99. User Defined Actions` group has been retired — all
 | `ActivityLease.cs` | Touch-renewed lease that lapses when idle; infers button visibility for `AudioMeterCommand` and `StatsDisplay` |
 | `LoadingTiles.cs` | "Loading …" placeholder a folder shows while its list loads, drawn as one message across the two buttons right of the folder's Back button |
 | `SessionGate.cs` | Opens once per OBS connection so the initial state load ignores repeated `Connected` events (ReIdentify confirmations); its `Generation` lets work started for one connection tell when that connection has gone |
+| `OutputButtonAvailability.cs` | When a Start, Stop or Recording Pause button can act: Start only while stopped, Stop only while running, Pause only while recording; never while OBS is starting or stopping the output, or while disconnected. Unavailable buttons are drawn greyed and ignore presses |
 | `PressTimingHelper.cs` | DoubleTapHelper: 500ms window single/double tap detection |
 | `OBSTimings.cs` | Centralised timing constants (delays, test timeouts) |
 | `MediaInputStates.cs` | OBS media state/action names, the state each action leaves an input in, and the media button's single-tap action |

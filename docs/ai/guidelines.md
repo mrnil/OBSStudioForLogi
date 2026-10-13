@@ -307,7 +307,7 @@ public class RecordingToggleCommand : ToggleCommandBase, IRecordingAwareCommand
 
 ### StartStopCommandBase — For Start/Stop Pairs
 
-Extend `StartStopCommandBase` for start and stop command pairs:
+Extend `StartStopCommandBase` for start and stop command pairs. The base class greys the button out with `GetDisabledIcon()` and ignores presses whenever the press couldn't act (`OutputButtonAvailability.StartStop`): Start while running, Stop while stopped, either while disconnected, and either while the output is starting or stopping if the subclass overrides `IsChanging()`. Don't add those checks in `ExecuteStart`/`ExecuteStop`. A toggle that can be unavailable overrides `IsAvailable()` and `GetUnavailableIcon()` in `ToggleCommandBase` the same way (see `RecordingPauseToggleCommand`).
 
 ```csharp
 public class RecordingStartCommand : StartStopCommandBase, IRecordingAwareCommand

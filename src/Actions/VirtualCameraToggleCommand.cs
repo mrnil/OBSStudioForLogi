@@ -13,8 +13,17 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             OBSStudioForLogiPlugin.Instance?.RegisterCommand(this);
         }
 
-        public void OnConnected() { }
-        public void OnDisconnected() { }
+        // Greyed while disconnected, and the manager resets the virtual camera to stopped when the
+        // connection drops, so redraw both ways.
+        public void OnConnected()
+        {
+            this.ActionImageChanged();
+        }
+
+        public void OnDisconnected()
+        {
+            this.ActionImageChanged();
+        }
 
         protected override void ExecuteToggle()
         {

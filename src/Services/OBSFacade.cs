@@ -25,6 +25,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public Boolean IsRecording => this._obsManager?.IsRecording ?? false;
         public Boolean IsRecordingPaused => this._obsManager?.Actions.IsRecordingPaused ?? false;
         public Boolean IsStreaming => this._obsManager?.IsStreaming ?? false;
+        public Boolean IsStreamingChanging => this._obsManager?.IsStreamingChanging ?? false;
+        public Boolean IsRecordingChanging => this._obsManager?.IsRecordingChanging ?? false;
         public Boolean IsVirtualCameraActive => this._obsManager?.Actions.IsVirtualCameraActive ?? false;
         public Boolean IsReplayBufferActive => this._obsManager?.Actions.IsReplayBufferActive ?? false;
         public Boolean IsStudioModeEnabled => this._obsManager?.Actions.IsStudioModeEnabled ?? false;
