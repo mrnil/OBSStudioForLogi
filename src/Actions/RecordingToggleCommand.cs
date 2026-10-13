@@ -23,21 +23,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
         }
 
-        protected override String GetActiveIcon() => "RecordingOn.svg";
+        // A status key: the glyph is red while recording (OBS's own "live" colour) and green while
+        // clear, so the state reads at a glance.
+        protected override String GetActiveIcon() => "RecordingOnRed.svg";
 
-        protected override String GetInactiveIcon() => "RecordingOff.svg";
-
-        // A status key: red while recording (OBS's own "live" colour), green while clear, so the
-        // state reads at a glance. The glyph is the white version of the usual one, since blue
-        // doesn't read on either colour.
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
-        {
-            Boolean isRecording = this.GetState();
-            return ButtonImageHelper.IconWithBackground(
-                isRecording ? "RecordingOnWhite.svg" : "RecordingOffWhite.svg",
-                imageSize,
-                isRecording ? ButtonImageHelper.StatusRed : ButtonImageHelper.StatusGreen);
-        }
+        protected override String GetInactiveIcon() => "RecordingOffGreen.svg";
 
         // OBS changes this state asynchronously after a press, and from its own window too, so
         // the button redraws when OBS reports it rather than when it is pressed (assessment #27).

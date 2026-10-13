@@ -11,8 +11,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     // the file's colours (device-checked 2026-10-13) - so Icon returns the SVG itself.
     public static class ButtonImageHelper
     {
-        // Backgrounds for status keys, whose colour carries the state (Reconnect, Connection Status,
-        // Toggle Recording). Draw a white glyph on them (the *White.svg icons): blue doesn't read.
+        // Backgrounds for status keys, whose colour carries the state (Reconnect, Connection Status).
+        // Draw a white glyph on them: blue doesn't read.
         public static readonly BitmapColor StatusGreen = new BitmapColor(0, 128, 0);
         public static readonly BitmapColor StatusRed = new BitmapColor(128, 0, 0);
 

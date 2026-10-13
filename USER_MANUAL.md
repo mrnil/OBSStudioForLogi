@@ -119,7 +119,7 @@ For recording-focused workflows:
 
 | Action | Type | Description |
 |--------|------|-------------|
-| Recording Toggle | Button | Start recording if stopped, stop if recording. The key is red while recording and green while not. |
+| Recording Toggle | Button | Start recording if stopped, stop if recording. The icon is red while recording and green while not. |
 | Recording Start | Button | Start recording only. Greyed out, and does nothing when pressed, while recording or while OBS is starting or stopping the recording. |
 | Recording Stop | Button | Stop recording only. Greyed out, and does nothing when pressed, while not recording or while OBS is starting or stopping the recording. |
 | Recording Pause | Button | Pause active recording. Tap again to resume. Useful for breaks without creating a new file. Greyed out, and does nothing when pressed, while nothing is recording. |

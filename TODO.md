@@ -131,8 +131,8 @@ All of these are available in obs-websocket-dotnet 5.7.0.
 
 ### Toggle Recording Status Key
 
-- [x] ~~Make the Toggle Recording button red while recording and green while not~~ ✅ Done — white `RecordingOnWhite`/`RecordingOffWhite` glyphs on `ButtonImageHelper.StatusGreen`/`StatusRed`
-- [ ] Check on a device: the key is green with a white stop square while idle, turns red with a white record dot once recording starts (from the device and from OBS), and stays red while paused
+- [x] ~~Make the Toggle Recording button red while recording and green while not~~ ✅ Done — the glyph itself is coloured (`RecordingOnRed`/`RecordingOffGreen`) on the normal black key
+- [ ] Check on a device: the key shows a green stop square while idle and a red record dot once recording starts (from the device and from OBS), and stays red while paused
 
 ### Plugin Icon
 

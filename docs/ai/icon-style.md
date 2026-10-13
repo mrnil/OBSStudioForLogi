@@ -18,9 +18,9 @@ Rules for the button icons in `src/Resources/icons/`. Follow them when adding or
 |--------|------|-----|
 | `#396CF6` | Active | Every enabled glyph |
 | `#666666` | Disabled | Unavailable actions, audio meters for inputs that aren't live, placeholders |
-| `#E5484D` | Muted | Muted audio |
-| `#39B478` | Success | Brief confirmation, e.g. `ReplayBufferSaved` |
-| `#FFFFFF` | On status | Only on coloured status keys (`Reconnect`, the `*White` variants used by Toggle Recording) |
+| `#E5484D` | Muted / recording | Muted audio; the Toggle Recording glyph while recording (`RecordingOnRed`) |
+| `#39B478` | Success / clear | Brief confirmation, e.g. `ReplayBufferSaved`; the Toggle Recording glyph while idle (`RecordingOffGreen`) |
+| `#FFFFFF` | On status | Only on coloured status keys (`Reconnect`) |
 
 Don't introduce other colours. Status keys paint their background in code with `ButtonImageHelper.StatusGreen` and `StatusRed` (the same dark green and red as Connection Status), never inside the SVG. The VU meter bars are drawn in code and have their own green/yellow/red zones; they aren't icons.
 
@@ -42,7 +42,7 @@ Start and Stop buttons use their family's On and Off glyphs. When the action isn
 
 - `RecordingOn.svg` / `RecordingOff.svg` / `RecordingPaused.svg`
 - `StreamingOnDisabled.svg`: the Streaming On glyph in grey
-- `RecordingOnWhite.svg`: the Recording On glyph in white, for a coloured status key
+- `RecordingOnRed.svg`: the Recording On glyph in red, for the Toggle Recording status key
 - `SceneSelected.svg` / `SceneUnselected.svg`: singular feature names, matching `ProfileSelected.svg`
 
 Several commands can share one file (Recording toggle and Recording Start both use `RecordingOn.svg`). Don't add a byte-identical copy under a new name.
@@ -53,7 +53,7 @@ Use the scripts in [`tools/icons/`](../../tools/icons/README.md); its README has
 
 1. **Draw with strokes** in `ICONS` in `tools/icons/generate_icons.py`: 2px round-capped strokes on the 32px grid. Use its `slashed()` helper for an off state; it clips the glyph so there's a 2px gap either side of the slash.
 2. **Generate** with `python tools/icons/generate_icons.py`. [picosvg](https://github.com/googlefonts/picosvg) flattens the strokes into fill-only paths, and the script restores the 32×32 root element picosvg drops. Regenerating is deterministic, so the diff shows only what you changed.
-3. **Make disabled and status-key variants by recolouring,** never by redrawing, so they can't drift from the enabled glyph. Add the enabled icon to `DISABLED` in the same script and it writes `<Name>Disabled.svg` in grey; add it to `ON_STATUS` and it writes `<Name>White.svg` in white.
+3. **Make disabled and status-key variants by recolouring,** never by redrawing, so they can't drift from the enabled glyph. Add the enabled icon to `DISABLED` in the same script and it writes `<Name>Disabled.svg` in grey; add it to `STATUS_COLOURS` with a suffix and palette colour and it writes `<Name><Suffix>.svg` in that colour.
 4. **Embed only what code loads:** after referencing the icon from code, run `python tools/icons/sync_csproj.py`. It rewrites the icon `EmbeddedResource` entries in alphabetical order and fails if code names an icon that doesn't exist.
 5. **Check on black at key size.** Add the icon to `FAMILIES` in `tools/icons/build_sheet.py` and run it. Then open `tools/icons/out/icon-reference.html`, which shows every icon at 48–120px next to its family.
 

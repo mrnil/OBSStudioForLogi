@@ -5,8 +5,8 @@ with a clip path cutting the gap around the standard off slash. picosvg flattens
 one into the fill-only paths the plugin ships (see docs/ai/icon-style.md).
 
 Icons listed in DISABLED are recoloured copies of an enabled icon, so the grey variant
-can never drift from the glyph it greys out. Icons listed in ON_STATUS get a white copy the
-same way, for keys drawn on a coloured status background.
+can never drift from the glyph it greys out. Icons listed in STATUS_COLOURS get a copy in a
+status colour the same way, for keys whose glyph colour carries the state.
 
 Icons not listed in either (most of the set, originally exported from Figma) are left
 alone.
@@ -33,6 +33,7 @@ SYMBOL_PREFIX = "Loupedeck.OBSStudioForLogiPlugin."
 BLUE = "#396CF6"
 GREY = "#666666"
 RED = "#E5484D"
+GREEN = "#39B478"
 WHITE = "#FFFFFF"
 BLACK = "#000000"
 
@@ -160,13 +161,12 @@ DISABLED = [
     "VirtualCameraOff",
 ]
 
-# Enabled icons whose <Name>White.svg is a white recolour of them, for status keys whose
-# background colour carries the state (ButtonImageHelper.IconWithBackground), where the blue
-# glyph wouldn't read.
-ON_STATUS = [
-    "RecordingOn",
-    "RecordingOff",
-]
+# Enabled icons whose <Name><Colour>.svg is a recolour of them, for status keys whose glyph
+# colour carries the state (Toggle Recording: red while recording, green while clear).
+STATUS_COLOURS = {
+    "RecordingOn": ("Red", RED),
+    "RecordingOff": ("Green", GREEN),
+}
 
 # Glyphs drawn only as action symbols, in black.
 SYMBOL_GLYPHS = {
@@ -264,12 +264,12 @@ def main():
         write(args.out / f"{name}Disabled.svg", enabled.read_text(encoding="utf-8").replace(BLUE, GREY))
         print(f"greyed   {name}Disabled.svg")
 
-    for name in ON_STATUS:
+    for name, (suffix, colour) in STATUS_COLOURS.items():
         enabled = args.out / f"{name}.svg"
         if not enabled.exists():
             enabled = ICONS_DIR / f"{name}.svg"
-        write(args.out / f"{name}White.svg", enabled.read_text(encoding="utf-8").replace(BLUE, WHITE))
-        print(f"whitened {name}White.svg")
+        write(args.out / f"{name}{suffix}.svg", enabled.read_text(encoding="utf-8").replace(BLUE, colour))
+        print(f"coloured {name}{suffix}.svg")
 
     # Last, so every button icon ends with exactly one marker, whether generated above or not.
     for icon in sorted(args.out.glob("*.svg")):
