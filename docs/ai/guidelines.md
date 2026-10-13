@@ -220,7 +220,7 @@ Always query live state from the plugin; never cache state in the command:
 protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
 {
     Boolean isRecording = OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
-    return ButtonImageHelper.Icon(isRecording ? "RecordingOn.svg" : "RecordingOff.svg");
+    return ButtonImageHelper.Icon(isRecording ? "RecordingOn.svg" : "RecordingOff.svg", imageSize);
 }
 ```
 
@@ -368,14 +368,14 @@ public class MyAdjustableCommand : ActionEditorCommand, IObsCommand
 
 ### ButtonImageHelper and ButtonTextRenderer
 
-Build every button image with these two static classes in `src/Helpers/`. They are the whole API: there are no `StateIcon`, `StateText`, `TextWithIcon` or `StateTextWithIcon` helpers, so pick state-dependent icons and colours with a conditional at the call site.
+Build every button image with these two static classes in `src/Helpers/`. Always go through them rather than loading icons yourself: the device software tints single-colour SVGs white, and the icons rely on the multicolour marker the generator adds (see `image-rendering-simplified.md`). They are the whole API: there are no `StateIcon`, `StateText`, `TextWithIcon` or `StateTextWithIcon` helpers, so pick state-dependent icons and colours with a conditional at the call site.
 
 ```csharp
 // Icon (embedded SVG)
-return ButtonImageHelper.Icon("Screenshot.svg");
+return ButtonImageHelper.Icon("Screenshot.svg", imageSize);
 
 // Icon that depends on state
-return ButtonImageHelper.Icon(isActive ? "RecordingOn.svg" : "RecordingOff.svg");
+return ButtonImageHelper.Icon(isActive ? "RecordingOn.svg" : "RecordingOff.svg", imageSize);
 
 // Icon on a coloured background (e.g. the connection-status colours)
 return ButtonImageHelper.IconWithBackground("Reconnect.svg", imageSize, backgroundColor);
@@ -401,10 +401,10 @@ Pass only the filename; the helper resolves the full embedded resource path:
 
 ```csharp
 // CORRECT
-ButtonImageHelper.Icon("RecordingOn.svg")
+ButtonImageHelper.Icon("RecordingOn.svg", imageSize)
 
 // WRONG — don't specify full path
-ButtonImageHelper.Icon("Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOn.svg")
+ButtonImageHelper.Icon("Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOn.svg", imageSize)
 ```
 
 ### Volume Display — Always dB Format

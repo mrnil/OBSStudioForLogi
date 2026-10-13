@@ -28,6 +28,13 @@ GREY = "#666666"
 RED = "#E5484D"
 WHITE = "#FFFFFF"
 
+# The Logi Plugin Service tints every single-colour ("monochrome") SVG with its
+# icon template colour (white by default), and its docs say multicolour SVGs keep their own
+# colours. Every button icon gets this tiny second-colour mark in its top-right corner (half a
+# grid unit, about 1px on a key) so it counts as multicolour. Action symbols must stay pure
+# black, so they are written without it. Device-checked 2026-10-13. See docs/ai/icon-style.md.
+MARKER = '<path d="M31.5 0H32V0.5H31.5Z" fill="#FF00FF"/>'
+
 STROKE = 'fill="none" stroke="{c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'
 
 # Standard off slash, top-left to bottom-right (the same line as VirtualCameraOff).
@@ -163,6 +170,22 @@ def main():
             enabled = ICONS_DIR / f"{name}.svg"
         write(args.out / f"{name}White.svg", enabled.read_text(encoding="utf-8").replace(BLUE, WHITE))
         print(f"whitened {name}White.svg")
+
+    # Last, so every button icon ends with exactly one marker, whether generated above or not.
+    for icon in sorted(args.out.glob("*.svg")):
+        text = icon.read_text(encoding="utf-8")
+        if MARKER not in text:
+            write(icon, with_marker(text))
+    print(f"marked   {len(list(args.out.glob('*.svg')))} button icons")
+
+
+def with_marker(svg_text):
+    return svg_text.replace("</svg>", f"{MARKER}\n</svg>", 1)
+
+
+def without_marker(svg_text):
+    return svg_text.replace(f"{MARKER}\n", "").replace(MARKER, "")
+
 
 if __name__ == "__main__":
     main()

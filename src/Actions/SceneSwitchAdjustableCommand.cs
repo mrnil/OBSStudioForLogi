@@ -168,7 +168,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             actionParameters.TryGetString(SceneNameControlName, out String sceneName);
             String currentScene = OBSStudioForLogiPlugin.Instance?.GetCurrentScene() ?? String.Empty;
             Boolean isSelected = !String.IsNullOrEmpty(sceneName) && sceneName == currentScene;
-            return ButtonImageHelper.Icon(isSelected ? "SceneSelected.svg" : "SceneUnselected.svg");
+            return ButtonImageHelper.Icon(isSelected ? "SceneSelected.svg" : "SceneUnselected.svg", imageWidth, imageHeight);
         }
 
         public void OnConnected()

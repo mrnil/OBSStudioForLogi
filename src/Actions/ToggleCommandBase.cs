@@ -61,11 +61,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             if (!this.IsAvailable())
             {
-                return ButtonImageHelper.Icon(this.GetUnavailableIcon());
+                return ButtonImageHelper.Icon(this.GetUnavailableIcon(), imageSize);
             }
 
             Boolean isActive = this.GetState();
-            return ButtonImageHelper.Icon(isActive ? this.GetActiveIcon() : this.GetInactiveIcon());
+            return ButtonImageHelper.Icon(isActive ? this.GetActiveIcon() : this.GetInactiveIcon(), imageSize);
         }
     }
 }

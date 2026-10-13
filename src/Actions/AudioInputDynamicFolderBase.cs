@@ -36,7 +36,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override BitmapImage GetButtonImage(PluginImageSize imageSize)
         {
-            return ButtonImageHelper.Icon("AudioMediaFolder.svg");
+            return ButtonImageHelper.Icon("AudioMediaFolder.svg", imageSize);
         }
 
         public override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)

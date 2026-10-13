@@ -124,6 +124,9 @@ All of these are available in obs-websocket-dotnet 5.7.0.
 ### Greyed-Out Start, Stop and Pause Buttons
 
 - [x] ~~Grey out Start while running and Stop while stopped (streaming, recording, virtual camera), and Recording Pause while nothing is recording; ignore presses while greyed~~ ✅ Done — `OutputButtonAvailability`; both are also greyed while OBS is starting or stopping the output, and while disconnected
+- [x] ~~Icons tinted white on the device: returning them as bitmaps~~ Tried, didn't help — still white on the device
+- [x] ~~Icons tinted white on the device~~ ✅ Fixed — every icon SVG carries a tiny `#FF00FF` corner mark (`generate_icons.py` `MARKER`) so it isn't monochrome; device-checked 2026-10-13
+- [ ] Consider: try a near-invisible marker colour (e.g. `#010101`) and check the icons keep their colours
 - [ ] Check on a device: with nothing running, Start Streaming/Recording are blue and Stop/Pause grey, and pressing a grey one does nothing; start each and watch the buttons swap, including the starting state; pause and resume a recording; disconnect from OBS and confirm all of them grey out
 
 ### Toggle Recording Status Key

@@ -27,7 +27,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         public override BitmapImage GetButtonImage(PluginImageSize imageSize)
         {
-            return ButtonImageHelper.Icon("SceneCollectionUnselected.svg");
+            return ButtonImageHelper.Icon("SceneCollectionUnselected.svg", imageSize);
         }
 
         public override IEnumerable<String> GetButtonPressActionNames(DeviceType deviceType)
@@ -74,7 +74,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             Boolean isSelected = actionParameter == this._currentSceneCollection;
-            return ButtonImageHelper.Icon(isSelected ? "SceneCollectionSelected.svg" : "SceneCollectionUnselected.svg");
+            return ButtonImageHelper.Icon(isSelected ? "SceneCollectionSelected.svg" : "SceneCollectionUnselected.svg", imageSize);
         }
 
         public override void RunCommand(String actionParameter)

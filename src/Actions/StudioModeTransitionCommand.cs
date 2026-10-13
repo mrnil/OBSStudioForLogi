@@ -20,7 +20,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            return ButtonImageHelper.Icon("StudioModeTransition.svg");
+            return ButtonImageHelper.Icon("StudioModeTransition.svg", imageSize);
         }
     }
 }

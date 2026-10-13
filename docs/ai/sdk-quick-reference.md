@@ -37,7 +37,7 @@ public class ToggleCommand : PluginDynamicCommand
     // Override ONLY this method
     protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
-        return ButtonImageHelper.Icon(isActive ? "On.svg" : "Off.svg");
+        return ButtonImageHelper.Icon(isActive ? "On.svg" : "Off.svg", imageSize);
     }
 
     // Do NOT override GetCommandDisplayName
@@ -144,7 +144,7 @@ public class ItemsDynamicFolder : PluginDynamicFolder
     public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
         Boolean isSelected = actionParameter == GetCurrentItem();
-        return ButtonImageHelper.Icon(isSelected ? "Selected.svg" : "Unselected.svg");
+        return ButtonImageHelper.Icon(isSelected ? "Selected.svg" : "Unselected.svg", imageSize);
     }
 }
 ```
@@ -246,7 +246,7 @@ protected override void RunCommand(String actionParameter)
 var icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("icon.svg"));
 
 // Via ButtonImageHelper (best)
-return ButtonImageHelper.Icon("icon.svg");
+return ButtonImageHelper.Icon("icon.svg", imageSize);
 ```
 
 ## Package Metadata Template

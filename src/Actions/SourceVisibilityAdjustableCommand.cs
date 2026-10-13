@@ -88,7 +88,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 }
             }
 
-            return ButtonImageHelper.Icon(isVisible ? "SourceVisibilityOn.svg" : "SourceVisibilityOff.svg");
+            return ButtonImageHelper.Icon(isVisible ? "SourceVisibilityOn.svg" : "SourceVisibilityOff.svg", imageWidth, imageHeight);
         }
 
         private static String[] ParseSourceNames(String sourceNames)

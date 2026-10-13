@@ -22,7 +22,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            return ButtonImageHelper.Icon("Screenshot.svg");
+            return ButtonImageHelper.Icon("Screenshot.svg", imageSize);
         }
 
         protected override void RunCommand(String actionParameter)

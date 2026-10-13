@@ -26,10 +26,10 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         {
             if (this._showingSaved)
             {
-                return ButtonImageHelper.Icon("ReplayBufferSaved.svg");
+                return ButtonImageHelper.Icon("ReplayBufferSaved.svg", imageSize);
             }
 
-            return ButtonImageHelper.Icon("ReplayBufferSave.svg");
+            return ButtonImageHelper.Icon("ReplayBufferSave.svg", imageSize);
         }
 
         public void OnConnected()

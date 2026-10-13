@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Button icons now show their own colours on the device (blue when available, grey when unavailable, red when muted). The device software was tinting them all white, so greyed-out buttons looked the same as available ones. Each icon now carries a tiny second-colour mark so it isn't treated as monochrome
 - The Streaming and Recording buttons (Toggle, Start and Stop Streaming; Toggle, Start and Stop Recording; Recording Pause) now update as soon as OBS changes state, including the starting and stopping states and changes made in OBS's own window. Before, they could keep showing the old state until the page was redrawn
 - Changing the WebSocket password or port in OBS while the plugin is connected no longer needs a manual Reconnect: the plugin picks up the new settings on its next automatic attempt. Before, it kept retrying the old ones
 

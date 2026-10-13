@@ -1,5 +1,7 @@
 # Image Rendering System - Simplified
 
+**Why every icon carries a magenta corner mark.** The Logi Plugin Service applies an icon template to button images, and its image colour (white by default) overrides the colours of any single-colour SVG — which every glyph in this set is — so on the device the blue, grey and red states all showed as white and greyed-out buttons looked enabled. Drawing the icons onto a bitmap first didn't stop it. The SDK docs say multicolour SVGs keep their own colours, so `tools/icons/generate_icons.py` adds a half-unit `#FF00FF` mark (`MARKER`) to the top-right corner of every button icon, and `ButtonImageHelper.Icon` returns the SVG itself. Device-checked 2026-10-13: with the marker the icons show their own colours. Don't remove it, and don't load icons any other way.
+
 ## Overview
 
 The plugin builds every button image with two small static helpers in `src/Helpers/`. There is no factory, store or image-data layer.
@@ -16,11 +18,11 @@ These are the only rendering helpers. Older versions of this document described 
 Returns an SVG icon from the embedded resources.
 
 ```csharp
-return ButtonImageHelper.Icon("Reconnect.svg");
+return ButtonImageHelper.Icon("Reconnect.svg", imageSize);
 
 // State-dependent icon
 Boolean isRecording = OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
-return ButtonImageHelper.Icon(isRecording ? "RecordingOn.svg" : "RecordingOff.svg");
+return ButtonImageHelper.Icon(isRecording ? "RecordingOn.svg" : "RecordingOff.svg", imageSize);
 ```
 
 ### IconWithBackground(iconResourceName, imageSize, backgroundColor)
@@ -71,7 +73,7 @@ public class ScreenshotCommand : PluginDynamicCommand
 {
     protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
-        return ButtonImageHelper.Icon("Screenshot.svg");
+        return ButtonImageHelper.Icon("Screenshot.svg", imageSize);
     }
 }
 ```
@@ -134,7 +136,7 @@ public class ScenesDynamicFolder : PluginDynamicFolder
     public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
     {
         Boolean isSelected = actionParameter == this._currentScene;
-        return ButtonImageHelper.Icon(isSelected ? "SceneSelected.svg" : "SceneUnselected.svg");
+        return ButtonImageHelper.Icon(isSelected ? "SceneSelected.svg" : "SceneUnselected.svg", imageSize);
     }
 }
 ```
@@ -212,7 +214,7 @@ protected override BitmapImage GetCommandImage(String actionParameter, PluginIma
 protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
 {
     Boolean isRecording = OBSStudioForLogiPlugin.Instance?.IsRecording ?? false;
-    return ButtonImageHelper.Icon(isRecording ? "RecordingOn.svg" : "RecordingOff.svg");
+    return ButtonImageHelper.Icon(isRecording ? "RecordingOn.svg" : "RecordingOff.svg", imageSize);
 }
 ```
 

@@ -7,6 +7,7 @@ Rules for the button icons in `src/Resources/icons/`. Follow them when adding or
 - **Canvas:** `width="32" height="32" viewBox="0 0 32 32"`. The SDK scales the SVG to the key, so don't draw at other sizes.
 - **Glyph area:** keep the glyph inside 4–28px on both axes.
 - **No background shapes.** Code paints the key (`ButtonImageHelper.IconWithBackground`, or black by default), so a background rectangle fights the status colours.
+- **Every button icon ends with the multicolour marker**: a half-unit `#FF00FF` square in the top-right corner, added by `generate_icons.py` (`MARKER`). The Logi Plugin Service tints single-colour SVGs with its icon template colour (white by default), and every glyph here is single-colour; the marker makes each file multicolour, which keeps its colours (device-checked 2026-10-13; rendering through a bitmap did not). It is the one exception to the palette. Action symbols are written without it. See `image-rendering-simplified.md`.
 - **Line:** 2px outlines with round caps and round joins. Corner radius 1–2px.
 - **Markup:** shipped files contain filled `<path>` elements only: no `stroke`, `transform`, `<rect>`, `<defs>`, masks or clip paths. It's the lowest common denominator for the SDK's SVG renderer, which we can't inspect (`PluginApi.dll` is reference-only).
 - **Folder entries** (`AudioMediaFolder`, `SceneFolder`) are the one deliberate exception to outlines. They use a solid folder silhouette with the glyph knocked out, so a folder reads differently from an action.

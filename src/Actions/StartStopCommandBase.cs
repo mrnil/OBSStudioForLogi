@@ -52,7 +52,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            return ButtonImageHelper.Icon(this.IsAvailable() ? this.GetEnabledIcon() : this.GetDisabledIcon());
+            return ButtonImageHelper.Icon(this.IsAvailable() ? this.GetEnabledIcon() : this.GetDisabledIcon(), imageSize);
         }
     }
 }
