@@ -21,6 +21,7 @@ Read these before making changes — they are kept current and are the source of
 | [`docs/ai/test-coverage.md`](docs/ai/test-coverage.md) | Test architecture, coverage targets, running tests |
 | [`docs/ai/assessment.md`](docs/ai/assessment.md) | Known issues / findings backlog, prioritised |
 | [`docs/ai/release-process.md`](docs/ai/release-process.md) | Full release checklist |
+| [`docs/ai/agents.md`](docs/ai/agents.md) | Claude subagents in `.claude/agents/`, when to use each, and how agents build without taking over the device |
 
 Deeper reference material (read only when relevant to the task at hand):
 
