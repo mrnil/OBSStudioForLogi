@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Action symbols for every action, so the Options+ and Loupedeck action picker shows a matching glyph next to each action's name instead of a generic one
+- Action symbols for every action, so the Options+ action picker shows a matching glyph next to each action's name instead of a generic one
 
 ### Changed
 
