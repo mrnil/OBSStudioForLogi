@@ -126,6 +126,11 @@ All of these are available in obs-websocket-dotnet 5.7.0.
 - [x] ~~Grey out Start while running and Stop while stopped (streaming, recording, virtual camera), and Recording Pause while nothing is recording; ignore presses while greyed~~ ✅ Done — `OutputButtonAvailability`; both are also greyed while OBS is starting or stopping the output, and while disconnected
 - [ ] Check on a device: with nothing running, Start Streaming/Recording are blue and Stop/Pause grey, and pressing a grey one does nothing; start each and watch the buttons swap, including the starting state; pause and resume a recording; disconnect from OBS and confirm all of them grey out
 
+### Toggle Recording Status Key
+
+- [x] ~~Make the Toggle Recording button red while recording and green while not~~ ✅ Done — white `RecordingOnWhite`/`RecordingOffWhite` glyphs on `ButtonImageHelper.StatusGreen`/`StatusRed`
+- [ ] Check on a device: the key is green with a white stop square while idle, turns red with a white record dot once recording starts (from the device and from OBS), and stays red while paused
+
 ## Low Priority
 
 ### Assessment: Source Visibility Toggle Costs Four Requests (#30) ✅ Done

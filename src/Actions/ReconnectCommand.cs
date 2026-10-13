@@ -24,7 +24,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             BitmapColor backgroundColor;
             if (isConnected)
             {
-                backgroundColor = new BitmapColor(0, 128, 0);
+                backgroundColor = ButtonImageHelper.StatusGreen;
             }
             else if (isServerDisabled)
             {
@@ -32,7 +32,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             }
             else
             {
-                backgroundColor = new BitmapColor(128, 0, 0);
+                backgroundColor = ButtonImageHelper.StatusRed;
             }
 
             return ButtonImageHelper.IconWithBackground("Reconnect.svg", imageSize, backgroundColor);

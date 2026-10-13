@@ -4,6 +4,11 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 
     public static class ButtonImageHelper
     {
+        // Backgrounds for status keys, whose colour carries the state (Reconnect, Connection Status,
+        // Toggle Recording). Draw a white glyph on them (the *White.svg icons): blue doesn't read.
+        public static readonly BitmapColor StatusGreen = new BitmapColor(0, 128, 0);
+        public static readonly BitmapColor StatusRed = new BitmapColor(128, 0, 0);
+
         public static BitmapImage Icon(String iconResourceName)
         {
             return PluginResources.ReadImage($"Loupedeck.OBSStudioForLogiPlugin.Icons.{iconResourceName}");

@@ -26,7 +26,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (isConnected)
             {
                 text = "Connected";
-                bgColor = new BitmapColor(0, 128, 0);
+                bgColor = ButtonImageHelper.StatusGreen;
             }
             else if (isServerDisabled)
             {
@@ -36,7 +36,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             else
             {
                 text = "Disconnected";
-                bgColor = new BitmapColor(128, 0, 0);
+                bgColor = ButtonImageHelper.StatusRed;
             }
 
             return ButtonTextRenderer.RenderText(text, imageSize, bgColor, BitmapColor.White);

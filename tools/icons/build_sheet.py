@@ -52,6 +52,8 @@ FAMILIES = [
         ("RecordingPaused", "Pause toggle while paused"),
         ("RecordingOnDisabled", "Start while already recording"),
         ("RecordingOffDisabled", "Stop while idle"),
+        ("RecordingOnWhite", "Recording toggle while recording, on a red status key"),
+        ("RecordingOffWhite", "Recording toggle while idle, on a green status key"),
     ]),
     ("Streaming", "", [
         ("StreamingOn", "Streaming toggle while live; Start"),

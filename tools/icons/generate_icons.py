@@ -5,7 +5,8 @@ with a clip path cutting the gap around the standard off slash. picosvg flattens
 one into the fill-only paths the plugin ships (see docs/ai/icon-style.md).
 
 Icons listed in DISABLED are recoloured copies of an enabled icon, so the grey variant
-can never drift from the glyph it greys out.
+can never drift from the glyph it greys out. Icons listed in ON_STATUS get a white copy the
+same way, for keys drawn on a coloured status background.
 
 Icons not listed in either (most of the set, originally exported from Figma) are left
 alone.
@@ -94,6 +95,7 @@ RECONNECT = [
     "M26 16H28",
 ]
 
+
 # Studio mode: preview (back, top-left) and program (front, bottom-right) windows.
 STUDIO_PREVIEW = "M13 19H7A1 1 0 0 1 6 18V9A1 1 0 0 1 7 8H19A1 1 0 0 1 20 9V13"
 STUDIO_PROGRAM = ["M14 13H26A1 1 0 0 1 27 14V23A1 1 0 0 1 26 24H14A1 1 0 0 1 13 23V14A1 1 0 0 1 14 13Z", "M13 17H27"]
@@ -124,6 +126,13 @@ DISABLED = [
     "VirtualCameraOff",
 ]
 
+# Enabled icons whose <Name>White.svg is a white recolour of them, for status keys whose
+# background colour carries the state (ButtonImageHelper.IconWithBackground), where the blue
+# glyph wouldn't read.
+ON_STATUS = [
+    "RecordingOn",
+    "RecordingOff",
+]
 
 def write(path, text):
     # LF endings to match the rest of the repo, whatever the host OS.
@@ -148,6 +157,12 @@ def main():
         write(args.out / f"{name}Disabled.svg", enabled.read_text(encoding="utf-8").replace(BLUE, GREY))
         print(f"greyed   {name}Disabled.svg")
 
+    for name in ON_STATUS:
+        enabled = args.out / f"{name}.svg"
+        if not enabled.exists():
+            enabled = ICONS_DIR / f"{name}.svg"
+        write(args.out / f"{name}White.svg", enabled.read_text(encoding="utf-8").replace(BLUE, WHITE))
+        print(f"whitened {name}White.svg")
 
 if __name__ == "__main__":
     main()

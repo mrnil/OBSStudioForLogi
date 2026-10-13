@@ -120,7 +120,7 @@ Note: as of v1.6.0 the `99. User Defined Actions` group has been retired — all
 
 | File | Purpose |
 |------|---------|
-| `ButtonImageHelper.cs` | Icon rendering: `Icon` (embedded SVG) and `IconWithBackground` (SVG on a solid colour) |
+| `ButtonImageHelper.cs` | Icon rendering: `Icon` (embedded SVG) and `IconWithBackground` (SVG on a solid colour), plus the `StatusGreen`/`StatusRed` status-key backgrounds shared by Reconnect, Connection Status and Toggle Recording |
 | `ButtonTextRenderer.cs` | `BitmapBuilder`-based text rendering: `RenderText`, `RenderTextWithBorder`, `RenderTextWithIcon`, with font size fitted to the text |
 | `AudioHelpers.cs` | Shared audio button image rendering |
 | `AudioSelectionState.cs` | Static singleton: global selected audio source for wheel/dial |

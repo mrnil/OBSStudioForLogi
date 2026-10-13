@@ -70,11 +70,17 @@
     <EmbeddedResource Include="Resources\icons\RecordingOffDisabled.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOffDisabled.svg</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\icons\RecordingOffWhite.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOffWhite.svg</LogicalName>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\icons\RecordingOn.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOn.svg</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\icons\RecordingOnDisabled.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOnDisabled.svg</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\icons\RecordingOnWhite.svg">
+      <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingOnWhite.svg</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\icons\RecordingPaused.svg">
       <LogicalName>Loupedeck.OBSStudioForLogiPlugin.Icons.RecordingPaused.svg</LogicalName>
