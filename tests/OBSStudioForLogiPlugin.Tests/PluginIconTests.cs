@@ -2,12 +2,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests;
 
 using System.Drawing;
 using System.IO;
+using System.Runtime.Versioning;
 
 /// <summary>
 /// The plugin icon (metadata/Icon256x256.png) is shown in Options+, Loupedeck and the Logitech
 /// Marketplace. The SDK requires a 256x256 PNG whose artwork fits the centred 192x192 area, with
 /// everything around it transparent. The plugin also loads this file at runtime for Info.Icon256x256.
 /// </summary>
+[SupportedOSPlatform("windows")]
 public class PluginIconTests
 {
     private const Int32 Size = 256;
