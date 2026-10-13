@@ -11,6 +11,11 @@ same way, for keys drawn on a coloured status background.
 Icons not listed in either (most of the set, originally exported from Figma) are left
 alone.
 
+SYMBOLS maps every action class to its action symbol: the small black glyph the Options+ and
+Loupedeck action picker shows next to the action's name. Each is an existing icon recoloured
+black, or one of the SYMBOL_GLYPHS drawn only for the picker. They are written to
+src/package/actionsymbols/, which the build copies into the package root.
+
 Usage (from the repo root):
     python tools/icons/generate_icons.py [--out DIR]
 """
@@ -22,11 +27,14 @@ from picosvg.svg import SVG
 
 REPO = Path(__file__).resolve().parents[2]
 ICONS_DIR = REPO / "src" / "Resources" / "icons"
+SYMBOLS_DIR = REPO / "src" / "package" / "actionsymbols"
+SYMBOL_PREFIX = "Loupedeck.OBSStudioForLogiPlugin."
 
 BLUE = "#396CF6"
 GREY = "#666666"
 RED = "#E5484D"
 WHITE = "#FFFFFF"
+BLACK = "#000000"
 
 # The Logi Plugin Service tints every single-colour ("monochrome") SVG with its
 # icon template colour (white by default), and its docs say multicolour SVGs keep their own
@@ -102,6 +110,25 @@ RECONNECT = [
     "M26 16H28",
 ]
 
+def rounded_rect(x1, y1, x2, y2):
+    """A 1px-radius rounded rectangle outline."""
+    return (f"M{x1 + 1} {y1}H{x2 - 1}A1 1 0 0 1 {x2} {y1 + 1}V{y2 - 1}A1 1 0 0 1 {x2 - 1} {y2}"
+            f"H{x1 + 1}A1 1 0 0 1 {x1} {y2 - 1}V{y1 + 1}A1 1 0 0 1 {x1 + 1} {y1}Z")
+
+
+# Symbol-only glyphs (no button draws them).
+# Stats: three bars of different heights.
+STATS_BARS = [rounded_rect(7, 17, 11, 24), rounded_rect(14, 9, 18, 24), rounded_rect(21, 13, 25, 24)]
+# Settings: three slider tracks, each broken around its knob.
+SETTINGS_SLIDERS = [
+    "M6 10H9.5", "M14.5 10H26", "M14.5 10A2.5 2.5 0 1 1 9.5 10A2.5 2.5 0 1 1 14.5 10Z",
+    "M6 16H17.5", "M22.5 16H26", "M22.5 16A2.5 2.5 0 1 1 17.5 16A2.5 2.5 0 1 1 22.5 16Z",
+    "M6 22H8.5", "M13.5 22H26", "M13.5 22A2.5 2.5 0 1 1 8.5 22A2.5 2.5 0 1 1 13.5 22Z",
+]
+# Media: a play triangle, nudged right so it looks centred.
+PLAY = "M11.5 8.5V23.5L24 16Z"
+# Audio monitoring: a headband meeting two ear cups.
+HEADPHONES = ["M7 18V16A9 9 0 0 1 25 16V18", rounded_rect(5, 18, 10, 25), rounded_rect(22, 18, 27, 25)]
 
 # Studio mode: preview (back, top-left) and program (front, bottom-right) windows.
 STUDIO_PREVIEW = "M13 19H7A1 1 0 0 1 6 18V9A1 1 0 0 1 7 8H19A1 1 0 0 1 20 9V13"
@@ -141,6 +168,78 @@ ON_STATUS = [
     "RecordingOff",
 ]
 
+# Glyphs drawn only as action symbols, in black.
+SYMBOL_GLYPHS = {
+    "Audio": svg(strokes(BLACK, SPEAKER, WAVE_INNER, WAVE_OUTER)),
+    "AudioMonitoring": svg(strokes(BLACK, *HEADPHONES)),
+    "Stats": svg(strokes(BLACK, *STATS_BARS)),
+    "Settings": svg(strokes(BLACK, *SETTINGS_SLIDERS)),
+    "Play": svg(strokes(BLACK, PLAY)),
+}
+
+# Every action class (short name) and the glyph its action symbol uses: an icon in
+# src/Resources/icons, recoloured black, or a SYMBOL_GLYPHS key. A class missing from here has
+# no symbol, and the picker shows a generic one - ActionSymbolTests fails if that happens.
+SYMBOLS = {
+    # 1. OBS
+    "ConnectionStatusDisplay": "Reconnect",
+    "ReconnectCommand": "Reconnect",
+    "ScreenshotCommand": "Screenshot",
+    "StatsDisplay": "Stats",
+    "StatsDynamicFolder": "Stats",
+    "PluginSettingsCommand": "Settings",
+    "StudioModeToggleCommand": "StudioModeOn",
+    "StudioModeTransitionCommand": "StudioModeTransition",
+    # 2. Streaming
+    "StreamingToggleCommand": "StreamingOn",
+    "StreamingStartCommand": "StreamingOn",
+    "StreamingStopCommand": "StreamingOff",
+    "StreamStatsDynamicFolder": "Stats",
+    # 3. Recording
+    "RecordingToggleCommand": "RecordingOn",
+    "RecordingStartCommand": "RecordingOn",
+    "RecordingStopCommand": "RecordingOff",
+    "RecordingPauseToggleCommand": "RecordingPaused",
+    # 4. Replay buffer
+    "ReplayBufferToggleCommand": "ReplayBufferOn",
+    "ReplayBufferSaveCommand": "ReplayBufferSave",
+    # 5. Virtual camera
+    "VirtualCameraToggleCommand": "VirtualCameraOn",
+    "VirtualCameraStartCommand": "VirtualCameraOn",
+    "VirtualCameraStopCommand": "VirtualCameraOff",
+    # 6. Profiles
+    "ProfileSelectCommand": "ProfileUnselected",
+    "ProfilesDynamicFolder": "ProfileUnselected",
+    "CurrentProfileDisplay": "ProfileUnselected",
+    # 7. Scenes and collections
+    "SceneSelectCommand": "SceneUnselected",
+    "ScenesDynamicFolder": "SceneFolder",
+    "CurrentSceneDisplay": "SceneUnselected",
+    "SceneSwitchAdjustableCommand": "SceneUnselected",
+    "SceneCollectionSelectCommand": "SceneCollectionUnselected",
+    "SceneCollectionsDynamicFolder": "SceneCollectionUnselected",
+    "CurrentSceneCollectionDisplay": "SceneCollectionUnselected",
+    "SourcesDynamicFolder": "SourceVisibilityOn",
+    "SourceVisibilityAdjustableCommand": "SourceVisibilityOn",
+    # 8. Audio
+    "AudioMixerDynamicFolder": "AudioMediaFolder",
+    "AudioSelectDynamicFolder": "AudioMediaFolder",
+    "AudioVolumeDynamicFolder": "AudioMediaFolder",
+    "AudioMetersDynamicFolder": "AudioMediaFolder",
+    "SceneAudioSourcesDynamicFolder": "AudioMediaFolder",
+    "AudioMeterCommand": "Audio",
+    "AudioSourceSelectCommand": "Audio",
+    "AudioSelectAdjustableCommand": "Audio",
+    "AudioStatusDisplayCommand": "Audio",
+    "SelectedSourceVolumeAdjustment": "Audio",
+    "AudioMuteAdjustableCommand": "AudioMeterMuted",
+    "AudioMonitoringCycleAdjustableCommand": "AudioMonitoring",
+    # 9. Media
+    "MediaDynamicFolder": "AudioMediaFolder",
+    "MediaActionCommand": "Play",
+}
+
+
 def write(path, text):
     # LF endings to match the rest of the repo, whatever the host OS.
     path.write_text(text, encoding="utf-8", newline="\n")
@@ -149,6 +248,7 @@ def write(path, text):
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--out", type=Path, default=ICONS_DIR, help="output directory (default: src/Resources/icons)")
+    parser.add_argument("--symbols-out", type=Path, default=SYMBOLS_DIR, help="action symbol directory (default: src/package/actionsymbols)")
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
@@ -178,6 +278,8 @@ def main():
             write(icon, with_marker(text))
     print(f"marked   {len(list(args.out.glob('*.svg')))} button icons")
 
+    write_symbols(args.symbols_out, args.out)
+
 
 def with_marker(svg_text):
     return svg_text.replace("</svg>", f"{MARKER}\n</svg>", 1)
@@ -185,6 +287,34 @@ def with_marker(svg_text):
 
 def without_marker(svg_text):
     return svg_text.replace(f"{MARKER}\n", "").replace(MARKER, "")
+
+
+def black(svg_text):
+    """Recolour every fill to black: action symbols must be single-colour black."""
+    return re.sub(r'fill="#[0-9A-Fa-f]{6}"', f'fill="{BLACK}"', without_marker(svg_text))
+
+
+def write_symbols(out_dir, icons_out):
+    out_dir.mkdir(parents=True, exist_ok=True)
+    drawn = {name: flatten(source) for name, source in SYMBOL_GLYPHS.items()}
+    expected = set()
+    for action, glyph in SYMBOLS.items():
+        if glyph in drawn:
+            text = drawn[glyph]
+        else:
+            icon = icons_out / f"{glyph}.svg"
+            if not icon.exists():
+                icon = ICONS_DIR / f"{glyph}.svg"
+            text = black(icon.read_text(encoding="utf-8"))
+        file_name = f"{SYMBOL_PREFIX}{action}.svg"
+        expected.add(file_name)
+        write(out_dir / file_name, text)
+    # Drop symbols for actions that no longer exist (renamed or removed classes).
+    for stale in out_dir.glob("*.svg"):
+        if stale.name not in expected:
+            stale.unlink()
+            print(f"removed  {stale.name}")
+    print(f"wrote    {len(expected)} action symbols to {out_dir}")
 
 
 if __name__ == "__main__":

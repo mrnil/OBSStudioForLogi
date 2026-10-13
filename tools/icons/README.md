@@ -4,7 +4,7 @@ Scripts for maintaining the button icons in `src/Resources/icons/`. The rules th
 
 | Script | What it does |
 |--------|--------------|
-| `generate_icons.py` | Draws the icons defined in it (2px strokes, clipped slash gaps), flattens them to fill-only paths with picosvg, and writes the grey `*Disabled` and white `*White` (status key) variants by recolouring their enabled icon. |
+| `generate_icons.py` | Draws the icons defined in it (2px strokes, clipped slash gaps), flattens them to fill-only paths with picosvg, and writes the grey `*Disabled` and white `*White` (status key) variants by recolouring their enabled icon. Also writes the black action picker symbols to `src/package/actionsymbols/` (`SYMBOLS`; `--symbols-out` to redirect) |
 | `sync_csproj.py` | Rewrites the icon `EmbeddedResource` entries in `src/OBSStudioForLogiPlugin.csproj` to exactly the icons code loads, and fails if code references an icon that doesn't exist |
 | `build_sheet.py` | Builds `out/icon-reference.html`, a self-contained page showing every icon on a black key, grouped by feature, with the palette and state rules |
 
@@ -26,5 +26,9 @@ Run the scripts from the repo root, using the venv's Python for `generate_icons.
 2. **Generate it.** Run `python tools/icons/generate_icons.py`. It regenerates every icon it defines, so `git diff src/Resources/icons` should show only the icon you changed. To try a design without touching the repo, pass `--out <dir>`.
 3. **Reference it from code,** then run `python tools/icons/sync_csproj.py` to update the csproj.
 4. **Check it.** Add the icon to `FAMILIES` in `build_sheet.py` with a usage note, run `python tools/icons/build_sheet.py`, and open `tools/icons/out/icon-reference.html`. Icons missing from `FAMILIES` appear under "Not catalogued".
+
+## Adding an action
+
+Add the new action class to `SYMBOLS` in `generate_icons.py`, mapped to the icon its button shows (or a new `SYMBOL_GLYPHS` entry), and run the script. `ActionSymbolTests` fails until it has a symbol.
 
 Most of the set was exported from Figma and isn't defined in `generate_icons.py`; the script leaves those files alone. Move an icon into `ICONS` if you need to redraw it.

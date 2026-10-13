@@ -59,6 +59,15 @@ Use the scripts in [`tools/icons/`](../../tools/icons/README.md); its README has
 
 Most of the set was exported from Figma and isn't defined in `generate_icons.py`; the generator leaves those files alone. Move an icon into `ICONS` if it needs redrawing.
 
+## Action Symbols
+
+Action symbols are the small glyphs the Options+ and Loupedeck action picker shows next to each action's name. They're separate from button icons: they live in `src/package/actionsymbols/`, ship in the package root, and are never loaded by code.
+
+- **SDK rules:** SVG, single-colour **black** strokes and fills, transparent background. A missing symbol is replaced by a generic one.
+- **Naming:** the action class's full name, `Loupedeck.OBSStudioForLogiPlugin.<Class>.svg`. Parameter-specific symbols (`<Class>___<parameter>.svg`) are optional and not used.
+- **Glyphs:** each action reuses the glyph its button shows, recoloured black, so the picker matches the device. Actions whose buttons show text or meters (stats, settings, audio displays, media action, audio monitoring) use symbol-only glyphs drawn in `SYMBOL_GLYPHS` with the same 2px stroke rules.
+- **Workflow:** add the class to `SYMBOLS` in `tools/icons/generate_icons.py` and run it. It writes every symbol and deletes any whose class is gone. `ActionSymbolTests` fails if an action class has no symbol, a symbol has no class, or a symbol isn't black on transparent.
+
 ## Placeholders
 
 These are in the folder but not embedded, because nothing loads them yet:

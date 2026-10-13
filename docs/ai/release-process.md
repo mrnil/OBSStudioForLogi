@@ -96,6 +96,7 @@ Verify:
 - Version number is correct
 - Display name is correct
 - Supported platforms are correct
+- The package root contains `actionsymbols/` with one SVG per action class (`ActionSymbolTests` checks the source folder)
 
 ### 10. Push to Git
 

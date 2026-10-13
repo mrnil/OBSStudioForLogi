@@ -614,6 +614,7 @@ Never hardcode timing values — always use `OBSTimings` constants.
 7. Override `GetCommandImage` querying live state
 8. Implement `OnConnected` / `OnDisconnected`
 9. Add icon SVG to `src/Resources/icons/` following `docs/ai/icon-style.md`, and register it in `.csproj` as `EmbeddedResource`
+10. Add the class to `SYMBOLS` in `tools/icons/generate_icons.py` and run it, so the action picker shows its symbol (`ActionSymbolTests` fails otherwise)
 
 ### New Notification Event
 

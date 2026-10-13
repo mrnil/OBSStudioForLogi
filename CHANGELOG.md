@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Action symbols for every action, so the Options+ and Loupedeck action picker shows a matching glyph next to each action's name instead of a generic one
+
 ### Changed
 
 - The Toggle Recording button is now a status key: red while recording and green while not, with a white record or stop glyph
