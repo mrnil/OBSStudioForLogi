@@ -134,7 +134,7 @@ Configurable (`ActionEditorCommand`) actions live in `User Defined` sub-groups n
 | `LoadingTiles.cs` | "Loading …" placeholder a folder shows while its list loads, drawn as one message across the two buttons right of the folder's Back button |
 | `SessionGate.cs` | Opens once per OBS connection so the initial state load ignores repeated `Connected` events (ReIdentify confirmations); its `Generation` lets work started for one connection tell when that connection has gone |
 | `OutputButtonAvailability.cs` | When a Start, Stop or Recording Pause button can act: Start only while stopped, Stop only while running, Pause only while recording; never while OBS is starting or stopping the output, or while disconnected. Unavailable buttons are drawn greyed and ignore presses |
-| `PressTimingHelper.cs` | DoubleTapHelper: 500ms window single/double tap detection |
+| `PressTimingHelper.cs` | DoubleTapHelper: single/double tap detection; the window is read on every tap (Plugin Settings, default `OBSTimings.DoubleTapWindow`), 0 means single tap only |
 | `OBSTimings.cs` | Centralised timing constants (delays, test timeouts) |
 | `MediaInputStates.cs` | OBS media state/action names, the state each action leaves an input in, and the media button's single-tap action |
 | `PluginLog.cs` | Static logging facade with configurable level; throttles repeated warnings/errors |

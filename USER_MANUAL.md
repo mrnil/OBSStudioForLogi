@@ -45,7 +45,7 @@ To control OBS running on a different computer on your network:
    - Enter the **IP Address** of the remote machine
    - Enter the **Port** (default 4455)
    - Enter the **Password** (set in OBS WebSocket Server Settings on the remote machine)
-   - Choose a **Stats Polling Interval** (2s, 5s, or 10s) and an **Audio Meter Refresh Rate** (20, 10 or 5 fps)
+   - Choose a **Stats Polling Interval** (2s, 5s, or 10s), an **Audio Meter Refresh Rate** (20, 10 or 5 fps) and a **Double-Tap Window** (see [Double-Tap Window](#double-tap-window))
 3. Press the button to save and reconnect
 4. Clear the **Password** field and save the action again. The password is kept, encrypted, in the plugin's settings. An empty field keeps it, but a value left in the field is stored unencrypted in your device profile. To remove a saved password, tick **Clear Saved Password** and press the button.
 
@@ -106,7 +106,7 @@ For recording-focused workflows:
 | Connection Status | Display | Shows "Connected" (green), "Disconnected" (red), or "WebSocket Disabled" (orange). Read-only. |
 | Stats Summary | Display | Shows FPS, CPU%, and dropped frames. Green = healthy, red = problems. |
 | Stats Folder | Folder | Individual tiles: FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped, Disk Space, Render Time. Colour-coded thresholds. |
-| Plugin Settings | Button | Configure the OBS connection (local/remote), IP, port, password, stats polling interval and audio meter refresh rate. Press to save. |
+| Plugin Settings | Button | Configure the OBS connection (local/remote), IP, port, password, stats polling interval, audio meter refresh rate and double-tap window. Press to save. |
 
 ### 2. Streaming
 
@@ -202,6 +202,8 @@ The **Media Controls** folder (`9. Media`) shows all media sources in OBS (video
 | Paused | Play (resume) | Stop (reset to start) |
 | Playing | Pause | Stop (reset to start) |
 
+With double-tap turned off, use **Media Action (User Defined)** with the Stop action to stop a source.
+
 ### Colour Coding
 
 - **Green** = Playing
@@ -232,6 +234,15 @@ The plugin offers several ways to control audio, each suited to different workfl
 - **Mixer for All Audio** / **Mixer for Scene Audio**: double-tap any source to toggle mute
 - **Available Sources**, **Audio Meter** and **Live Audio Folder**: a single tap toggles mute
 - **Toggle Audio Mute (User defined)**: a dedicated button that mutes a specific source
+
+### Double-Tap Window
+
+Mixer for All Audio, Mixer for Scene Audio and Media Controls tell a single tap from a double tap by waiting briefly for a second tap, so a single tap acts only after that wait. Set the wait with **Double-Tap Window** in Plugin Settings:
+
+- **200ms**: single taps act soonest, but double taps have to be quick
+- **300ms** (default)
+- **500ms**: the most time for a double tap, and the longest wait for a single tap
+- **Off**: every tap is a single tap and acts at once. Mute with **Audio Meter** or **Toggle Audio Mute (User defined)**, and stop media with **Media Action (User Defined)**
 
 ### Volume Control
 

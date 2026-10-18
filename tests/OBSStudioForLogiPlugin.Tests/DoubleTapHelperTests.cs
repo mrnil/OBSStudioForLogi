@@ -93,6 +93,72 @@ public class DoubleTapHelperTests
         Assert.Null(exception);
     }
 
+    [Fact]
+    public void OnTap_WindowOff_FiresSingleImmediately()
+    {
+        DoubleTapHelper helper = new DoubleTapHelper(() => 0);
+        String? received = null;
+
+        helper.OnTap("input1", p => received = p, _ => received = "double");
+
+        Assert.Equal("input1", received);
+    }
+
+    [Fact]
+    public void OnTap_WindowOff_QuickSecondTapFiresSingleAgain()
+    {
+        DoubleTapHelper helper = new DoubleTapHelper(() => 0);
+        Int32 singleCount = 0;
+        Boolean doubleFired = false;
+
+        helper.OnTap("input1", _ => singleCount++, _ => doubleFired = true);
+        helper.OnTap("input1", _ => singleCount++, _ => doubleFired = true);
+
+        Assert.Equal(2, singleCount);
+        Assert.False(doubleFired);
+    }
+
+    [Fact]
+    public void OnTap_NegativeWindow_TreatedAsOff()
+    {
+        DoubleTapHelper helper = new DoubleTapHelper(() => -100);
+        Boolean singleFired = false;
+
+        helper.OnTap("input1", _ => singleFired = true, null);
+
+        Assert.True(singleFired);
+    }
+
+    [Fact]
+    public void OnTap_LongWindow_WaitsForWindowBeforeSingle()
+    {
+        DoubleTapHelper helper = new DoubleTapHelper(() => 10000);
+        Boolean singleFired = false;
+
+        helper.OnTap("input1", _ => singleFired = true, null);
+
+        Thread.Sleep(OBSTimings.TestAsyncDelay);
+        Assert.False(singleFired);
+        helper.Reset();
+    }
+
+    [Fact]
+    public void OnTap_ReadsWindowOnEachTap()
+    {
+        Int32 windowMs = 0;
+        DoubleTapHelper helper = new DoubleTapHelper(() => windowMs);
+        Int32 singleCount = 0;
+        String? doubleReceived = null;
+
+        helper.OnTap("input1", _ => singleCount++, p => doubleReceived = p);
+        windowMs = 10000;
+        helper.OnTap("input1", _ => singleCount++, p => doubleReceived = p);
+        helper.OnTap("input1", _ => singleCount++, p => doubleReceived = p);
+
+        Assert.Equal(1, singleCount);
+        Assert.Equal("input1", doubleReceived);
+    }
+
     // Polls instead of a fixed sleep so these assertions don't flake under full-suite
     // thread-pool contention, where a fixed window can be too tight (Assessment #14).
     private static void WaitFor(Func<Boolean> condition, Int32 timeoutMs = 3000)

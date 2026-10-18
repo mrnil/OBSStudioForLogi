@@ -65,7 +65,7 @@ To build from source instead, run `dotnet build src/OBSStudioForLogiPlugin.cspro
 - **Connection Status Display**: Shows "Connected" (green), "Disconnected" (red), or "WebSocket Disabled" (orange)
 - **Stats Summary**: Single button showing FPS, CPU%, and dropped frames (colour-coded)
 - **Stats Folder**: Dynamic folder with individual tiles per stat (FPS, CPU, Memory, Render Missed, Encode Skipped, Total Dropped, Disk Space, Render Time)
-- **Plugin Settings**: Configure the OBS connection (local/remote), stats polling interval and audio meter refresh rate
+- **Plugin Settings**: Configure the OBS connection (local/remote), stats polling interval, audio meter refresh rate and double-tap window
 
 ### Streaming (Group 2)
 
@@ -111,7 +111,7 @@ To build from source instead, run `dotnet build src/OBSStudioForLogiPlugin.cspro
 ### Audio (Group 8)
 
 - **Mixer for All Audio**: Dynamic folder with all audio inputs
-  - Single tap selects the input for wheel/dial control; double tap toggles mute
+  - Single tap selects the input for wheel/dial control; double tap toggles mute (the double-tap window is set in Plugin Settings)
   - Shows the input name, volume in dB and monitoring mode; green text = unmuted, red = muted, white border = selected
   - On a Loupedeck, the encoder adjusts the selected input's volume and pressing it cycles monitoring
   - Real-time updates when mute state, volume or monitoring changes in OBS
@@ -166,7 +166,7 @@ These are in the `User Defined` sub-groups of Scenes and Audio; Media Action is 
 - **Media Controls**: Dynamic folder of media sources (ffmpeg, VLC, slideshow, text)
   - Single tap while stopped/paused: Play (uses Restart for stopped/ended sources)
   - Single tap while playing: Pause
-  - Double tap: Stop (reset to beginning)
+  - Double tap: Stop (reset to beginning). With double-tap turned off in Plugin Settings, use Media Action (User Defined) to stop
   - Colour-coded: Green = Playing, Yellow = Paused, Grey = Stopped/Ended
   - Real-time updates when media starts/finishes naturally
 - **Media Action (User Defined)**: Trigger media actions on a named source
@@ -189,6 +189,7 @@ For remote OBS connections or custom settings, use the **Plugin Settings** actio
 - **Clear Saved Password** (checkbox): Removes the saved password, for an OBS instance that doesn't use one.
 - **Stats Polling Interval**: How often to refresh stats (2s, 5s, or 10s)
 - **Audio Meter Refresh Rate**: How often the Live Audio Folder and Audio Meter buttons redraw (20, 10, or 5 fps)
+- **Double-Tap Window**: How long the audio mixer and Media Controls folders wait for a second tap (200, 300 or 500ms, default 300ms), or Off so every tap acts at once
 
 ## Development
 

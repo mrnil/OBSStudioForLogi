@@ -615,6 +615,7 @@ OBSTimings.StateUpdateDelay      // 100ms — wait after OBS API call before ref
 OBSTimings.ProfileSwitchDelay    // 1500ms — between a profile switch and the next step (see #37)
 OBSTimings.CollectionSwitchDelay // 1500ms — between a collection switch and the next step (see #37)
 OBSTimings.RequestTimeout        // 3000ms — library request timeout
+OBSTimings.DoubleTapWindow       // 300ms — default double-tap window; users change it in Plugin Settings
 OBSTimings.TestAsyncDelay        // 500ms — test wait for real-timer code only (e.g. DoubleTapHelper)
 ```
 

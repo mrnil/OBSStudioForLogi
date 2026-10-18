@@ -8,7 +8,7 @@ Item numbers never change, because `TODO.md`, commit messages and `CHANGELOG.md`
 
 At this pass the build has no warnings and all 801 tests pass in about 6s. Line coverage is 49.0% and branch coverage 36.5% overall; the Services layer is at 83.3% line and 61.1% branch (see `test-coverage.md`).
 
-**Open**: #5, #9, #24, #28, #31, #33–#42. The [Summary Table](#summary-table) gives the order to work on them.
+**Open**: #9, #24, #28, #31, #33–#42. The [Summary Table](#summary-table) gives the order to work on them.
 
 ---
 
@@ -40,14 +40,6 @@ None open.
 **Impact**: Users who organise scenes with groups can't reach those sources from the device, and the scene audio folder puts their audio inputs in the wrong section.
 
 **Fix**: When building scene source lists and the scene membership set, expand groups (items with `isGroup`) through `GetGroupSceneItemList`. Decide whether the Scene Sources folder shows group children flat or as a sub-level. `SceneItemEnableStateChanged` for a group child reports the group's name as the scene, so check the visibility cache key too.
-
----
-
-### 5. Double-Tap Delays Every Single Tap (Usability)
-
-**Problem**: `DoubleTapHelper` (`src/Helpers/PressTimingHelper.cs`) still hard-codes a 500ms `DoubleTapThreshold`. Double-tap mutes in `AudioInputDynamicFolderBase` (Mixer for All Audio, Mixer for Scene Audio) and stops in `MediaDynamicFolder`. A single tap only fires after the whole window has passed, so selecting an audio source always lags by 500ms.
-
-**Fix**: Move the threshold to `OBSTimings`, or make it a Plugin Settings option. The per-source **Audio Meter** action and **Toggle Audio Mute (User defined)** already give users single-press mute buttons, so another option is to make the folders single-tap only and drop double-tap.
 
 ---
 
@@ -182,6 +174,7 @@ None open.
 | 2 | Architecture | Scene changes bypassed the registry for the sources and scene audio folders | v1.6.0 |
 | 3 | Usability | Scene/source/profile buttons showing no names: not a bug, the SDK labels them (device-checked) | No change needed |
 | 4 | Code Quality | `DoubleTapHelper` race condition and `CancellationTokenSource` leak | v1.6.0 |
+| 5 | Usability | Double-tap window down from 500ms to 300ms and set in Plugin Settings (200/300/500ms or off) | Unreleased |
 | 6 | Code Quality | `CommandCoordinator` dispatch with per-command exception isolation | v1.6.2 |
 | 7 | Code Quality | `OBSStats.Empty` instead of null propagation | v1.6.0 |
 | 8 | Feature | Profile and scene collection list changes followed, including create/delete of a collection | v2.0.0 |
@@ -215,7 +208,6 @@ Open items, in the order to work on them.
 | # | Priority | Area | Issue |
 |---|----------|------|-------|
 | 31 | Medium | Usability | Scene buttons give no feedback in studio mode (preview scene not tracked) |
-| 5 | Medium | Usability | Hard-coded 500ms double-tap window delays every single tap |
 | 28 | Medium | Correctness | OBS groups not handled in scene source lists or scene audio membership |
 | 38 | Low | Correctness | IPv6 URL unbracketed; host names and typos silently replaced by localhost |
 | 42 | Low | Build/DX | Tests don't run in CI |

@@ -109,6 +109,12 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Helpers
         public const Int32 LogRepeatWindow = 60000;
 
         /// <summary>
+        /// Default time a folder button waits for a second tap before running its single-tap
+        /// action (300ms). Users can change it in Plugin Settings, see PluginConfig.DoubleTapWindow.
+        /// </summary>
+        public const Int32 DoubleTapWindow = 300;
+
+        /// <summary>
         /// Test wait for code driven by a real timer, such as DoubleTapHelper's tap window.
         /// Not for OBSActionExecutor tests: pass an inline background runner to its constructor instead.
         /// </summary>

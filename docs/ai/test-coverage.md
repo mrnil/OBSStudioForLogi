@@ -2,7 +2,7 @@
 
 ## Overview
 
-801 unit tests using xUnit and Moq, all passing on net10.0 (verified 2026-10-13, about 6s). Coverage measured with Cobertura (`--collect:"XPlat Code Coverage"`) on the same date:
+823 unit tests using xUnit and Moq, all passing on net10.0 (verified 2026-10-18, about 6s). Coverage measured with Cobertura (`--collect:"XPlat Code Coverage"`) on 2026-10-13, at 801 tests:
 
 | Layer | Line | Branch |
 |-------|------|--------|
@@ -57,7 +57,7 @@ The overall figure is low because the Actions layer, which needs the SDK runtime
 | `ActivityLeaseTests.cs` | Touch-renewed lease: activates once, expires when idle, renews, releases | 10 |
 | `AudioMeterServiceTests.cs` | Meter level updates and reads, staleness, live-input order, clearing, cached mute state and its lookups | 35 |
 | `VuMeterRendererTests.cs` | dB scaling, bar heights, colour zones, tile state (inactive/muted/meter), display peaks for zero-channel inputs | 36 |
-| `DoubleTapHelperTests.cs` | Single and double tap detection and reset (waits on the real timer with a bounded poll) | 7 |
+| `DoubleTapHelperTests.cs` | Single and double tap detection and reset (waits on the real timer with a bounded poll), the window read on every tap, window 0 or less as single tap only | 12 |
 | `VolumeConverterTests.cs` | Volume mul→dB conversion and formatting | 10 |
 | `SourceVisibilityTests.cs` | Source visibility toggle (shows/hides by item ID, one list request and one set, first item of a duplicated source, source not in the scene) and its redraw callback, `TryGetSceneItemEnabled` cache fetch | 16 |
 | `VirtualCameraCommandTests.cs` | Virtual camera state and toggle | ~5 |
@@ -68,7 +68,8 @@ The overall figure is low because the Actions layer, which needs the SDK runtime
 | `OutputButtonAvailabilityTests.cs` | When Start, Stop and Recording Pause are available: by running/stopped, starting/stopping and connection state; the greyed drawing is checked on a device | 15 |
 | `MediaInputStatesTests.cs` | Media action → resulting state mapping, single-tap action per state | 14 |
 | `OBSStatsModelTests.cs` | OBSStats and OBSStreamStats derived properties | 12 |
-| `PluginConfigReaderTests.cs` | Save/read config, round-trip, invalid JSON | 6 |
+| `PluginConfigReaderTests.cs` | Save/read config, round-trip, invalid JSON, password in the secret store and its migration, a config without a double-tap window | 23 |
+| `PluginConfigTests.cs` | Double-tap window default, and the offered windows accepted while other values fall back to the default | 16 |
 
 ### Actions Layer (Integration Tests for Critical Paths)
 

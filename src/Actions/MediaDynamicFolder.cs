@@ -10,7 +10,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         public static MediaDynamicFolder Instance { get; private set; }
 
         private String[] _mediaInputs = new String[0];
-        private readonly DoubleTapHelper _doubleTapHelper = new DoubleTapHelper();
+        private readonly DoubleTapHelper _doubleTapHelper = new DoubleTapHelper(
+            () => OBSStudioForLogiPlugin.Instance?.DoubleTapWindow ?? OBSTimings.DoubleTapWindow);
 
         public MediaDynamicFolder()
         {

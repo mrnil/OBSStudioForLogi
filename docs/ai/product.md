@@ -70,7 +70,7 @@ The numbered groups are the `GroupName` prefixes shown in the action list. `###`
 ### 8. Audio
 
 - Live Audio Folder: real-time VU meters for the inputs OBS reports as live, tap to mute
-- Mixer for All Audio and Mixer for Scene Audio: single tap selects the input for the dial, double tap mutes, encoder adjusts volume and press cycles monitoring; volume in dB
+- Mixer for All Audio and Mixer for Scene Audio: single tap selects the input for the dial, double tap mutes (the double-tap window, or off, is a Plugin Settings option), encoder adjusts volume and press cycles monitoring; volume in dB
 - Audio Select folder (selection only), Audio Volume folder (adjustment tiles for the MX big wheel)
 - Selected Source Volume adjustment for any dial or wheel
 - `Meters`: one Audio Meter per input, live or not
@@ -79,7 +79,7 @@ The numbered groups are the `GroupName` prefixes shown in the action list. `###`
 
 ### 9. Media
 
-- Media Controls folder: single tap plays or pauses, double tap stops; colour shows the state
+- Media Controls folder: single tap plays or pauses, double tap stops (or Media Action (User Defined) when double-tap is off); colour shows the state
 - Media Action (User Defined): play, pause, stop, restart, next or previous on a named source
 
 ## Connection

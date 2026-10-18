@@ -4,11 +4,24 @@ namespace Loupedeck.OBSStudioForLogiPlugin
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Loupedeck.OBSStudioForLogiPlugin.Helpers;
 
     public class DoubleTapHelper
     {
-        private const Int32 DoubleTapThreshold = 500; // ms between taps
+        private readonly Func<Int32> _windowMs;
         private readonly Dictionary<String, TapState> _tapStates = new Dictionary<String, TapState>();
+
+        public DoubleTapHelper()
+            : this(() => OBSTimings.DoubleTapWindow)
+        {
+        }
+
+        /// <param name="windowMs">Read on every tap, so a settings change applies straight away.
+        /// 0 or less turns double-tap off: every tap runs the single-tap action at once.</param>
+        public DoubleTapHelper(Func<Int32> windowMs)
+        {
+            this._windowMs = windowMs;
+        }
 
         private class TapState
         {
@@ -21,6 +34,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             if (String.IsNullOrEmpty(actionParameter))
                 return;
 
+            Int32 windowMs = this._windowMs();
+            if (windowMs <= 0)
+            {
+                onSingleTap?.Invoke(actionParameter);
+                return;
+            }
+
             DateTime now = DateTime.UtcNow;
             CancellationTokenSource cancellationToDispose = null;
 
@@ -30,7 +50,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 {
                     Double elapsed = (now - state.LastTapTime).TotalMilliseconds;
 
-                    if (elapsed < DoubleTapThreshold)
+                    if (elapsed < windowMs)
                     {
                         state.Cancellation.Cancel();
                         cancellationToDispose = state.Cancellation;
@@ -41,7 +61,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                     }
                 }
 
-                var cancellation = new CancellationTokenSource();
+                CancellationTokenSource cancellation = new CancellationTokenSource();
                 this._tapStates[actionParameter] = new TapState
                 {
                     LastTapTime = now,
@@ -52,7 +72,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 {
                     try
                     {
-                        await Task.Delay(DoubleTapThreshold, cancellation.Token);
+                        await Task.Delay(windowMs, cancellation.Token);
 
                         lock (this._tapStates)
                         {

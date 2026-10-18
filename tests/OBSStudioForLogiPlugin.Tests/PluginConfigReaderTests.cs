@@ -3,6 +3,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Tests;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Loupedeck.OBSStudioForLogiPlugin.Helpers;
 using Loupedeck.OBSStudioForLogiPlugin.Models;
 using Loupedeck.OBSStudioForLogiPlugin.Services;
 
@@ -66,7 +67,8 @@ public class PluginConfigReaderTests : IDisposable
             RemotePort = 4460,
             RemotePassword = "pw123",
             StatsPollingInterval = 10000,
-            AudioMeterRefreshInterval = 50
+            AudioMeterRefreshInterval = 50,
+            DoubleTapWindow = 0
         };
 
         this._reader.SaveConfig(config);
@@ -79,6 +81,18 @@ public class PluginConfigReaderTests : IDisposable
         Assert.Equal("pw123", loaded.RemotePassword);
         Assert.Equal(10000, loaded.StatsPollingInterval);
         Assert.Equal(50, loaded.AudioMeterRefreshInterval);
+        Assert.Equal(0, loaded.DoubleTapWindow);
+    }
+
+    [Fact]
+    public void ReadConfig_WithoutDoubleTapWindow_UsesDefault()
+    {
+        File.WriteAllText(this._configPath, "{ \"StatsPollingInterval\": 2000 }");
+
+        PluginConfig loaded = this._reader.ReadConfig();
+
+        Assert.NotNull(loaded);
+        Assert.Equal(OBSTimings.DoubleTapWindow, loaded.DoubleTapWindow);
     }
 
     [Fact]

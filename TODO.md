@@ -5,6 +5,7 @@ Open work only. Finished work is in `CHANGELOG.md` and the git history, and fixe
 ## Device Checks Outstanding
 
 - [ ] Reconnect after an OBS settings change (#29): change the WebSocket password in OBS while connected (OBS drops the connection), and confirm the plugin reconnects with the new password without pressing Reconnect. Then quit and restart OBS and confirm it reconnects.
+- [ ] Double-tap window (#5): in Plugin Settings, check the Double-Tap Window listbox shows Off, 200ms, 300ms and 500ms with 300ms selected. At 300ms, a single tap in Mixer for All Audio selects and a double tap mutes, and in Media Controls a double tap stops. Save Off and check that taps act at once with no double tap. Save 500ms and check that double taps are easier
 
 ## Medium Priority
 
@@ -13,10 +14,6 @@ Open work only. Finished work is in `CHANGELOG.md` and the git history, and fixe
 - [ ] Track the preview scene: `GetCurrentPreviewScene` in the initial load and when studio mode turns on, `CurrentPreviewSceneChanged` after that
 - [ ] Show preview and program as separate states on the scene folder, select command and Current Scene display
 - [ ] Check on a device: in studio mode, press a scene (the preview state shows), then transition (the program state moves)
-
-### Double-Tap Window (#5)
-
-- [ ] Move the 500ms `DoubleTapThreshold` into `OBSTimings` or Plugin Settings, or drop double-tap in favour of dedicated mute buttons
 
 ### OBS Groups Not Handled (#28)
 

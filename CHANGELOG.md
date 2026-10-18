@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Single taps in Mixer for All Audio, Mixer for Scene Audio and Media Controls act sooner: the folders now wait 300ms for a second tap instead of 500ms. A new **Double-Tap Window** option in Plugin Settings sets the wait (200, 300 or 500ms), or turns double-tap off so every tap acts at once. With it off, mute a source with Audio Meter or Toggle Audio Mute (User defined), and stop media with Media Action (User Defined) (#5)
 - The Toggle Recording button is now a status key: its record dot is red while recording, and its stop square green while not
 - Start and Stop buttons for streaming, recording and the virtual camera are greyed out when they can't do anything (Start while running, Stop while stopped, either while OBS is starting or stopping the output, or while disconnected), and ignore presses while greyed. Recording Pause is greyed out while nothing is recording
 - Toggling a source's visibility now takes two requests to OBS instead of four, so it responds faster, especially with a remote OBS. A toggle for a source that isn't in the scene now logs a warning

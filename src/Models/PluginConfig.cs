@@ -45,5 +45,36 @@ namespace Loupedeck.OBSStudioForLogiPlugin.Models
         /// Audio meter refresh interval in milliseconds (50, 100, or 200 - i.e. 20fps, 10fps, or 5fps).
         /// </summary>
         public Int32 AudioMeterRefreshInterval { get; set; } = 100;
+
+        /// <summary>
+        /// The windows Plugin Settings offers for <see cref="DoubleTapWindow"/>, in milliseconds.
+        /// 0 turns double-tap off.
+        /// </summary>
+        public static readonly Int32[] DoubleTapWindowOptions = { 0, 200, 300, 500 };
+
+        /// <summary>
+        /// How long the audio mixer and media folders wait for a second tap, in milliseconds
+        /// (one of <see cref="DoubleTapWindowOptions"/>). 0 runs every tap as a single tap at once.
+        /// </summary>
+        public Int32 DoubleTapWindow { get; set; } = OBSTimings.DoubleTapWindow;
+
+        /// <summary>
+        /// Returns <paramref name="windowMs"/> if Plugin Settings offers it, otherwise the default,
+        /// so a hand-edited config can't set a window nobody can tap within.
+        /// </summary>
+        public static Int32 NormalizeDoubleTapWindow(Int32 windowMs)
+        {
+            return Array.IndexOf(DoubleTapWindowOptions, windowMs) >= 0 ? windowMs : OBSTimings.DoubleTapWindow;
+        }
+
+        /// <summary>
+        /// Parses a Plugin Settings listbox value, falling back to the default when it isn't an offered window.
+        /// </summary>
+        public static Int32 ParseDoubleTapWindow(String value)
+        {
+            return Int32.TryParse(value?.Trim(), out Int32 windowMs)
+                ? NormalizeDoubleTapWindow(windowMs)
+                : OBSTimings.DoubleTapWindow;
+        }
     }
 }

@@ -1,6 +1,7 @@
 namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
+    using Loupedeck.OBSStudioForLogiPlugin.Helpers;
     using Loupedeck.OBSStudioForLogiPlugin.Models;
     using Loupedeck.OBSStudioForLogiPlugin.Services;
 
@@ -13,6 +14,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
         private const String ClearPasswordControlName = "ClearPassword";
         private const String PollingIntervalControlName = "PollingInterval";
         private const String MeterRefreshIntervalControlName = "MeterRefreshInterval";
+        private const String DoubleTapWindowControlName = "DoubleTapWindow";
 
         public static PluginSettingsCommand Instance { get; private set; }
 
@@ -40,6 +42,9 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             var meterRefreshListbox = new ActionEditorListbox(MeterRefreshIntervalControlName, "Audio Meter Refresh Rate");
             this.ActionEditor.AddControlEx(meterRefreshListbox);
 
+            ActionEditorListbox doubleTapListbox = new ActionEditorListbox(DoubleTapWindowControlName, "Double-Tap Window (audio mixer and media folders)");
+            this.ActionEditor.AddControlEx(doubleTapListbox);
+
             this.ActionEditor.ListboxItemsRequested += this.OnListboxItemsRequested;
 
             PluginLog.Debug("PluginSettingsCommand: Initialized");
@@ -61,6 +66,14 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 e.AddItem("200", "5 fps", "Refresh audio meters every 200ms");
                 e.SetSelectedItemName("100");
             }
+            else if (e.ControlName.EqualsNoCase(DoubleTapWindowControlName))
+            {
+                e.AddItem("0", "Off (single tap only)", "Taps act at once. Mute with Audio Meter or Toggle Audio Mute, stop media with Media Action");
+                e.AddItem("200", "200ms", "Fastest single tap; double taps must be quick");
+                e.AddItem("300", "300ms", "Default");
+                e.AddItem("500", "500ms", "Most time for a double tap; single taps wait longest");
+                e.SetSelectedItemName(OBSTimings.DoubleTapWindow.ToString());
+            }
         }
 
         protected override Boolean OnLoad() => true;
@@ -76,6 +89,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             actionParameters.TryGetBoolean(ClearPasswordControlName, out var clearPassword);
             actionParameters.TryGetString(PollingIntervalControlName, out var pollingStr);
             actionParameters.TryGetString(MeterRefreshIntervalControlName, out var meterRefreshStr);
+            actionParameters.TryGetString(DoubleTapWindowControlName, out String doubleTapStr);
 
             if (!Int32.TryParse(portStr?.Trim(), out var port) || port < 1 || port > 65535)
             {
@@ -93,6 +107,8 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 meterRefreshInterval = 100;
             }
 
+            Int32 doubleTapWindow = PluginConfig.ParseDoubleTapWindow(doubleTapStr);
+
             var config = new PluginConfig
             {
                 LogLevel = PluginLog.CurrentLevel,
@@ -101,12 +117,13 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 RemotePort = port,
                 RemotePassword = password ?? "",
                 StatsPollingInterval = pollingInterval,
-                AudioMeterRefreshInterval = meterRefreshInterval
+                AudioMeterRefreshInterval = meterRefreshInterval,
+                DoubleTapWindow = doubleTapWindow
             };
 
             // The plugin saves through its own config reader, which holds the encrypted secret
             // store for the password.
-            PluginLog.Info($"PluginSettings: Saving config - UseLocal={useLocal}, IP={config.RemoteIpAddress}, Port={port}, Polling={pollingInterval}ms, MeterRefresh={meterRefreshInterval}ms, ClearPassword={clearPassword}");
+            PluginLog.Info($"PluginSettings: Saving config - UseLocal={useLocal}, IP={config.RemoteIpAddress}, Port={port}, Polling={pollingInterval}ms, MeterRefresh={meterRefreshInterval}ms, DoubleTap={doubleTapWindow}ms, ClearPassword={clearPassword}");
             if (!String.IsNullOrEmpty(password) && !clearPassword)
             {
                 PluginLog.Info("PluginSettings: Password saved - clear the Password field in the action editor so it isn't kept in the device profile");

@@ -2,6 +2,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
 {
     using System;
     using System.Threading.Tasks;
+    using Loupedeck.OBSStudioForLogiPlugin.Helpers;
     using Loupedeck.OBSStudioForLogiPlugin.Models;
     using Loupedeck.OBSStudioForLogiPlugin.Services;
 
@@ -26,6 +27,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             PluginResources.Init(this.Assembly);
             this._pluginConfigReader = new PluginConfigReader(new PluginSettingsSecretStore(this));
             var pluginConfig = LoadPluginConfiguration();
+            this.SetDoubleTapWindow(pluginConfig);
             DiscoverScreenshotPath();
             
             // The manager reports OBS changes to this class (IOBSEventListener), which forwards them
@@ -69,6 +71,16 @@ namespace Loupedeck.OBSStudioForLogiPlugin
             return this._obsConfigReader?.ReadConfig();
         }
 
+        /// <summary>
+        /// How long the audio mixer and media folders wait for a second tap, in milliseconds. 0 means double-tap is off.
+        /// </summary>
+        public Int32 DoubleTapWindow { get; private set; } = OBSTimings.DoubleTapWindow;
+
+        private void SetDoubleTapWindow(PluginConfig config)
+        {
+            this.DoubleTapWindow = PluginConfig.NormalizeDoubleTapWindow(config?.DoubleTapWindow ?? OBSTimings.DoubleTapWindow);
+        }
+
         public void SaveAndApplyConnectionConfig(PluginConfig config, Boolean clearStoredPassword)
         {
             if (!this._pluginConfigReader.SaveEditedConfig(config, clearStoredPassword))
@@ -77,6 +89,7 @@ namespace Loupedeck.OBSStudioForLogiPlugin
                 return;
             }
 
+            this.SetDoubleTapWindow(config);
             this.ApplyConnectionConfig(config);
         }
 
