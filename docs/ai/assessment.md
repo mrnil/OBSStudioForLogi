@@ -8,7 +8,7 @@ Item numbers never change, because `TODO.md`, commit messages and `CHANGELOG.md`
 
 At this pass the build has no warnings and all 801 tests pass in about 6s. Line coverage is 49.0% and branch coverage 36.5% overall; the Services layer is at 83.3% line and 61.1% branch (see `test-coverage.md`).
 
-**Open**: #9, #24, #28, #31, #33–#42. The [Summary Table](#summary-table) gives the order to work on them.
+**Open**: #9, #24, #28, #31, #33–#38, #40–#42. The [Summary Table](#summary-table) gives the order to work on them.
 
 ---
 
@@ -128,16 +128,6 @@ None open.
 
 ---
 
-### 39. Assembly Version Lags the Package Version (Build/DX)
-
-**Problem**: `src/OBSStudioForLogiPlugin.csproj` still has `Version`, `AssemblyVersion` and `FileVersion` at 2.0.0, while `LoupedeckPackage.yaml` is at 2.0.1. Until this pass, step 1 of `release-process.md` only named the YAML file, although `tech.md` said both must change.
-
-**Impact**: The DLL and log output report the wrong version, which makes bug reports harder to match to a release.
-
-**Fix**: Bump the `.csproj` at the next release (`release-process.md` now lists both files), or define the version once, for example as an MSBuild property that the build also writes into the package metadata.
-
----
-
 ### 40. User-Defined Actions Need Names Typed Exactly (Usability)
 
 **Problem**: Switch to Scene, Toggle Source Visibility, the audio actions and Media Action all take scene, source or input names in free-text `ActionEditorTextbox` fields. A typo only shows up as a warning in the log when the button is pressed. `ActionEditorListbox` with `ListboxItemsRequested` already works in this plugin: `MediaActionCommand` and `PluginSettingsCommand` use it for fixed lists. `USER_MANUAL.md` said the SDK can't fill lists at runtime, but nobody has checked that against the SDK docs.
@@ -174,7 +164,7 @@ None open.
 | 2 | Architecture | Scene changes bypassed the registry for the sources and scene audio folders | v1.6.0 |
 | 3 | Usability | Scene/source/profile buttons showing no names: not a bug, the SDK labels them (device-checked) | No change needed |
 | 4 | Code Quality | `DoubleTapHelper` race condition and `CancellationTokenSource` leak | v1.6.0 |
-| 5 | Usability | Double-tap window down from 500ms to 300ms and set in Plugin Settings (200/300/500ms or off) | Unreleased |
+| 5 | Usability | Double-tap window down from 500ms to 300ms and set in Plugin Settings (200/300/500ms or off) | v2.1.0 |
 | 6 | Code Quality | `CommandCoordinator` dispatch with per-command exception isolation | v1.6.2 |
 | 7 | Code Quality | `OBSStats.Empty` instead of null propagation | v1.6.0 |
 | 8 | Feature | Profile and scene collection list changes followed, including create/delete of a collection | v2.0.0 |
@@ -188,16 +178,17 @@ None open.
 | 17 | Performance | Log-review follow-ups: identified-only `IsConnected`, 3s request timeout, stats and meter fixes | v2.0.0 |
 | 18 | Performance | Source visibility and media status served from `KeyedStateCache`; scene source loads off the event thread | v2.0.0 |
 | 19 | Security | Remote password moved from `config.json` to the SDK's encrypted plugin settings | v2.0.0 |
-| 20 | Architecture | `OBSWebSocketManager` reports through `IOBSEventListener`; no upward calls from the services | Unreleased |
+| 20 | Architecture | `OBSWebSocketManager` reports through `IOBSEventListener`; no upward calls from the services | v2.1.0 |
 | 21 | Correctness | Input and scene renames move cached state to the new name | v2.0.0 |
 | 22 | Docs | AI docs rewritten against the real `ButtonImageHelper`/`ButtonTextRenderer` API | v2.0.0 |
 | 23 | Code Quality | `async void` startup guarded; blocking wait after a collection switch removed; one disconnect notification per disconnect | v2.0.0 |
 | 25 | Performance | OBS data loaded only while shown; scene audio membership cached | v2.0.0 |
 | 26 | Correctness | Initial state load retried while OBS answers "not ready" (207) | v2.0.0 |
-| 27 | Correctness | Streaming and recording buttons redraw on state change (device-checked 2026-10-13) | Unreleased |
-| 29 | Architecture/Correctness | `ConnectionManager` is the only place that retries, and every attempt re-reads the settings. Device check of a password change still to do (`TODO.md`) | Unreleased |
-| 30 | Performance | Source visibility toggle takes two requests instead of four | Unreleased |
-| 32 | Code Quality | `OBSActionExecutor` calls go through `RunMutation`/`Query<T>`/`TryQuery<T>` (1,242 → 676 lines) | Unreleased |
+| 27 | Correctness | Streaming and recording buttons redraw on state change (device-checked 2026-10-13) | v2.1.0 |
+| 29 | Architecture/Correctness | `ConnectionManager` is the only place that retries, and every attempt re-reads the settings. Device check of a password change still to do (`TODO.md`) | v2.1.0 |
+| 30 | Performance | Source visibility toggle takes two requests instead of four | v2.1.0 |
+| 32 | Code Quality | `OBSActionExecutor` calls go through `RunMutation`/`Query<T>`/`TryQuery<T>` (1,242 → 676 lines) | v2.1.0 |
+| 39 | Build/DX | `.csproj` version bumped to match the package version | v2.1.0 |
 
 ---
 
@@ -211,7 +202,6 @@ Open items, in the order to work on them.
 | 28 | Medium | Correctness | OBS groups not handled in scene source lists or scene audio membership |
 | 38 | Low | Correctness | IPv6 URL unbracketed; host names and typos silently replaced by localhost |
 | 42 | Low | Build/DX | Tests don't run in CI |
-| 39 | Low | Build/DX | `.csproj` version (2.0.0) lags the package version (2.0.1) |
 | 40 | Low | Usability | User-defined actions need exact typed names; listboxes may be possible |
 | 9 | Low | Feature | Recording duration display (parity with stream stats) |
 | 37 | Low | Code Quality | Fixed delays in `SceneSwitchAdjustableCommand`, meter handler left attached on dispose, empty catches, "User defined" casing, redundant `Task.Run` |
