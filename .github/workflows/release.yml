@@ -7,7 +7,78 @@ on:
     tags: ['v*']
 
 jobs:
+  # Gate: only release a commit that is on main and that every other workflow
+  # (Build and Test, Dependency Check & Build, CodeQL, Markdown Lint, ...) passed on.
+  # Those workflows run on the push to main, not on the tag, so wait for any still running.
+  ci-passed:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: read    # read the check runs on the tagged commit
+      actions: read   # find this workflow's own runs, to leave them out
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      TAG: ${{ github.ref_name }}
+      # Checks that must be present: a commit without them was never built by CI
+      REQUIRED: '["test-and-package", "build", "Analyze (csharp)"]'
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Tagged commit is on main
+        run: |
+          git fetch --force origin "refs/tags/$TAG:refs/tags/$TAG"
+          SHA=$(git rev-parse "$TAG^{commit}")
+          echo "SHA=$SHA" >> "$GITHUB_ENV"
+          if ! git merge-base --is-ancestor "$SHA" origin/main; then
+            echo "::error::$TAG points at $SHA, which isn't on main. Push the commit to main and let CI pass before tagging."
+            exit 1
+          fi
+
+      - name: Every check on the tagged commit passed
+        shell: bash   # explicit shell adds -o pipefail, so a failed gh call stops the step instead of polling on
+        run: |
+          # Leave out this workflow's runs (this one and any earlier release attempts for the same commit)
+          own=$(gh api "repos/$REPO/actions/workflows/release.yml/runs?head_sha=$SHA&per_page=100" --jq '[.workflow_runs[].check_suite_id]')
+
+          deadline=$((SECONDS + 1800))
+          idle=0
+          while :; do
+            runs=$(gh api --paginate "repos/$REPO/commits/$SHA/check-runs?per_page=100" --jq '.check_runs[]' \
+              | jq -s --argjson own "$own" '[.[] | select(.check_suite.id | IN($own[]) | not) | {name, status, conclusion}]')
+            pending=$(jq '[.[] | select(.status != "completed")] | length' <<<"$runs")
+            missing=$(jq -r --argjson req "$REQUIRED" '$req - [.[].name] | join(", ")' <<<"$runs")
+
+            if [ "$pending" -eq 0 ] && [ -z "$missing" ]; then break; fi
+
+            # Nothing running and a required check absent: CI never ran on this commit
+            # (for example it was not the last commit of a push). Allow ~90s for runs to register.
+            if [ "$pending" -eq 0 ]; then idle=$((idle + 1)); else idle=0; fi
+            if [ "$idle" -ge 3 ]; then
+              echo "::error::No $missing check on $SHA. CI only runs on the last commit of a push to main; tag a commit CI has run on."
+              exit 1
+            fi
+            if [ "$SECONDS" -ge "$deadline" ]; then
+              echo "::error::Timed out waiting for checks on $SHA ($pending still running; missing: ${missing:-none})"
+              exit 1
+            fi
+
+            echo "Waiting: $pending check(s) running${missing:+, not started yet: $missing}"
+            sleep 30
+          done
+
+          jq -r '.[] | "\(.name): \(.conclusion)"' <<<"$runs"
+          failed=$(jq -r '[.[] | select(.conclusion | IN("success", "skipped", "neutral") | not) | "\(.name) (\(.conclusion))"] | join(", ")' <<<"$runs")
+          if [ -n "$failed" ]; then
+            echo "::error::Checks on $SHA did not pass: $failed. Fix them on main, then move the tag."
+            exit 1
+          fi
+
   release:
+    needs: ci-passed
     runs-on: windows-latest
     permissions:
       contents: write   # create the GitHub release and upload the package

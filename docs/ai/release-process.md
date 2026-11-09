@@ -37,7 +37,9 @@ git commit -m "docs: add release notes and changelog entry for v{VERSION}"
 git push origin main
 ```
 
-Wait for the **Build and Test** and **Markdown Lint** runs on that commit to pass before tagging.
+Wait for the CI runs on that commit (Build and Test, Dependency Check & Build, CodeQL and, if Markdown changed, Markdown Lint) to pass before tagging. The release workflow refuses to release a commit whose checks failed, and waits for any still running.
+
+Tag the commit you pushed last: CI only runs on the last commit of a push, so an earlier commit from the same push has no checks and the release stops.
 
 ### 5. Tag and Push the Tag
 
@@ -50,10 +52,11 @@ The tag must be annotated (`-a`), and its message must be `Release v{VERSION} - 
 
 Pushing the tag starts the **Release** workflow. It:
 
-1. Checks the tag message, the two version numbers, the changelog entry and the release notes file
-2. Builds in Release and runs the tests
-3. Packs `OBSStudioForLogiPlugin-v{VERSION}.lplug4`, verifies it and prints its metadata
-4. Creates a draft GitHub release for the tag, with `RELEASE_NOTES_v{VERSION}.md` as the body and the package attached
+1. Checks that the tagged commit is on `main` and that every check on it passed (job `ci-passed`). It needs `test-and-package`, `build` and `Analyze (csharp)` to be present, waits up to 30 minutes for checks still running, and stops if any check failed or was cancelled. Nothing below runs unless this passes
+2. Checks the tag message, the two version numbers, the changelog entry and the release notes file
+3. Builds in Release and runs the tests
+4. Packs `OBSStudioForLogiPlugin-v{VERSION}.lplug4`, verifies it and prints its metadata
+5. Creates a draft GitHub release for the tag, with `RELEASE_NOTES_v{VERSION}.md` as the body and the package attached
 
 ### 6. Review and Publish the Draft
 
@@ -111,4 +114,7 @@ Use the dotnet global tool (`C:\Users\steph\.dotnet\tools\logiplugintool.exe`), 
 - **"a release with the same tag name already exists"**: delete the old draft, then rerun the workflow from the Actions page.
 - **Pack fails**: make sure the Release build succeeded and `bin/Release/` has `bin/` and `metadata/`.
 - **Verify fails**: check that `metadata/LoupedeckPackage.yaml` and `metadata/Icon256x256.png` are present, and, locally, that no stale files are left in `bin/Release/`.
+- **"isn't on main"**: the tag points at a commit that was never pushed to `main`. Push it, wait for CI, then move the tag.
+- **"No test-and-package check"** (or `build`, `Analyze (csharp)`): CI never ran on the tagged commit, usually because it wasn't the last commit of a push. Move the tag to the last commit pushed. If a workflow or job was renamed, update `REQUIRED` in `release.yml`.
+- **"Checks on ... did not pass"**: a CI run on the tagged commit failed or was cancelled. Rerun it if it was a flaky failure; otherwise fix it on `main` and move the tag. Then rerun the Release workflow.
 - **Tests fail only on the runner**: `DoubleTapHelperTests` and `ConnectionManagerTests` wait on real timers and are the first to fail on a slow runner. Rerun the failed job; if it keeps failing, treat it as a real failure.

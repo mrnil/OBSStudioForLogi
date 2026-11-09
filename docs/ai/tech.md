@@ -126,7 +126,7 @@ The version is defined in two places, and a release updates both (see `release-p
 
 - **GitHub Actions**: `.github/workflows/dependency-check.yml` — dependency vulnerability scanning + build validation, and auto-merge of Dependabot patch bumps
 - **GitHub Actions**: `.github/workflows/build.yml` — on every push to `main` and every PR: Release build, the full test suite and a verified `.lplug4`, uploaded as a run artifact (job `test-and-package`, Windows runner, `-p:PluginDir=` set to a scratch folder so the post-build `.link` file stays out of the Logi plugins folder)
-- **GitHub Actions**: `.github/workflows/release.yml` — on a `v*` tag push: checks the tag, versions, changelog and release notes, builds, tests, packages and creates a draft GitHub release with the notes and package (see `release-process.md`)
+- **GitHub Actions**: `.github/workflows/release.yml` — on a `v*` tag push: job `ci-passed` requires the tagged commit to be on `main` with every check on it passed (waiting for any still running), then checks the tag, versions, changelog and release notes, builds, tests, packages and creates a draft GitHub release with the notes and package (see `release-process.md`)
 - **GitHub Actions**: `.github/workflows/markdown-lint.yml` — `rumdl` on every Markdown file
 - **Tests**: run in CI by `build.yml` and `release.yml`, and locally before committing. `DoubleTapHelperTests` and `ConnectionManagerTests` wait on real timers and are the likeliest to fail on a slow runner
 - **LogiPluginTool in CI**: installed from nuget.org as a dotnet global tool; it targets .NET 8, so the workflows install the .NET 8 SDK alongside .NET 10
