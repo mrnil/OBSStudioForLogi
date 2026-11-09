@@ -8,7 +8,7 @@ Item numbers never change, because `TODO.md`, commit messages and `CHANGELOG.md`
 
 At this pass the build has no warnings and all 801 tests pass in about 6s. Line coverage is 49.0% and branch coverage 36.5% overall; the Services layer is at 83.3% line and 61.1% branch (see `test-coverage.md`).
 
-**Open**: #9, #24, #28, #31, #33–#38, #40–#42. The [Summary Table](#summary-table) gives the order to work on them.
+**Open**: #9, #24, #28, #31, #33–#38, #40, #41. The [Summary Table](#summary-table) gives the order to work on them.
 
 ---
 
@@ -146,16 +146,6 @@ None open.
 
 ---
 
-### 42. Tests Don't Run in CI (Build/DX)
-
-**Problem**: CI (`dependency-check.yml`) restores and builds but doesn't run the tests. They were kept out because fire-and-forget tests raced the thread pool. #15 fixed that race. The only tests that still wait on real timers are those for `DoubleTapHelper`, `ConnectionManager` retries and one real connect attempt, and they use bounded polls. `PluginIconTests` is Windows-only.
-
-**Impact**: A pull request, including a Dependabot bump, can merge with failing tests unless someone runs them locally.
-
-**Fix**: Add a `dotnet test` step on a Windows runner, with `-p:PluginDir=` pointing at a scratch folder so the build doesn't try to link the plugin (see `agents.md`). Watch the first few runs for timing failures, then update `AGENTS.md`, `tech.md` and `test-coverage.md`, which say tests run locally only.
-
----
-
 ## Resolved
 
 | # | Area | Issue | Shipped in |
@@ -189,6 +179,7 @@ None open.
 | 30 | Performance | Source visibility toggle takes two requests instead of four | v2.1.0 |
 | 32 | Code Quality | `OBSActionExecutor` calls go through `RunMutation`/`Query<T>`/`TryQuery<T>` (1,242 → 676 lines) | v2.1.0 |
 | 39 | Build/DX | `.csproj` version bumped to match the package version | v2.1.0 |
+| 42 | Build/DX | Tests run in CI: `build.yml` on every push and PR, and `release.yml` before packaging a release | CI only |
 
 ---
 
@@ -201,7 +192,6 @@ Open items, in the order to work on them.
 | 31 | Medium | Usability | Scene buttons give no feedback in studio mode (preview scene not tracked) |
 | 28 | Medium | Correctness | OBS groups not handled in scene source lists or scene audio membership |
 | 38 | Low | Correctness | IPv6 URL unbracketed; host names and typos silently replaced by localhost |
-| 42 | Low | Build/DX | Tests don't run in CI |
 | 40 | Low | Usability | User-defined actions need exact typed names; listboxes may be possible |
 | 9 | Low | Feature | Recording duration display (parity with stream stats) |
 | 37 | Low | Code Quality | Fixed delays in `SceneSwitchAdjustableCommand`, meter handler left attached on dispose, empty catches, "User defined" casing, redundant `Task.Run` |

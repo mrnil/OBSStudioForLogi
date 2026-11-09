@@ -1,0 +1,48 @@
+name: Build and Test
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  # Job id is the status check name branch protection requires. Keep it distinct
+  # from dependency-check.yml's "build" job so the two checks can't be confused.
+  test-and-package:
+    name: test-and-package
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # .NET 10 builds the plugin; LogiPluginTool is a .NET 8 tool
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      # Building the test project builds the plugin too, into bin/Release with the
+      # package layout (bin/, metadata/, actionsymbols/). PluginDir points the
+      # post-build .link file at a scratch folder instead of the Logi plugins folder.
+      - name: Build and test (Release)
+        run: |
+          New-Item -ItemType Directory -Force "${{ runner.temp }}/pluginlink" | Out-Null
+          dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj -c Release -p:PluginDir=${{ runner.temp }}/pluginlink/
+
+      - name: Package and verify
+        run: |
+          dotnet tool install -g LogiPluginTool
+          logiplugintool pack bin\Release OBSStudioForLogiPlugin.lplug4
+          logiplugintool verify OBSStudioForLogiPlugin.lplug4
+
+      - name: Upload package
+        uses: actions/upload-artifact@v7
+        with:
+          name: OBSStudioForLogiPlugin-${{ github.sha }}
+          path: OBSStudioForLogiPlugin.lplug4
+          retention-days: 14

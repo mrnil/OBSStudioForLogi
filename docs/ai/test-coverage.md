@@ -139,7 +139,7 @@ All `Actions/` classes inherit from SDK base classes (`PluginDynamicCommand`, `P
 
 ## Running Tests
 
-Tests run locally only; CI doesn't run them yet (#42). An agent working in another worktree adds `-p:PluginDir=<scratch-dir>/pluginlink/` so the build doesn't take over the device (see `agents.md`).
+Tests run locally and in CI: `build.yml` runs them on every push to `main` and every pull request, and `release.yml` runs them before packaging a release. An agent working in another worktree adds `-p:PluginDir=<scratch-dir>/pluginlink/` so the build doesn't take over the device (see `agents.md`).
 
 ```bash
 # Run all tests

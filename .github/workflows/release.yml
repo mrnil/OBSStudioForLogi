@@ -1,0 +1,75 @@
+name: Release
+permissions:
+  contents: read
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions:
+      contents: write   # create the GitHub release and upload the package
+    env:
+      TAG: ${{ github.ref_name }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # checkout can leave the tag as a lightweight ref; fetch the annotated tag
+      # object so its message (the release title) can be read
+      - name: Fetch annotated tag
+        run: git fetch --force origin "refs/tags/${env:TAG}:refs/tags/${env:TAG}"
+
+      # Fail before building if anything docs/ai/release-process.md asks for is missing
+      - name: Check tag, versions, changelog and release notes
+        run: |
+          $v = $env:TAG.Substring(1)
+
+          if ((git cat-file -t $env:TAG) -ne 'tag') { throw "$env:TAG is a lightweight tag; create it with git tag -a" }
+          $subject = git tag -l --format='%(contents:subject)' $env:TAG
+          if ($subject -notmatch "^Release\s+($([regex]::Escape($env:TAG))\s+-\s+.+)$") {
+            throw "Tag message '$subject' should be 'Release $env:TAG - {TITLE}'"
+          }
+          $title = $Matches[1]
+
+          $csproj = (Select-String -Path src/OBSStudioForLogiPlugin.csproj -Pattern '<Version>(.+)</Version>').Matches[0].Groups[1].Value
+          $yaml = (Select-String -Path src/package/metadata/LoupedeckPackage.yaml -Pattern '^version:\s*(\S+)').Matches[0].Groups[1].Value.Trim('"', "'")
+          if ($csproj -ne $v -or $yaml -ne $v) { throw "Tag $v doesn't match the csproj ($csproj) and LoupedeckPackage.yaml ($yaml)" }
+
+          if (-not (Select-String -Path CHANGELOG.md -SimpleMatch "## [$v]" -Quiet)) { throw "CHANGELOG.md has no ## [$v] entry" }
+          if (-not (Test-Path "RELEASE_NOTES_v$v.md")) { throw "RELEASE_NOTES_v$v.md is missing" }
+
+          "VERSION=$v" >> $env:GITHUB_ENV
+          "TITLE=$title" >> $env:GITHUB_ENV
+
+      # .NET 10 builds the plugin; LogiPluginTool is a .NET 8 tool
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Build and test (Release)
+        run: |
+          New-Item -ItemType Directory -Force "${{ runner.temp }}/pluginlink" | Out-Null
+          dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj -c Release -p:PluginDir=${{ runner.temp }}/pluginlink/
+
+      - name: Package, verify and show metadata
+        run: |
+          dotnet tool install -g LogiPluginTool
+          logiplugintool pack bin\Release "OBSStudioForLogiPlugin-v$env:VERSION.lplug4"
+          logiplugintool verify "OBSStudioForLogiPlugin-v$env:VERSION.lplug4"
+          logiplugintool metadata "OBSStudioForLogiPlugin-v$env:VERSION.lplug4"
+
+      # A draft, so a person checks the notes, metadata and pre-release flag before publishing
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create $env:TAG "OBSStudioForLogiPlugin-v$env:VERSION.lplug4" `
+            --verify-tag --draft `
+            --title $env:TITLE `
+            --notes-file "RELEASE_NOTES_v$env:VERSION.md"

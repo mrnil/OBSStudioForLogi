@@ -96,6 +96,8 @@ dotnet clean OBSStudioForLogiPlugin.sln
 
 ## Packaging and Release
 
+Releases are built and packaged by `.github/workflows/release.yml` when a `v*` tag is pushed (see `release-process.md`). Packaging locally is only needed to try a package before tagging:
+
 ```bash
 # Create .lplug4 package (use dotnet global tool)
 LogiPluginTool pack "b:\development\OBSStudioForLogiPlugin\bin\Release" "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
@@ -122,9 +124,12 @@ The version is defined in two places, and a release updates both (see `release-p
 
 ## CI/CD
 
-- **GitHub Actions**: `.github/workflows/dependency-check.yml` — dependency vulnerability scanning + build validation
+- **GitHub Actions**: `.github/workflows/dependency-check.yml` — dependency vulnerability scanning + build validation, and auto-merge of Dependabot patch bumps
+- **GitHub Actions**: `.github/workflows/build.yml` — on every push to `main` and every PR: Release build, the full test suite and a verified `.lplug4`, uploaded as a run artifact (job `test-and-package`, Windows runner, `-p:PluginDir=` set to a scratch folder so the post-build `.link` file stays out of the Logi plugins folder)
+- **GitHub Actions**: `.github/workflows/release.yml` — on a `v*` tag push: checks the tag, versions, changelog and release notes, builds, tests, packages and creates a draft GitHub release with the notes and package (see `release-process.md`)
 - **GitHub Actions**: `.github/workflows/markdown-lint.yml` — `rumdl` on every Markdown file
-- **Tests**: run locally only. They were kept out of CI because fire-and-forget tests raced the thread pool. That race is fixed (#15), but CI hasn't been switched on yet (#42)
+- **Tests**: run in CI by `build.yml` and `release.yml`, and locally before committing. `DoubleTapHelperTests` and `ConnectionManagerTests` wait on real timers and are the likeliest to fail on a slow runner
+- **LogiPluginTool in CI**: installed from nuget.org as a dotnet global tool; it targets .NET 8, so the workflows install the .NET 8 SDK alongside .NET 10
 - **Dependabot**: `.github/dependabot.yml` — automated dependency update PRs
 
 ## OBS WebSocket Protocol

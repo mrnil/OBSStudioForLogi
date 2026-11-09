@@ -30,7 +30,7 @@ If nothing is open, also look at PRs closed in the last 14 days (`gh pr list --s
 
 **Everyone, including bots:**
 
-- CI: the `Dependency Check & Build` workflow (`.github/workflows/dependency-check.yml`) only restores and builds. It does **not** run tests (see `AGENTS.md`), so a green check does not mean the tests pass.
+- CI: the `Build and Test` workflow (`.github/workflows/build.yml`, check `test-and-package`) runs the full test suite and packages the plugin. The `Dependency Check & Build` workflow (`.github/workflows/dependency-check.yml`, check `build`) only restores and builds, so a green `build` alone does not mean the tests pass: look for `test-and-package`.
 - Mergeability: conflicts with `main`, out of date with `main`, draft state.
 - Age: open more than 7 days with no activity.
 

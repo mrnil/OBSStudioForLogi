@@ -1,10 +1,10 @@
 # Release Process
 
-How to build, package and publish a release. Paths assume the repo is at `b:\development\OBSStudioForLogiPlugin`.
+How to prepare, build and publish a release. Pushing a version tag runs `.github/workflows/release.yml`, which builds, tests and packages the plugin on GitHub and creates a **draft** release with the release notes and the `.lplug4` attached. Nothing needs building or packaging locally.
 
 ## Prerequisites
 
-- All changes committed, and all tests passing (`dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj`)
+- All changes are on `main`, and the latest **Build and Test** run on `main` passed
 - Any device checks the release depends on are done (see "Device Checks Outstanding" in `TODO.md`)
 - `README.md`, `USER_MANUAL.md` and `docs/ai/` describe the new behaviour
 
@@ -17,78 +17,98 @@ Update the version in **both** places (SemVer: major for breaking changes, minor
 - `src/package/metadata/LoupedeckPackage.yaml`: `version:`
 - `src/OBSStudioForLogiPlugin.csproj`: `<Version>`, `<AssemblyVersion>` and `<FileVersion>`
 
+The release workflow stops if either doesn't match the tag.
+
 ### 2. Update CHANGELOG.md
 
-Turn the `## [Unreleased]` section into `## [{VERSION}] - {DATE}`, and start a new, empty `## [Unreleased]` above it. Use [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) sections (`### Added`, `### Changed`, `### Fixed`, `### Removed`, `### Security`). Every release needs a changelog entry: release notes don't replace it.
+Turn the `## [Unreleased]` section into `## [{VERSION}] - {DATE}`, and start a new, empty `## [Unreleased]` above it. Use [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) sections (`### Added`, `### Changed`, `### Fixed`, `### Removed`, `### Security`). Every release needs a changelog entry: release notes don't replace it. The release workflow stops if there is no `## [{VERSION}]` heading.
 
 ### 3. Write Release Notes
 
 Create `RELEASE_NOTES_v{VERSION}.md` in the repo root, written for users: what's new, what's fixed, anything they need to do (for example re-entering a setting), and the requirements. `RELEASE_NOTES_v2.0.1.md` is a good model.
 
-### 4. Commit and Tag
+This file becomes the body of the GitHub release, so write it as the release page should read. The release workflow stops if it is missing.
+
+### 4. Commit and Push
 
 ```bash
 git add src/package/metadata/LoupedeckPackage.yaml src/OBSStudioForLogiPlugin.csproj CHANGELOG.md RELEASE_NOTES_v{VERSION}.md
 git commit -m "docs: add release notes and changelog entry for v{VERSION}"
-git tag -a v{VERSION} -m "Release v{VERSION} - {TITLE}"
+git push origin main
 ```
 
-### 5. Build Release
+Wait for the **Build and Test** and **Markdown Lint** runs on that commit to pass before tagging.
+
+### 5. Tag and Push the Tag
+
+```bash
+git tag -a v{VERSION} -m "Release v{VERSION} - {TITLE}"
+git push origin v{VERSION}
+```
+
+The tag must be annotated (`-a`), and its message must be `Release v{VERSION} - {TITLE}`: the workflow takes the release title, `v{VERSION} - {TITLE}`, from it.
+
+Pushing the tag starts the **Release** workflow. It:
+
+1. Checks the tag message, the two version numbers, the changelog entry and the release notes file
+2. Builds in Release and runs the tests
+3. Packs `OBSStudioForLogiPlugin-v{VERSION}.lplug4`, verifies it and prints its metadata
+4. Creates a draft GitHub release for the tag, with `RELEASE_NOTES_v{VERSION}.md` as the body and the package attached
+
+### 6. Review and Publish the Draft
+
+1. Open the Release run under **Actions** and read the `Package, verify and show metadata` step: check the version, display name and supported platforms, and that the package has `actionsymbols/` with one SVG per action class
+2. Open **Releases**, then the draft, and read the notes as they render
+3. Optionally download the `.lplug4` and run `LogiPluginTool install <package>` for a last check on a device
+4. Tick **Set as a pre-release** if applicable, then **Publish release**
+
+## Fixing a Failed or Wrong Release
+
+The release is created only after every check, the tests and the package verification pass, so a failed run leaves nothing to clean up on the Releases page. Fix the problem, then move the tag to the new commit:
+
+```bash
+git push origin :refs/tags/v{VERSION}   # delete the remote tag
+git tag -d v{VERSION}
+# commit and push the fix to main, then repeat step 5
+```
+
+If the run succeeded but the draft is wrong, delete the draft on the Releases page (or with `gh release delete v{VERSION}`) before moving the tag, as `gh release create` fails when a release for the tag already exists. Small wording changes can instead be made by editing the draft, but then also commit them to `RELEASE_NOTES_v{VERSION}.md` so the repo matches.
+
+Don't move a tag after its release is published: release a new patch version instead.
+
+## Checklist
+
+- [ ] Latest Build and Test run on `main` passed, and outstanding device checks are done
+- [ ] Version updated in `LoupedeckPackage.yaml` **and** the `.csproj`
+- [ ] `CHANGELOG.md` entry, with a new empty `[Unreleased]` section
+- [ ] `RELEASE_NOTES_v{VERSION}.md`
+- [ ] `README.md`, `USER_MANUAL.md`, `TODO.md` and `docs/ai/` up to date
+- [ ] Committed and pushed, CI passed
+- [ ] Annotated tag `v{VERSION}` pushed with message `Release v{VERSION} - {TITLE}`
+- [ ] Release workflow passed and the draft's notes, metadata and package checked
+- [ ] Draft published
+
+## Building a Package Locally
+
+Only needed to try a package before tagging, or if GitHub Actions is unavailable. Every push to `main` and every pull request also uploads an untagged package as an artifact of the **Build and Test** run.
 
 ```bash
 dotnet build src/OBSStudioForLogiPlugin.csproj -c Release
-```
-
-This builds into `bin/Release/`, copies `src/package/` into it, writes the plugin `.link` file and reloads the plugin.
-
-The build copies package files but never deletes them, so a file removed from `src/package/` stays in `bin/Release/` until you delete it there. Check `bin/Release/metadata/` holds only `Icon256x256.png` and `LoupedeckPackage.yaml`.
-
-### 6. Package, Verify and Check Metadata
-
-```bash
 LogiPluginTool pack "b:\development\OBSStudioForLogiPlugin\bin\Release" "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
 LogiPluginTool verify "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
 LogiPluginTool metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
 ```
 
+The local build writes the plugin `.link` file and reloads the plugin. It copies package files but never deletes them, so a file removed from `src/package/` stays in `bin/Release/` until you delete it there: check `bin/Release/metadata/` holds only `Icon256x256.png` and `LoupedeckPackage.yaml`. The release workflow always builds from a clean checkout, so this doesn't affect it.
+
 Use the dotnet global tool (`C:\Users\steph\.dotnet\tools\logiplugintool.exe`), or the SDK tools copy at `B:\development\LogitechBeta\LogiPluginSdkTools\LogiPluginTool.exe`. Don't use `C:\Program Files\Logi\LogiPluginService\LogiPluginTool.exe`: it is missing a companion DLL.
-
-In the metadata output, check:
-
-- The version, display name and supported platforms
-- The package root has `actionsymbols/` with one SVG per action class (`ActionSymbolTests` checks the source folder)
-
-`LogiPluginTool install <package>` installs the package locally, which is a useful last check before publishing.
-
-### 7. Push
-
-```bash
-git push origin main
-git push origin v{VERSION}
-```
-
-### 8. Create the GitHub Release
-
-1. On GitHub, open **Releases** → **Draft a new release**
-2. Select the tag `v{VERSION}` and set the title to `v{VERSION} - {TITLE}`
-3. Paste the content of `RELEASE_NOTES_v{VERSION}.md`
-4. Attach the `.lplug4` file
-5. Mark it as a pre-release if applicable, then publish
-
-## Checklist
-
-- [ ] Tests pass and outstanding device checks are done
-- [ ] Version updated in `LoupedeckPackage.yaml` **and** the `.csproj`
-- [ ] `CHANGELOG.md` entry, with a new empty `[Unreleased]` section
-- [ ] `RELEASE_NOTES_v{VERSION}.md`
-- [ ] `README.md`, `USER_MANUAL.md`, `TODO.md` and `docs/ai/` up to date
-- [ ] Commit and tag
-- [ ] Release build, package created, verified and metadata checked
-- [ ] Commits and tag pushed
-- [ ] GitHub release published with the `.lplug4` attached
 
 ## Troubleshooting
 
+- **"is a lightweight tag" or "Tag message ... should be"**: recreate the tag with `git tag -a v{VERSION} -m "Release v{VERSION} - {TITLE}"` (see [Fixing a Failed or Wrong Release](#fixing-a-failed-or-wrong-release)).
+- **"Tag ... doesn't match the csproj"**: one of the two version numbers in step 1 wasn't updated.
+- **"CHANGELOG.md has no entry" or "RELEASE_NOTES ... is missing"**: the file wasn't committed, or its heading or name doesn't use the tag's version.
+- **"a release with the same tag name already exists"**: delete the old draft, then rerun the workflow from the Actions page.
 - **Pack fails**: make sure the Release build succeeded and `bin/Release/` has `bin/` and `metadata/`.
-- **Verify fails**: check that `metadata/LoupedeckPackage.yaml` and `metadata/Icon256x256.png` are present, and that no stale files are left in `bin/Release/`.
-- **Wrong version in the package**: update the YAML, rebuild Release, and pack again.
+- **Verify fails**: check that `metadata/LoupedeckPackage.yaml` and `metadata/Icon256x256.png` are present, and, locally, that no stale files are left in `bin/Release/`.
+- **Tests fail only on the runner**: `DoubleTapHelperTests` and `ConnectionManagerTests` wait on real timers and are the first to fail on a slow runner. Rerun the failed job; if it keeps failing, treat it as a real failure.

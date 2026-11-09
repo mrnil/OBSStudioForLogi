@@ -23,7 +23,7 @@ OBSStudioForLogiPlugin/
 ├── docs/ai/                      # AI coding rules and architecture docs (Claude Code, etc.)
 ├── docs/device-checks/           # Step-by-step device check scripts
 ├── .claude/agents/               # Claude Code subagents (see docs/ai/agents.md)
-├── .github/workflows/            # CI: dependency-check.yml, markdown-lint.yml
+├── .github/workflows/            # CI: build.yml, release.yml, dependency-check.yml, markdown-lint.yml
 ├── bin/                          # Build output (Debug/Release)
 ├── ci/                           # CI-only PluginApi.dll stub
 ├── tools/icons/                  # Icon generator, csproj sync and reference sheet (Python)

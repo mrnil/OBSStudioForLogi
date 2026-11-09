@@ -1,6 +1,7 @@
 # Logitech/Loupedeck Plugin for interacting with OBS Studio
 
 [![Dependency Check](https://github.com/mrnil/OBSStudioForLogi/actions/workflows/dependency-check.yml/badge.svg)](https://github.com/mrnil/OBSStudioForLogi/actions/workflows/dependency-check.yml)
+[![Build and Test](https://github.com/mrnil/OBSStudioForLogi/actions/workflows/build.yml/badge.svg)](https://github.com/mrnil/OBSStudioForLogi/actions/workflows/build.yml)
 [![Markdown Lint](https://github.com/mrnil/OBSStudioForLogi/actions/workflows/markdown-lint.yml/badge.svg)](https://github.com/mrnil/OBSStudioForLogi/actions/workflows/markdown-lint.yml)
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![OBS Studio](https://img.shields.io/badge/OBS%20Studio-28.0%2B-302E31?logo=obsstudio)](https://obsproject.com/)
@@ -205,7 +206,7 @@ dotnet build src/OBSStudioForLogiPlugin.csproj
 dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj
 ```
 
-**Note:** Tests are run locally only. The GitHub Actions workflows check dependencies, validate the build and lint the Markdown, but don't run the tests yet.
+**Note:** The GitHub Actions workflows run the tests and build a package on every push to `main` and every pull request. They also check dependencies and lint the Markdown.
 
 ### Clean
 

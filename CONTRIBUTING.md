@@ -110,7 +110,7 @@ dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.cspr
 dotnet test tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj --filter "FullyQualifiedName~OBSActionExecutorTests"
 ```
 
-**Important:** All tests must pass locally before committing. The GitHub Actions workflows check dependencies, validate the build and lint the Markdown, but don't run the tests yet.
+**Important:** All tests must pass locally before committing. The **Build and Test** workflow also runs them on every pull request and push to `main`, and a pull request shouldn't merge until it passes.
 
 ### Writing Tests
 

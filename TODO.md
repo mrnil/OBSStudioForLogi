@@ -26,7 +26,6 @@ Open work only. Finished work is in `CHANGELOG.md` and the git history, and fixe
 ### Assessment Items
 
 - [ ] Remote host input (#38): bracket IPv6 in the WebSocket URL; accept host names or reject bad input visibly instead of falling back to localhost
-- [ ] Run tests in CI (#42) on a Windows runner with `-p:PluginDir=` set to a scratch folder
 - [ ] User-defined actions (#40): check whether `ListboxItemsRequested` can offer scene, source and input names, and use listboxes if so
 - [ ] Recording duration display (#9): `GetRecordStatus` timecode and bytes, alongside the stream stats
 - [ ] Small robustness items (#37): event-driven waits in `SceneSwitchAdjustableCommand`, detach the `InputVolumeMeters` handler in `Dispose`, log or remove the empty catches in `AudioStatusDisplayCommand`, one spelling of "(User defined)", drop the redundant `Task.Run` wrappers in the adjustable commands

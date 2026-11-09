@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- CI runs the full test suite and builds a verified `.lplug4` on every push to `main` and every pull request (`build.yml`). Before, CI only built the plugin, so a pull request could merge with failing tests (#42)
+- Releases are built on GitHub: pushing a `v*` tag checks the version numbers, changelog entry and release notes, runs the tests, packages the plugin and creates a draft release with the notes and package attached (`release.yml`)
+
 ## [2.1.0] - 2026-10-18
 
 ### Added
