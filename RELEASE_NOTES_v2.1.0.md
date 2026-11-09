@@ -1,4 +1,4 @@
-# Release Notes — v2.1.0
+# v2.1.0 - Faster taps and clearer buttons
 
 Faster taps, clearer buttons, and a plugin that copes with OBS settings changes on its own.
 
@@ -49,7 +49,7 @@ Nothing to do. Your buttons and settings carry over, and the double-tap wait sta
 ## For Contributors
 
 - **Tests run in CI.** Every push to `main` and every pull request now builds the plugin in Release, runs the full test suite and uploads a verified `.lplug4` as a run artifact (`build.yml`). Before, CI only checked that the plugin compiled.
-- **Releases are built on GitHub.** Pushing a `vX.Y.Z` tag checks that every CI check on that commit passed, that the version numbers, changelog entry and release notes are in place, then builds, tests, packages and creates a draft release with the notes and package attached (`release.yml`). This is the first release made that way; see `docs/ai/release-process.md`.
+- **Releases are built on GitHub.** Pushing a `vX.Y.Z` tag checks that every CI check on that commit passed, that the version numbers, changelog entry and release notes are in place, then builds, tests, packages and publishes the release with these notes and the package attached (`release.yml`). This is the first release made that way; see `docs/ai/release-process.md`.
 - **Internal:** OBS state changes now reach the plugin's services through one `IOBSEventListener` interface, and every OBS call in `OBSActionExecutor` goes through shared `RunMutation`/`Query` helpers (1,242 → 676 lines). No change in behaviour.
 - Repo-specific Claude Code subagents added under `.claude/agents/` (documented in `docs/ai/agents.md`).
 

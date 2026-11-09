@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Action symbols for every action, so the Options+ action picker shows a matching glyph next to each action's name instead of a generic one
 - CI runs the full test suite and builds a verified `.lplug4` on every push to `main` and every pull request (`build.yml`). Before, CI only built the plugin, so a pull request could merge with failing tests (#42)
-- Releases are built on GitHub: pushing a `v*` tag checks that every CI check on the tagged commit passed and that the version numbers, changelog entry and release notes are in place, then runs the tests, packages the plugin and creates a draft release with the notes and package attached (`release.yml`)
+- Releases are built on GitHub: pushing a `v*` tag checks that every CI check on the tagged commit passed and that the version numbers, changelog entry and release notes are in place, then runs the tests, packages the plugin and publishes the release, titled from the release notes, with the notes and package attached (`release.yml`)
 - Repo-specific Claude Code subagents in `.claude/agents/`, documented in `docs/ai/agents.md`
 
 ### Changed

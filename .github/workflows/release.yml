@@ -88,29 +88,30 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # checkout can leave the tag as a lightweight ref; fetch the annotated tag
-      # object so its message (the release title) can be read
-      - name: Fetch annotated tag
-        run: git fetch --force origin "refs/tags/${env:TAG}:refs/tags/${env:TAG}"
-
       # Fail before building if anything docs/ai/release-process.md asks for is missing
-      - name: Check tag, versions, changelog and release notes
+      - name: Check versions, changelog and release notes
         run: |
           $v = $env:TAG.Substring(1)
-
-          if ((git cat-file -t $env:TAG) -ne 'tag') { throw "$env:TAG is a lightweight tag; create it with git tag -a" }
-          $subject = git tag -l --format='%(contents:subject)' $env:TAG
-          if ($subject -notmatch "^Release\s+($([regex]::Escape($env:TAG))\s+-\s+.+)$") {
-            throw "Tag message '$subject' should be 'Release $env:TAG - {TITLE}'"
-          }
-          $title = $Matches[1]
 
           $csproj = (Select-String -Path src/OBSStudioForLogiPlugin.csproj -Pattern '<Version>(.+)</Version>').Matches[0].Groups[1].Value
           $yaml = (Select-String -Path src/package/metadata/LoupedeckPackage.yaml -Pattern '^version:\s*(\S+)').Matches[0].Groups[1].Value.Trim('"', "'")
           if ($csproj -ne $v -or $yaml -ne $v) { throw "Tag $v doesn't match the csproj ($csproj) and LoupedeckPackage.yaml ($yaml)" }
 
           if (-not (Select-String -Path CHANGELOG.md -SimpleMatch "## [$v]" -Quiet)) { throw "CHANGELOG.md has no ## [$v] entry" }
-          if (-not (Test-Path "RELEASE_NOTES_v$v.md")) { throw "RELEASE_NOTES_v$v.md is missing" }
+          $notes = "RELEASE_NOTES_v$v.md"
+          if (-not (Test-Path $notes)) { throw "$notes is missing" }
+
+          # The notes' first line is the release title: "# vX.Y.Z - Title"
+          $lines = @(Get-Content $notes -Encoding utf8)
+          if ($lines[0] -notmatch "^#\s+($([regex]::Escape($env:TAG))\s+-\s+(.+?))\s*$") {
+            throw "The first line of $notes should be '# $env:TAG - Title', not '$($lines[0])'"
+          }
+          $title = $Matches[1]
+          if ($Matches[2] -match '[{}]') { throw "The title in $notes still has a placeholder: '$title'" }
+
+          # Release body is the notes without that heading (GitHub shows the title above the body)
+          $body = $lines | Select-Object -Skip 1 | Out-String
+          Set-Content -Path "${{ runner.temp }}/release-body.md" -Value $body.TrimStart() -Encoding utf8
 
           "VERSION=$v" >> $env:GITHUB_ENV
           "TITLE=$title" >> $env:GITHUB_ENV
@@ -135,12 +136,14 @@ jobs:
           logiplugintool verify "OBSStudioForLogiPlugin-v$env:VERSION.lplug4"
           logiplugintool metadata "OBSStudioForLogiPlugin-v$env:VERSION.lplug4"
 
-      # A draft, so a person checks the notes, metadata and pre-release flag before publishing
-      - name: Create draft release
+      # Published straight away: the ci-passed gate and the checks above have already run.
+      # A version with a suffix (v2.2.0-beta.1) is a pre-release and doesn't become Latest.
+      - name: Publish release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          $flags = if ($env:VERSION.Contains('-')) { @('--prerelease', '--latest=false') } else { @('--latest') }
           gh release create $env:TAG "OBSStudioForLogiPlugin-v$env:VERSION.lplug4" `
-            --verify-tag --draft `
+            --verify-tag @flags `
             --title $env:TITLE `
-            --notes-file "RELEASE_NOTES_v$env:VERSION.md"
+            --notes-file "${{ runner.temp }}/release-body.md"
