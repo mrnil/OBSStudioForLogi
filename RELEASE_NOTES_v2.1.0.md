@@ -41,9 +41,21 @@ Every action now has its own symbol in the Logi Options+ action picker, instead 
 
 Nothing to do. Your buttons and settings carry over, and the double-tap wait starts at the new 300ms default. To keep the old 500ms behaviour, choose 500ms under Double-Tap Window in Plugin Settings and press the button to save.
 
+## Dependencies
+
+- `Microsoft.Extensions.Logging.Abstractions` and `System.Drawing.Common` updated from 10.0.12 to 10.0.14
+- Test projects: `Microsoft.NET.Test.Sdk` 18.10.1 → 18.11.0, `xunit.runner.visualstudio` 4.0.0 → 4.0.1
+
+## For Contributors
+
+- **Tests run in CI.** Every push to `main` and every pull request now builds the plugin in Release, runs the full test suite and uploads a verified `.lplug4` as a run artifact (`build.yml`). Before, CI only checked that the plugin compiled.
+- **Releases are built on GitHub.** Pushing a `vX.Y.Z` tag checks that every CI check on that commit passed, that the version numbers, changelog entry and release notes are in place, then builds, tests, packages and creates a draft release with the notes and package attached (`release.yml`). This is the first release made that way; see `docs/ai/release-process.md`.
+- **Internal:** OBS state changes now reach the plugin's services through one `IOBSEventListener` interface, and every OBS call in `OBSActionExecutor` goes through shared `RunMutation`/`Query` helpers (1,242 → 676 lines). No change in behaviour.
+- Repo-specific Claude Code subagents added under `.claude/agents/` (documented in `docs/ai/agents.md`).
+
 ## Testing
 
-- 823 unit tests, all passing
+- 823 unit tests, all passing locally and in CI
 
 ## Requirements
 

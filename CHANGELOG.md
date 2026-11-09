@@ -7,16 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-- CI runs the full test suite and builds a verified `.lplug4` on every push to `main` and every pull request (`build.yml`). Before, CI only built the plugin, so a pull request could merge with failing tests (#42)
-- Releases are built on GitHub: pushing a `v*` tag checks the version numbers, changelog entry and release notes, runs the tests, packages the plugin and creates a draft release with the notes and package attached (`release.yml`)
-
-## [2.1.0] - 2026-10-18
+## [2.1.0] - 2026-11-09
 
 ### Added
 
 - Action symbols for every action, so the Options+ action picker shows a matching glyph next to each action's name instead of a generic one
+- CI runs the full test suite and builds a verified `.lplug4` on every push to `main` and every pull request (`build.yml`). Before, CI only built the plugin, so a pull request could merge with failing tests (#42)
+- Releases are built on GitHub: pushing a `v*` tag checks that every CI check on the tagged commit passed and that the version numbers, changelog entry and release notes are in place, then runs the tests, packages the plugin and creates a draft release with the notes and package attached (`release.yml`)
+- Repo-specific Claude Code subagents in `.claude/agents/`, documented in `docs/ai/agents.md`
 
 ### Changed
 
@@ -24,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Toggle Recording button is now a status key: its record dot is red while recording, and its stop square green while not
 - Start and Stop buttons for streaming, recording and the virtual camera are greyed out when they can't do anything (Start while running, Stop while stopped, either while OBS is starting or stopping the output, or while disconnected), and ignore presses while greyed. Recording Pause is greyed out while nothing is recording
 - Toggling a source's visibility now takes two requests to OBS instead of four, so it responds faster, especially with a remote OBS. A toggle for a source that isn't in the scene now logs a warning
+- Internal: OBS state changes reach the services through one `IOBSEventListener` interface (#20), and every OBS call in `OBSActionExecutor` goes through shared `RunMutation`/`Query<T>`/`TryQuery<T>` helpers, 1,242 → 676 lines (#32). No change in behaviour
+- Dependencies: `Microsoft.Extensions.Logging.Abstractions` and `System.Drawing.Common` 10.0.12 → 10.0.14; `Microsoft.NET.Test.Sdk` 18.10.1 → 18.11.0 and `xunit.runner.visualstudio` 4.0.0 → 4.0.1 in the test project
 
 ### Fixed
 
