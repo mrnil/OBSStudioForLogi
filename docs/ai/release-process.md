@@ -61,14 +61,15 @@ Pushing the tag starts the **Release** workflow. It:
 1. Checks that the tagged commit is on `main` and that every check on it passed (job `ci-passed`). It needs `test-and-package`, `build` and `Analyze (csharp)` to be present, waits up to 30 minutes for checks still running, and stops if any check failed or was cancelled. Nothing below runs unless this passes
 2. Checks the two version numbers, the changelog entry, and the release notes file and its title line
 3. Builds in Release and runs the tests
-4. Packs `OBSStudioForLogiPlugin-v{VERSION}.lplug4`, verifies it and prints its metadata
-5. Publishes the GitHub release for the tag, titled from the notes' first line, with the rest of the notes as the body and the package attached. It is marked **Latest**; a version with a suffix, such as `v2.2.0-beta.1`, is published as a pre-release instead and doesn't become Latest
+4. Packs `OBSStudioForLogiPlugin-v{VERSION}.lplug4` with LogiPluginTool 6.4.2.3599, verifies it and prints its metadata
+5. Checks the package contents: the packaged `LoupedeckPackage.yaml` has the tag's version, and `actionsymbols/` holds exactly the SVGs in `src/package/actionsymbols/`
+6. Publishes the GitHub release for the tag, titled from the notes' first line, with the rest of the notes as the body and the package attached. It is marked **Latest**; a version with a suffix, such as `v2.2.0-beta.1`, is published as a pre-release instead and doesn't become Latest
 
 ### 6. Check the Published Release
 
-1. Open the Release run under **Actions** and read the `Package, verify and show metadata` step: check the version, display name and supported platforms, and that the package has `actionsymbols/` with one SVG per action class
+1. Open the Release run under **Actions** and read the `Package, verify and show metadata` step: check the display name and supported devices. The workflow checks the version and action symbols itself (`Check package contents`)
 2. Open **Releases** and read the notes as they render
-3. Optionally download the `.lplug4` and run `LogiPluginTool install <package>` for a last check on a device
+3. Optionally download the `.lplug4` and install it through Logi Options+ or the Loupedeck software for a last check on a device. `LogiPluginTool install` can fail here (see [Troubleshooting](#troubleshooting))
 
 ## Fixing a Failed or Wrong Release
 
@@ -106,7 +107,7 @@ LogiPluginTool metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiP
 
 The local build writes the plugin `.link` file and reloads the plugin. It copies package files but never deletes them, so a file removed from `src/package/` stays in `bin/Release/` until you delete it there: check `bin/Release/metadata/` holds only `Icon256x256.png` and `LoupedeckPackage.yaml`. The release workflow always builds from a clean checkout, so this doesn't affect it.
 
-Use the dotnet global tool (`C:\Users\steph\.dotnet\tools\logiplugintool.exe`), or the SDK tools copy at `B:\development\LogitechBeta\LogiPluginSdkTools\LogiPluginTool.exe`. Don't use `C:\Program Files\Logi\LogiPluginService\LogiPluginTool.exe`: it is missing a companion DLL.
+Use the dotnet global tool (`C:\Users\steph\.dotnet\tools\logiplugintool.exe`) at the version CI pins: `dotnet tool update -g LogiPluginTool --version 6.4.2.3599`. Don't use `C:\Program Files\Logi\LogiPluginService\LogiPluginTool.exe`: it is missing a companion DLL.
 
 ## Troubleshooting
 
@@ -115,6 +116,8 @@ Use the dotnet global tool (`C:\Users\steph\.dotnet\tools\logiplugintool.exe`), 
 - **"CHANGELOG.md has no entry" or "RELEASE_NOTES ... is missing"**: the file wasn't committed, or its heading or name doesn't use the tag's version.
 - **"a release with the same tag name already exists"**: a release for this tag was already made. Edit it rather than rerunning, or delete it first if it was never meant to be published.
 - **Pack fails**: make sure the Release build succeeded and `bin/Release/` has `bin/` and `metadata/`.
+- **"Action symbols differ" or "The package says version"**: `Check package contents` found that the package doesn't match the source. A symbol missing from the package usually isn't being copied by the csproj; an extra one is in the package but not in `src/package/actionsymbols/`.
+- **`LogiPluginTool install` fails with "Plugin installation cannot start"**: a plugin with the same name is already loaded, usually the development build through `OBSStudioForLogiPlugin.link` or `OBSStudioForLogiPlugin.link.local` in `%LOCALAPPDATA%\Logi\LogiPluginService\Plugins\`. Install the package through Logi Options+ or the Loupedeck software instead.
 - **Verify fails**: check that `metadata/LoupedeckPackage.yaml` and `metadata/Icon256x256.png` are present, and, locally, that no stale files are left in `bin/Release/`.
 - **"isn't on main"**: the tag points at a commit that was never pushed to `main`. Push it, wait for CI, then move the tag.
 - **"No test-and-package check"** (or `build`, `Analyze (csharp)`): CI never ran on the tagged commit, usually because it wasn't the last commit of a push. Move the tag to the last commit pushed. If a workflow or job was renamed, update `REQUIRED` in `release.yml`.

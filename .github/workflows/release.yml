@@ -137,6 +137,35 @@ jobs:
           logiplugintool verify "OBSStudioForLogiPlugin-v$env:VERSION.lplug4"
           logiplugintool metadata "OBSStudioForLogiPlugin-v$env:VERSION.lplug4"
 
+      # The checks release-process.md step 6 used to leave to a person reading the log
+      - name: Check package contents
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = [System.IO.Compression.ZipFile]::OpenRead("$PWD/OBSStudioForLogiPlugin-v$env:VERSION.lplug4")
+          try {
+            $names = @($zip.Entries | ForEach-Object { $_.FullName.Replace('\', '/') })
+
+            $entry = $zip.Entries | Where-Object { $_.FullName.Replace('\', '/') -eq 'metadata/LoupedeckPackage.yaml' }
+            if (-not $entry) { throw "The package has no metadata/LoupedeckPackage.yaml" }
+            $reader = [System.IO.StreamReader]::new($entry.Open())
+            try { $yaml = $reader.ReadToEnd() } finally { $reader.Dispose() }
+            if ($yaml -notmatch '(?m)^version:\s*["'']?([^"''\s]+)') { throw "The packaged LoupedeckPackage.yaml has no version" }
+            if ($Matches[1] -ne $env:VERSION) { throw "The package says version $($Matches[1]), not $env:VERSION" }
+
+            # Every action symbol in the source must be in the package, and nothing else
+            $expected = @(Get-ChildItem src/package/actionsymbols -Filter *.svg | ForEach-Object { $_.Name } | Sort-Object)
+            $packed = @($names | Where-Object { $_ -match '^actionsymbols/[^/]+\.svg$' } | ForEach-Object { $_.Substring(14) } | Sort-Object)
+            if ($expected.Count -eq 0) { throw "src/package/actionsymbols has no SVGs" }
+            $diff = Compare-Object $expected $packed
+            if ($diff) {
+              $missing = ($diff | Where-Object SideIndicator -eq '<=' | ForEach-Object InputObject) -join ', '
+              $extra = ($diff | Where-Object SideIndicator -eq '=>' | ForEach-Object InputObject) -join ', '
+              throw "Action symbols differ from src/package/actionsymbols. Missing: $($missing ? $missing : 'none'). Extra: $($extra ? $extra : 'none')"
+            }
+            "Package version $env:VERSION, $($packed.Count) action symbols"
+          }
+          finally { $zip.Dispose() }
+
       # Published straight away: the ci-passed gate and the checks above have already run.
       # A version with a suffix (v2.2.0-beta.1) is a pre-release and doesn't become Latest.
       - name: Publish release
