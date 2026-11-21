@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - The release workflow titles each GitHub release from the first line of its release notes and marks it as the latest release
+- The release workflow no longer fails to publish a non-pre-release (the `--latest` flag reached `gh` one character at a time), and its CI gate no longer occasionally waits on its own job until it times out
 
 ## [2.1.0] - 2026-11-09
 
