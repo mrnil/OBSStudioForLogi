@@ -132,7 +132,7 @@ jobs:
 
       - name: Package, verify and show metadata
         run: |
-          dotnet tool install -g LogiPluginTool
+          dotnet tool install -g LogiPluginTool --version 6.4.2.3599
           logiplugintool pack bin\Release "OBSStudioForLogiPlugin-v$env:VERSION.lplug4"
           logiplugintool verify "OBSStudioForLogiPlugin-v$env:VERSION.lplug4"
           logiplugintool metadata "OBSStudioForLogiPlugin-v$env:VERSION.lplug4"
