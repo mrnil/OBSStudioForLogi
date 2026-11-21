@@ -99,19 +99,23 @@ dotnet clean OBSStudioForLogiPlugin.sln
 Releases are built and packaged by `.github/workflows/release.yml` when a `v*` tag is pushed (see `release-process.md`). Packaging locally is only needed to try a package before tagging:
 
 ```bash
-# Create .lplug4 package (use dotnet global tool)
-LogiPluginTool pack "b:\development\OBSStudioForLogiPlugin\bin\Release" "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
+# Install the pinned LogiPluginTool from .config/dotnet-tools.json (once per version)
+dotnet tool restore
+
+# Create .lplug4 package
+dotnet logiplugintool pack "b:\development\OBSStudioForLogiPlugin\bin\Release" "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
 
 # Verify package
-LogiPluginTool verify "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
+dotnet logiplugintool verify "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
 
 # Check metadata
-LogiPluginTool metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
+dotnet logiplugintool metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
 ```
 
 **LogiPluginTool locations:**
 
-- Preferred: `C:\Users\steph\.dotnet\tools\logiplugintool.exe` (dotnet global tool, callable as `LogiPluginTool`)
+- Preferred: `dotnet logiplugintool` after `dotnet tool restore`, which runs the version pinned in `.config/dotnet-tools.json`, the same one CI uses
+- Also works: `C:\Users\steph\.dotnet\tools\logiplugintool.exe` (dotnet global tool, callable as `LogiPluginTool`). Keep it at the pinned version, or it may pack differently from CI
 - ❌ Do NOT use: `C:\Program Files\Logi\LogiPluginService\LogiPluginTool.exe` (broken — missing companion DLL)
 
 ## Version Management
@@ -128,8 +132,8 @@ The version is defined in two places, and a release updates both (see `release-p
 - **GitHub Actions**: `.github/workflows/release.yml` — on a `v*` tag push: job `ci-passed` requires the tagged commit to be on `main` with every check on it passed (waiting for any still running), then checks the versions, changelog and release notes, builds, tests, packages, checks the package version and action symbols, and publishes the GitHub release (title from the notes' first line `# vX.Y.Z - Title`, marked Latest unless the version has a pre-release suffix) (see `release-process.md`)
 - **GitHub Actions**: `.github/workflows/markdown-lint.yml` — `rumdl` on every Markdown file, pinned to 0.3.5 (action tag and `version:` input). Run the same version locally, since newer releases add rules
 - **Tests**: run in CI by `build.yml` and `release.yml`, and locally before committing. `DoubleTapHelperTests` and `ConnectionManagerTests` wait on real timers and are the likeliest to fail on a slow runner
-- **LogiPluginTool in CI**: installed from nuget.org as a dotnet global tool, pinned to 6.4.2.3599 in `build.yml` and `release.yml` (update both together, and your local copy with `dotnet tool update -g LogiPluginTool --version <v>`); it targets .NET 8, so the workflows install the .NET 8 SDK alongside .NET 10
-- **Dependabot**: `.github/dependabot.yml` — automated dependency update PRs
+- **LogiPluginTool in CI**: a local dotnet tool pinned in `.config/dotnet-tools.json` (6.4.2.3599). `build.yml` and `release.yml` run `dotnet tool restore` and `dotnet logiplugintool`, and Dependabot proposes new versions; it targets .NET 8, so the workflows install the .NET 8 SDK alongside .NET 10
+- **Dependabot**: `.github/dependabot.yml` — automated dependency update PRs for the plugin and test projects, the GitHub Actions, and LogiPluginTool in `.config/dotnet-tools.json`. `rumdl`'s binary version is the `version:` input in `markdown-lint.yml`, which Dependabot doesn't update: change it in the PR that bumps the `rvben/rumdl` action tag
 
 ## OBS WebSocket Protocol
 

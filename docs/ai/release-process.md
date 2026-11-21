@@ -61,7 +61,7 @@ Pushing the tag starts the **Release** workflow. It:
 1. Checks that the tagged commit is on `main` and that every check on it passed (job `ci-passed`). It needs `test-and-package`, `build` and `Analyze (csharp)` to be present, waits up to 30 minutes for checks still running, and stops if any check failed or was cancelled. Nothing below runs unless this passes
 2. Checks the two version numbers, the changelog entry, and the release notes file and its title line
 3. Builds in Release and runs the tests
-4. Packs `OBSStudioForLogiPlugin-v{VERSION}.lplug4` with LogiPluginTool 6.4.2.3599, verifies it and prints its metadata
+4. Packs `OBSStudioForLogiPlugin-v{VERSION}.lplug4` with the LogiPluginTool version pinned in `.config/dotnet-tools.json`, verifies it and prints its metadata
 5. Checks the package contents: the packaged `LoupedeckPackage.yaml` has the tag's version, and `actionsymbols/` holds exactly the SVGs in `src/package/actionsymbols/`
 6. Publishes the GitHub release for the tag, titled from the notes' first line, with the rest of the notes as the body and the package attached. It is marked **Latest**; a version with a suffix, such as `v2.2.0-beta.1`, is published as a pre-release instead and doesn't become Latest
 
@@ -100,14 +100,15 @@ Only needed to try a package before tagging, or if GitHub Actions is unavailable
 
 ```bash
 dotnet build src/OBSStudioForLogiPlugin.csproj -c Release
-LogiPluginTool pack "b:\development\OBSStudioForLogiPlugin\bin\Release" "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
-LogiPluginTool verify "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
-LogiPluginTool metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
+dotnet tool restore
+dotnet logiplugintool pack "b:\development\OBSStudioForLogiPlugin\bin\Release" "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
+dotnet logiplugintool verify "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
+dotnet logiplugintool metadata "b:\development\OBSStudioForLogiPlugin\OBSStudioForLogiPlugin-v{VERSION}.lplug4"
 ```
 
 The local build writes the plugin `.link` file and reloads the plugin. It copies package files but never deletes them, so a file removed from `src/package/` stays in `bin/Release/` until you delete it there: check `bin/Release/metadata/` holds only `Icon256x256.png` and `LoupedeckPackage.yaml`. The release workflow always builds from a clean checkout, so this doesn't affect it.
 
-Use the dotnet global tool (`C:\Users\steph\.dotnet\tools\logiplugintool.exe`) at the version CI pins: `dotnet tool update -g LogiPluginTool --version 6.4.2.3599`. Don't use `C:\Program Files\Logi\LogiPluginService\LogiPluginTool.exe`: it is missing a companion DLL.
+`dotnet tool restore` installs the LogiPluginTool version pinned in `.config/dotnet-tools.json`, the same one CI uses, and `dotnet logiplugintool` runs it. Don't use `C:\Program Files\Logi\LogiPluginService\LogiPluginTool.exe`: it is missing a companion DLL.
 
 ## Troubleshooting
 

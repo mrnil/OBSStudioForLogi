@@ -36,9 +36,9 @@ jobs:
 
       - name: Package and verify
         run: |
-          dotnet tool install -g LogiPluginTool --version 6.4.2.3599
-          logiplugintool pack bin\Release OBSStudioForLogiPlugin.lplug4
-          logiplugintool verify OBSStudioForLogiPlugin.lplug4
+          dotnet tool restore   # LogiPluginTool, pinned in .config/dotnet-tools.json
+          dotnet logiplugintool pack bin\Release OBSStudioForLogiPlugin.lplug4
+          dotnet logiplugintool verify OBSStudioForLogiPlugin.lplug4
 
       - name: Upload package
         uses: actions/upload-artifact@v7

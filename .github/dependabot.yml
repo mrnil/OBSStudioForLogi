@@ -21,6 +21,21 @@ updates:
       - "dependencies"
       - "tests"
 
+  # .NET tools in .config/dotnet-tools.json (LogiPluginTool, used by build.yml and release.yml).
+  # "/" also holds the .sln, so allow only the tool: the projects are covered by the entries above
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    allow:
+      - dependency-name: "LogiPluginTool"
+    reviewers:
+      - "mrnil"
+    labels:
+      - "dependencies"
+      - "ci"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
