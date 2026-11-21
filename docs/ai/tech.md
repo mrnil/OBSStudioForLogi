@@ -18,18 +18,18 @@
 |---------|---------|---------|
 | `PluginApi.dll` | (runtime-provided) | Logi Actions SDK — base classes for Plugin, PluginDynamicCommand, PluginDynamicFolder, ActionEditorCommand, BitmapBuilder, etc. |
 | `obs-websocket-dotnet` | 5.7.0 | OBS WebSocket 5.x client library (5.7.0+ required for `InputVolumeMeters` high-volume event subscription) |
-| `Microsoft.Extensions.Logging.Abstractions` | 10.0.12 | Logging abstractions (must be >= the version `obs-websocket-dotnet` depends on, or restore fails with NU1605) |
-| `System.Drawing.Common` | 10.0.12 | Image rendering support |
+| `Microsoft.Extensions.Logging.Abstractions` | 11.0.0 | Logging abstractions (must be >= the version `obs-websocket-dotnet` depends on, or restore fails with NU1605) |
+| `System.Drawing.Common` | 11.0.0 | Image rendering support |
 
 ### Test Project (`tests/OBSStudioForLogiPlugin.Tests/OBSStudioForLogiPlugin.Tests.csproj`)
 
 | Package | Version | Purpose |
 |---------|---------|---------|
 | `xunit` | 2.9.3 | Test framework |
-| `xunit.runner.visualstudio` | 4.0.0 | VS/IDE test runner |
+| `xunit.runner.visualstudio` | 4.0.1 | VS/IDE test runner |
 | `Moq` | 4.21.0 | Mocking framework |
-| `Microsoft.NET.Test.Sdk` | 18.10.1 | Test SDK |
-| `coverlet.collector` | 10.1.0 | Code coverage collection |
+| `Microsoft.NET.Test.Sdk` | 18.12.0 | Test SDK |
+| `coverlet.collector` | 10.1.1 | Code coverage collection |
 
 `obs-websocket-dotnet` reaches the test project transitively through the plugin project reference.
 
