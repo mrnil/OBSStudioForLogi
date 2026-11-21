@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-11-21
+
+### Changed
+
+- Dependencies: `Microsoft.Extensions.Logging.Abstractions` and `System.Drawing.Common` 10.0.14 → 11.0.0 (both packages include a `net10.0` build, so the plugin still targets .NET 10) (#48, #49); `Microsoft.NET.Test.Sdk` 18.11.0 → 18.12.0 and `coverlet.collector` 10.1.0 → 10.1.1 in the test project (#47, #50)
+
+### Fixed
+
+- The release workflow titles each GitHub release from the first line of its release notes and marks it as the latest release
+
 ## [2.1.0] - 2026-11-09
 
 ### Added
