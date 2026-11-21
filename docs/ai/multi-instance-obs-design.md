@@ -24,6 +24,7 @@ Each OBS instance gets a named connection (e.g., "Main", "Preview"). Users confi
 ### Architecture
 
 1. **ConnectionRegistry** — replaces single `ConnectionManager`, holds `Dictionary<String, OBSWebSocketManager>`
+
 2. **Per-instance configuration** — plugin config file (`%AppData%/Logi/LogiPluginService/OBSStudioForLogiPlugin/connections.json`):
 
    ```json
@@ -34,6 +35,7 @@ Each OBS instance gets a named connection (e.g., "Main", "Preview"). Users confi
    ```
 
 3. **ActionEditorCommand pattern** — commands get optional "Instance" dropdown/textbox targeting a specific OBS instance (default: primary)
+
 4. **OBSFacade becomes instance-aware** — methods accept optional instance name:
 
    ```csharp

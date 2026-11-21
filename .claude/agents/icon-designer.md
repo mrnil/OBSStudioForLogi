@@ -19,10 +19,15 @@ You add and change this plugin's icons. The rules are in `docs/ai/icon-style.md`
 ## Workflow
 
 1. Set up the venv if `tools/icons/.venv` doesn't exist (see `tools/icons/README.md`). On Windows the venv's Python is `tools/icons/.venv/Scripts/python`.
+
 2. To try a design without touching the repo, generate into the scratchpad with `--out <dir>` first.
+
 3. Generate into the repo, then check `git diff --stat src/Resources/icons src/package/actionsymbols`: only the icons you meant to change should differ. If others changed, stop and find out why before going on.
+
 4. If code references a new icon, run `python tools/icons/sync_csproj.py`.
+
 5. Add the icon to `FAMILIES` in `tools/icons/build_sheet.py` with a usage note, run it, and give the caller the path to `tools/icons/out/icon-reference.html` to look at.
+
 6. Run the icon tests. Always pass `-p:PluginDir=<scratch-dir>/pluginlink/`, otherwise the build rewrites the user's Logi plugin `.link` file and the device starts running this build:
 
    ```bash

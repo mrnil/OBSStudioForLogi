@@ -40,8 +40,11 @@ Thank you for your interest in contributing! This document provides guidelines f
 ### Commit Messages
 
 - Use conventional commit format: `type(scope): description`
+
 - Types: `feat`, `fix`, `perf`, `docs`, `test`, `refactor`, `build`, `chore`
+
 - Include detailed body explaining what changed and why
+
 - Example:
 
   ```

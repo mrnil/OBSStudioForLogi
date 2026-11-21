@@ -13,7 +13,9 @@ LogiPluginTool.exe install OBSStudioForLogiPlugin-v{VERSION}.lplug4
 ### Windows
 
 1. Download `OBSStudioForLogiPlugin-v{VERSION}.lplug4`
+
 2. Run: `LogiPluginTool.exe install OBSStudioForLogiPlugin-v{VERSION}.lplug4`
+
 3. Or manually extract to:
 
    ```
@@ -21,12 +23,15 @@ LogiPluginTool.exe install OBSStudioForLogiPlugin-v{VERSION}.lplug4
    ```
 
 4. Restart Logi Plugin Service (or reboot)
+
 5. Launch OBS Studio - plugin connects automatically
 
 ### macOS
 
 1. Download `OBSStudioForLogiPlugin-v{VERSION}.lplug4`
+
 2. Run: `LogiPluginTool install OBSStudioForLogiPlugin-v{VERSION}.lplug4`
+
 3. Or manually extract to:
 
    ```
@@ -34,6 +39,7 @@ LogiPluginTool.exe install OBSStudioForLogiPlugin-v{VERSION}.lplug4
    ```
 
 4. Restart Logi Plugin Service
+
 5. Launch OBS Studio - plugin connects automatically
 
 ## Detailed Steps
