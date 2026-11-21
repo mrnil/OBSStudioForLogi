@@ -41,12 +41,13 @@ jobs:
       - name: Every check on the tagged commit passed
         shell: bash   # explicit shell adds -o pipefail, so a failed gh call stops the step instead of polling on
         run: |
-          # Leave out this workflow's runs (this one and any earlier release attempts for the same commit)
-          own=$(gh api "repos/$REPO/actions/workflows/release.yml/runs?head_sha=$SHA&per_page=100" --jq '[.workflow_runs[].check_suite_id]')
-
           deadline=$((SECONDS + 1800))
           idle=0
           while :; do
+            # Leave out this workflow's runs (this one and any earlier release attempts for the same commit).
+            # Re-read on every poll: a run just started may not be listed yet, and missing it means
+            # waiting on this job itself until the deadline.
+            own=$(gh api "repos/$REPO/actions/workflows/release.yml/runs?head_sha=$SHA&per_page=100" --jq '[.workflow_runs[].check_suite_id]')
             runs=$(gh api --paginate "repos/$REPO/commits/$SHA/check-runs?per_page=100" --jq '.check_runs[]' \
               | jq -s --argjson own "$own" '[.[] | select(.check_suite.id | IN($own[]) | not) | {name, status, conclusion}]')
             pending=$(jq '[.[] | select(.status != "completed")] | length' <<<"$runs")
